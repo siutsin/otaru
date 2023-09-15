@@ -3,3 +3,4 @@
 out
 gen
 **/charts/*.tgz
+Chart.lock
