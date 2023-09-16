@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bootstrap
+  name: baseline
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
-    path: argocd/root
+    path: argocd/baseline
     targetRevision: add-istio
   destination:
     server: https://kubernetes.default.svc
@@ -21,4 +21,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-  revisionHistoryLimit: 10

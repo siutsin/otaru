@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: httpbin
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -9,11 +9,11 @@ spec:
   project: default
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
-    path: helm-charts/argocd
-    targetRevision: master
+    path: helm-charts/httpbin
+    targetRevision: add-istio
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: httpbin
   syncPolicy:
     automated:
       prune: true
@@ -21,4 +21,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-  revisionHistoryLimit: 10
