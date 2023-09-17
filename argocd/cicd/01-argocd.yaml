@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
     path: helm-charts/argocd
-    targetRevision: add-istio
+    targetRevision: master
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
