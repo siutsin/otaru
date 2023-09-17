@@ -2,20 +2,21 @@
 
 ## sync-wave: "1"
 
-1. argocd
-2. istio-base
+* argocd
+* istio-base
+* kube-prometheus-stack
 
 ## sync-wave: "2"
 
-1. istiod
+* istiod
 
 ## sync-wave: "3"
 
-1. istio-ingress
-2. kiali
+* istio-ingress
+* kiali
 
 ## sync-wave: "10"
 
 Applications are starting from `"10"`.
 
-1. httpbin
+* httpbin
