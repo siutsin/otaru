@@ -1,0 +1,5 @@
+kiali-server:
+  auth:
+    strategy: anonymous
+  deployment:
+    view_only_mode: true
