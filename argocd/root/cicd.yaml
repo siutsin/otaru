@@ -1,21 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: cicd
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
-    path: helm-charts/kube-prometheus-stack
+    path: argocd/cicd
     targetRevision: add-istio
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
@@ -23,10 +21,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-    - group: admissionregistration.k8s.io
-      kind: ValidatingWebhookConfiguration
-      name: istiod-default-validator
-      jqPathExpressions:
-        - .webhooks[].failurePolicy

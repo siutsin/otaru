@@ -4,7 +4,6 @@
 
 * argocd
 * istio-base
-* kube-prometheus-stack
 
 ## sync-wave: "2"
 
