@@ -2,19 +2,18 @@
 
 ## Bootstrap Cluster
 
+Argo CD is not self-managed at present, for the sake of easier development.
+
 ```shell
-cd helm-charts/argocd
+cd helm-charts
 helm dep update
-kubectl create ns argocd
-helm template -n argocd argocd . | kubectl apply -f -
-# run again if getting the `ensure CRDs are installed first` error
-helm template -n argocd argocd . | kubectl apply -f -
+helm upgrade --install argocd argocd -n argocd --create-namespace
+helm upgrade --install argocd-bootstrap argocd-bootstrap -n argocd
 ```
 
 ## Cleanup Argo CD
 
 ```shell
-cd helm-charts/argocd
-helm dep update
-helm template -n argocd argocd . | kubectl delete -f -
+helm uninstall argocd-bootstrap -n argocd
+helm uninstall argocd -n argocd
 ```
