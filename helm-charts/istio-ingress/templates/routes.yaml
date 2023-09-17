@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - gateway
+  http:
+    - match:
+        - uri:
+            prefix: /httpbin/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: httpbin.httpbin.svc.cluster.local
+    - match:
+        - uri:
+            exact: /kiali
+        - uri:
+            prefix: /kiali/
+      route:
+        - destination:
+            port:
+              number: 20001
+            host: kiali.istio-system.svc.cluster.local
