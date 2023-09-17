@@ -4,3 +4,6 @@ out
 gen
 **/charts/*.tgz
 Chart.lock
+
+# 1password-connect
+1password-credentials.json
