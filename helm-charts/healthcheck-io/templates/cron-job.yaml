@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: healthcheck-io
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "* * * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+            - name: healthcheck
+              image: ghcr.io/siutsin/raspberrypi-k3s-healthcheck:latest
+              env:
+                - name: TARGET_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: healthcheck-io
+                      key: target
+                - name: HEALTH_CHECK_IO_SUCCESS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: healthcheck-io
+                      key: success
+                - name: HEALTH_CHECK_IO_FAILURE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: healthcheck-io
+                      key: failure
+              resources:
+                requests:
+                  cpu: "0.5"
+                  memory: "100Mi"
+                limits:
+                  memory: "100Mi"
+          restartPolicy: OnFailure
