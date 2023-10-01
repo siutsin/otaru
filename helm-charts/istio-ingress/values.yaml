@@ -1,1 +1,5 @@
+namespace: istio-ingress
 
+gateway:
+  autoscaling:
+    minReplicas: 2

@@ -7,3 +7,5 @@ Chart.lock
 
 # 1password-connect
 1password-credentials.json
+token
+http-client.private.env.json
