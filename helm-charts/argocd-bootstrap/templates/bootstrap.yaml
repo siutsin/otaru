@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
     path: argocd/root
-    targetRevision: master
+    targetRevision: add-cert-manager
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
