@@ -6,10 +6,13 @@ retry=0
 max_retries=3
 
 while [[ $retry -lt $max_retries ]]; do
-  if curl -s -i -m 2 "$TARGET_URL"; then
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" -m 2 "$TARGET_URL")
+
+  if [[ $status_code -eq 200 ]]; then
     curl -s "$HEALTH_CHECK_IO_SUCCESS_URL"
     exit 0
   fi
+
   ((retry++))
 done
 
