@@ -3,3 +3,7 @@ argo-cd:
     enabled: false
   dex:
     enabled: false
+  global:
+    config:
+      param:
+        server.basehref: /argocd/
