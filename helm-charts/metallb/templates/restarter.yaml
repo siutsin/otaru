@@ -19,7 +19,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - kubectl rollout restart deployment istio-ingress -n {{ .Values.namespace }}
+                - kubectl rollout restart ds metallb-speaker -n {{ .Values.namespace }}
           restartPolicy: Never
 ---
 apiVersion: v1
@@ -35,7 +35,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 rules:
   - apiGroups: [ "apps" ]
-    resources: [ "deployments" ]
+    resources: [ "daemonsets" ]
     verbs: [ "get", "patch" ]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
