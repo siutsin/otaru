@@ -35,7 +35,7 @@ spec:
               resources:
                 requests:
                   cpu: "0.5"
-                  memory: "100Mi"
+                  memory: "500Mi"
                 limits:
-                  memory: "100Mi"
+                  memory: "500Mi"
           restartPolicy: OnFailure
