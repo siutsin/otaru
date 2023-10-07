@@ -4,7 +4,7 @@ metadata:
   name: restarter
   namespace: {{ .Values.namespace }}
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "*/2 * * * *"
   jobTemplate:
     spec:
       template:
