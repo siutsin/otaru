@@ -8,6 +8,12 @@ spec:
     istio: ingress
   servers:
     - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*.siutsin.com"
+    - port:
         number: 443
         name: https
         protocol: HTTPS
@@ -15,4 +21,4 @@ spec:
         mode: SIMPLE
         credentialName: tls-certificate
       hosts:
-        - "*"
+        - "*.siutsin.com"
