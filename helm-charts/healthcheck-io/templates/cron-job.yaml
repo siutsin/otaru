@@ -35,7 +35,13 @@ spec:
               resources:
                 requests:
                   cpu: "0.5"
-                  memory: "500Mi"
+                  memory: "100Mi"
                 limits:
-                  memory: "500Mi"
-          restartPolicy: OnFailure
+                  memory: "100Mi"
+              readinessProbe:
+                exec:
+                  command:
+                    - timeout
+                initialDelaySeconds: 30
+          restartPolicy: Never
+
