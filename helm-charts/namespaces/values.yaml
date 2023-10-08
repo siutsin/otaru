@@ -1,4 +1,5 @@
 namespaces:
+  - namespace: adguard-home
   - namespace: argocd
   - namespace: cert-manager
   - namespace: cloudflare-tunnel
