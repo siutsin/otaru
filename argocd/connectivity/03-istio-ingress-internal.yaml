@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
     path: helm-charts/istio-ingress
-    targetRevision: add-adguard-home
+    targetRevision: master
     helm:
       valueFiles:
         - value/istio-ingress-internal.yaml

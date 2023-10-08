@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
     path: helm-charts/cert-manager
-    targetRevision: add-adguard-home
+    targetRevision: master
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
