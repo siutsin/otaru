@@ -1,21 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: adguard-home
+  name: istio-ingress-internal
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   project: default
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
-    path: helm-charts/adguard-home
+    path: helm-charts/istio-ingress
     targetRevision: add-adguard-home
+    helm:
+      valueFiles:
+        - value/istio-ingress-internal.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: adguard-home
+    namespace: istio-ingress-internal
   syncPolicy:
     automated:
       prune: true
@@ -23,10 +26,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-    - group: "*"
-      kind: ConfigMap
-      name: adguard-home-configmap
-      jqPathExpressions:
-        - .data

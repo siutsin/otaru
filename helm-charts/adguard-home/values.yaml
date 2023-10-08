@@ -1,5 +1,7 @@
 name: adguard-home
 namespace: adguard-home
+ip: "192.168.1.51"
+host: "adguard-internal.siutsin.com"
 
 adguard-home:
   image:
@@ -7,6 +9,11 @@ adguard-home:
   persistence:
     configmap:
       name: '{{ include  "bjw-s.common.lib.chart.names.fullname" $ }}-configmap'
+  service:
+    dns-tcp:
+      enabled: false
+    dns-udp:
+      enabled: false
   configMaps:
     configmap:
       data:
@@ -14,7 +21,10 @@ adguard-home:
           bind_host: 0.0.0.0
           bind_port: 3000
           beta_bind_port: 0
-          users: []
+          users:
+            - name: admin
+              # Placeholder for password. This will get updated manually after the first install
+              password: $2y$05$Fb25Ij721wabwxIcgbOy1uUFR7bpyLao1vMvMJtSwwZ7Ow5xTcshy
           auth_attempts: 5
           block_auth_min: 15
           http_proxy: ""
@@ -27,10 +37,10 @@ adguard-home:
             port: 53
             statistics_interval: 1
             querylog_enabled: true
-            querylog_file_enabled: true
-            querylog_interval: 2160h
+            querylog_file_enabled: false
+            querylog_interval: 6h
             querylog_size_memory: 1000
-            anonymize_client_ip: false
+            anonymize_client_ip: true
             protection_enabled: true
             blocking_mode: default
             blocking_ipv4: ""
@@ -42,7 +52,7 @@ adguard-home:
             ratelimit_whitelist: []
             refuse_any: true
             upstream_dns:
-              - https://cloudflare-dns.com/dns-query
+              - https://security.cloudflare-dns.com/dns-query
             upstream_dns_file: ""
             bootstrap_dns:
               - 1.1.1.2
