@@ -1,0 +1,10 @@
+namespaces:
+  - namespace: argocd
+  - namespace: cert-manager
+  - namespace: cloudflare-tunnel
+  - namespace: external-secrets
+  - namespace: httpbin
+  - namespace: istio-ingress
+  - namespace: istio-system
+  - namespace: metallb-system
+  - namespace: onepassword
