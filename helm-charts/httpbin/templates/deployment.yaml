@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: httpbin
-  namespace: httpbin
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: httpbin
+    app: {{ .Values.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: httpbin
+      app: {{ .Values.name }}
   template:
     metadata:
       labels:
-        app: httpbin
+        app: {{ .Values.name }}
     spec:
       containers:
-        - name: httpbin
+        - name: {{ .Values.name }}
           image: kong/httpbin:latest
           ports:
             - containerPort: 80

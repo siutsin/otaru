@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/raspberrypi-k3s.git
     path: helm-charts/metallb
-    targetRevision: master
+    targetRevision: add-adguard-home
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
