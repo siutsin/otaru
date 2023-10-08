@@ -1,5 +1,14 @@
+namespace: argocd
+
 argo-cd:
   applicationSet:
     enabled: false
   dex:
     enabled: false
+  configs:
+    cm:
+      url: https://k3s.siutsin.com/argocd
+    params:
+      server.insecure: true
+      server.basehref: /argocd/
+      server.rootpath: /argocd

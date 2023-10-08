@@ -29,3 +29,13 @@ spec:
             port:
               number: 20001
             host: kiali.istio-system.svc.cluster.local
+    - match:
+        - uri:
+            exact: /argocd
+        - uri:
+            prefix: /argocd/
+      route:
+        - destination:
+            port:
+              number: 80
+            host: argocd-server.argocd.svc.cluster.local
