@@ -4,15 +4,13 @@ metadata:
   name: gateway
   namespace: {{ .Values.namespace }}
 spec:
-  selector:
-    istio: ingress
+  selector: {{ toYaml .Values.selector | nindent 4 }}
   servers:
     - port:
         number: 80
         name: http
         protocol: HTTP
-      hosts:
-        - "*.siutsin.com"
+      hosts: {{ toYaml .Values.hosts | nindent 8 }}
     - port:
         number: 443
         name: https
@@ -20,5 +18,4 @@ spec:
       tls:
         mode: SIMPLE
         credentialName: tls-certificate
-      hosts:
-        - "*.siutsin.com"
+      hosts: {{ toYaml .Values.hosts | nindent 8 }}

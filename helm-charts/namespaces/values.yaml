@@ -1,10 +1,12 @@
 namespaces:
+  - namespace: adguard-home
   - namespace: argocd
   - namespace: cert-manager
   - namespace: cloudflare-tunnel
   - namespace: external-secrets
   - namespace: httpbin
   - namespace: istio-ingress
+  - namespace: istio-ingress-internal
   - namespace: istio-system
   - namespace: metallb-system
   - namespace: onepassword

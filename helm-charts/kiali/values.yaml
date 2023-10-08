@@ -1,3 +1,6 @@
+name: kiali
+namespace: istio-system
+
 kiali-server:
   auth:
     strategy: anonymous
