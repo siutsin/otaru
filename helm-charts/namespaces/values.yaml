@@ -8,5 +8,6 @@ namespaces:
   - namespace: istio-ingress
   - namespace: istio-ingress-internal
   - namespace: istio-system
+  - namespace: kubernetes-dashboard
   - namespace: metallb-system
   - namespace: onepassword
