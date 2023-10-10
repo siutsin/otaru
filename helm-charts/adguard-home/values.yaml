@@ -38,7 +38,7 @@ adguard-home:
             statistics_interval: 1
             querylog_enabled: true
             querylog_file_enabled: false
-            querylog_interval: 6h
+            querylog_interval: 1h
             querylog_size_memory: 1000
             anonymize_client_ip: true
             protection_enabled: true
@@ -116,10 +116,14 @@ adguard-home:
               url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
               name: AdGuard DNS filter
               id: 1
-            - enabled: false
-              url: https://adaway.org/hosts.txt
-              name: AdAway Default Blocklist
+            - enabled: true
+              url: https://badmojr.github.io/1Hosts/Lite/adblock.txt
+              name: 1Hosts (Lite)
               id: 2
+            - enabled: true
+              url: https://big.oisd.nl
+              name: OISD Big
+              id: 3
           whitelist_filters: []
           user_rules: []
           dhcp:
