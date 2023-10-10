@@ -1,0 +1,31 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "k3s.siutsin.com"
+  gateways:
+    - istio-ingress/gateway
+  http:
+    - match:
+        - uri:
+            prefix: /dashboard/api/
+      rewrite:
+        uri: /api/
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: {{ .Values.name }}-api.{{ .Values.namespace }}.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /dashboard/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 8000
+            host: {{ .Values.name }}-web.{{ .Values.namespace }}.svc.cluster.local

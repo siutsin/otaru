@@ -1,0 +1,13 @@
+name: kubernetes-dashboard
+namespace: kubernetes-dashboard
+
+kubernetes-dashboard:
+  app:
+    ingress:
+      enabled: false
+  nginx:
+    enabled: false
+  cert-manager:
+    enabled: false
+  metrics-server:
+    enabled: false
