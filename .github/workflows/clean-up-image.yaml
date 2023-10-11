@@ -14,6 +14,6 @@ jobs:
         with:
           image-names: raspberrypi-k3s-*
           skip-tags: latest
-          cut-off: One week ago UTC
+          cut-off: One day ago UTC
           account-type: personal
           token: ${{ secrets.CONTAINER_RETENTION_POLICY_TOKEN }}
