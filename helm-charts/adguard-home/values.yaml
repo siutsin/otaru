@@ -117,8 +117,8 @@ adguard-home:
               name: AdGuard DNS filter
               id: 1
             - enabled: true
-              url: https://badmojr.github.io/1Hosts/Lite/adblock.txt
-              name: 1Hosts (Lite)
+              url: https://badmojr.github.io/1Hosts/Pro/adblock.txt
+              name: 1Hosts (Pro)
               id: 2
             - enabled: true
               url: https://big.oisd.nl
