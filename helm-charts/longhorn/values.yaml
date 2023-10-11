@@ -1,0 +1,8 @@
+name: longhorn
+namespace: longhorn-system
+
+longhorn:
+  persistence:
+    defaultClass: false
+    defaultClassReplicaCount: 1 # increase once added more drives
+    defaultDataLocality: best-effort

@@ -9,6 +9,7 @@ gateway:
 hosts:
   - "adguard-internal.siutsin.com"
   - "argocd-internal.siutsin.com"
+  - "longhorn-internal.siutsin.com"
 
 selector:
   istio: ingress-internal
