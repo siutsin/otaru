@@ -9,5 +9,7 @@ namespaces:
   - namespace: istio-ingress-internal
   - namespace: istio-system
   - namespace: kubernetes-dashboard
+  - namespace: longhorn-system
+    injectIstio: false
   - namespace: metallb-system
   - namespace: onepassword
