@@ -8,7 +8,9 @@ spec:
   issuerRef:
     kind: Issuer
     name: letsencrypt
-  commonName: {{ .Values.hosts.0 }}
+  {{- with (first .Values.hosts) }}
+  commonName: "{{ . }}"
+  {{- end }}
   subject:
     organizations:
       - "siutsin"
