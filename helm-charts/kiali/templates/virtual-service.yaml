@@ -5,9 +5,9 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "k3s.siutsin.com"
+    - "kiali.internal.siutsin.com"
   gateways:
-    - istio-ingress/gateway
+    - istio-ingress-internal/gateway
   http:
     - match:
         - uri:
