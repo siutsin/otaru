@@ -8,12 +8,6 @@ spec:
   issuerRef:
     kind: Issuer
     name: letsencrypt
-  {{- with (first .Values.hosts) }}
-  commonName: "{{ . }}"
-  {{- end }}
-  subject:
-    organizations:
-      - "siutsin"
   dnsNames:
     {{- toYaml .Values.hosts | nindent 4 }}
   privateKey:
