@@ -13,27 +13,6 @@ spec:
     organizations:
       - "siutsin"
   dnsNames:
-    - "siutsin.com"
-    - "*.siutsin.com"
-  privateKey:
-    rotationPolicy: Always
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: tls-certificate-staging
-  namespace: {{ .Values.namespace }}
-spec:
-  secretName: tls-certificate-staging
-  issuerRef:
-    kind: Issuer
-    name: letsencrypt-staging
-  commonName: "siutsin.com"
-  subject:
-    organizations:
-      - "siutsin"
-  dnsNames:
-    - "siutsin.com"
-    - "*.siutsin.com"
+    {{- toYaml .Values.hosts | nindent 4 }}
   privateKey:
     rotationPolicy: Always
