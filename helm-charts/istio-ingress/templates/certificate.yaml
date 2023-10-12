@@ -8,7 +8,7 @@ spec:
   issuerRef:
     kind: Issuer
     name: letsencrypt
-  commonName: "siutsin.com"
+  commonName: .Values.hosts.0
   subject:
     organizations:
       - "siutsin"
