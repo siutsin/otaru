@@ -18,14 +18,14 @@ TBC
 
 ## Components
 
-| Category            | Name                                                                                                | Remark                                                                                   |
+| Category            | Name                                                                                                | Remarks                                                                                  |
 |---------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | Application         | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ads & trackers blocking DNS server                                                       |
 | Application         | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                             |
 | Connectivity        | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                               |
 | Connectivity        | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South traffic & East-West traffic with mTLS                                |
 | Connectivity        | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer with layer 2 operating mode                    |
-| Continuous Delivery | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection and reconcile                                                    |
+| Continuous Delivery | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconcile                                                   |
 | Monitoring          | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network - Read Only                                                        |
 | Monitoring          | [Kubernetes Dashboard](https://github.com/kubernetes/dashboard)                                     | Overall Kubernetes dashboard - Read Only                                                 |
 | Monitoring          | [healthchecks.io](https://healthchecks.io/)                                                         | (SaaS) Push-based heartbeat for ingress route                                            |
