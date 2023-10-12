@@ -11,9 +11,7 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /dashboard/api/
-      rewrite:
-        uri: /api/
+            prefix: /api/
       route:
         - destination:
             port:
@@ -21,9 +19,7 @@ spec:
             host: {{ .Values.name }}-api.{{ .Values.namespace }}.svc.cluster.local
     - match:
         - uri:
-            prefix: /dashboard/
-      rewrite:
-        uri: /
+            prefix: /
       route:
         - destination:
             port:
