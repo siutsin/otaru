@@ -10,8 +10,8 @@ spec:
     - istio-ingress-internal/gateway
   http:
     - match:
-        - authority:
-            exact: {{ .Values.host }}
+        - uri:
+            prefix: /
       route:
         - destination:
             port:
