@@ -15,7 +15,7 @@ spec:
         spec:
           containers:
             - name: healthcheck
-              image: ghcr.io/siutsin/raspberrypi-k3s-healthcheck:latest
+              image: ghcr.io/siutsin/otaru-healthcheck:latest
               env:
                 - name: TARGET_URL
                   valueFrom:

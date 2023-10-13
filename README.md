@@ -1,4 +1,4 @@
-# raspberrypi-k3s
+# otaru
 
 > Over-Engineering to the Finest.
 
