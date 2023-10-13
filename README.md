@@ -6,7 +6,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Architecture
 
-TBC
+![architecture](https://imgur.com/flt0Mwe.png)
 
 ## Hardware
 
