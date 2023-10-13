@@ -2,7 +2,7 @@ namespace: cloudflare-tunnel
 
 cloudflare-tunnel:
   cloudflare:
-    tunnelName: raspberrypi-k3s
+    tunnelName: otaru
     ingress:
       - hostname: "*.siutsin.com"
         service: http://istio-ingress.istio-ingress.svc.cluster.local:80

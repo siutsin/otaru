@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/siutsin/raspberrypi-k3s.git
+    repoURL: https://github.com/siutsin/otaru.git
     path: helm-charts/istiod
     targetRevision: master
   destination:

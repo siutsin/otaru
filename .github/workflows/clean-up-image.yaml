@@ -12,7 +12,7 @@ jobs:
       - name: Delete untagged images
         uses: snok/container-retention-policy@v2
         with:
-          image-names: raspberrypi-k3s-*
+          image-names: otaru-*
           skip-tags: latest
           cut-off: One day ago UTC
           account-type: personal
