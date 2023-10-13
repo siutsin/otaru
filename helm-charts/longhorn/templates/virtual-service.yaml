@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "longhorn.internal.siutsin.com"
+    - "*.internal.siutsin.com"
   gateways:
     - istio-ingress-internal/gateway
   http:

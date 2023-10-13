@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "k3s.siutsin.com"
+    - "*.siutsin.com"
   gateways:
     - istio-ingress/gateway
   http:
