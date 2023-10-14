@@ -1,0 +1,17 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: longhorn-crypto-global
+provisioner: driver.longhorn.io
+parameters:
+  numberOfReplicas: {{ .Values.longhorn.persistence.defaultClassReplicaCount | quote }}
+  dataLocality: {{ .Values.longhorn.persistence.defaultDataLocality }}
+  replicaAutoBalance: {{ .Values.longhorn.defaultSettings.replicaAutoBalance }}
+  encrypted: "true"
+  # global secret that contains the encryption key that will be used for all volumes
+  csi.storage.k8s.io/provisioner-secret-name: {{ .Values.encryption.secretName }}
+  csi.storage.k8s.io/provisioner-secret-namespace: {{ .Values.namespace }}
+  csi.storage.k8s.io/node-publish-secret-name: {{ .Values.encryption.secretName }}
+  csi.storage.k8s.io/node-publish-secret-namespace: {{ .Values.namespace }}
+  csi.storage.k8s.io/node-stage-secret-name: {{ .Values.encryption.secretName }}
+  csi.storage.k8s.io/node-stage-secret-namespace: {{ .Values.namespace }}

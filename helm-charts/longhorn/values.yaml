@@ -6,3 +6,8 @@ longhorn:
     defaultClass: false
     defaultClassReplicaCount: 1 # increase once added more drives
     defaultDataLocality: best-effort
+  defaultSettings:
+    replicaAutoBalance: best-effort
+
+encryption:
+  secretName: longhorn-crypto

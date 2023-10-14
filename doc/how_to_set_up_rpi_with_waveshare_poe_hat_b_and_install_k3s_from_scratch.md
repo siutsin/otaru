@@ -3,7 +3,7 @@
 ## Update and Install Packages
 
 ```
-sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi -y && sudo apt autoremove -y
+sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi cryptsetup -y && sudo apt autoremove -y
 ```
 
 ## Install Python Library
@@ -12,13 +12,18 @@ sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi -y && sudo
 sudo apt update && sudo apt install python3-pip -y && sudo pip install RPi.GPIO && sudo apt install python3-smbus -y && sudo apt autoremove -y
 ```
 
-## Enable I2C Interface
-
-Follow the official [guide](https://www.waveshare.com/wiki/PoE_HAT_(B)) to enable the I2C Interface.
+## Load dm_crypt Kernel Module
 
 ```
-sudo raspi-config
-Interfacing Options -> I2C -> Yes
+sudo modprobe dm_crypt && lsmod | grep dm_crypt
+```
+
+## Enable I2C Interface
+
+Follow the official [guide](https://www.waveshare.com/wiki/PoE_HAT_(B)) to enable the I2C Interface. Or
+
+```shell
+sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/' /boot/config.txt
 
 sudo reboot
 ```
@@ -37,7 +42,7 @@ wget https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61
 
 ```
 cd /tmp
-wget -qO- http://www.airspayce.com/mikem/bcm2835/bcm2835-1.73.tar.gz | tar xvz
+wget -qO- https://www.airspayce.com/mikem/bcm2835/bcm2835-1.73.tar.gz | tar xvz
 cd bcm2835-1.73 && sudo ./configure && sudo make && sudo make check && sudo make install && cd /tmp
 ```
 
