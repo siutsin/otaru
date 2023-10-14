@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "*.internal.siutsin.com"
+    - "argocd.internal.siutsin.com"
   gateways:
     - istio-ingress-internal/gateway
   http:
