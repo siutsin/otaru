@@ -72,3 +72,17 @@ helm upgrade --install argocd-bootstrap helm-charts/argocd-bootstrap -n argocd
 # Restart all workloads after bootstrap
 kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deploy,sts,ds -n {}
 ```
+
+## Repository Secrets for GitHub Actions
+
+| Key                              |
+|----------------------------------|
+| ADD_COMMENT_TOKEN                |
+| AWS_ACCESS_KEY_ID                |
+| AWS_SECRET_ACCESS_KEY            |
+| CLOUDFLARE_API_TOKEN             |
+| CLOUDFLARE_ZONE                  |
+| CLOUDFLARE_ZONE_ID               |
+| CLOUDFLARE_ZONE_SUBDOMAIN        |
+| CLOUDFLARE_ZONE_TUNNEL_IP_LIST   |
+| CONTAINER_RETENTION_POLICY_TOKEN |
