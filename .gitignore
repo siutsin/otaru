@@ -1,5 +1,5 @@
-# terraform
-account.hcl
+# terraform env
+accounts.sh
 
 # 1password-connect
 1password-credentials.json

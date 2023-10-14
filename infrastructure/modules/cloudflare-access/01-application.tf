@@ -1,5 +1,5 @@
 resource "cloudflare_access_application" "this" {
-  zone_id                   = data.cloudflare_zone.this.id
+  zone_id                   = var.zone_id
   name                      = var.name
   domain                    = var.domain
   type                      = var.type

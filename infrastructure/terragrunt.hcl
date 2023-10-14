@@ -1,15 +1,16 @@
 locals {
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  version_vars = read_terragrunt_config(find_in_parent_folders("version.hcl"))
+  region_vars  = read_terragrunt_config(find_in_parent_folders("region.hcl")).locals
+  version_vars = read_terragrunt_config(find_in_parent_folders("version.hcl")).locals
 
-  aws_version               = local.version_vars.locals.aws_version
-  aws_remote_backend_region = local.account_vars.locals.aws_remote_backend_region
-  aws_default_region        = local.account_vars.locals.aws_default_region
+  aws_version               = local.version_vars.aws_version
+  aws_remote_backend_region = local.region_vars.aws_remote_backend_region
+  aws_region                = local.region_vars.aws_region
 
-  cloudflare_version   = local.version_vars.locals.cloudflare_version
-  cloudflare_api_token = local.account_vars.locals.cloudflare_api_token
+  cloudflare_version   = local.version_vars.cloudflare_version
+  cloudflare_api_token = get_env("CLOUDFLARE_API_TOKEN")
 
-  github_version = local.version_vars.locals.github_version
+  github_token   = get_env("GITHUB_TOKEN")
+  github_version = local.version_vars.github_version
 }
 
 generate "provider" {
@@ -34,7 +35,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "${local.aws_default_region}"
+  region  = "${local.aws_region}"
 
   default_tags {
     tags = {
@@ -48,7 +49,9 @@ provider "cloudflare" {
   api_token = "${local.cloudflare_api_token}"
 }
 
-provider "github" {}
+provider "github" {
+  token = "${local.github_token}"
+}
 EOF
 }
 
@@ -68,4 +71,4 @@ remote_state {
   }
 }
 
-inputs = merge(local.account_vars.locals, local.version_vars.locals)
+inputs = merge(local.region_vars, local.version_vars)

@@ -1,13 +1,21 @@
 variable "zone" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+variable "zone_id" {
+  type      = string
+  sensitive = true
 }
 
 variable "name" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "domain" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "type" {
@@ -26,6 +34,7 @@ variable "auto_redirect_to_identity" {
 }
 
 variable "ip_list" {
-  type    = list(string)
-  default = []
+  type      = list(string)
+  default   = []
+  sensitive = true
 }
