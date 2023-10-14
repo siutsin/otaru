@@ -6,6 +6,8 @@ locals {
   zone             = get_env("CLOUDFLARE_ZONE")
   zone_id          = get_env("CLOUDFLARE_ZONE_ID")
   public_subdomain = get_env("CLOUDFLARE_ZONE_SUBDOMAIN")
+
+  internal_ip = "192.168.1.51"
 }
 
 dependencies {
@@ -29,58 +31,38 @@ inputs = {
   zone    = local.zone
   zone_id = local.zone_id
 
-  records = {
+  # public
 
-    # A
+  public_subdomain       = local.public_subdomain
+  public_subdomain_value = dependency.tunnel.outputs.cname
+
+  # private
+
+  internal_records = {
 
     adguard_internal = {
-      name    = "adguard.internal"
-      value   = "192.168.1.51"
-      type    = "A"
-      ttl     = 1
-      proxied = false
+      name  = "adguard.internal"
+      value = local.internal_ip
     },
 
     argocd_internal = {
-      name    = "argocd.internal"
-      value   = "192.168.1.51"
-      type    = "A"
-      ttl     = 1
-      proxied = false
+      name  = "argocd.internal"
+      value = local.internal_ip
     },
 
     kiali_internal = {
-      name    = "kiali.internal"
-      value   = "192.168.1.51"
-      type    = "A"
-      ttl     = 1
-      proxied = false
+      name  = "kiali.internal"
+      value = local.internal_ip
     },
 
     kubernetes_dashboard_internal = {
-      name    = "kubernetes-dashboard.internal"
-      value   = "192.168.1.51"
-      type    = "A"
-      ttl     = 1
-      proxied = false
+      name  = "kubernetes-dashboard.internal"
+      value = local.internal_ip
     },
 
     longhorn_internal = {
-      name    = "longhorn.internal"
-      value   = "192.168.1.51"
-      type    = "A"
-      ttl     = 1
-      proxied = false
-    },
-
-    # CNAME
-
-    home_lab = {
-      name    = local.public_subdomain
-      value   = dependency.tunnel.outputs.cname
-      type    = "CNAME"
-      ttl     = 1
-      proxied = true
+      name  = "longhorn.internal"
+      value = local.internal_ip
     },
   }
 }
