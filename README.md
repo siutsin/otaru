@@ -77,12 +77,14 @@ kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -
 
 | Key                              |
 |----------------------------------|
-| ADD_COMMENT_TOKEN                |
 | AWS_ACCESS_KEY_ID                |
 | AWS_SECRET_ACCESS_KEY            |
+| CLOUDFLARE_ACCOUNT_ID            |
 | CLOUDFLARE_API_TOKEN             |
+| CLOUDFLARE_TUNNEL_SECRET         |
 | CLOUDFLARE_ZONE                  |
 | CLOUDFLARE_ZONE_ID               |
 | CLOUDFLARE_ZONE_SUBDOMAIN        |
 | CLOUDFLARE_ZONE_TUNNEL_IP_LIST   |
 | CONTAINER_RETENTION_POLICY_TOKEN |
+| GH_ADD_COMMENT_TOKEN             |
