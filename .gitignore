@@ -1,3 +1,6 @@
+# terraform
+account.hcl
+
 # 1password-connect
 1password-credentials.json
 token
