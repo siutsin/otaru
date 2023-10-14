@@ -1,8 +1,9 @@
 name: Delete untagged images
 
 on:
+  push:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 0 * * *'
 
 jobs:
   clean-ghcr:
