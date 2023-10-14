@@ -9,11 +9,8 @@ jobs:
     name: Delete untagged container images
     runs-on: ubuntu-latest
     steps:
-      - name: Delete untagged images
-        uses: snok/container-retention-policy@v2
+      - uses: mitchfen/cleanup-untagged-container-images@v1.0.2
         with:
-          image-names: otaru-*
-          skip-tags: latest
-          cut-off: One day ago UTC
-          account-type: personal
+          username: 'siutsin'
+          container-name: 'otaru-healthcheck'
           token: ${{ secrets.CONTAINER_RETENTION_POLICY_TOKEN }}
