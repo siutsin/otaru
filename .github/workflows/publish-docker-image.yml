@@ -1,4 +1,4 @@
-name: Create and publish healthcheck Docker image
+name: Publish Docker Image
 
 on:
   push:

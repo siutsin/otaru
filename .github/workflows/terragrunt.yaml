@@ -1,4 +1,4 @@
-name: 'Terragrunt GitHub Actions'
+name: Terragrunt
 on:
   pull_request:
     paths:
@@ -54,12 +54,14 @@ jobs:
       - name: Plan
         uses: gruntwork-io/terragrunt-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.ADD_COMMENT_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_TUNNEL_SECRET: ${{ secrets.CLOUDFLARE_TUNNEL_SECRET }}
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_ZONE_SUBDOMAIN: ${{ secrets.CLOUDFLARE_ZONE_SUBDOMAIN }}
           CLOUDFLARE_ZONE_TUNNEL_IP_LIST: ${{ secrets.CLOUDFLARE_ZONE_TUNNEL_IP_LIST }}
+          GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
@@ -85,12 +87,14 @@ jobs:
       - name: Apply
         uses: gruntwork-io/terragrunt-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.ADD_COMMENT_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_TUNNEL_SECRET: ${{ secrets.CLOUDFLARE_TUNNEL_SECRET }}
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_ZONE_SUBDOMAIN: ${{ secrets.CLOUDFLARE_ZONE_SUBDOMAIN }}
           CLOUDFLARE_ZONE_TUNNEL_IP_LIST: ${{ secrets.CLOUDFLARE_ZONE_TUNNEL_IP_LIST }}
+          GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
