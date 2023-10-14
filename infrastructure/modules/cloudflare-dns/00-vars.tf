@@ -8,13 +8,19 @@ variable "zone_id" {
   sensitive = true
 }
 
-variable "records" {
+variable "public_subdomain" {
+  type      = string
+  sensitive = true
+}
+
+variable "public_subdomain_value" {
+  type      = string
+  sensitive = true
+}
+
+variable "internal_records" {
   type = map(object({
-    name    = string
-    proxied = bool
-    ttl     = number
-    type    = string
-    value   = string
+    name  = string
+    value = string
   }))
-  default = {}
 }
