@@ -99,3 +99,7 @@ Install `k3s-agent`.
 ```
 curl -sfL https://get.k3s.io | K3S_TOKEN=<node-token> K3S_URL="https://192.168.1.150:6443" sh -
 ```
+
+## Accessing the Cluster from Outside with kubectl
+
+Copy `/etc/rancher/k3s/k3s.yaml` on your machine located outside the cluster as `~/.kube/config`. Then replace the value of the server field with the IP or name of your K3s server. kubectl can now manage your K3s cluster.
