@@ -103,3 +103,37 @@ curl -sfL https://get.k3s.io | K3S_TOKEN=<node-token> K3S_URL="https://192.168.1
 ## Accessing the Cluster from Outside with kubectl
 
 Copy `/etc/rancher/k3s/k3s.yaml` on your machine located outside the cluster as `~/.kube/config`. Then replace the value of the server field with the IP or name of your K3s server. kubectl can now manage your K3s cluster.
+
+## (Optional) Mount Volume for Longhorn
+
+```
+# Create a mounting point
+sudo mkdir /media/storage
+
+# Check if the disk is attached and recognised by the system
+sudo fdisk -l
+
+# Partition the disk if it's unpartitioned
+## Press 'n' for a new partition.
+## Press 'p' for a primary partition.
+## Proceed with all the default settings.
+## Press 'w' to write the changes.
+sudo fdisk /dev/sda
+
+# Format the partition to ext4
+sudo mkfs.ext4 /dev/sda1
+
+# Mount the partition
+sudo mount /dev/sda1 /media/storage
+
+# Add the entry to /etc/fstab
+echo "/dev/sda1 /media/storage ext4 defaults 0 0" | sudo tee -a /etc/fstab
+
+# Test the fstab file
+sudo mount -a
+
+# Check the mounting point
+df -h /media/storage/
+```
+
+[Add disk](https://longhorn.io/docs/latest/volumes-and-nodes/multidisk/) in Longhorn.
