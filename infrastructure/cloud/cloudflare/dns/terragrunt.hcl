@@ -55,11 +55,6 @@ inputs = {
       value = local.internal_ip
     },
 
-    kubernetes_dashboard_internal = {
-      name  = "kubernetes-dashboard.internal"
-      value = local.internal_ip
-    },
-
     longhorn_internal = {
       name  = "longhorn.internal"
       value = local.internal_ip
