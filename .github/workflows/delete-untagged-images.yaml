@@ -2,7 +2,7 @@ name: Delete Untagged Images
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 * * * *'
 
 jobs:
   clean-ghcr:
@@ -13,4 +13,4 @@ jobs:
         with:
           username: 'siutsin'
           container-name: 'otaru-healthcheck'
-          token: ${{ secrets.CONTAINER_RETENTION_POLICY_TOKEN }}
+          token: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}

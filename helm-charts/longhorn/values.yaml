@@ -8,6 +8,11 @@ longhorn:
     defaultDataLocality: best-effort
   defaultSettings:
     replicaAutoBalance: best-effort
+    backupTarget: s3://github-otaru-media-storage@eu-west-1/
+    backupTargetCredentialSecret: b2-secret
 
 encryption:
   secretName: longhorn-crypto
+
+backup:
+  secretName: b2-secret
