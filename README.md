@@ -35,11 +35,24 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Connectivity        | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                             |
 | Continuous Delivery | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconcile                                                   |
 | Monitoring          | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network - Read Only                                                        |
-| Monitoring          | [healthchecks.io](https://healthchecks.io/)                                                         | (SaaS) Push-based heartbeat for ingress route                                            |
 | Security            | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service connecting to 1Password and act as a secret provider                       |
 | Security            | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extract secrets from a secret provider                                                   |
 | Security            | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Automatically provision and manage TLS certificates with Let's Encrypt via ACME protocol |
 | Storage             | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system. Backup/restore from/to a remote destination            |
+
+## IaaS, PaaS, and SaaS
+
+| Name           | Service                                                                                    | Remarks                       |
+|----------------|--------------------------------------------------------------------------------------------|-------------------------------|
+| 1Password      | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation            |
+| AWS            | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State        |
+| Backblaze      | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup                 |
+| Cloudflare     | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control           |
+| Cloudflare     | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service     |
+| Cloudflare     | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity             |
+| Cloudflare     | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network       |
+| Healthcheck.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check and Notification |
+| Let's Encrypt  | [Let's Encrypt ](https://letsencrypt.org/)                                                 | Certificate Authority         |
 
 ## Bootstrap Cluster
 
@@ -54,7 +67,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ```shell
 # Pull dependency
-helm dep update helm-charts/argocd && helm dep update helm-charts/onepassword-connect
+./hack/helm_charts_pull_all_dep.sh
 
 # Create Namespaces
 helm upgrade --install namespaces helm-charts/namespaces -n default
@@ -82,16 +95,18 @@ kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -
 
 ## Repository Secrets for GitHub Actions
 
-| Key                              |
-|----------------------------------|
-| AWS_ACCESS_KEY_ID                |
-| AWS_SECRET_ACCESS_KEY            |
-| CLOUDFLARE_ACCOUNT_ID            |
-| CLOUDFLARE_API_TOKEN             |
-| CLOUDFLARE_TUNNEL_SECRET         |
-| CLOUDFLARE_ZONE                  |
-| CLOUDFLARE_ZONE_ID               |
-| CLOUDFLARE_ZONE_SUBDOMAIN        |
-| CLOUDFLARE_ZONE_TUNNEL_IP_LIST   |
-| CONTAINER_RETENTION_POLICY_TOKEN |
-| GH_ADD_COMMENT_TOKEN             |
+| Key                             |
+|---------------------------------|
+| AWS_ACCESS_KEY_ID               |
+| AWS_SECRET_ACCESS_KEY           |
+| B2_APPLICATION_KEY              |
+| B2_APPLICATION_KEY_ID           |
+| CLOUDFLARE_ACCOUNT_ID           |
+| CLOUDFLARE_API_TOKEN            |
+| CLOUDFLARE_TUNNEL_SECRET        |
+| CLOUDFLARE_ZONE                 |
+| CLOUDFLARE_ZONE_ID              |
+| CLOUDFLARE_ZONE_SUBDOMAIN       |
+| CLOUDFLARE_ZONE_TUNNEL_IP_LIST  |
+| GH_ADD_COMMENT_TOKEN            |
+| GH_DELETE_UNTAGGED_IMAGES_TOKEN |

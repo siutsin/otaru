@@ -6,6 +6,10 @@ locals {
   aws_remote_backend_region = local.region_vars.aws_remote_backend_region
   aws_region                = local.region_vars.aws_region
 
+  b2_version            = local.version_vars.b2_version
+  b2_application_key    = get_env("B2_APPLICATION_KEY")
+  b2_application_key_id = get_env("B2_APPLICATION_KEY_ID")
+
   cloudflare_version   = local.version_vars.cloudflare_version
   cloudflare_api_token = get_env("CLOUDFLARE_API_TOKEN")
 
@@ -22,6 +26,10 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "${local.aws_version}"
+    }
+    b2 = {
+      source = "Backblaze/b2"
+      version = "${local.b2_version}"
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
@@ -43,6 +51,11 @@ provider "aws" {
       Source    = "github-otaru"
     }
   }
+}
+
+provider "b2" {
+  application_key    = "${local.b2_application_key}"
+  application_key_id = "${local.b2_application_key_id}"
 }
 
 provider "cloudflare" {
