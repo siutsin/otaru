@@ -1,0 +1,6 @@
+dependencies:
+- name: jellyfin
+  repository: https://charts.itstoni.com
+  version: 10.8.10-rc.2
+digest: sha256:0a35d9cfdc25c5fd83cd44af3fad845cd2838cae5a365decbd8b2a0664c5d85b
+generated: "2023-10-14T23:05:38.354671+01:00"

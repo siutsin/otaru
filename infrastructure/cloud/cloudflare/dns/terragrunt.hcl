@@ -50,6 +50,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    jellyfin_internal = {
+      name  = "jellyfin.internal"
+      value = local.internal_ip
+    },
+
     kiali_internal = {
       name  = "kiali.internal"
       value = local.internal_ip

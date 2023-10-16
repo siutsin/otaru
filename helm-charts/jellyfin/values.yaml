@@ -1,0 +1,11 @@
+name: jellyfin
+namespace: jellyfin
+
+jellyfin:
+  persistence:
+    config:
+      existingClaim: config
+    cache:
+      existingClaim: cache
+    media:
+      existingClaim: media

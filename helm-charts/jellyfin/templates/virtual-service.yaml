@@ -1,21 +1,19 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ .Values.name }}-internal
+  name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "argocd.internal.siutsin.com"
+    - "jellyfin.internal.siutsin.com"
   gateways:
     - istio-ingress-internal/gateway
   http:
     - match:
         - uri:
-            exact: /argocd
-        - uri:
-            prefix: /argocd/
+            prefix: /
       route:
         - destination:
             port:
-              number: 80
-            host: argocd-server.{{ .Values.namespace }}.svc.cluster.local
+              number: 8096
+            host: {{ .Values.name }}.{{ .Values.namespace }}.svc.cluster.local
