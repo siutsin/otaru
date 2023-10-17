@@ -64,5 +64,10 @@ inputs = {
       name  = "longhorn.internal"
       value = local.internal_ip
     },
+
+    sftpgo_internal = {
+      name  = "sftpgo.internal"
+      value = local.internal_ip
+    },
   }
 }

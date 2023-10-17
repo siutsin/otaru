@@ -7,3 +7,6 @@ dependencies:
   - name: jellyfin
     version: 10.8.10-rc.2
     repository: https://charts.itstoni.com
+  - name: sftpgo
+    version: 0.19.0
+    repository: https://charts.sagikazarmark.dev

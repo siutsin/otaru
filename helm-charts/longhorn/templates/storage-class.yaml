@@ -15,3 +15,4 @@ parameters:
   csi.storage.k8s.io/node-publish-secret-namespace: {{ .Values.namespace }}
   csi.storage.k8s.io/node-stage-secret-name: {{ .Values.encryption.secretName }}
   csi.storage.k8s.io/node-stage-secret-namespace: {{ .Values.namespace }}
+allowVolumeExpansion: true
