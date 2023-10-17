@@ -18,11 +18,11 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | Volume                                          |
-|----------------|----------------------------|-----------------------|--------|-------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | master | -                                               |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | -                                               |
+| ID             | Device                     | HAT                   | Role   | bootfs                | /dev/sda                                        |
+|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | master | SanDisk Extreme 32 GB | -                                               |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | -                                               |
 
 ## Components
 
