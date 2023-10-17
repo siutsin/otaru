@@ -1,5 +1,10 @@
-FROM alpine:latest
-RUN apk add --no-cache curl bash
-COPY healthcheck.sh /healthcheck.sh
-RUN chmod +x /healthcheck.sh
-CMD ["/healthcheck.sh"]
+FROM golang:1.21 as builder
+WORKDIR /app
+COPY go.mod .
+RUN go mod download
+COPY main.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main .
+
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /app/main /app/main
+CMD ["/app/main"]
