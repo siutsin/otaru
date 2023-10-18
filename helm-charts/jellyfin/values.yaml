@@ -1,6 +1,5 @@
 name: jellyfin
 namespace: jellyfin
-ip: "192.168.1.51"
 
 jellyfin:
   persistence:

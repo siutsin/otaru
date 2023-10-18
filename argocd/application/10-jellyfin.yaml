@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/otaru.git
     path: helm-charts/jellyfin
-    targetRevision: add-jellyfin
+    targetRevision: master
   destination:
     server: https://kubernetes.default.svc
     namespace: jellyfin
@@ -23,10 +23,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-    - group: "*"
-      kind: ConfigMap
-      name: adguard-home-configmap
-      jqPathExpressions:
-        - .data
