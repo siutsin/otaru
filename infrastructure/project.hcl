@@ -1,3 +1,0 @@
-locals {
-  name = "github-otaru"
-}
