@@ -2,6 +2,7 @@ resource "aws_route53_health_check" "this" {
   failure_threshold = 2
   fqdn              = var.health_check_fqdn
   measure_latency   = true
+  port              = 443
   request_interval  = 10
   resource_path     = var.resource_path
   type              = "HTTPS"
