@@ -46,7 +46,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Name           | Service                                                                                                      | Remarks                       |
 |----------------|--------------------------------------------------------------------------------------------------------------|-------------------------------|
 | 1Password      | [Connect](https://developer.1password.com/docs/connect/)                                                     | Secrets Automation            |
-| AWS            | [Route53 Health Check](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/welcome-health-checks.html) | Health Check                  |
+| AWS            | [Route53 Health Check](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/welcome-health-checks.html) | Terraform Remote State        |
 | AWS            | [S3](https://aws.amazon.com/s3/)                                                                             | Terraform Remote State        |
 | Backblaze      | [B2](https://www.backblaze.com/cloud-storage)                                                                | Volume Backup                 |
 | Cloudflare     | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                                  | Edge Access Control           |
