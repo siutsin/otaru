@@ -67,8 +67,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 ### Bootstrap
 
 ```shell
-# Follow https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server to create
-# `1password-credentials.json` and save the access token to the file `token`.
+# https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server
+# Follow the doc to create `1password-credentials.json` and save the access token to the file `token`.
 
 ./hack/bootstrap.sh
 ```
