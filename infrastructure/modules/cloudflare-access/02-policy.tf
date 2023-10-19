@@ -21,18 +21,3 @@ resource "cloudflare_access_policy" "github" {
     ip = data.github_ip_ranges.this.hooks
   }
 }
-
-resource "cloudflare_access_policy" "aws" {
-  application_id = cloudflare_access_application.this.id
-  zone_id        = var.zone_id
-  name           = "AWS IP List"
-  precedence     = "3"
-  decision       = "bypass"
-
-  include {
-    ip = concat(
-      data.aws_ip_ranges.this.cidr_blocks,
-      data.aws_ip_ranges.this.ipv6_cidr_blocks
-    )
-  }
-}
