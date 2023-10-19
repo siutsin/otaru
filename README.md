@@ -62,36 +62,15 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ### Prerequisites
 
-- Setup nodes with [How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch](doc/how_to_set_up_rpi_with_waveshare_poe_hat_b_and_install_k3s_from_scratch.md)
+- Setup nodes with [How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch](doc/set_up_rpi.md)
 
 ### Bootstrap
 
 ```shell
-# Pull dependency
-./hack/helm_charts_pull_all_dep.sh
-
-# Create Namespaces
-helm upgrade --install namespaces helm-charts/namespaces -n default
-
-# Init Argo CD
-helm upgrade --install argocd helm-charts/argocd -n argocd
-
 # Follow https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server to create
 # `1password-credentials.json` and save the access token to the file `token`.
 
-# Init 1Password Secret Operator
-helm upgrade --install onepassword-connect helm-charts/onepassword-connect \
-  -n onepassword \
-  --set-file connect.connect.credentials=1password-credentials.json
-
-# Create Secret for `onepassword-connect`
-kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=`tr -d '\n' < token`
-
-# Bootstrap
-helm upgrade --install argocd-bootstrap helm-charts/argocd-bootstrap -n argocd
-
-# Restart all workloads after bootstrap
-kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deploy,sts,ds -n {}
+./hack/bootstrap.sh
 ```
 
 ## Repository Secrets for GitHub Actions
@@ -111,3 +90,19 @@ kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -
 | CLOUDFLARE_ZONE_TUNNEL_IP_LIST  |
 | GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
+
+## Nuke Cluster
+
+https://docs.k3s.io/installation/uninstall
+
+### master node
+
+```shell
+/usr/local/bin/k3s-uninstall.sh
+```
+
+### worker node
+
+```shell
+/usr/local/bin/k3s-agent-uninstall.sh
+```
