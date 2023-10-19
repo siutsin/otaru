@@ -43,17 +43,18 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## IaaS, PaaS, and SaaS
 
-| Name           | Service                                                                                    | Remarks                       |
-|----------------|--------------------------------------------------------------------------------------------|-------------------------------|
-| 1Password      | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation            |
-| AWS            | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State        |
-| Backblaze      | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup                 |
-| Cloudflare     | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control           |
-| Cloudflare     | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service     |
-| Cloudflare     | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity             |
-| Cloudflare     | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network       |
-| Healthcheck.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check and Notification |
-| Let's Encrypt  | [Let's Encrypt ](https://letsencrypt.org/)                                                 | Certificate Authority         |
+| Name           | Service                                                                                                      | Remarks                       |
+|----------------|--------------------------------------------------------------------------------------------------------------|-------------------------------|
+| 1Password      | [Connect](https://developer.1password.com/docs/connect/)                                                     | Secrets Automation            |
+| AWS            | [Route53 Health Check](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/welcome-health-checks.html) | Terraform Remote State        |
+| AWS            | [S3](https://aws.amazon.com/s3/)                                                                             | Terraform Remote State        |
+| Backblaze      | [B2](https://www.backblaze.com/cloud-storage)                                                                | Volume Backup                 |
+| Cloudflare     | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                                  | Edge Access Control           |
+| Cloudflare     | [DNS](https://developers.cloudflare.com/dns/)                                                                | Authoritative DNS Service     |
+| Cloudflare     | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)                     | Edge Connectivity             |
+| Cloudflare     | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/)                   | VPN to Internal Network       |
+| Healthcheck.io | [Healthchecks.io](https://healthchecks.io/)                                                                  | Health Check and Notification |
+| Let's Encrypt  | [Let's Encrypt ](https://letsencrypt.org/)                                                                   | Certificate Authority         |
 
 ## Bootstrap Cluster
 

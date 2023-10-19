@@ -1,6 +1,9 @@
 locals {
+  project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl")).locals
   region_vars  = read_terragrunt_config(find_in_parent_folders("region.hcl")).locals
   version_vars = read_terragrunt_config(find_in_parent_folders("version.hcl")).locals
+
+  project_name = local.project_vars.name
 
   aws_version               = local.version_vars.aws_version
   aws_remote_backend_region = local.region_vars.aws_remote_backend_region
@@ -48,7 +51,7 @@ provider "aws" {
   default_tags {
     tags = {
       Terraform = "true"
-      Source    = "github-otaru"
+      Source    = "${local.project_name}"
     }
   }
 }
@@ -77,7 +80,7 @@ remote_state {
   }
 
   config = {
-    bucket  = "github-otaru-${local.aws_remote_backend_region}-terraform-state"
+    bucket  = "${local.project_name}-${local.aws_remote_backend_region}-terraform-state"
     key     = "${path_relative_to_include()}/terraform.tfstate"
     region  = local.aws_remote_backend_region
     encrypt = true
