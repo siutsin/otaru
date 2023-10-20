@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/otaru.git
     path: argocd/storage
-    targetRevision: master
+    targetRevision: set-longhorn
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
