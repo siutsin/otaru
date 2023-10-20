@@ -2,29 +2,9 @@ name: jellyfin
 namespace: jellyfin
 
 jellyfin:
-  persistence:
-    config:
-      existingClaim: config
-    cache:
-      existingClaim: cache
-    media:
-      existingClaim: media
-
-sftpgo:
-  volumes:
-    - name: jellyfin-media
-      persistentVolumeClaim:
-        claimName: media
-  volumeMounts:
-    - name: jellyfin-media
-      mountPath: /jellyfin/media
+  image:
+    repository: jellyfin/jellyfin
+    tag: 10.8.10
   service:
-    annotations:
-      metallb.universe.tf/allow-shared-ip: "192.168.1.51"
-      metallb.universe.tf/loadBalancerIPs: "192.168.1.51"
-    type: LoadBalancer
-    ports:
-      sftp:
-        port: 3022
-      http:
-        port: 31080
+    port: 8096
+    loadBalancerIP: 192.168.1.51

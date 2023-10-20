@@ -8,9 +8,6 @@ parameters:
   dataLocality: {{ .Values.longhorn.persistence.defaultDataLocality }}
   replicaAutoBalance: {{ .Values.longhorn.defaultSettings.replicaAutoBalance }}
   encrypted: "true"
-  staleReplicaTimeout: "2880"
-  fsType: "ext4"
-  nfsOptions: "vers=4.1,noresvport,softerr,timeo=600,retrans=5"
   # global secret that contains the encryption key that will be used for all volumes
   csi.storage.k8s.io/provisioner-secret-name: {{ .Values.encryption.secretName }}
   csi.storage.k8s.io/provisioner-secret-namespace: {{ .Values.namespace }}

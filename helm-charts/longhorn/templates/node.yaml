@@ -19,7 +19,6 @@ spec:
       allowScheduling: true
       path: /media/storage
   name: raspberrypi-01
-
 ---
 apiVersion: longhorn.io/v1beta2
 kind: Node
