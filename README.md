@@ -26,20 +26,21 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Components
 
-| Category            | Name                                                                                                | Remarks                                                                                  |
-|---------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| Application         | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ads & trackers blocking DNS server                                                       |
-| Application         | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                        |
-| Connectivity        | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                               |
-| Connectivity        | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South traffic & East-West traffic with mTLS                                |
-| Connectivity        | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer with layer 2 operating mode                    |
-| Connectivity        | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                             |
-| Continuous Delivery | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconcile                                                   |
-| Monitoring          | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network - Read Only                                                        |
-| Security            | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service connecting to 1Password and act as a secret provider                       |
-| Security            | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extract secrets from a secret provider                                                   |
-| Security            | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Automatically provision and manage TLS certificates with Let's Encrypt via ACME protocol |
-| Storage             | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system. Backup/restore from/to a remote destination            |
+| Category     | Name                                                                                                | Remarks                                                                                  |
+|--------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ads & trackers blocking DNS server                                                       |
+| Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                        |
+| Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                        |
+| Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                               |
+| Connectivity | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South traffic & East-West traffic with mTLS                                |
+| Connectivity | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer with layer 2 operating mode                    |
+| Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                             |
+| CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconcile                                                   |
+| Monitoring   | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network - Read Only                                                        |
+| Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service connecting to 1Password and act as a secret provider                       |
+| Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extract secrets from a secret provider                                                   |
+| Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Automatically provision and manage TLS certificates with Let's Encrypt via ACME protocol |
+| Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system. Backup/restore from/to a remote destination            |
 
 ## IaaS, PaaS, and SaaS
 
