@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/siutsin/otaru.git
     path: helm-charts/jellyfin
-    targetRevision: set-longhorn
+    targetRevision: master
   destination:
     server: https://kubernetes.default.svc
     namespace: jellyfin
