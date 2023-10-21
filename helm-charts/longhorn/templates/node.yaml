@@ -1,0 +1,31 @@
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: raspberrypi-00
+  namespace: {{ .Values.namespace }}
+spec:
+  allowScheduling: false
+  name: raspberrypi-00
+---
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: raspberrypi-01
+  namespace: {{ .Values.namespace }}
+spec:
+  allowScheduling: true
+  disks:
+    disk-1:
+      allowScheduling: true
+      path: /media/storage
+  name: raspberrypi-01
+---
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: raspberrypi-02
+  namespace: {{ .Values.namespace }}
+spec:
+  allowScheduling: false
+  name: raspberrypi-02
+

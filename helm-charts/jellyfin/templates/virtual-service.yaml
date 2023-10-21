@@ -15,7 +15,7 @@ spec:
       route:
         - destination:
             port:
-              number: 8096
+              number: {{ .Values.jellyfin.service.port }}
             host: {{ .Values.name }}.{{ .Values.namespace }}.svc.cluster.local
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -36,4 +36,4 @@ spec:
         - destination:
             port:
               number: 31080
-            host: {{ .Values.name }}-sftpgo.{{ .Values.namespace }}.svc.cluster.local
+            host: {{ .Values.name }}.{{ .Values.namespace }}.svc.cluster.local
