@@ -1,0 +1,14 @@
+---
+- hosts: raspberrypi
+  become: true
+
+  tasks:
+    - name: Reboot the system
+      reboot:
+
+    - name: Wait for system to become reachable
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600

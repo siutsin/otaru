@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Deprecated. Use `ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml` instead
+
 set -euxo pipefail
 
 for dir in helm-charts/*; do

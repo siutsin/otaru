@@ -1,5 +1,8 @@
 # How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch
 
+> [!WARNING]
+> Deprecated. Use `ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml` instead
+
 ## Update and Install Packages
 
 ```
@@ -23,9 +26,7 @@ sudo modprobe dm_crypt && lsmod | grep dm_crypt
 Follow the official [guide](https://www.waveshare.com/wiki/PoE_HAT_(B)) to enable the I2C Interface. Or
 
 ```shell
-sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/' /boot/config.txt
-
-sudo reboot
+sudo raspi-config nonint do_i2c 0 # Enable I2C
 ```
 
 ## Install WiringPi

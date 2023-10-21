@@ -1,0 +1,41 @@
+---
+- hosts: raspberrypi
+  become: true
+  gather_facts: true
+  serial: 1
+
+  tasks:
+    - name: Install k3s on master
+      shell: curl --retry 3 --retry-delay 5 -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--bind-address {{ ansible_default_ipv4.address }}" sh -s - --disable traefik --disable=servicelb --secrets-encryption --write-kubeconfig-mode=644
+      when: "'master' in group_names"
+
+    - name: Get node token from master
+      shell: sudo cat /var/lib/rancher/k3s/server/node-token
+      register: master_token
+      run_once: true
+      delegate_to: raspberrypi-00.local
+      when: "'master' in group_names"
+
+    - name: Install k3s on workers
+      shell: curl -sfL https://get.k3s.io | K3S_TOKEN={{ hostvars[groups['master'][0]]['master_token']['stdout'] }} K3S_URL="https://{{ hostvars[groups['master'][0]]['ansible_default_ipv4']['address'] }}:6443" sh -
+      when: "'worker' in group_names"
+
+    - name: Copy k3s.yaml to local machine
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: ~/.kube/config
+        flat: yes
+      delegate_to: raspberrypi-00.local
+      run_once: true
+      when: "'master' in group_names"
+
+    - name: Replace 'default' with 'raspberrypi' in local kube config
+      local_action:
+        module: replace
+        path: "~/.kube/config"
+        regexp: 'default'
+        replace: 'raspberrypi'
+      become: yes
+      become_user: simon
+      run_once: true
+      when: "'master' in group_names"

@@ -1,0 +1,24 @@
+---
+- hosts: raspberrypi
+  become: true
+  vars:
+    append_text: "cgroup_enable=memory cgroup_memory=1"
+
+  tasks:
+    - name: Get content of /boot/cmdline.txt
+      slurp:
+        src: /boot/cmdline.txt
+      register: slurp_cmdline
+
+    - name: Decode the content
+      set_fact:
+        cmdline_decoded: "{{ slurp_cmdline['content'] | b64decode }}"
+      changed_when: False
+
+    - name: Append and update /boot/cmdline.txt if text is not present
+      lineinfile:
+        path: /boot/cmdline.txt
+        backrefs: yes
+        regexp: '(.*)'
+        line: '\1 {{ append_text }}'
+      when: append_text not in cmdline_decoded

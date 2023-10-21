@@ -1,0 +1,27 @@
+---
+- hosts: raspberrypi
+  become: yes
+
+  tasks:
+    - name: Run apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - cryptsetup
+          - git
+          - open-iscsi
+          - parted
+          - python3-numpy
+          - python3-pip
+          - python3-rpi.gpio
+          - python3-smbus
+          - vim
+        state: present
+
+    - name: Clean up unused packages
+      apt:
+        autoremove: yes
