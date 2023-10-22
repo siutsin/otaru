@@ -78,7 +78,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 1. Install tooling.
     ```shell
-    brew install ansible helm terraform terragrunt
+    brew install ansible helm kubectl terraform terragrunt
     ```
 2. Add SSH keys to `known_hosts`.
     ```shell
