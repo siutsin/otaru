@@ -63,16 +63,28 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ### Prerequisites
 
-- Setup nodes with [How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch](doc/set_up_rpi.md)
+1. Install tooling.
+    ```shell
+    brew install ansible helm terraform terragrunt
+    ```
+2. Add SSH keys to `known_hosts`.
+    ```shell
+    for i in {00..02}; do ssh-keygen -R "raspberrypi-$i.local"; done && for i in {00..02}; do ssh-keyscan "raspberrypi-$i.local" >> ~/.ssh/known_hosts; done
+    ```
+3. Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json`
+   and save the access token to the file `token`.
 
 ### Bootstrap
 
-```shell
-# https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server
-# Follow the doc to create `1password-credentials.json` and save the access token to the file `token`.
+#### One-liner
 
-./hack/bootstrap.sh
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
 ```
+
+#### Manual
+
+setup nodes manually with [How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch](documentation/set_up_rpi.md) then run `./hack/bootstrap.sh`.
 
 ### Post Bootstrap
 
@@ -96,21 +108,23 @@ update AdGuard Home's password in the ConfigMap.
 | GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
 
-## Nuke Cluster
+## K3s Cluster Management
+
+### Nuke Cluster
+
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
+```
+
+## Rebuild Cluster
+
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
+```
+
+### Reference
 
 https://docs.k3s.io/installation/uninstall
-
-### master node
-
-```shell
-/usr/local/bin/k3s-uninstall.sh
-```
-
-### worker node
-
-```shell
-/usr/local/bin/k3s-agent-uninstall.sh
-```
 
 <!-- Footnotes -->
 

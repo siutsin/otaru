@@ -1,0 +1,8 @@
+---
+- hosts: raspberrypi
+  become: yes
+
+  tasks:
+    - name: Enable I2C via raspi-config
+      # https://github.com/RPi-Distro/raspi-config/issues/206#issuecomment-1386435171
+      shell: sudo raspi-config nonint do_i2c 0
