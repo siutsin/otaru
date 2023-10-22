@@ -122,10 +122,6 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
 ```
 
-### Reference
-
-https://docs.k3s.io/installation/uninstall
-
 <!-- Footnotes -->
 
 [^1]: https://forums.raspberrypi.com/viewtopic.php?t=296491
