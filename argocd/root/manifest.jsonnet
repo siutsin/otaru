@@ -1,12 +1,12 @@
 local application = import '../_lib/application.libsonnet';
 
 local applications = [
-  { name: 'application' },
-  { name: 'baseline' },
-  { name: 'connectivity' },
-  { name: 'monitoring' },
-  { name: 'security' },
-  { name: 'storage' },
+  { name: 'application', path: 'argocd/application' },
+  { name: 'baseline', path: 'argocd/baseline' },
+  { name: 'connectivity', path: 'argocd/connectivity' },
+  { name: 'monitoring', path: 'argocd/monitoring' },
+  { name: 'security', path: 'argocd/security' },
+  { name: 'storage', path: 'argocd/storage' },
 ];
 
 [
