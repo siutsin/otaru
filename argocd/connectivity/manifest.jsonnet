@@ -20,7 +20,7 @@ local applications = [
   { wave: '01', name: 'metallb', namespace: 'metallb-system' },
   { wave: '02', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: istiodIgnoreDifferences },
   { wave: '03', name: 'istio-ingress', namespace: 'istio-ingress' },
-  { wave: '03', name: 'istio-ingress-internal', namespace: 'istio-ingress', path: 'helm-charts/istio-ingress', helm: { valueFiles: ['value/istio-ingress-internal.yaml'] } },
+  { wave: '03', name: 'istio-ingress-internal', namespace: 'istio-ingress-internal', path: 'helm-charts/istio-ingress', helm: { valueFiles: ['value/istio-ingress-internal.yaml'] } },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
