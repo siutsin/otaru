@@ -18,7 +18,7 @@ function(config={}) {
       project: 'default',
       source: {
         repoURL: 'https://github.com/siutsin/otaru.git',
-        path: std.get(config, 'path', 'argocd/' + config.name),
+        path: std.get(config, 'path', 'helm-charts/' + config.name),
         targetRevision: std.get(config, 'targetRevision', defaultRevision),
         [if 'helm' in config then 'helm']: config.helm,
       },
