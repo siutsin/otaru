@@ -4,6 +4,19 @@
 
 Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
+<!-- TOC -->
+* [otaru](#otaru)
+  * [Status](#status)
+  * [Architecture](#architecture)
+  * [Hardware](#hardware)
+  * [Cluster Components](#cluster-components)
+  * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
+  * [Bootstrap Cluster](#bootstrap-cluster)
+  * [Nuke Cluster](#nuke-cluster)
+  * [Rebuild Cluster](#rebuild-cluster)
+  * [Repository Secrets for GitHub Actions](#repository-secrets-for-github-actions)
+<!-- TOC -->
+
 ## Status
 
 | GitHub Actions                                                                                                                                                                                        |
@@ -11,6 +24,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml) |
 | [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml)         |
 | [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)                                     |
+
+
 
 ## Architecture
 
@@ -24,7 +39,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe doesn't work well with RPi[^1][^2]. Use the official RPi power adapter and switch to the USB2 port as a workaround[^3]. |
 | raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                            |
 
-## Components
+## Cluster Components
 
 | Category     | Name                                                                                                | Remarks                                                                                  |
 |--------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
@@ -61,8 +76,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 > [!NOTE]
 > Argo CD is not self-managed at present, for the sake of easier development.
 
-### Prerequisites
-
 1. Install tooling.
     ```shell
     brew install ansible helm terraform terragrunt
@@ -73,22 +86,32 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     ```
 3. Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json`
    and save the access token to the file `token`.
+    ```shell
+    ❯ tree $(pwd) -L 1
+    /path/to/project/otaru
+    ├── 1password-credentials.json
+    ├── 1password-credentials.json.sample
+    ├── ...
+    ├── token
+    └── token.sample
+    ```
+4. Bootstrap cluster.
+    ```shell
+    ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
+    ```
+5. update AdGuard Home's password in the ConfigMap.
 
-### Bootstrap
-
-#### One-liner
+## Nuke Cluster
 
 ```shell
-ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
 ```
 
-#### Manual
+## Rebuild Cluster
 
-setup nodes manually with [How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch](documentation/set_up_rpi.md) then run `./hack/bootstrap.sh`.
-
-### Post Bootstrap
-
-update AdGuard Home's password in the ConfigMap.
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
+```
 
 ## Repository Secrets for GitHub Actions
 
@@ -107,20 +130,6 @@ update AdGuard Home's password in the ConfigMap.
 | CLOUDFLARE_ZONE_TUNNEL_IP_LIST  |
 | GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
-
-## K3s Cluster Management
-
-### Nuke Cluster
-
-```shell
-ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
-```
-
-## Rebuild Cluster
-
-```shell
-ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
-```
 
 <!-- Footnotes -->
 
