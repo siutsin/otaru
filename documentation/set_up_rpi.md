@@ -1,18 +1,23 @@
 # How to Set Up RPI with Waveshare PoE HAT (B) and Install K3s from scratch
 
-> [!WARNING]
-> Deprecated. Use `ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml` instead
-
 ## Update and Install Packages
 
 ```
-sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi cryptsetup -y && sudo apt autoremove -y
+sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi cryptsetup vim -y && sudo apt autoremove -y
 ```
 
 ## Install Python Library
 
 ```
 sudo apt update && sudo apt install python3-pip -y && sudo pip install RPi.GPIO && sudo apt install python3-smbus -y && sudo apt autoremove -y
+```
+
+## Config cgroup
+
+```shell
+sudo vim /boot/cmdline.txt
+
+# append `cgroup_memory=1 cgroup_enable=memory` to the end of the line. It should be in one line.
 ```
 
 ## Load dm_crypt Kernel Module

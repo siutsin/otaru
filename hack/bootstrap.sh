@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Deprecated. Use `ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml` instead
+# Deprecated. Use `ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml` instead
 
 set -euxo pipefail
 
