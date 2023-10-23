@@ -51,6 +51,9 @@
     - name: Wait for onepassword-connect to rollout
       shell: "kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m"
 
+    - name: Clean up onepassword-connect health check pod
+      shell: "kubectl delete pod onepassword-connect-health-check -n onepassword"
+
     # Bootstrap
 
     - name: Bootstrap Cluster
