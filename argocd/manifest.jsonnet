@@ -1,4 +1,4 @@
-local ArgoApp = import 'lib/application.libsonnet';
+local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
 local ignoreDifferences = {
   application: {
@@ -59,6 +59,6 @@ local storage = [
 ];
 
 [
-  ArgoApp(appConfig).render
+  ArgoCDApplication.new(appConfig)
   for appConfig in application + baseline + connectivity + monitoring + security + storage
 ]
