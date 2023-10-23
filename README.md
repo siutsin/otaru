@@ -33,7 +33,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | bootfs                | /dev/sda                                                          | Remarks                                                                                                                      |
+| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                                                      |
 |----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                            |
 | raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe doesn't work well with RPi[^1][^2]. Use the official RPi power adapter and switch to the USB2 port as a workaround[^3]. |
