@@ -27,15 +27,15 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Architecture
 
-![architecture](https://i.imgur.com/zZpZAF9.png)
+![Architecture](https://i.imgur.com/zZpZAF9.png)
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                                                      |
-|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                            |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe doesn't work well with RPi[^1][^2]. Use the official RPi power adapter and switch to the USB2 port as a workaround[^3]. |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                            |
+| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                                               |
+|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                     |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Use the official RPi power adapter and switch to USB2 port as a workaround[^3]. |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                     |
 
 ## Cluster Components
 
