@@ -31,11 +31,11 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                                               |
-|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                     |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Use the official RPi power adapter and switch to USB2 port as a workaround[^3]. |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                                     |
+| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                               |
+|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                     |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Use the official RPi power adapter and switch to USB2 port[^3]. |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                     |
 
 ## Cluster Components
 
@@ -85,15 +85,15 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 3. **Set Up 1Password Credentials**
     - Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json`.
     - Save the access token to the file `token`.
-    ```shell
-    ❯ tree $(pwd) -L 1
-    /path/to/project/otaru
-    ├── 1password-credentials.json
-    ├── 1password-credentials.json.sample
-    ├── ...
-    ├── token
-    └── token.sample
-    ```
+        ```shell
+        ❯ tree $(pwd) -L 1
+        /path/to/project/otaru
+        ├── 1password-credentials.json
+        ├── 1password-credentials.json.sample
+        ├── ...
+        ├── token
+        └── token.sample
+        ```
 4. **Bootstrap Cluster**
     ```shell
     ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
