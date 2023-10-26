@@ -57,17 +57,18 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## IaaS, PaaS, and SaaS
 
-| Name           | Service                                                                                    | Remarks                       |
-|----------------|--------------------------------------------------------------------------------------------|-------------------------------|
-| 1Password      | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation            |
-| AWS            | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State        |
-| Backblaze      | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup                 |
-| Cloudflare     | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control           |
-| Cloudflare     | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service     |
-| Cloudflare     | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity             |
-| Cloudflare     | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network       |
-| Healthcheck.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check and Notification |
-| Let's Encrypt  | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority         |
+| Category     | Name            | Service                                                                                    | Remarks                   |
+|--------------|-----------------|--------------------------------------------------------------------------------------------|---------------------------|
+| Connectivity | Cloudflare      | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control       |
+| Connectivity | Cloudflare      | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service |
+| Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity         |
+| Connectivity | Cloudflare      | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network   |
+| Monitoring   | Healthchecks.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check - Heartbeat  |
+| Monitoring   | UptimeRobot     | [UptimeRobot](https://uptimerobot.com/)                                                    | Health Check              |
+| Security     | 1Password       | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation        |
+| Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority     |
+| Storage      | AWS             | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State    |
+| Storage      | Backblaze       | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup             |
 
 ## Bootstrap Cluster
 
@@ -130,6 +131,7 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
 | CLOUDFLARE_ZONE_TUNNEL_IP_LIST  |
 | GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
+| UPTIME_ROBOT_API_KEY            |
 
 <!-- Footnotes -->
 
