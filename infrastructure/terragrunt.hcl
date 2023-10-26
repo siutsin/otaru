@@ -15,6 +15,9 @@ locals {
 
   github_token   = get_env("GITHUB_TOKEN")
   github_version = local.version_vars.github_version
+
+  uptime_robot_api_key = get_env("UPTIME_ROBOT_API_KEY")
+  uptime_robot_version = local.version_vars.uptime_robot_version
 }
 
 generate "provider" {
@@ -38,6 +41,10 @@ terraform {
     github = {
       source  = "integrations/github"
       version = "${local.github_version}"
+    }
+    uptimerobot = {
+      source = "vexxhost/uptimerobot"
+      version = "${local.uptime_robot_version}"
     }
   }
 }
@@ -64,6 +71,10 @@ provider "cloudflare" {
 
 provider "github" {
   token = "${local.github_token}"
+}
+
+provider "uptimerobot" {
+  api_key = "${local.uptime_robot_api_key}"
 }
 EOF
 }

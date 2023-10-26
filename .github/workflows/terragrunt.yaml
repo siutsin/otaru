@@ -64,6 +64,7 @@ jobs:
           CLOUDFLARE_ZONE_SUBDOMAIN: ${{ secrets.CLOUDFLARE_ZONE_SUBDOMAIN }}
           CLOUDFLARE_ZONE_TUNNEL_IP_LIST: ${{ secrets.CLOUDFLARE_ZONE_TUNNEL_IP_LIST }}
           GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
+          UPTIME_ROBOT_API_KEY: ${{ secrets.UPTIME_ROBOT_API_KEY }}
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
@@ -99,6 +100,7 @@ jobs:
           CLOUDFLARE_ZONE_SUBDOMAIN: ${{ secrets.CLOUDFLARE_ZONE_SUBDOMAIN }}
           CLOUDFLARE_ZONE_TUNNEL_IP_LIST: ${{ secrets.CLOUDFLARE_ZONE_TUNNEL_IP_LIST }}
           GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
+          UPTIME_ROBOT_API_KEY: ${{ secrets.UPTIME_ROBOT_API_KEY }}
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
