@@ -1,3 +1,10 @@
+locals {
+  #  https://uptimerobot.com/help/locations/
+  #  https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt
+  uptime_robot_ip_raw       = split("\n", chomp(file("${path.module}/ip/uptime-robot-ipv4-ipv6.txt")))
+  uptime_robot_ip_addresses = [for ip in local.uptime_robot_ip_raw : trimspace(trimprefix(ip, "\r"))]
+}
+
 resource "cloudflare_access_policy" "this" {
   application_id = cloudflare_access_application.this.id
   zone_id        = var.zone_id
@@ -19,5 +26,17 @@ resource "cloudflare_access_policy" "github" {
 
   include {
     ip = data.github_ip_ranges.this.hooks
+  }
+}
+
+resource "cloudflare_access_policy" "uptime_robot" {
+  application_id = cloudflare_access_application.this.id
+  zone_id        = var.zone_id
+  name           = "UptimeRobot IP List"
+  precedence     = "3"
+  decision       = "bypass"
+
+  include {
+    ip = local.uptime_robot_ip_addresses
   }
 }
