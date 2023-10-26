@@ -27,7 +27,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Architecture
 
-![Architecture](https://i.imgur.com/mhpf2Yw.png)
+![Architecture](https://i.imgur.com/Eu9AD55.png)
 
 ## Hardware
 
@@ -59,6 +59,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 | Category     | Name            | Service                                                                                    | Remarks                   |
 |--------------|-----------------|--------------------------------------------------------------------------------------------|---------------------------|
+| CI/CD        | Github          | [Actions](https://github.com/features/actions)                                             | Run Terragrunt            |
 | Connectivity | Cloudflare      | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control       |
 | Connectivity | Cloudflare      | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service |
 | Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity         |
