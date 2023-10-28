@@ -15,13 +15,13 @@ spec:
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: config
+            claimName: config-pvc
         - name: cache
           persistentVolumeClaim:
-            claimName: cache
+            claimName: cache-pvc
         - name: media
           persistentVolumeClaim:
-            claimName: media
+            claimName: media-pvc
         - name: sftpgo-config
           configMap:
             name: sftpgo

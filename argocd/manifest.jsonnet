@@ -1,5 +1,7 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
+local revision = 'jellyfin';
+
 local _ignoreDifferences = {
   application: {
     adguardHome: [{ group: '*', kind: 'ConfigMap', name: 'adguard-home-configmap', jqPathExpressions: ['.data'] }],
@@ -12,7 +14,8 @@ local _ignoreDifferences = {
 
 local application = [
   { wave: '10', name: 'adguard-home', namespace: 'adguard-home', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguardHome },
-  { wave: '10', name: 'jellyfin', namespace: 'jellyfin' },
+  { wave: '10', name: 'jellyfin-volume', namespace: 'jellyfin' },
+  { wave: '11', name: 'jellyfin', namespace: 'jellyfin' },
 ];
 
 local baseline = [
@@ -41,9 +44,10 @@ local security = [
 
 local storage = [
   { wave: '04', name: 'longhorn', namespace: 'longhorn-system' },
+  { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
 [
-  ArgoCDApplication.new(appConfig)
+  ArgoCDApplication.new(appConfig, revision)
   for appConfig in application + baseline + connectivity + monitoring + security + storage
 ]
