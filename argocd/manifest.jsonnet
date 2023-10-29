@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'jellyfin';
+local revision = 'HEAD';
 
 local _ignoreDifferences = {
   application: {
