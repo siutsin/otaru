@@ -1,7 +1,7 @@
 local defaultProject = 'default';
-local defaultRevision = 'master';
+local defaultRevision = 'HEAD';
 
-local ArgoCDApplication(config={}) = {
+local ArgoCDApplication(config={}, revision=defaultRevision) = {
   apiVersion: 'argoproj.io/v1alpha1',
   kind: 'Application',
   metadata: {
@@ -19,7 +19,7 @@ local ArgoCDApplication(config={}) = {
     source: {
       repoURL: 'https://github.com/siutsin/otaru.git',
       path: std.get(config, 'path', 'helm-charts/' + config.name),
-      targetRevision: std.get(config, 'targetRevision', defaultRevision),
+      targetRevision: revision,
       [if 'helm' in config then 'helm']: config.helm,
     },
     destination: {

@@ -1,0 +1,13 @@
+name: jellyfin
+namespace: jellyfin
+
+volumes:
+  cache:
+    size: "2Gi"
+    sizeBytes: "2147483648"
+  config:
+    size: "2Gi"
+    sizeBytes: "2147483648"
+  media:
+    size: "1Ti"
+    sizeBytes: "1099511627776"
