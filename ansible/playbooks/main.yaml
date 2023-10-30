@@ -1,6 +1,7 @@
 ---
-- import_playbook: rpi-i2c-interface.yaml
 - import_playbook: rpi-cgroup.yaml
+- import_playbook: rpi-i2c-interface.yaml
+- import_playbook: rpi-journald.yaml
 - import_playbook: rpi-reboot.yaml
 - import_playbook: rpi-packages.yaml
 - import_playbook: rpi-config.yaml
