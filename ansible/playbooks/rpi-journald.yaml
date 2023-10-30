@@ -1,0 +1,32 @@
+---
+- hosts: raspberrypi
+  become: yes
+  tasks:
+    # Set the journald service to memory to prevent logs from being written to disk, thereby extending the SD card's lifespan.
+    - name: Set journald to volatile storage
+      lineinfile:
+        path: /etc/systemd/journald.conf
+        regexp: '^#?Storage='
+        line: 'Storage=volatile'
+      notify:
+        - Restart journald
+
+    - name: Set journald RuntimeMaxUse
+      lineinfile:
+        path: /etc/systemd/journald.conf
+        regexp: '^#?RuntimeMaxUse='
+        line: 'RuntimeMaxUse=100M'
+      notify:
+        - Restart journald
+
+    - name: Clear all logs in /var/log
+      command: find /var/log -type f -exec truncate -s 0 {} +
+      become: yes
+      notify:
+        - Restart journald
+
+  handlers:
+    - name: Restart journald
+      systemd:
+        name: systemd-journald
+        state: restarted
