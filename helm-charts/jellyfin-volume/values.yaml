@@ -5,9 +5,12 @@ volumes:
   cache:
     size: "2Gi"
     sizeBytes: "2147483648"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-83f8ccf9b6b04ca9&volume=cache-vol"
   config:
     size: "2Gi"
     sizeBytes: "2147483648"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-ad5952bfa2434df4&volume=config-vol"
   media:
     size: "1Ti"
     sizeBytes: "1099511627776"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-85a3a0285dfb40b9&volume=media-vol"
