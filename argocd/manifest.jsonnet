@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'track-bootstrap-resources';
+local revision = 'HEAD';
 
 local _ignoreDifferences = {
   application: {
