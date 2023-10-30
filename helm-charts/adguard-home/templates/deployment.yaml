@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard-home
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Values.name }}
+      app.kubernetes.io/name: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ .Values.name }}
+        app.kubernetes.io/name: {{ .Values.name }}
+    spec:
+      initContainers:
+        - command:
+            - sh
+            - -c
+            - |
+              if [ ! -f /opt/adguardhome/conf/AdGuardHome.yaml ]; then
+                mkdir -p /opt/adguardhome/conf
+                cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+              fi
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          name: copy-configmap
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /tmp/AdGuardHome.yaml
+              name: configmap
+              subPath: AdGuardHome.yaml
+            - mountPath: /opt/adguardhome/conf
+              name: config
+      containers:
+        - name: adguard-home
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          env:
+            - name: TZ
+              value: UTC
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /opt/adguardhome/conf
+            - name: configmap
+              mountPath: /configmap
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+          startupProbe:
+            tcpSocket:
+              port: 3000
+      volumes:
+        - name: config
+          emptyDir: { }
+        - name: configmap
+          configMap:
+            name: adguard-home-configmap

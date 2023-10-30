@@ -1,6 +1,0 @@
-dependencies:
-- name: adguard-home
-  repository: https://lib42.github.io/charts
-  version: 1.1.0
-digest: sha256:ca322dec23716830aec3d0444f5391135179010561ec49e364b20ff43fc4f610
-generated: "2023-10-14T14:34:42.710691+01:00"

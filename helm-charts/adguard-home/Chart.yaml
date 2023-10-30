@@ -3,7 +3,3 @@ name: adguard-home
 description: A Helm chart for Kubernetes
 type: application
 version: 0.1.0
-dependencies:
-  - name: adguard-home
-    version: 1.1.0
-    repository: https://lib42.github.io/charts
