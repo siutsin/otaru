@@ -117,6 +117,9 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
 
 ## Repository Secrets for GitHub Actions
 
+<details>
+<summary>GitHub Actions Secret Keys</summary>
+
 | Key                             |
 |---------------------------------|
 | AWS_ACCESS_KEY_ID               |
@@ -133,6 +136,8 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
 | GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
 | UPTIME_ROBOT_API_KEY            |
+
+</details>
 
 <!-- Footnotes -->
 

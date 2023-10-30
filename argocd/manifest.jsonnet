@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'HEAD';
+local revision = 'track-bootstrap-resources';
 
 local _ignoreDifferences = {
   application: {
@@ -20,6 +20,9 @@ local application = [
 
 local baseline = [
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
+  // Re-track bootstrap resources
+  { wave: '03', name: 'argocd', namespace: 'argocd' },
+  { wave: '03', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
 ];
 
 local connectivity = [
