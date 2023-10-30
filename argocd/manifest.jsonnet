@@ -20,9 +20,13 @@ local application = [
 
 local baseline = [
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
-  // Re-track bootstrap resources
-  { wave: '03', name: 'argocd', namespace: 'argocd' },
-  { wave: '03', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
+];
+
+// Re-track bootstrap resources
+local bootstrap = [
+  { wave: '06', name: 'argocd', namespace: 'argocd' },
+  { wave: '06', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
+  { wave: '06', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
 local connectivity = [
@@ -52,5 +56,5 @@ local storage = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + connectivity + monitoring + security + storage
+  for appConfig in application + baseline + bootstrap + connectivity + monitoring + security + storage
 ]

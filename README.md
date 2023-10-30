@@ -14,7 +14,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [Bootstrap Cluster](#bootstrap-cluster)
   * [Nuke Cluster](#nuke-cluster)
   * [Rebuild Cluster](#rebuild-cluster)
-  * [Repository Secrets for GitHub Actions](#repository-secrets-for-github-actions)
+  * [Repository Configuration](#repository-configuration)
 <!-- TOC -->
 
 ## Status
@@ -73,9 +73,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Bootstrap Cluster
 
-> [!NOTE]
-> Argo CD is currently not self-managed for the sake of easier development.
-
 1. **Install Tooling**
     ```shell
     brew install ansible go-jsonnet helm kubectl terraform terragrunt
@@ -115,10 +112,10 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
 ```
 
-## Repository Secrets for GitHub Actions
+## Repository Configuration
 
 <details>
-<summary>GitHub Actions Secret Keys</summary>
+<summary>Secrets for GitHub Actions</summary>
 
 | Key                             |
 |---------------------------------|
