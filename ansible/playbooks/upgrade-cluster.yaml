@@ -1,0 +1,3 @@
+---
+- import_playbook: k3s/node.yaml
+- import_playbook: k3s/node-label.yaml

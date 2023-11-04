@@ -12,6 +12,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [Cluster Components](#cluster-components)
   * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
   * [Bootstrap Cluster](#bootstrap-cluster)
+  * [Routine Packages Update and Upgrade](#routine-packages-update-and-upgrade)
+  * [Upgrade Cluster Version](#upgrade-cluster-version)
   * [Nuke Cluster](#nuke-cluster)
   * [Rebuild Cluster](#rebuild-cluster)
   * [Repository Configuration](#repository-configuration)
@@ -100,16 +102,28 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 5. **Update AdGuard Home Password**
     - Update the password in the ConfigMap.
 
+## Routine Packages Update and Upgrade
+
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/maintainence.yaml
+```
+
+## Upgrade Cluster Version
+
+```shell
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/upgrade-cluster.yaml
+```
+
 ## Nuke Cluster
 
 ```shell
-ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-uninstall.yaml
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s/uninstall.yaml
 ```
 
 ## Rebuild Cluster
 
 ```shell
-ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s-install.yaml
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/k3s/install.yaml
 ```
 
 ## Repository Configuration
