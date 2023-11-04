@@ -14,3 +14,11 @@ volumes:
     size: "1Ti"
     sizeBytes: "1099511627776"
     fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-85a3a0285dfb40b9&volume=media-vol"
+  sftpgo-home:
+    size: "100Mi"
+    sizeBytes: "104857600"
+    fromBackup: ""
+  sftpgo-data:
+    size: "100Mi"
+    sizeBytes: "104857600"
+    fromBackup: ""
