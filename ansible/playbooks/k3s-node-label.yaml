@@ -1,0 +1,7 @@
+---
+- hosts: volume
+  tasks:
+    - name: Label the node as a volume node
+      command: kubectl label nodes {{ inventory_hostname | replace('.local','') }} volume=true
+      delegate_to: raspberrypi-00.local
+      become: yes

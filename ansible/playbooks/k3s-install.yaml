@@ -1,3 +1,4 @@
 ---
-- import_playbook: k3s-nodes.yaml
+- import_playbook: k3s-node.yaml
+- import_playbook: k3s-node-label.yaml
 - import_playbook: k3s-bootstrap.yaml
