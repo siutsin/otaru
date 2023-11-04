@@ -56,5 +56,5 @@ spec:
   frontend: blockdev
   size: {{ $value.sizeBytes | quote }}
   numberOfReplicas: 1
-  fromBackup: {{ $value.fromBackup }}
+  fromBackup: {{ $value.fromBackup | quote }}
 {{- end }}
