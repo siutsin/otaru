@@ -22,6 +22,12 @@ spec:
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc
+        - name: sftpgo-home
+          persistentVolumeClaim:
+            claimName: sftpgo-home-pvc
+        - name: sftpgo-data
+          persistentVolumeClaim:
+            claimName: sftpgo-data-pvc
         - name: sftpgo-config
           configMap:
             name: sftpgo
@@ -101,3 +107,7 @@ spec:
               readOnly: true
             - mountPath: /jellyfin/media
               name: media
+            - mountPath: /var/lib/sftpgo
+              name: sftpgo-home
+            - mountPath: /srv/sftpgo
+              name: sftpgo-data
