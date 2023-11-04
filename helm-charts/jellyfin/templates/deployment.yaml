@@ -25,6 +25,15 @@ spec:
         - name: sftpgo-config
           configMap:
             name: sftpgo
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "volume"
+                    operator: "In"
+                    values:
+                      - "true"
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.jellyfin.image.repository }}:{{ .Values.jellyfin.image.tag }}"

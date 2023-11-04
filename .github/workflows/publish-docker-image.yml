@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}-healthcheck
 
 jobs:
-  build-and-push-image-cron:
+  build-and-push-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
