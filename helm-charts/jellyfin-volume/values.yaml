@@ -17,8 +17,8 @@ volumes:
   sftpgo-home:
     size: "100Mi"
     sizeBytes: "104857600"
-    fromBackup: ~
+    fromBackup: ""
   sftpgo-data:
     size: "100Mi"
     sizeBytes: "104857600"
-    fromBackup: ~
+    fromBackup: ""
