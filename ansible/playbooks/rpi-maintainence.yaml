@@ -1,3 +1,0 @@
----
-- import_playbook: rpi-packages.yaml
-- import_playbook: rpi-reboot.yaml
