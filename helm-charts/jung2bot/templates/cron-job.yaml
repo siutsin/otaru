@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: off-work
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "*/{{ .Values.cron.offWork.env.cronInterval }} * * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+            - name: off-work
+              image: {{ .Values.cron.image.repository }}:{{ .Values.cron.image.tag }}
+              env:
+                - name: CRON_INTERVAL
+                  value: {{ .Values.cron.offWork.env.cronInterval | quote }}
+                - name: OFF_FROM_WORK_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: OFF_FROM_WORK_URL
+                      name: jung2bot-secrets
+              resources:
+                requests:
+                  cpu: "0.5"
+                  memory: "500Mi"
+                limits:
+                  memory: "500Mi"
+              readinessProbe:
+                exec:
+                  command:
+                    - timeout
+                initialDelaySeconds: 30
+          restartPolicy: Never
+---
+{{ if eq .Values.app.env.stage "prod" }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scale-up-database
+  namespace: {{ .Values.namespace }}
+spec:
+  # 9:57-59 am UTC = 5:57-59 pm HKT"
+  schedule: "57-59 9 * * 1-5"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+            - name: scale-up-database
+              image: curlimages/curl:latest
+              command: [ "curl" ]
+              args:
+                - "-v"
+                - "-m"
+                - "5"
+                - "$(SCALE_UP_URL)"
+              env:
+                - name: SCALE_UP_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: SCALE_UP_URL
+                      name: jung2bot-secrets
+              resources:
+                requests:
+                  cpu: "0.5"
+                  memory: "500Mi"
+                limits:
+                  memory: "500Mi"
+              readinessProbe:
+                exec:
+                  command:
+                    - timeout
+                initialDelaySeconds: 30
+          restartPolicy: Never
+{{ end }}

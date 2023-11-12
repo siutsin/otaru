@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              memory: "1Gi"
+          env:
+            - name: PROFILE
+              value: {{ .Values.app.env.profile }}
+            - name: STAGE
+              value: {{ .Values.app.env.stage }}
+            - name: AWS_REGION
+              value: {{ .Values.app.env.awsRegion }}
+            - name: LOG_LEVEL
+              value: {{ .Values.app.env.logLevel }}
+            - name: MESSAGE_TABLE
+              value: {{ .Values.app.env.messageTable }}
+            - name: CHATID_TABLE
+              value: {{ .Values.app.env.chatIdTable }}
+            - name: SCALE_UP_READ_CAPACITY
+              value: {{ .Values.app.env.scaleUpReadCapacity | quote }}
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: TELEGRAM_BOT_TOKEN
+                  name: jung2bot-secrets
+            - name: EVENT_QUEUE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: EVENT_QUEUE_URL
+                  name: jung2bot-secrets
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_ACCESS_KEY_ID
+                  name: jung2bot-secrets
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_SECRET_ACCESS_KEY
+                  name: jung2bot-secrets
