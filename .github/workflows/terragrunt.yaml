@@ -30,7 +30,7 @@ jobs:
           aws-region: ${{ env.aws_region }}
 
       - name: Check terragrunt HCL
-        uses: gruntwork-io/terragrunt-action@v1
+        uses: gruntwork-io/terragrunt-action@v2
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
@@ -52,7 +52,7 @@ jobs:
           aws-region: ${{ env.aws_region }}
 
       - name: Plan
-        uses: gruntwork-io/terragrunt-action@v1
+        uses: gruntwork-io/terragrunt-action@v2
         env:
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
@@ -88,7 +88,7 @@ jobs:
           aws-region: ${{ env.aws_region }}
 
       - name: Apply
-        uses: gruntwork-io/terragrunt-action@v1
+        uses: gruntwork-io/terragrunt-action@v2
         env:
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
