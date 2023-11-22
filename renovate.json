@@ -6,5 +6,6 @@
   "automerge": true,
   "major": {
     "automerge": false
-  }
+  },
+  "minimumReleaseAge": "3 days"
 }
