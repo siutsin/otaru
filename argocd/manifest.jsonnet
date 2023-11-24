@@ -19,6 +19,7 @@ local application = [
 ];
 
 local baseline = [
+  { wave: '01', name: 'namespace', namespace: 'default' },
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
 ];
 

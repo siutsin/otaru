@@ -7,7 +7,7 @@
     # Namespaces
 
     - name: Create Namespaces
-      shell: "helm upgrade --install namespaces ../../helm-charts/namespaces -n default --wait --timeout 1m"
+      shell: "helm template ../../helm-charts/namespaces | kubectl create -f - 2>/dev/null || true"
 
     # Istio
 
