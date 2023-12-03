@@ -23,7 +23,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 | GitHub Actions                                                                                                                                                                                        |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml) |
 | [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml)         |
 | [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)                                     |
 
