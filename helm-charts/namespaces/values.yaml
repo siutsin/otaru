@@ -4,6 +4,7 @@ namespaces:
   - namespace: cert-manager
   - namespace: cloudflare-tunnel
   - namespace: external-secrets
+  - namespace: home-assistant
   - namespace: httpbin
   - namespace: istio-ingress
   - namespace: istio-ingress-internal
