@@ -49,7 +49,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                      |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                       |
 | Connectivity | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South and East-West traffic with mTLS                              |
-| Connectivity | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer; OSI Layer 2 mode                      |
+| Connectivity | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer with L2 operating mode                 |
 | Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                     |
 | Monitoring   | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network; Read-Only                                                 |
 | Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                           |
