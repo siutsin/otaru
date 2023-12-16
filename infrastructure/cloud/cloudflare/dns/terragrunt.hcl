@@ -50,6 +50,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    home_assistant_internal = {
+      name  = "home-assistant.internal"
+      value = local.internal_ip
+    },
+
     jellyfin_internal = {
       name  = "jellyfin.internal"
       value = local.internal_ip

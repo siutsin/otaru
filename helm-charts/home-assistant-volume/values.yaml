@@ -1,0 +1,8 @@
+name: home-assistant
+namespace: home-assistant
+
+volumes:
+  home-assistant-config:
+    size: "2Gi"
+    sizeBytes: "2147483648"
+    fromBackup: ""

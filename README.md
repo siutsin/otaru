@@ -32,17 +32,18 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                                               |
-|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                     |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Use the official RPi power adapter and switch to USB2 port[^3]. |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                                     |
+| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                           |
+|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                 |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Switch to USB2 port resolved the issue[^3]. |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                 |
 
 ## Cluster Components
 
 | Category     | Name                                                                                                | Remarks                                                                          |
 |--------------|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ad and tracker-blocking DNS server                                               |
+| Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                  |
 | Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                |
 | Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                      |

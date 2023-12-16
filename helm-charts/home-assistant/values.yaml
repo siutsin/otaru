@@ -1,0 +1,7 @@
+name: home-assistant
+namespace: home-assistant
+
+deployment:
+  image:
+    repository: ghcr.io/home-assistant/home-assistant
+    tag: 2023.12.3

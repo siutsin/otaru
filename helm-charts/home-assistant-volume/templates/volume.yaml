@@ -1,0 +1,60 @@
+{{- range $key, $value := .Values.volumes }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $key }}-pv
+  annotations:
+    longhorn.io/volume-scheduling-error: ''
+    pv.kubernetes.io/provisioned-by: driver.longhorn.io
+    volume.kubernetes.io/provisioner-deletion-secret-name: longhorn-crypto
+    volume.kubernetes.io/provisioner-deletion-secret-namespace: longhorn-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ $value.size }}
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: "1"
+      dataLocality: disabled
+      replicaAutoBalance: best-effort
+      encrypted: "true"
+    nodeStageSecretRef:
+      name: longhorn-crypto
+      namespace: longhorn-system
+    nodePublishSecretRef:
+      name: longhorn-crypto
+      namespace: longhorn-system
+    volumeHandle: {{ $key }}-vol
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: longhorn-crypto-global
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $key }}-pvc
+  namespace: {{ $.Values.namespace }}
+spec:
+  storageClassName: longhorn-crypto-global
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $value.size }}
+---
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: {{ $key }}-vol
+  namespace: longhorn-system
+spec:
+  accessMode: rwo
+  encrypted: true
+  frontend: blockdev
+  size: {{ $value.sizeBytes | quote }}
+  numberOfReplicas: 1
+  fromBackup: {{ $value.fromBackup | quote }}
+{{- end }}
