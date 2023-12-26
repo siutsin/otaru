@@ -11,6 +11,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [Hardware](#hardware)
   * [Cluster Components](#cluster-components)
   * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
+  * [CronJobs](#cronjobs)
   * [Bootstrap Cluster](#bootstrap-cluster)
   * [Routine Packages Update and Upgrade](#routine-packages-update-and-upgrade)
   * [Upgrade Cluster Version](#upgrade-cluster-version)
@@ -21,10 +22,10 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Status
 
-| GitHub Actions                                                                                                                                                                                        |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml)         |
-| [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)                                     |
+| GitHub Actions                                                                                                                                                                                |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml) |
+| [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)                             |
 
 ## Architecture
 
@@ -45,6 +46,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ad and tracker-blocking DNS server                                               |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                  |
 | Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                |
+| Application  | [Repave](helm-charts/repave)                                                                        | Daily restart of workloads within the cluster                                    |
 | Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                      |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                       |
@@ -72,6 +74,14 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority     |
 | Storage      | AWS             | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State    |
 | Storage      | Backblaze       | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup             |
+
+## CronJobs
+
+| Job                      | Schedule    |
+|--------------------------|-------------|
+| Repave                   | 02:00 Daily |
+| Longhorn Filesystem Trim | 04:00 Daily |
+| Longhorn Backup          | 06:00 Daily |
 
 ## Bootstrap Cluster
 
