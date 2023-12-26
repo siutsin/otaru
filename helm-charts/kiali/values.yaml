@@ -6,6 +6,8 @@ kiali-server:
     strategy: anonymous
   deployment:
     view_only_mode: true
+    pod_annotations:
+      proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
   login_token:
     signing_key: "not_in_use"
   external_services:
