@@ -20,13 +20,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [Repository Configuration](#repository-configuration)
 <!-- TOC -->
 
-## Status
-
-| GitHub Actions                                                                                                                                                                                |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml) |
-| [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)                             |
-
 ## Architecture
 
 ![Architecture](https://i.imgur.com/Eu9AD55.png)
