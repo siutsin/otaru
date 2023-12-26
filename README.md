@@ -13,10 +13,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
   * [CronJobs](#cronjobs)
   * [Bootstrap Cluster](#bootstrap-cluster)
-  * [Routine Packages Update and Upgrade](#routine-packages-update-and-upgrade)
-  * [Upgrade Cluster Version](#upgrade-cluster-version)
-  * [Nuke Cluster](#nuke-cluster)
-  * [Rebuild Cluster](#rebuild-cluster)
+  * [Oopsy](#oopsy)
   * [Repository Configuration](#repository-configuration)
 <!-- TOC -->
 
