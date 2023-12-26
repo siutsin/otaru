@@ -1,12 +1,15 @@
 # otaru
 
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.28.4+k3s2-blue)
+[![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yml)
+[![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)
+
 > Over-Engineering at Its Finest.
 
 Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 <!-- TOC -->
 * [otaru](#otaru)
-  * [Status](#status)
   * [Architecture](#architecture)
   * [Hardware](#hardware)
   * [Cluster Components](#cluster-components)
