@@ -4,7 +4,7 @@ metadata:
   name: backup
   namespace: {{ .Values.namespace }}
 spec:
-  cron: "0 5 * * *"
+  cron: "0 6 * * *"
   task: backup
   groups:
     - default
@@ -17,7 +17,7 @@ metadata:
   name: filesystem-trim
   namespace: {{ .Values.namespace }}
 spec:
-  cron: "0 2 * * *"
+  cron: "0 4 * * *"
   task: filesystem-trim
   groups:
     - default

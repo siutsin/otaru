@@ -14,10 +14,11 @@ local _ignoreDifferences = {
 
 local application = [
   { wave: '10', name: 'adguard-home', namespace: 'adguard-home', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguardHome },
-  { wave: '10', name: 'jellyfin-volume', namespace: 'jellyfin' },
-  { wave: '11', name: 'jellyfin', namespace: 'jellyfin' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
+  { wave: '10', name: 'jellyfin-volume', namespace: 'jellyfin' },
+  { wave: '10', name: 'repave', namespace: 'repave' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+  { wave: '11', name: 'jellyfin', namespace: 'jellyfin' },
 ];
 
 local baseline = [
