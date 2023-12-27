@@ -8,7 +8,7 @@ secret:
 app:
   image:
     repository: ghcr.io/siutsin/telegram-jung2-bot
-    tag: jung2bot-5.2.0
+    tag: jung2bot-5.2.1
   env:
     awsRegion: eu-west-1
     chatIdTable: jung2bot-prod-chatIds
@@ -19,7 +19,7 @@ app:
     stage: prod
   autoscaling:
     min: 2
-    max: 6
+    max: 9
 
 cron:
   image:

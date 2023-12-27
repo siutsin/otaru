@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/version: {{ .Values.app.image.tag }}
 spec:
   selector:
     matchLabels:
@@ -13,18 +14,29 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
+        app.kubernetes.io/version: {{ .Values.app.image.tag }}
     spec:
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
           ports:
             - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: "jung2bot/{{ .Values.app.env.stage }}/ping"
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: "jung2bot/{{ .Values.app.env.stage }}/ping"
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 3
           resources:
             requests:
               cpu: "1"
-              memory: "1Gi"
+              memory: "500Mi"
             limits:
-              memory: "1Gi"
+              memory: "500Mi"
           env:
             - name: PROFILE
               value: {{ .Values.app.env.profile }}

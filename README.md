@@ -41,6 +41,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                |
 | Application  | [Repave](helm-charts/repave)                                                                        | Daily restart of workloads within the cluster                                    |
 | Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                |
+| Application  | [冗PowerBot](helm-charts/jung2bot)                                                                   | Telegram bot tracks and counts individual message counts in groups.              |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                      |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                       |
 | Connectivity | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South and East-West traffic with mTLS                              |
