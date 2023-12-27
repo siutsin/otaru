@@ -7,5 +7,7 @@ cloudflare-tunnel:
     ingress:
       - hostname: "*.siutsin.com"
         service: http://istio-ingress.istio-ingress.svc.cluster.local:80
+      - hostname: "*.internal.siutsin.com"
+        service: http://istio-ingress-internal.istio-ingress-internal.svc.cluster.local:80
   image:
     tag: latest
