@@ -35,3 +35,11 @@ spec:
             port:
               number: 3000
             host: jung2bot-dev.jung2bot-dev.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /jung2bot/prod/
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: jung2bot.jung2bot.svc.cluster.local

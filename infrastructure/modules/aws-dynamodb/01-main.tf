@@ -15,10 +15,11 @@ module "dynamodb_table" {
   read_capacity       = each.value.billing_mode == "PROVISIONED" ? 1 : null
   write_capacity      = each.value.billing_mode == "PROVISIONED" ? 1 : null
 
-  stream_enabled     = true
-  stream_view_type   = "NEW_AND_OLD_IMAGES"
-  ttl_attribute_name = "ttl"
-  ttl_enabled        = true
+  point_in_time_recovery_enabled = true
+  stream_enabled                 = true
+  stream_view_type               = "NEW_AND_OLD_IMAGES"
+  ttl_attribute_name             = "ttl"
+  ttl_enabled                    = true
 
   timeouts = {
     update = "1h"

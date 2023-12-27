@@ -26,7 +26,7 @@ spec:
                       name: jung2bot-secrets
               resources:
                 requests:
-                  cpu: "0.5"
+                  cpu: "1"
                   memory: "500Mi"
                 limits:
                   memory: "500Mi"
