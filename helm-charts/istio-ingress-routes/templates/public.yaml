@@ -1,0 +1,37 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: public-routes
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "*.siutsin.com"
+  gateways:
+    - istio-ingress/gateway
+  http:
+    - match:
+        - uri:
+            exact: /argocd/api/webhook
+      route:
+        - destination:
+            port:
+              number: 80
+            host: argocd-server.argocd.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /httpbin/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: httpbin.httpbin.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /jung2bot/dev/
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: jung2bot-dev.jung2bot-dev.svc.cluster.local

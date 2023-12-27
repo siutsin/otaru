@@ -1,0 +1,16 @@
+name: jung2bot-dev
+namespace: jung2bot-dev
+
+secret:
+  remoteRef:
+    key: jung2bot-dev
+
+app:
+  env:
+    chatIdTable: jung2bot-dev-chatIds
+    logLevel: debug
+    messageTable: jung2bot-dev-messages
+    scaleUpReadCapacity: 1
+    stage: dev
+  autoscaling:
+    min: 1

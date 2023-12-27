@@ -1,0 +1,30 @@
+name: jung2bot
+namespace: jung2bot
+
+secret:
+  remoteRef:
+    key: jung2bot
+
+app:
+  image:
+    repository: ghcr.io/siutsin/telegram-jung2-bot
+    tag: jung2bot-5.2.0
+  env:
+    awsRegion: eu-west-1
+    chatIdTable: jung2bot-prod-chatIds
+    logLevel: info
+    messageTable: jung2bot-prod-messages
+    profile: default
+    scaleUpReadCapacity: 25
+    stage: prod
+  autoscaling:
+    min: 2
+    max: 6
+
+cron:
+  image:
+    repository: ghcr.io/siutsin/telegram-jung2-bot-cron
+    tag: cron-1.1.1
+  offWork:
+    env:
+      cronInterval: 15
