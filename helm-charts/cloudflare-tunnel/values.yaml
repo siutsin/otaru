@@ -3,6 +3,7 @@ namespace: cloudflare-tunnel
 cloudflare-tunnel:
   cloudflare:
     tunnelName: otaru
+    enableWarp: true
     ingress:
       - hostname: "*.siutsin.com"
         service: http://istio-ingress.istio-ingress.svc.cluster.local:80
