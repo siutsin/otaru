@@ -15,7 +15,7 @@ app:
     logLevel: info
     messageTable: jung2bot-prod-messages
     profile: default
-    scaleUpReadCapacity: 25
+    scaleUpReadCapacity: 600
     stage: prod
   autoscaling:
     min: 2
