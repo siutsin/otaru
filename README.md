@@ -26,12 +26,12 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                                                                                                                                                                                           | Role   | /dev/mmcblk0          | /dev/nvme0n1                                    | Remarks |
-|----------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------|-------------------------------------------------|---------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Extreme 32 GB | -                                               | -       |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               | -       |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               | -       |
-| raspberrypi-03 | Raspberry Pi 5 8GB         | [Raspberry Pi Active Cooler](https://www.raspberrypi.com/products/active-cooler/) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) | -       |
+| ID             | Device                     | HAT                                                                                                                                                                                           | Role   | /dev/mmcblk0          | /dev/nvme0n1                                    |
+|----------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------|-------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Extreme 32 GB | -                                               |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               |
+| raspberrypi-03 | Raspberry Pi 5 8GB         | [Raspberry Pi Active Cooler](https://www.raspberrypi.com/products/active-cooler/) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
 
 ## Cluster Components
 
@@ -152,11 +152,3 @@ make restart-all
 | UPTIME_ROBOT_API_KEY            |
 
 </details>
-
-<!-- Footnotes -->
-
-[^1]: https://forums.raspberrypi.com/viewtopic.php?t=296491
-
-[^2]: https://forums.raspberrypi.com/viewtopic.php?t=332503&start=25
-
-[^3]: https://github.com/raspberrypi/linux/issues/5060#issuecomment-1718290328
