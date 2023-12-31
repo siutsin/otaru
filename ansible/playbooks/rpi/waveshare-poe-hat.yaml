@@ -1,0 +1,30 @@
+---
+- hosts: waveshare_poe_hat
+  become: true
+
+  tasks:
+    - name: Enable I2C via raspi-config
+      # https://github.com/RPi-Distro/raspi-config/issues/206#issuecomment-1386435171
+      shell: sudo raspi-config nonint do_i2c 0
+
+    - name: Display Info on OLED Display
+      block:
+        - git:
+            repo: 'https://github.com/siutsin/Waveshare_PoE_HAT-B.git'
+            dest: '/tmp/Waveshare_PoE_HAT-B'
+          register: git_result
+          until: git_result is succeeded
+          retries: 3
+          delay: 5
+        - shell:
+            cmd: bash /tmp/Waveshare_PoE_HAT-B/setup.sh
+          become: yes
+          become_user: pi
+
+    - name: Ensure POE-HAT service is running
+      systemd:
+        name: poe-hat.service
+        state: started
+        enabled: yes
+      register: poe_hat_service_status
+      failed_when: poe_hat_service_status.state != 'started'

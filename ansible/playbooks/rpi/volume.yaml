@@ -1,0 +1,46 @@
+---
+- hosts: volume
+  become: true
+
+  tasks:
+    - name: Load dm_crypt Kernel Module
+      command: modprobe dm_crypt
+      changed_when: false
+
+    - name: Create a mounting point
+      file:
+        path: /media/storage
+        state: directory
+        mode: '0755'
+
+    - name: Check if /dev/nvme0n1 is partitioned
+      command: lsblk -no PARTTYPE /dev/nvme0n1
+      register: is_partitioned
+      failed_when: is_partitioned.stdout == ''
+      changed_when: false
+
+    - name: Create a new partition with parted
+      command: sudo parted /dev/nvme0n1 --script mklabel gpt mkpart primary ext4 0% 100%
+      when: is_partitioned.stdout == ''
+
+    - name: Format the partition to ext4
+      command: sudo mkfs.ext4 /dev/nvme0n1p1
+      when: is_partitioned.stdout == ''
+
+    - name: Mount the partition
+      mount:
+        path: /media/storage
+        src: /dev/nvme0n1p1
+        fstype: ext4
+        state: mounted
+
+    - name: Add fstab entry
+      lineinfile:
+        path: /etc/fstab
+        line: "/dev/nvme0n1p1 /media/storage ext4 defaults 0 0"
+
+    - name: Test fstab
+      command: sudo mount -a
+
+    - name: Check mounting point
+      command: df -h /media/storage/

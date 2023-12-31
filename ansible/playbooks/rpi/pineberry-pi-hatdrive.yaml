@@ -1,0 +1,25 @@
+---
+- hosts: pineberry_pi_hatdrive
+  become: true
+
+  tasks:
+    - name: Check if /boot/config.txt exists
+      stat:
+        path: /boot/config.txt
+      register: config_stat
+
+    - name: Ensure /boot/config.txt exists
+      file:
+        path: /boot/config.txt
+        state: touch
+      when: not config_stat.stat.exists
+
+    - name: Add nvme and PCIe Gen 3 configuration to /boot/config.txt
+      lineinfile:
+        path: /boot/config.txt
+        line: "{{ item }}"
+        create: yes
+        state: present
+      with_items:
+        - "dtparam=nvme"
+        - "dtparam=pciex1_gen=3"

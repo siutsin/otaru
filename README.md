@@ -26,11 +26,12 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                   | Role   | /dev/mmcblk0          | /dev/sda                                                          | Remarks                                                                           |
-|----------------|----------------------------|-----------------------|--------|-----------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Master | SanDisk Extreme 32 GB | -                                                                 | -                                                                                 |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) + RTL9210 Chipset | NVMe is problematic with RPi[^1][^2]. Switch to USB2 port resolved the issue[^3]. |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | Waveshare PoE HAT (B) | Worker | SanDisk Extreme 32 GB | -                                                                 | -                                                                                 |
+| ID             | Device                     | HAT                                                                                                                                                                                           | Role   | /dev/mmcblk0          | /dev/nvme0n1                                    | Remarks |
+|----------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------|-------------------------------------------------|---------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Extreme 32 GB | -                                               | -       |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               | -       |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               | -       |
+| raspberrypi-03 | Raspberry Pi 5 8GB         | [Raspberry Pi Active Cooler](https://www.raspberrypi.com/products/active-cooler/) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) | -       |
 
 ## Cluster Components
 
@@ -85,7 +86,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     ```
 2. **Add SSH Keys to `known_hosts`**
     ```shell
-    for i in {00..02}; do ssh-keygen -R "raspberrypi-$i.local"; done && for i in {00..02}; do ssh-keyscan "raspberrypi-$i.local" >> ~/.ssh/known_hosts; done
+    for i in {00..03}; do ssh-keygen -R "raspberrypi-$i.local"; done && for i in {00..03}; do ssh-keyscan "raspberrypi-$i.local" >> ~/.ssh/known_hosts; done
     ```
 3. **Set Up 1Password Credentials**
     - Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json`.

@@ -22,3 +22,16 @@
         regexp: '(.*)'
         line: '\1 {{ append_text }}'
       when: append_text not in cmdline_decoded
+      register: update_cmdline
+
+    - name: Reboot the system if cmdline.txt is updated
+      reboot:
+      when: update_cmdline is changed
+
+    - name: Wait for system to become reachable again
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600
+      when: update_cmdline is changed
