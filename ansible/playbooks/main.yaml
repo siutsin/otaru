@@ -1,12 +1,12 @@
 ---
-#- import_playbook: rpi/journald.yaml
-#- import_playbook: rpi/packages.yaml
-#- import_playbook: rpi/cgroup.yaml
-## Reboot if the cgroup is added - this indicates a fresh installation.
-#
-#- import_playbook: rpi/waveshare-poe-hat.yaml
-#- import_playbook: rpi/pineberry-pi-hatdrive.yaml
-#- import_playbook: rpi/volume.yaml
-#- import_playbook: rpi/reboot.yaml
+- import_playbook: rpi/journald.yaml
+- import_playbook: rpi/packages.yaml
+- import_playbook: rpi/cgroup.yaml
+# Reboot if the cgroup is added - this indicates a fresh installation.
+
+- import_playbook: rpi/waveshare-poe-hat.yaml
+- import_playbook: rpi/pineberry-pi-hatdrive.yaml
+- import_playbook: rpi/volume.yaml
+- import_playbook: rpi/reboot.yaml
 
 - import_playbook: k3s/install.yaml

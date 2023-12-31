@@ -26,6 +26,10 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          env:
+            # https://www.home-assistant.io/installation/linux#optimizations
+            - name: DISABLE_JEMALLOC
+              value: "true"
           ports:
             - name: http
               containerPort: 8123
@@ -44,6 +48,12 @@ spec:
             - mountPath: /config/configuration.yaml
               name: configmap
               subPath: configuration.yaml
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              memory: "1Gi"
       volumes:
         - name: config
           persistentVolumeClaim:
