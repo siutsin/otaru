@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'add-rpi5-node';
+local revision = 'HEAD';
 
 local _ignoreDifferences = {
   application: {
