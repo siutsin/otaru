@@ -18,14 +18,16 @@ spec:
     spec:
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: "app.kubernetes.io/name"
-                    operator: In
-                    values:
-                      - {{ .Values.name }}
-              topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app.kubernetes.io/name"
+                      operator: In
+                      values:
+                        - {{ .Values.name }}
+                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
