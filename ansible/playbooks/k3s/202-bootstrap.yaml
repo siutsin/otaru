@@ -7,15 +7,15 @@
     # Namespaces
 
     - name: Create Namespaces
-      shell: "helm template ../../helm-charts/namespaces | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/namespaces | kubectl create -f - 2>/dev/null || true"
 
     # Istio
 
     - name: Apply istio-base Helm template
-      shell: "helm template ../../helm-charts/istio-base -n istio-system | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/istio-base -n istio-system | kubectl create -f - 2>/dev/null || true"
 
     - name: Apply istiod Helm template
-      shell: "helm template ../../helm-charts/istiod -n istio-system | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/istiod -n istio-system | kubectl create -f - 2>/dev/null || true"
 
     - name: Wait for istiod to rollout
       shell: "kubectl rollout status deploy/istiod -n istio-system --timeout=15m"
@@ -23,7 +23,7 @@
     # Argo CD
 
     - name: Initialise Argo CD
-      shell: "helm template argocd ../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
 
     - name: Wait for argocd-server to rollout
       shell: "kubectl rollout status deploy/argocd-server -n argocd --timeout=15m"
@@ -43,10 +43,10 @@
     # 1Password Connect
 
     - name: Create Secret for `onepassword-connect`
-      shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '\n' < ../../token)\" 2>/dev/null || true"
+      shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '\n' < ../../../token)\" 2>/dev/null || true"
 
     - name: Initialise 1Password Secret Operator
-      shell: "helm template onepassword-connect ../../helm-charts/onepassword-connect -n onepassword --set-file connect.connect.credentials=../../1password-credentials.json | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl create -f - 2>/dev/null || true"
 
     - name: Wait for onepassword-connect to rollout
       shell: "kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m"
@@ -57,4 +57,4 @@
     # Bootstrap
 
     - name: Bootstrap Cluster
-      shell: "helm template ../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"

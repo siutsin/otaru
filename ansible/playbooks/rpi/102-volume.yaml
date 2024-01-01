@@ -3,10 +3,6 @@
   become: true
 
   tasks:
-    - name: Load dm_crypt Kernel Module
-      command: modprobe dm_crypt
-      changed_when: false
-
     - name: Create a mounting point
       file:
         path: /media/storage

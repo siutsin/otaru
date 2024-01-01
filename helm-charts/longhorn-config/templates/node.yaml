@@ -6,7 +6,7 @@ metadata:
 spec:
   allowScheduling: true
   disks:
-    default-disk-cd6871ca34a514c5:
+    default-disk-a6c00bbc1be864c4:
       allowScheduling: false
   name: raspberrypi-00
 ---
@@ -18,7 +18,7 @@ metadata:
 spec:
   allowScheduling: true
   disks:
-    default-disk-cd6871ca34a514c5:
+    default-disk-a6c00bbc1be864c4:
       allowScheduling: false
   name: raspberrypi-01
 ---
@@ -30,7 +30,7 @@ metadata:
 spec:
   allowScheduling: true
   disks:
-    default-disk-cd6871ca34a514c5:
+    default-disk-a6c00bbc1be864c4:
       allowScheduling: false
   name: raspberrypi-02
 ---
@@ -42,7 +42,7 @@ metadata:
 spec:
   allowScheduling: true
   disks:
-    default-disk-cd6871ca34a514c5:
+    default-disk-a6c00bbc1be864c4:
       allowScheduling: false
     disk-1:
       allowScheduling: true
