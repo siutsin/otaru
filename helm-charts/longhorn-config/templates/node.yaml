@@ -16,7 +16,10 @@ metadata:
   name: raspberrypi-01
   namespace: {{ .Values.namespace }}
 spec:
-  allowScheduling: false
+  allowScheduling: true
+  disks:
+    default-disk-cd6871ca34a514c5:
+      allowScheduling: false
   name: raspberrypi-01
 ---
 apiVersion: longhorn.io/v1beta2
