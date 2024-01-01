@@ -102,7 +102,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
         ```
 4. **Bootstrap Cluster**
     ```shell
-    ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
+    make main
     ```
 5. **Update AdGuard Home Password**
     - Update the password in the ConfigMap.

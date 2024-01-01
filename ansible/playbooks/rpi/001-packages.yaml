@@ -25,3 +25,7 @@
     - name: Clean up unused packages
       apt:
         autoremove: yes
+
+    - name: Load dm_crypt Kernel Module
+      command: modprobe dm_crypt
+      changed_when: false

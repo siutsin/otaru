@@ -1,4 +1,0 @@
----
-- import_playbook: node.yaml
-- import_playbook: node-label.yaml
-- import_playbook: bootstrap.yaml
