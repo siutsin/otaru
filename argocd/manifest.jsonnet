@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'HEAD';
+local revision = 'longhorn';
 
 local _ignoreDifferences = {
   application: {
