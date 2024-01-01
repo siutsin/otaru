@@ -5,20 +5,20 @@ volumes:
   cache:
     size: "2Gi"
     sizeBytes: "2147483648"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-83f8ccf9b6b04ca9&volume=cache-vol"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-a59552dc5941416d&volume=cache-vol"
   config:
     size: "2Gi"
     sizeBytes: "2147483648"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-ad5952bfa2434df4&volume=config-vol"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-c2b3e49edb9a4dbe&volume=config-vol"
   media:
     size: "1Ti"
     sizeBytes: "1099511627776"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-85a3a0285dfb40b9&volume=media-vol"
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-859a81dc87e549c2&volume=media-vol"
   sftpgo-home:
     size: "100Mi"
     sizeBytes: "104857600"
-    fromBackup: ""
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-360746cea8f541a2&volume=sftpgo-home-vol"
   sftpgo-data:
     size: "100Mi"
     sizeBytes: "104857600"
-    fromBackup: ""
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-46da85e3c3aa40b2&volume=sftpgo-data-vol"

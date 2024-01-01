@@ -5,4 +5,4 @@ volumes:
   home-assistant-config:
     size: "2Gi"
     sizeBytes: "2147483648"
-    fromBackup: ""
+    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-d366c921039c416f&volume=home-assistant-config-vol"
