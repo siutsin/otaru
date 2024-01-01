@@ -8,6 +8,7 @@ spec:
   disks:
     default-disk-a6c00bbc1be864c4:
       allowScheduling: false
+      evictionRequested: true
   name: raspberrypi-00
 ---
 apiVersion: longhorn.io/v1beta2
@@ -20,6 +21,7 @@ spec:
   disks:
     default-disk-a6c00bbc1be864c4:
       allowScheduling: false
+      evictionRequested: true
   name: raspberrypi-01
 ---
 apiVersion: longhorn.io/v1beta2
@@ -32,6 +34,7 @@ spec:
   disks:
     default-disk-a6c00bbc1be864c4:
       allowScheduling: false
+      evictionRequested: true
   name: raspberrypi-02
 ---
 apiVersion: longhorn.io/v1beta2
@@ -44,6 +47,7 @@ spec:
   disks:
     default-disk-a6c00bbc1be864c4:
       allowScheduling: false
+      evictionRequested: true
     disk-1:
       allowScheduling: true
       path: /media/storage
