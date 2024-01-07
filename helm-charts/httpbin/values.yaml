@@ -1,2 +1,10 @@
 name: httpbin
 namespace: httpbin
+
+app:
+  image:
+    repository: kong/httpbin
+    tag: 0.1.0
+  autoscaling:
+    min: 2
+    max: 6
