@@ -46,9 +46,9 @@ spec:
           resources:
             requests:
               cpu: "1"
-              memory: "500Mi"
+              memory: "1Gi"
             limits:
-              memory: "500Mi"
+              memory: "1Gi"
           env:
             - name: PROFILE
               value: {{ .Values.app.env.profile }}
