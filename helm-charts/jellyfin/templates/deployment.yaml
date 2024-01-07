@@ -15,15 +15,6 @@ spec:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
       volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: config-pvc
-        - name: cache
-          persistentVolumeClaim:
-            claimName: cache-pvc
-        - name: media
-          persistentVolumeClaim:
-            claimName: media-pvc
         - name: sftpgo-home
           persistentVolumeClaim:
             claimName: sftpgo-home-pvc
@@ -33,6 +24,21 @@ spec:
         - name: sftpgo-config
           configMap:
             name: sftpgo
+        - name: jellyfin-config
+          persistentVolumeClaim:
+            claimName: jellyfin-config-pvc
+        - name: jellyfin-cache
+          persistentVolumeClaim:
+            claimName: jellyfin-cache-pvc
+        - name: jellyfin-media-0000
+          persistentVolumeClaim:
+            claimName: jellyfin-media-0000-pvc
+        - name: jellyfin-media-1000
+          persistentVolumeClaim:
+            claimName: jellyfin-media-1000-pvc
+        - name: jellyfin-media-2000
+          persistentVolumeClaim:
+            claimName: jellyfin-media-2000-pvc
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -58,12 +64,16 @@ spec:
               path: /
               port: http
           volumeMounts:
-            - name: config
+            - name: jellyfin-config
               mountPath: /config
-            - name: cache
+            - name: jellyfin-cache
               mountPath: /cache
-            - name: media
-              mountPath: /media
+            - name: jellyfin-media-0000
+              mountPath: /media/0000
+            - name: jellyfin-media-1000
+              mountPath: /media/1000
+            - name: jellyfin-media-2000
+              mountPath: /media/2000
         - name: sftpgo
           securityContext:
             runAsUser: 0
@@ -107,9 +117,13 @@ spec:
               mountPath: /etc/sftpgo/sftpgo.json
               subPath: sftpgo.json
               readOnly: true
-            - mountPath: /jellyfin/media
-              name: media
             - mountPath: /var/lib/sftpgo
               name: sftpgo-home
             - mountPath: /srv/sftpgo
               name: sftpgo-data
+            - mountPath: /jellyfin/media/0000
+              name: jellyfin-media-0000
+            - mountPath: /jellyfin/media/1000
+              name: jellyfin-media-1000
+            - mountPath: /jellyfin/media/2000
+              name: jellyfin-media-2000
