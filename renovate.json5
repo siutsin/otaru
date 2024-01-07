@@ -13,9 +13,6 @@
       packageNames: [
         'ghcr.io/home-assistant/home-assistant'
       ],
-      matchUpdateTypes: [
-        'major'
-      ],
       automerge: true,
       minimumReleaseAge: '14 days'
     },
