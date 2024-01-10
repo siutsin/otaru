@@ -1,8 +1,7 @@
-name: home-assistant
-namespace: home-assistant
-
-volumes:
-  home-assistant-config:
-    size: "10Gi"
-    sizeBytes: "10737418240"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-d366c921039c416f&volume=home-assistant-config-vol"
+longhorn-volume-lib:
+  namespace: home-assistant
+  volumes:
+    home-assistant-config:
+      size: "10Gi"
+      sizeBytes: "10737418240"
+      fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-d366c921039c416f&volume=home-assistant-config-vol"
