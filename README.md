@@ -76,8 +76,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Job                      | Schedule    |
 |--------------------------|-------------|
 | Repave                   | 02:00 Daily |
-| Longhorn Filesystem Trim | 04:00 Daily |
-| Longhorn Backup          | 06:00 Daily |
+| Longhorn Backup          | 04:00 Daily |
 
 ## Bootstrap Cluster
 

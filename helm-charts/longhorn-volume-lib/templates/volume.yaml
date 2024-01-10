@@ -9,6 +9,8 @@ metadata:
     pv.kubernetes.io/provisioned-by: driver.longhorn.io
     volume.kubernetes.io/provisioner-deletion-secret-name: longhorn-crypto
     volume.kubernetes.io/provisioner-deletion-secret-namespace: longhorn-system
+  labels:
+    binding-key: {{ $key }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -44,6 +46,9 @@ spec:
   resources:
     requests:
       storage: {{ $value.size }}
+  selector:
+    matchLabels:
+      binding-key: {{ $key }}
 ---
 apiVersion: longhorn.io/v1beta2
 kind: Volume

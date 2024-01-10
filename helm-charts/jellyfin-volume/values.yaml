@@ -1,65 +1,63 @@
-name: jellyfin
-namespace: jellyfin
+longhorn-volume-lib:
+  namespace: jellyfin
+  volumes:
+    sftpgo-home:
+      size: "2Gi"
+      sizeBytes: "2147483648"
+      fromBackup: ""
+    sftpgo-data:
+      size: "2Gi"
+      sizeBytes: "2147483648"
+      fromBackup: ""
 
-volumes:
+    jellyfin-cache:
+      size: "10Gi"
+      sizeBytes: "10737418240"
+      fromBackup: ""
+    jellyfin-config:
+      size: "10Gi"
+      sizeBytes: "10737418240"
+      fromBackup: ""
 
-  sftpgo-home:
-    size: "2Gi"
-    sizeBytes: "2147483648"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-360746cea8f541a2&volume=sftpgo-home-vol"
-  sftpgo-data:
-    size: "2Gi"
-    sizeBytes: "2147483648"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-46da85e3c3aa40b2&volume=sftpgo-data-vol"
+    jellyfin-media-0000:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-0001:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-0002:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-0003:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
 
-  jellyfin-cache:
-    size: "10Gi"
-    sizeBytes: "10737418240"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-a59552dc5941416d&volume=cache-vol"
-  jellyfin-config:
-    size: "10Gi"
-    sizeBytes: "10737418240"
-    fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-c2b3e49edb9a4dbe&volume=config-vol"
+    jellyfin-media-1000:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-1001:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-1002:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-1003:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
+    jellyfin-media-1004:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
 
-  jellyfin-media-0000:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-0001:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-0002:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-0003:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-
-  jellyfin-media-1000:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-1001:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-1002:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-1003:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-  jellyfin-media-1004:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
-
-  jellyfin-media-2000:
-    size: "120Gi"
-    sizeBytes: "128849018880"
-    fromBackup: ""
+    jellyfin-media-2000:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
