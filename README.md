@@ -15,7 +15,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [Hardware](#hardware)
   * [Cluster Components](#cluster-components)
   * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
-  * [CronJobs](#cronjobs)
   * [Bootstrap Cluster](#bootstrap-cluster)
   * [Oopsy](#oopsy)
   * [Repository Configuration](#repository-configuration)
@@ -70,13 +69,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority     |
 | Storage      | AWS             | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State    |
 | Storage      | Backblaze       | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup             |
-
-## CronJobs
-
-| Job                      | Schedule    |
-|--------------------------|-------------|
-| Repave                   | 02:00 Daily |
-| Longhorn Backup          | 04:00 Daily |
 
 ## Bootstrap Cluster
 
