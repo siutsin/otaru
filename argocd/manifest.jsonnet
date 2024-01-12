@@ -26,6 +26,7 @@ local application = [
 local baseline = [
   { wave: '01', name: 'namespaces', namespace: 'default' },
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
+  { wave: '10', name: 'descheduler', namespace: 'descheduler' },
 ];
 
 // Re-track bootstrap resources
