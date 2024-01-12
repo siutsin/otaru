@@ -12,7 +12,7 @@ app:
   env:
     awsRegion: eu-west-1
     chatIdTable: jung2bot-prod-chatIds
-    logLevel: debug
+    logLevel: info
     messageTable: jung2bot-prod-messages
     profile: default
     scaleUpReadCapacity: 600
