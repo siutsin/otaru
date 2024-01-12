@@ -14,3 +14,4 @@ app:
     stage: dev
   autoscaling:
     min: 1
+    max: 1

@@ -13,6 +13,7 @@ namespaces:
   - namespace: jellyfin
   - namespace: jung2bot
   - namespace: jung2bot-dev
+  - namespace: keda
   - namespace: longhorn-system
     injectIstio: false
   - namespace: metallb-system
