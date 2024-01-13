@@ -10,6 +10,9 @@ local _ignoreDifferences = {
     istioBase: [{ group: 'admissionregistration.k8s.io', kind: 'ValidatingWebhookConfiguration', name: 'istiod-default-validator', jqPathExpressions: ['.webhooks[].failurePolicy'] }],
     istiod: [{ group: 'apps', kind: 'Deployment', name: 'istiod', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
   },
+  scheduling: {
+    keda: [{ group: 'apiregistration.k8s.io', kind: 'APIService', name: 'v1beta1.external.metrics.k8s.io', jqPathExpressions: ['.spec.insecureSkipTLSVerify'] }]
+  }
 };
 
 local application = [
@@ -26,7 +29,6 @@ local application = [
 local baseline = [
   { wave: '01', name: 'namespaces', namespace: 'default' },
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
-  { wave: '10', name: 'descheduler', namespace: 'descheduler' },
 ];
 
 // Re-track bootstrap resources
@@ -52,6 +54,11 @@ local monitoring = [
   { wave: '10', name: 'healthcheck-io', namespace: 'istio-ingress' },
 ];
 
+local scheduling = [
+  { wave: '02', name: 'descheduler', namespace: 'descheduler' },
+  { wave: '02', name: 'keda', namespace: 'keda', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.keda },
+];
+
 local security = [
   { wave: '01', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
@@ -64,5 +71,5 @@ local storage = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + connectivity + monitoring + security + storage
+  for appConfig in application + baseline + bootstrap + connectivity + monitoring + scheduling + security + storage
 ]
