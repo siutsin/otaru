@@ -4,6 +4,6 @@ ip: "192.168.1.51"
 
 image:
   repository: adguard/adguardhome
-  tag: v0.107.43
+  tag: v0.107.44
 
 replicas: 2
