@@ -7,14 +7,16 @@
   major: {
     automerge: false,
   },
-  minimumReleaseAge: '14 days',
+  minimumReleaseAge: '3 days',
+  rebaseWhen: "behind-base-branch",
   packageRules: [
     {
       packageNames: [
         'ghcr.io/home-assistant/home-assistant'
       ],
-      automerge: true,
-      minimumReleaseAge: '14 days'
+      major: {
+        automerge: true,
+      }
     },
-  ]
+  ],
 }
