@@ -2,6 +2,8 @@ name: longhorn
 namespace: longhorn-system
 
 longhorn:
+  preUpgradeChecker:
+    jobEnabled: false
   persistence:
     defaultClass: false
     defaultClassReplicaCount: 1 # increase once added more drives
