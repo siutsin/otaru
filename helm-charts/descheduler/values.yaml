@@ -1,3 +1,4 @@
 descheduler:
   podLabels:
     sidecar.istio.io/inject: "false"
+  successfulJobsHistoryLimit: 1
