@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.28.4+k3s2-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.28.7+k3s1-blue)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
 [![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yaml)
 [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)
