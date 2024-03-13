@@ -6,7 +6,7 @@ metadata:
 spec:
   schedule: "*/{{ .Values.cron.offWork.env.cronInterval }} * * * *"
   concurrencyPolicy: Replace
-  successfulJobsHistoryLimit: 0
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
@@ -48,7 +48,7 @@ spec:
   # 9:57-59 am UTC = 5:57-59 pm HKT"
   schedule: "57-59 9 * * 1-5"
   concurrencyPolicy: Replace
-  successfulJobsHistoryLimit: 0
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
