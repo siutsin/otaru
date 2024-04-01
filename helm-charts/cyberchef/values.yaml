@@ -1,0 +1,18 @@
+name: cyberchef
+namespace: cyberchef
+
+deployment:
+  image:
+    repository: mpepping/cyberchef
+    tag: v10.14.0@sha256:5ba21489a888c5f5485bba8ea6450f774c1ace835991d4a2695a45669dccd10c
+  resources:
+    requests:
+      cpu: 10m
+      memory: 50Mi
+    limits:
+      memory: 50Mi
+
+virtualService:
+  service:
+    port: 10219
+    loadBalancerIP: 192.168.1.51
