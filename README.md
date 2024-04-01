@@ -38,7 +38,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Category     | Name                                                                                                | Remarks                                                                          |
 |--------------|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ad and tracker-blocking DNS server                                               |
-| Application  | [CyberChef](helm-charts/cyberchef)                                                                  | [The Cyber Swiss Army Knife by GCHQ](https://github.com/gchq/CyberChef)          |
+| Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                               |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                  |
 | Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                |
 | Application  | [Repave](helm-charts/repave)                                                                        | Daily restart of workloads within the cluster                                    |
