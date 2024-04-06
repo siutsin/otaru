@@ -60,6 +60,9 @@ spec:
         - name: jellyfin-media-1004
           persistentVolumeClaim:
             claimName: jellyfin-media-1004-pvc
+        - name: jellyfin-media-1005
+          persistentVolumeClaim:
+            claimName: jellyfin-media-1005-pvc
 
         - name: jellyfin-media-2000
           persistentVolumeClaim:
@@ -113,6 +116,8 @@ spec:
               mountPath: /media/1003
             - name: jellyfin-media-1004
               mountPath: /media/1004
+            - name: jellyfin-media-1005
+              mountPath: /media/1005
 
             - name: jellyfin-media-2000
               mountPath: /media/2000
@@ -183,6 +188,8 @@ spec:
               name: jellyfin-media-1003
             - mountPath: /jellyfin/media/1004
               name: jellyfin-media-1004
+            - mountPath: /jellyfin/media/1005
+              name: jellyfin-media-1005
 
             - mountPath: /jellyfin/media/2000
               name: jellyfin-media-2000
