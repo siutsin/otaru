@@ -56,6 +56,10 @@ longhorn-volume-lib:
       size: "120Gi"
       sizeBytes: "128849018880"
       fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-dc5a4c5b586046f3&volume=jellyfin-media-1004-vol"
+    jellyfin-media-1005:
+      size: "120Gi"
+      sizeBytes: "128849018880"
+      fromBackup: ""
 
     jellyfin-media-2000:
       size: "120Gi"
