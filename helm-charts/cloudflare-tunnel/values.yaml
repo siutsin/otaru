@@ -1,11 +1,7 @@
 namespace: cloudflare-tunnel
 
-cloudflare-tunnel:
+cloudflare-tunnel-remote:
   cloudflare:
-    tunnelName: otaru
-    enableWarp: true
-    ingress:
-      - hostname: "*.siutsin.com"
-        service: http://istio-ingress.istio-ingress.svc.cluster.local:80
+    secretName: cloudflare-tunnel
   image:
-    tag: latest
+    tag: 2024.3.0
