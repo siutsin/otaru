@@ -11,12 +11,18 @@
   rebaseWhen: "behind-base-branch",
   packageRules: [
     {
-      packageNames: [
+      matchPackageNames: [
         'ghcr.io/home-assistant/home-assistant'
       ],
       major: {
         automerge: true,
       }
     },
+    {
+      matchPackageNames: [
+        'terraform'
+      ],
+      "allowedVersions": "<=1.5.7"
+    }
   ],
 }
