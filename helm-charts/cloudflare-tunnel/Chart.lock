@@ -1,6 +1,0 @@
-dependencies:
-- name: cloudflare-tunnel-remote
-  repository: file://vendor/cloudflare-tunnel-remote
-  version: 0.1.2
-digest: sha256:3cd23303146ce2fdf9da7301e12eeb1ddd7a4eb76f22c4182a80a4bcb1b9babf
-generated: "2024-04-07T18:30:37.424535+01:00"

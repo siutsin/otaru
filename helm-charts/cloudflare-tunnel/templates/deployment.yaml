@@ -1,3 +1,5 @@
+{{/*source: https://github.com/hedgieinsocks/helm-charts/tree/add/eso-support*/}}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,10 +13,7 @@ spec:
       pod: cloudflared
   template:
     metadata:
-      creationTimestamp: null
       annotations:
-        # These are here so the deployment rolls when the config or secret change.
-        checksum/secret: {{ .Values.cloudflare.tunnel_token | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
