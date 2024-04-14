@@ -3,13 +3,3 @@ name: cloudflare-tunnel
 description: A Helm chart for Kubernetes
 type: application
 version: 0.1.0
-dependencies:
-  - name: cloudflare-tunnel-remote
-    version: 0.1.2
-    repository: file://vendor/cloudflare-tunnel-remote # source: https://github.com/hedgieinsocks/helm-charts/tree/add/eso-support
-
-# https://cloudflare.github.io/helm-charts appears to be abandoned. (https://github.com/cloudflare/helm-charts/issues/66)
-#dependencies:
-#  - name: cloudflare-tunnel
-#    version: 0.3.0
-#    repository: https://cloudflare.github.io/helm-charts

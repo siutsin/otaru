@@ -1,3 +1,5 @@
+{{/*source: https://github.com/hedgieinsocks/helm-charts/tree/add/eso-support*/}}
+
 {{/*
 Expand the name of the chart.
 */}}
