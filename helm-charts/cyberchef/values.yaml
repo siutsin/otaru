@@ -4,7 +4,7 @@ namespace: cyberchef
 deployment:
   image:
     repository: mpepping/cyberchef
-    tag: v10.15.1@sha256:f36d830d403eba4c39b1ffe62dc4c610f9b1581bbd409da46c9bed47867c3e63
+    tag: v10.17.0@sha256:d485fe326f4200c389b1f0e78c4581cb829ebaaa5b1be4094ac058ebf2001495
   resources:
     requests:
       cpu: 10m
