@@ -11,7 +11,7 @@ on:
 
 env:
   tf_version: '1.5.7'
-  tg_version: '0.52.2'
+  tg_version: '0.57.5'
   working_dir: 'infrastructure/cloud'
   aws_region: 'eu-west-1'
 
