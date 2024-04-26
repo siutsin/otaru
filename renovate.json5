@@ -11,7 +11,7 @@
   rebaseWhen: "behind-base-branch",
   packageRules: [
     {
-      matchPackageNames: [
+      matchDepNames: [
         'ghcr.io/home-assistant/home-assistant'
       ],
       major: {
@@ -19,7 +19,7 @@
       }
     },
     {
-      matchPackageNames: [
+      matchDepNames: [
         'terraform'
       ],
       "allowedVersions": "<=1.5.7"
