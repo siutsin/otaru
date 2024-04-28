@@ -5,5 +5,5 @@ type: application
 version: 0.1.0
 dependencies:
   - name: keda
-    version: 2.13.2
+    version: 2.14.0
     repository: https://kedacore.github.io/charts
