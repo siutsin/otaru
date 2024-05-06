@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # For local terragrunt plan
-# $ cd infrastructure/cloud/cloudflare/access; source ../../hack/accounts.sh; terragrunt run-all plan
+# source ~/p/a/t/h/otaru/hack/accounts.sh; tg plan
 
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...

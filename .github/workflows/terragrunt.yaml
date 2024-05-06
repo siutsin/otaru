@@ -10,8 +10,8 @@ on:
       - 'infrastructure/**'
 
 env:
-  tf_version: '1.5.7'
-  tg_version: '0.57.5'
+  tofu_version: '1.7.0'
+  tg_version: '0.58.2'
   working_dir: 'infrastructure/cloud'
   aws_region: 'eu-west-1'
 
@@ -32,7 +32,7 @@ jobs:
       - name: Check terragrunt HCL
         uses: gruntwork-io/terragrunt-action@v2
         with:
-          tf_version: ${{ env.tf_version }}
+          tofu_version: ${{ env.tofu_version }}
           tg_version: ${{ env.tg_version }}
           tg_dir: ${{ env.working_dir }}
           tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
@@ -66,7 +66,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
           UPTIME_ROBOT_API_KEY: ${{ secrets.UPTIME_ROBOT_API_KEY }}
         with:
-          tf_version: ${{ env.tf_version }}
+          tofu_version: ${{ env.tofu_version }}
           tg_version: ${{ env.tg_version }}
           tg_dir: ${{ env.working_dir }}
           tg_command: 'run-all plan'
@@ -102,7 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_ADD_COMMENT_TOKEN }}
           UPTIME_ROBOT_API_KEY: ${{ secrets.UPTIME_ROBOT_API_KEY }}
         with:
-          tf_version: ${{ env.tf_version }}
+          tofu_version: ${{ env.tofu_version }}
           tg_version: ${{ env.tg_version }}
           tg_dir: ${{ env.working_dir }}
           tg_command: 'run-all apply'
