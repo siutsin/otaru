@@ -31,7 +31,7 @@ terraform {
       version = "${local.aws_version}"
     }
     b2 = {
-      source = "Backblaze/b2"
+      source  = "Backblaze/b2"
       version = "${local.b2_version}"
     }
     cloudflare = {
@@ -43,14 +43,14 @@ terraform {
       version = "${local.github_version}"
     }
     uptimerobot = {
-      source = "vexxhost/uptimerobot"
+      source  = "vexxhost/uptimerobot"
       version = "${local.uptime_robot_version}"
     }
   }
 }
 
 provider "aws" {
-  region  = "${local.aws_region}"
+  region = "${local.aws_region}"
 
   default_tags {
     tags = {
