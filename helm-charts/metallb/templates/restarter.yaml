@@ -1,3 +1,4 @@
+{{- if .Values.restarter.enabled }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -51,3 +52,4 @@ roleRef:
   kind: Role
   name: restarter
   apiGroup: rbac.authorization.k8s.io
+{{- end }}
