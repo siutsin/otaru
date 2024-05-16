@@ -4,7 +4,7 @@ namespace: jellyfin
 jellyfin:
   image:
     repository: jellyfin/jellyfin
-    tag: 10.9.0
+    tag: 10.9.1
   service:
     port: 8096
     loadBalancerIP: 192.168.1.51
