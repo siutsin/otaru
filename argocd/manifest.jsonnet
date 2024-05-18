@@ -34,9 +34,10 @@ local baseline = [
 
 // Re-track bootstrap resources
 local bootstrap = [
-  { wave: '06', name: 'argocd', namespace: 'argocd' },
-  { wave: '06', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
-  { wave: '06', name: 'onepassword-connect', namespace: 'onepassword' },
+  { wave: '20', name: 'argocd', namespace: 'argocd' },
+  { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
+  { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
+  { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
 local connectivity = [
@@ -56,12 +57,11 @@ local monitoring = [
 ];
 
 local scheduling = [
-  //{ wave: '02', name: 'descheduler', namespace: 'descheduler' },
+  { wave: '02', name: 'descheduler', namespace: 'descheduler' },
   { wave: '02', name: 'keda', namespace: 'keda', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.keda },
 ];
 
 local security = [
-  { wave: '01', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
 ];
 

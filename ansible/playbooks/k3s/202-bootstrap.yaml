@@ -54,6 +54,20 @@
     - name: Clean up onepassword-connect health check pod
       shell: "kubectl delete pod onepassword-connect-health-check -n onepassword"
 
+    # External Secrets Operator
+
+    - name: Initialise External Secrets Operator
+      shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"
+
+    - name: Wait for external-secrets to rollout
+      shell: "kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m"
+
+    - name: Wait for external-secrets-webhook to rollout
+      shell: "kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m"
+
+    - name: Wait for external-secrets-cert-controller to rollout
+      shell: "kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m"
+
     # Bootstrap
 
     - name: Bootstrap Cluster
