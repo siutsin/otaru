@@ -56,7 +56,7 @@ local monitoring = [
 ];
 
 local scheduling = [
-  { wave: '02', name: 'descheduler', namespace: 'descheduler' },
+  //{ wave: '02', name: 'descheduler', namespace: 'descheduler' },
   { wave: '02', name: 'keda', namespace: 'keda', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.keda },
 ];
 
