@@ -50,6 +50,7 @@ spec:
       evictionRequested: true
     disk-1:
       allowScheduling: true
+      diskType: filesystem
       path: /media/storage
   name: raspberrypi-03
 
