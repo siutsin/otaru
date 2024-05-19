@@ -11,6 +11,9 @@
 
     # Istio
 
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/istio-base && helm dep update ../../../helm-charts/istiod && helm dep update ../../../helm-charts/istio-ingress"
+
     - name: Apply istio-base Helm template
       shell: "helm template ../../../helm-charts/istio-base -n istio-system | kubectl create -f - 2>/dev/null || true"
 
@@ -22,14 +25,17 @@
 
     # Argo CD
 
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/argocd"
+
     - name: Initialise Argo CD
       shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
 
     - name: Wait for argocd-server to rollout
       shell: "kubectl rollout status deploy/argocd-server -n argocd --timeout=15m"
 
-    - name: Wait for argocd-notifications-controller to rollout
-      shell: "kubectl rollout status deploy/argocd-notifications-controller -n argocd --timeout=15m"
+    - name: Wait for argocd-applicationset-controller to rollout
+      shell: "kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m"
 
     - name: Wait for argocd-redis to rollout
       shell: "kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m"
@@ -41,6 +47,9 @@
       shell: "kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m"
 
     # 1Password Connect
+
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/onepassword-connect"
 
     - name: Create Secret for `onepassword-connect`
       shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '\n' < ../../../token)\" 2>/dev/null || true"
@@ -55,6 +64,9 @@
       shell: "kubectl delete pod onepassword-connect-health-check -n onepassword"
 
     # External Secrets Operator
+
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/external-secrets"
 
     - name: Initialise External Secrets Operator
       shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"

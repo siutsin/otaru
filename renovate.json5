@@ -20,9 +20,21 @@
     },
     {
       matchDepNames: [
-        'terraform'
+        'base'
       ],
-      "allowedVersions": "<=1.5.7"
+      "allowedVersions": "<=1.21.2"
+    },
+    {
+      matchDepNames: [
+        'gateway'
+      ],
+      "allowedVersions": "<=1.21.2"
+    },
+    {
+      matchDepNames: [
+        'istiod'
+      ],
+      "allowedVersions": "<=1.21.2"
     }
   ],
 }

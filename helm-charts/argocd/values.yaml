@@ -1,8 +1,4 @@
 argo-cd:
-  applicationSet:
-    enabled: false
-  dex:
-    enabled: false
   configs:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
@@ -10,3 +6,7 @@ argo-cd:
       server.insecure: true
       server.basehref: /argocd/
       server.rootpath: /argocd
+  dex:
+    enabled: false
+  notifications:
+    enabled: false
