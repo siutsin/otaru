@@ -1,0 +1,58 @@
+---
+- hosts: master
+  become: true
+  serial: 1
+  tasks:
+    - name: Run apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Clean up unused packages
+      apt:
+        autoremove: yes
+
+    - name: Reboot the master node
+      reboot:
+
+    - name: Wait for master node to become reachable
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600
+
+- hosts: worker
+  become: true
+  serial: 1
+  tasks:
+    - name: Cordon the worker node
+      shell: kubectl cordon {{ inventory_hostname_short }}
+      delegate_to: raspberrypi-00.local
+
+    - name: Drain the worker node
+      shell: kubectl drain {{ inventory_hostname_short }} --ignore-daemonsets --delete-emptydir-data
+      delegate_to: raspberrypi-00.local
+
+    - name: Run apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Clean up unused packages
+      apt:
+        autoremove: yes
+
+    - name: Reboot the worker node
+      reboot:
+
+    - name: Wait for worker node to become reachable
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600
+
+    - name: Uncordon the worker node
+      shell: kubectl uncordon {{ inventory_hostname_short }}
+      delegate_to: raspberrypi-00.local

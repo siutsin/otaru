@@ -6,5 +6,5 @@ app:
     repository: kong/httpbin
     tag: 0.1.0
   autoscaling:
-    min: 2
+    min: 3
     max: 6

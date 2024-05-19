@@ -4,7 +4,7 @@ main:
 	ansible-playbook -i ansible/inventory.ini ansible/playbooks/main.yaml
 
 maintenance:
-	ansible-playbook -i ansible/inventory.ini ansible/playbooks/maintenance.yaml
+	ansible-playbook -i ansible/inventory.ini ansible/playbooks/maintenance-graceful.yaml
 
 upgrade-cluster:
 	ansible-playbook -i ansible/inventory.ini ansible/playbooks/upgrade-cluster.yaml
