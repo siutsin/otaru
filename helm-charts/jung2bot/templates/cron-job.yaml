@@ -27,10 +27,10 @@ spec:
                       name: jung2bot-secrets
               resources:
                 requests:
-                  cpu: "1"
-                  memory: "500Mi"
+                  cpu: "0.1"
+                  memory: "100Mi"
                 limits:
-                  memory: "500Mi"
+                  memory: "100Mi"
               readinessProbe:
                 exec:
                   command:
