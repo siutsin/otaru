@@ -124,16 +124,16 @@ sudo fdisk -l
 ## Press 'p' for a primary partition.
 ## Proceed with all the default settings.
 ## Press 'w' to write the changes.
-sudo fdisk /dev/sda
+sudo fdisk /dev/nvme0n1
 
 # Format the partition to ext4
-sudo mkfs.ext4 /dev/sda1
+sudo mkfs.ext4 /dev/nvme0n1p1
 
 # Mount the partition
-sudo mount /dev/sda1 /media/storage
+sudo mount /dev/nvme0n1p1 /media/storage
 
 # Add the entry to /etc/fstab
-echo "/dev/sda1 /media/storage ext4 defaults 0 0" | sudo tee -a /etc/fstab
+echo "/dev/nvme0n1p1 /media/storage ext4 defaults 0 0" | sudo tee -a /etc/fstab
 
 # Test the fstab file
 sudo mount -a
