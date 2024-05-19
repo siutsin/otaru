@@ -4,3 +4,5 @@ istiod:
   defaults:
     global:
       hub: gcr.io/istio-release
+    pilot:
+      autoscaleMin: 2
