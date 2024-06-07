@@ -4,4 +4,4 @@ namespace: home-assistant
 deployment:
   image:
     repository: ghcr.io/home-assistant/home-assistant
-    tag: 2024.6.0
+    tag: 2024.6.1
