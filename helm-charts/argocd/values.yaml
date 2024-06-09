@@ -10,3 +10,6 @@ argo-cd:
     enabled: false
   notifications:
     enabled: false
+  redisSecretInit:
+    podLabels:
+      sidecar.istio.io/inject: "false"

@@ -19,4 +19,5 @@ namespaces:
     injectIstio: false
   - namespace: metallb-system
   - namespace: onepassword
+  - namespace: reloader
   - namespace: repave

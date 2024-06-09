@@ -38,3 +38,21 @@ spec:
       protocol: TCP
   selector:
     app.kubernetes.io/name: {{ .Values.name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-projectsend
+  namespace: {{ .Values.namespace }}
+  annotations:
+    metallb.universe.tf/allow-shared-ip: {{ .Values.jellyfin.service.loadBalancerIP }}
+    metallb.universe.tf/loadBalancerIPs: {{ .Values.jellyfin.service.loadBalancerIP }}
+spec:
+  type: LoadBalancer
+  ports:
+    - name: projectsend
+      port: 8181
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ .Values.name }}

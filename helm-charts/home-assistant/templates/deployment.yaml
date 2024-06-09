@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   strategy:
     type: Recreate
@@ -14,15 +16,9 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: "volume"
-                    operator: "In"
-                    values:
-                      - "true"
+      {{- if .Values.deployment.affinity }}
+      affinity: {{ toYaml .Values.deployment.affinity | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
@@ -46,18 +42,18 @@ spec:
             - mountPath: /config
               name: config
             - mountPath: /config/configuration.yaml
-              name: configmap
+              name: configuration
               subPath: configuration.yaml
           resources:
             requests:
-              cpu: "1"
-              memory: "1Gi"
+              cpu: "0.1"
+              memory: "500Mi"
             limits:
-              memory: "1Gi"
+              memory: "500Mi"
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: home-assistant-config-pvc
-        - name: configmap
+        - name: configuration
           configMap:
-            name: home-assistant-configmap
+            name: configuration
