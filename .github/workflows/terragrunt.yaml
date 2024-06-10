@@ -10,8 +10,8 @@ on:
       - 'infrastructure/**'
 
 env:
-  tofu_version: '1.7.0'
-  tg_version: '0.58.2'
+  tofu_version: '1.7.2'
+  tg_version: '0.58.15'
   working_dir: 'infrastructure/cloud'
   aws_region: 'eu-west-1'
 
