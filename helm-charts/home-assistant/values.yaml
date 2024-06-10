@@ -5,3 +5,13 @@ deployment:
   image:
     repository: ghcr.io/home-assistant/home-assistant
     tag: 2024.6.1
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: In
+                values:
+                  - "true"

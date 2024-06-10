@@ -75,6 +75,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    projectsend_internal = {
+      name  = "projectsend.internal"
+      value = local.internal_ip
+    },
+
     sftpgo_internal = {
       name  = "sftpgo.internal"
       value = local.internal_ip

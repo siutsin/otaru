@@ -37,3 +37,23 @@ spec:
             port:
               number: 31080
             host: {{ .Values.name }}.{{ .Values.namespace }}.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Values.name }}-projectsend
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "projectsend.internal.siutsin.com"
+  gateways:
+    - istio-ingress-internal/gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 8181
+            host: jellyfin-projectsend.{{ .Values.namespace }}.svc.cluster.local

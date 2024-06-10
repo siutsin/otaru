@@ -5,6 +5,8 @@ local revision = 'fix-longhorn';
 local _ignoreDifferences = {
   application: {
     adguardHome: [{ group: '*', kind: 'ConfigMap', name: 'adguard-home-configmap', jqPathExpressions: ['.data'] }],
+    // https://github.com/argoproj/argo-cd/issues/16640#issuecomment-1876600258
+    volume: [{ kind: 'PersistentVolume', jsonPointers: ['/spec/claimRef/resourceVersion', '/spec/claimRef/uid', '/status/lastPhaseTransitionTime'] }],
   },
   connectivity: {
     istioBase: [{ group: 'admissionregistration.k8s.io', kind: 'ValidatingWebhookConfiguration', name: 'istiod-default-validator', jqPathExpressions: ['.webhooks[].failurePolicy'] }],
@@ -18,13 +20,14 @@ local _ignoreDifferences = {
 local application = [
   { wave: '10', name: 'adguard-home', namespace: 'adguard-home', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguardHome },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
-  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
-  { wave: '10', name: 'jellyfin-volume', namespace: 'jellyfin' },
+  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.volume },
+  { wave: '10', name: 'jellyfin-volume', namespace: 'jellyfin', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.volume },
   { wave: '10', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot' },
   { wave: '10', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: { valueFiles: ['value/dev.yaml'] } },
   { wave: '10', name: 'repave', namespace: 'repave' },
-  //{ wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
-  //{ wave: '11', name: 'jellyfin', namespace: 'jellyfin' },
+  { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+//  { wave: '11', name: 'jellyfin-projectsend-mysql', namespace: 'jellyfin' },
+  { wave: '12', name: 'jellyfin', namespace: 'jellyfin' },
 ];
 
 local baseline = [
@@ -59,6 +62,7 @@ local monitoring = [
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
   { wave: '02', name: 'keda', namespace: 'keda', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.keda },
+  { wave: '02', name: 'reloader', namespace: 'reloader' },
 ];
 
 local security = [

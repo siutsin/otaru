@@ -24,58 +24,19 @@ spec:
         - name: sftpgo-config
           configMap:
             name: sftpgo
-
+        - name: projectsend-config
+          persistentVolumeClaim:
+            claimName: projectsend-config-pvc
         - name: jellyfin-config
           persistentVolumeClaim:
             claimName: jellyfin-config-pvc
         - name: jellyfin-cache
           persistentVolumeClaim:
             claimName: jellyfin-cache-pvc
-
-        - name: jellyfin-media-0000
-          persistentVolumeClaim:
-            claimName: jellyfin-media-0000-pvc
-        - name: jellyfin-media-0001
-          persistentVolumeClaim:
-            claimName: jellyfin-media-0001-pvc
-        - name: jellyfin-media-0002
-          persistentVolumeClaim:
-            claimName: jellyfin-media-0002-pvc
-        - name: jellyfin-media-0003
-          persistentVolumeClaim:
-            claimName: jellyfin-media-0003-pvc
-
-        - name: jellyfin-media-1000
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1000-pvc
-        - name: jellyfin-media-1001
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1001-pvc
-        - name: jellyfin-media-1002
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1002-pvc
-        - name: jellyfin-media-1003
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1003-pvc
-        - name: jellyfin-media-1004
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1004-pvc
-        - name: jellyfin-media-1005
-          persistentVolumeClaim:
-            claimName: jellyfin-media-1005-pvc
-
-        - name: jellyfin-media-2000
-          persistentVolumeClaim:
-            claimName: jellyfin-media-2000-pvc
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: "volume"
-                    operator: "In"
-                    values:
-                      - "true"
+        {{- include "jellyfin.volume" . | nindent 8 }}
+      {{- if .Values.jellyfin.affinity }}
+      affinity: {{ toYaml .Values.jellyfin.affinity | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.jellyfin.image.repository }}:{{ .Values.jellyfin.image.tag }}"
@@ -84,43 +45,15 @@ spec:
               containerPort: {{ .Values.jellyfin.service.port }}
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{- include "jellyfin.probe" . | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{- include "jellyfin.probe" . | nindent 12 }}
           volumeMounts:
             - name: jellyfin-config
               mountPath: /config
             - name: jellyfin-cache
               mountPath: /cache
-
-            - name: jellyfin-media-0000
-              mountPath: /media/0000
-            - name: jellyfin-media-0001
-              mountPath: /media/0001
-            - name: jellyfin-media-0002
-              mountPath: /media/0002
-            - name: jellyfin-media-0003
-              mountPath: /media/0003
-
-            - name: jellyfin-media-1000
-              mountPath: /media/1000
-            - name: jellyfin-media-1001
-              mountPath: /media/1001
-            - name: jellyfin-media-1002
-              mountPath: /media/1002
-            - name: jellyfin-media-1003
-              mountPath: /media/1003
-            - name: jellyfin-media-1004
-              mountPath: /media/1004
-            - name: jellyfin-media-1005
-              mountPath: /media/1005
-
-            - name: jellyfin-media-2000
-              mountPath: /media/2000
+            {{- include "jellyfin.volumeMount" . | nindent 12 }}
         - name: sftpgo
           securityContext:
             runAsUser: 0
@@ -152,13 +85,9 @@ spec:
               containerPort: 10000
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /healthz
-              port: telemetry
+            {{- include "jellyfin.telemetryProbe" . | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: telemetry
+            {{- include "jellyfin.telemetryProbe" . | nindent 12 }}
           volumeMounts:
             - name: sftpgo-config
               mountPath: /etc/sftpgo/sftpgo.json
@@ -168,28 +97,27 @@ spec:
               name: sftpgo-home
             - mountPath: /srv/sftpgo
               name: sftpgo-data
-
-            - mountPath: /jellyfin/media/0000
-              name: jellyfin-media-0000
-            - mountPath: /jellyfin/media/0001
-              name: jellyfin-media-0001
-            - mountPath: /jellyfin/media/0002
-              name: jellyfin-media-0002
-            - mountPath: /jellyfin/media/0003
-              name: jellyfin-media-0003
-
-            - mountPath: /jellyfin/media/1000
-              name: jellyfin-media-1000
-            - mountPath: /jellyfin/media/1001
-              name: jellyfin-media-1001
-            - mountPath: /jellyfin/media/1002
-              name: jellyfin-media-1002
-            - mountPath: /jellyfin/media/1003
-              name: jellyfin-media-1003
-            - mountPath: /jellyfin/media/1004
-              name: jellyfin-media-1004
-            - mountPath: /jellyfin/media/1005
-              name: jellyfin-media-1005
-
-            - mountPath: /jellyfin/media/2000
-              name: jellyfin-media-2000
+            {{- include "jellyfin.volumeMount" . | nindent 12 }}
+        - name: projectsend
+          securityContext:
+            runAsUser: 0
+          image: "ghcr.io/linuxserver/projectsend:r1605-ls190"
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Europe/London"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            {{- include "jellyfin.probe" . | nindent 12 }}
+          readinessProbe:
+            {{- include "jellyfin.probe" . | nindent 12 }}
+          volumeMounts:
+            - mountPath: /config/projectsend
+              name: projectsend-config
+            {{- include "jellyfin.volumeMount" . | nindent 12 }}

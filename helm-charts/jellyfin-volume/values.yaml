@@ -10,6 +10,15 @@ longhorn-volume-lib:
       sizeBytes: "2147483648"
       fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-3c52ff8fee9d44ae&volume=sftpgo-data-vol"
 
+    projectsend-config:
+      size: "100Mi"
+      sizeBytes: "104857600"
+      fromBackup: ""
+    projectsend-data: # mysql db
+      size: "2Gi"
+      sizeBytes: "2147483648"
+      fromBackup: ""
+
     jellyfin-cache:
       size: "10Gi"
       sizeBytes: "10737418240"

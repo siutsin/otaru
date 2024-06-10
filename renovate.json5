@@ -20,21 +20,11 @@
     },
     {
       matchDepNames: [
-        'base'
+        'base',
+        'gateway',
+        'istiod',
       ],
       "allowedVersions": "<=1.21.2"
     },
-    {
-      matchDepNames: [
-        'gateway'
-      ],
-      "allowedVersions": "<=1.21.2"
-    },
-    {
-      matchDepNames: [
-        'istiod'
-      ],
-      "allowedVersions": "<=1.21.2"
-    }
   ],
 }

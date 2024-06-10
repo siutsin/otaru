@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: home-assistant-configmap
+  name: configuration
   namespace: {{ .Values.namespace }}
 data:
   configuration.yaml: |
