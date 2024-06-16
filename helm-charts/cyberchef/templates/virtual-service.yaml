@@ -15,5 +15,5 @@ spec:
       route:
         - destination:
             port:
-              number: {{ .Values.virtualService.service.port }}
+              number: {{ .Values.service.port }}
             host: {{ .Values.name }}.{{ .Values.namespace }}.svc.cluster.local

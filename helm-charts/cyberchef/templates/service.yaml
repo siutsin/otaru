@@ -7,8 +7,8 @@ spec:
   type: ClusterIP
   ports:
     - name: main
-      port: {{ .Values.virtualService.service.port }}
+      port: {{ .Values.service.port }}
       protocol: TCP
-      targetPort: 8000
+      targetPort: {{ .Values.service.targetPort }}
   selector:
     app.kubernetes.io/name: {{ .Values.name }}
