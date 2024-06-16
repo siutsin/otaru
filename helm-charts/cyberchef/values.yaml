@@ -3,8 +3,8 @@ namespace: cyberchef
 
 deployment:
   image:
-    repository: ghcr.io/gchq/cyberchef
-    tag: 10.18.8
+    repository: mpepping/cyberchef
+    tag: v10.18.8
   resources:
     requests:
       cpu: 10m
@@ -14,4 +14,4 @@ deployment:
 
 service:
   port: 10219
-  targetPort: 80
+  targetPort: 8000
