@@ -22,11 +22,11 @@ spec:
             allowPrivilegeEscalation: false
           ports:
             - name: main
-              containerPort: 8000
+              containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              port: 8000
+              port: {{ .Values.service.targetPort }}
               path: /
               scheme: HTTP
           resources:
