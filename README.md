@@ -51,8 +51,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                     |
 | Monitoring   | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network; Read-Only                                                 |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                          |
-| Scheduling   | [descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                 |
-| Scheduling   | [reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                    |
+| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                 |
+| Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                    |
 | Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                           |
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                          |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                     |
