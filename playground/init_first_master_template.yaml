@@ -17,6 +17,7 @@ runcmd:
     ip=$(ifconfig enp0s2 | grep 'inet ' | awk '{print $2}')
     while true; do
       fail=$(curl --interface enp0s2 -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.30.3+k3s1 sh -s - \
+        --datastore-endpoint=http://{{ETCD_IP}}:2379 \
         --disable metrics-server \
         --disable servicelb \
         --disable traefik \

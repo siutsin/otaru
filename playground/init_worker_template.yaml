@@ -14,5 +14,5 @@ runcmd:
     done
   - |
     # install k3s
-    curl -interface enp0s2 -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.30.3+k3s1 K3S_TOKEN={{NODE_TOKEN}} K3S_URL=https://{{MASTER_IP}}:6443 sh -
+    curl -interface enp0s2 -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.30.3+k3s1 K3S_TOKEN={{NODE_TOKEN}} K3S_URL=https://{{FIRST_MASTER_IP}}:6443 sh -
   - echo "alias k='kubectl'" >> /home/ubuntu/.bash_aliases
