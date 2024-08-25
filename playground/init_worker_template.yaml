@@ -4,7 +4,18 @@ package_upgrade: true
 packages:
   - net-tools
 
+write_files:
+  - path: /etc/sysctl.conf
+    content: |
+      fs.inotify.max_user_watches=524288
+      fs.inotify.max_user_instances=512
+    owner: root:root
+    permissions: '0644'
+
 runcmd:
+  # symlink to /etc/sysctl.conf
+  - sysctl -p /etc/sysctl.d/99-custom.conf
+
   - |
     # wait until enp0s2 interface is ready 
     while true; do
@@ -12,6 +23,7 @@ runcmd:
         [ -n "$ip_address" ] && break
         sleep 2
     done
+
   - |
     # install k3s
     curl -interface enp0s2 -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.30.3+k3s1 K3S_TOKEN={{NODE_TOKEN}} K3S_URL=https://{{FIRST_MASTER_IP}}:6443 sh -

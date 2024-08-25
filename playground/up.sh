@@ -8,8 +8,8 @@ set -euxo pipefail
 
 # Configuration variables
 NUM_MASTER_NODES=3
-NUM_WORKER_NODES=3
-NODE_MEMORY=1G
+NUM_WORKER_NODES=1
+NODE_MEMORY=2G
 NODE_DISK=6G
 ETCD_DISK=4G
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -61,3 +61,6 @@ mv "$SCRIPT_DIR/config" ~/.kube/config
 chmod 600 ~/.kube/config
 kubectl config set-context playground
 rm -f "$SCRIPT_DIR/kubeconfig"
+
+# Restart all instances
+multipass restart --all
