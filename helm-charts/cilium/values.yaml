@@ -2,6 +2,8 @@ cilium:
   encryption:
     enabled: true
     type: wireguard
+  externalIPs:
+    enabled: true
   gatewayAPI:
     enabled: true
   hubble:

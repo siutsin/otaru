@@ -20,7 +20,7 @@ helm template helm-charts/gateway-api \
 # Apply Cilium with the first master node's API server address
 helm template helm-charts/cilium \
   -n kube-system \
-  --set cilium.k8sServiceHost="$(multipass info master-00 --format json | jq -r '.info["master-00"].ipv4[1]')" \
+  --set cilium.k8sServiceHost="$(multipass info master00 --format json | jq -r '.info["master00"].ipv4[1]')" \
   | kubectl create -f - 2>/dev/null || true
 
 # Wait for the deployment to be successfully rolled out.
@@ -29,3 +29,9 @@ kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m
 kubectl rollout status ds/cilium -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m
+
+# Apply L2 announcement for HA Kubernetes api-server
+helm template helm-charts/cilium-ha-k8s-api-server \
+  -n kube-system \
+  --set k8sApiServer.l2AnnouncementPolicy.interfaces='{enp0s2}' \
+  | kubectl create -f - 2>/dev/null || true
