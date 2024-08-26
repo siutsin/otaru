@@ -1,0 +1,24 @@
+cilium:
+  encryption:
+    enabled: true
+    type: wireguard
+  gatewayAPI:
+    enabled: true
+  hubble:
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+  ipam:
+    operator:
+      clusterPoolIPv4PodCIDRList: 10.42.0.0/16
+  k8sClientRateLimit:
+    qps: 32
+    burst: 60
+  k8sServiceHost: CHANGE_ME
+  k8sServicePort: 6443
+  kubeProxyReplacement: true
+  l2announcements:
+    enabled: true
+  operator:
+    replicas: 1
