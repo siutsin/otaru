@@ -14,6 +14,8 @@ spec:
           annotations:
             sidecar.istio.io/inject: "false"
         spec:
+          securityContext:
+            runAsNonRoot: true
           containers:
             - name: healthcheck
               image: ghcr.io/siutsin/otaru-healthcheck:latest
@@ -44,5 +46,10 @@ spec:
                   command:
                     - timeout
                 initialDelaySeconds: 30
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
           restartPolicy: Never
 
