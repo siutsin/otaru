@@ -25,10 +25,9 @@ runcmd:
     done
 
   - |
-    # install k3s
     ip=$(ifconfig enp0s2 | grep 'inet ' | awk '{print $2}')
     while true; do
-      fail=$(curl --interface enp0s2 -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.30.3+k3s1 sh -s - \
+      fail=$(curl --interface enp0s2 -sfL https://get.k3s.io | sh -s - \
         --server https://{{FIRST_MASTER_IP}}:6443 \
         --token {{NODE_TOKEN}} \
         --datastore-endpoint=http://{{ETCD_IP}}:2379 \
@@ -39,6 +38,7 @@ runcmd:
         --disable-network-policy \
         --flannel-backend=none \
         --secrets-encryption \
+        --tls-san 192.168.1.52 \
         --tls-san "$ip" \
         --write-kubeconfig-mode=644 \
         2>&1 | grep "Download failed"
@@ -49,4 +49,5 @@ runcmd:
       echo "retry in 2 seconds..."
       sleep 2
     done
+
   - echo "alias k='kubectl'" >> /home/ubuntu/.bash_aliases

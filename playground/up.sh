@@ -28,7 +28,7 @@ ETCD_IP=$(multipass info etcd --format json | jq -r '.info["etcd"].ipv4[1]')
 # Launch the first master node
 # The first master node is critical as it will be used to generate the node token required by other master nodes.
 # The etcd IP address is inserted into the cloud-init configuration before launching the node.
-FIRST_MASTER_NODE="master-00"
+FIRST_MASTER_NODE="master00"
 sed "s/{{ETCD_IP}}/${ETCD_IP}/g" "$SCRIPT_DIR/init_first_master_template.yaml" > "$SCRIPT_DIR/init_master.yaml"
 multipass launch --name $FIRST_MASTER_NODE --network en0 --memory $NODE_MEMORY --disk $NODE_DISK --cloud-init "$SCRIPT_DIR/init_master.yaml"
 FIRST_MASTER_IP=$(multipass info $FIRST_MASTER_NODE --format json | jq -r ".info[\"$FIRST_MASTER_NODE\"].ipv4[1]")
@@ -37,14 +37,14 @@ NODE_TOKEN=$(multipass exec $FIRST_MASTER_NODE -- sudo cat /var/lib/rancher/k3s/
 # Launch the remaining master nodes
 sed "s/{{FIRST_MASTER_IP}}/${FIRST_MASTER_IP}/g; s/{{NODE_TOKEN}}/${NODE_TOKEN}/g; s/{{ETCD_IP}}/${ETCD_IP}/g" "$SCRIPT_DIR/init_other_master_template.yaml" > "$SCRIPT_DIR/init_master.yaml"
 for i in $(seq 1 $((NUM_MASTER_NODES - 1))); do
-  MASTER_NODE=$(printf "master-%02d" "$i")
+  MASTER_NODE=$(printf "master%02d" "$i")
   multipass launch --name "$MASTER_NODE" --network en0 --memory $NODE_MEMORY --disk $NODE_DISK --cloud-init "$SCRIPT_DIR/init_master.yaml" &
 done
 
 # Launch the worker nodes
 sed "s/{{FIRST_MASTER_IP}}/${FIRST_MASTER_IP}/g; s/{{NODE_TOKEN}}/${NODE_TOKEN}/g" "$SCRIPT_DIR/init_worker_template.yaml" > "$SCRIPT_DIR/init_worker.yaml"
 for i in $(seq 0 $((NUM_WORKER_NODES - 1))); do
-  WORKER_NODE=$(printf "worker-%02d" "$i")
+  WORKER_NODE=$(printf "worker%02d" "$i")
   multipass launch --verbose --name "$WORKER_NODE" --network en0 --memory $NODE_MEMORY --disk $NODE_DISK --cloud-init "$SCRIPT_DIR/init_worker.yaml" &
 done
 
