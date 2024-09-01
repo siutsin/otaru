@@ -1,0 +1,9 @@
+apiVersion: networking.siutsin.com/v1
+kind: KubernetesServicePatcher
+metadata:
+  labels:
+    app.kubernetes.io/name: kubernetes-service-patcher
+    app.kubernetes.io/managed-by: kustomize
+  name: kubernetesservicepatcher-sample
+spec:
+  # TODO(user): Add fields here

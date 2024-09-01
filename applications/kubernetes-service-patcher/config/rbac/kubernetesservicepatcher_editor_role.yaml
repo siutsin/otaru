@@ -1,0 +1,27 @@
+# permissions for end users to edit kubernetesservicepatchers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: kubernetes-service-patcher
+    app.kubernetes.io/managed-by: kustomize
+  name: kubernetesservicepatcher-editor-role
+rules:
+- apiGroups:
+  - networking.siutsin.com
+  resources:
+  - kubernetesservicepatchers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.siutsin.com
+  resources:
+  - kubernetesservicepatchers/status
+  verbs:
+  - get

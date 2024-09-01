@@ -2,7 +2,8 @@
 
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.30.3+k3s1-blue)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
-[![Publish Docker Image](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-docker-image.yaml)
+[![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
+[![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
 [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)
 
 > Over-Engineering at Its Finest.
