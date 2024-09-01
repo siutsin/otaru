@@ -2,26 +2,14 @@
 
 set -euxo pipefail
 
-# clean up
-#helm template helm-charts/cilium -n kube-system | kubectl delete -f - || true
-#for crd in $(kubectl get crds -o jsonpath='{.items[?(@.spec.group=="cilium.io")].metadata.name}'); do
-#  kubectl delete crd "$crd"
-#done
-#for crd in $(kubectl get crds -o jsonpath='{.items[?(@.spec.group=="gateway.networking.k8s.io")].metadata.name}'); do
-#  kubectl delete crd "$crd"
-#done
-
 # Apply Gateway API CRDs
-helm template helm-charts/gateway-api \
-  -n kube-system \
-  --include-crds \
-  | kubectl create -f - 2>/dev/null || true
+helm upgrade --install gateway-api helm-charts/gateway-api \
+  -n kube-system
 
 # Apply Cilium with the first master node's API server address
-helm template helm-charts/cilium \
+helm upgrade --install cilium helm-charts/cilium \
   -n kube-system \
-  --set cilium.k8sServiceHost="$(multipass info master00 --format json | jq -r '.info["master00"].ipv4[1]')" \
-  | kubectl create -f - 2>/dev/null || true
+  --set cilium.k8sServiceHost="$(multipass info master00 --format json | jq -r '.info["master00"].ipv4[1]')"
 
 # Wait for the deployment to be successfully rolled out.
 kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m
@@ -30,8 +18,29 @@ kubectl rollout status ds/cilium -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m
 
-# Apply L2 announcement for HA Kubernetes api-server
-helm template helm-charts/cilium-ha-k8s-api-server \
+# Assign dedicated virtual IP to Kubernetes api-server service
+helm upgrade --install gateway-api-kubernetes helm-charts/gateway-api-kubernetes \
+  -n default \
+  --set l2AnnouncementPolicy.interface=enp0s2
+
+# Apply service routes
+helm upgrade --install gateway-api-routes helm-charts/gateway-api-routes \
   -n kube-system \
-  --set k8sApiServer.l2AnnouncementPolicy.interfaces='{enp0s2}' \
-  | kubectl create -f - 2>/dev/null || true
+  --set l2AnnouncementPolicy.interface=enp0s2
+
+# Configure nodes to use LB api-server IP
+LB_API_SERVER_IP="https://192.168.1.52"
+# master nodes except the first master node
+for master_node in $(multipass list --format json | jq -r '.list[] | select(.name | test("^master[0-9]{2}$")) | select(.name != "master00") | .name'); do
+    multipass exec "$master_node" -- sudo sed -i "s|'https://.*:6443'|'https://$LB_API_SERVER_IP'|" /etc/systemd/system/k3s.service
+    multipass exec "$master_node" -- sudo systemctl daemon-reload
+    multipass exec "$master_node" -- sudo systemctl restart k3s
+    # when k3s server restart, it will update the kubernetes service and revert the change of LoadBalancer type
+    kubectl patch service kubernetes -n default -p '{"spec": {"type": "LoadBalancer"}}'
+done
+for worker_node in $(multipass list --format json | jq -r '.list[] | select(.name | test("^worker[0-9]{2}$")) | .name'); do
+    multipass exec "$worker_node" -- sudo sed -i "s|^K3S_URL=.*|K3S_URL='$LB_API_SERVER_IP'|" /etc/systemd/system/k3s-agent.service.env
+    multipass exec "$worker_node" -- sudo systemctl daemon-reload
+    multipass exec "$worker_node" -- sudo systemctl restart k3s-agent
+done
+

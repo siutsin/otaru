@@ -1,0 +1,12 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  blocks:
+    - cidr: {{ .Values.loadBalancerIPPool.cidr }}
+  serviceSelector:
+    serviceSelector:
+      matchExpressions:
+        - { key: component, operator: In, values: [ apiserver ] }

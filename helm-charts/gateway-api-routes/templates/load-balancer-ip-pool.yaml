@@ -1,0 +1,11 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  blocks:
+    - cidr: {{ .Values.loadBalancerIPPool.cidr }}
+  serviceSelector:
+    matchExpressions:
+      - { key: gateway.networking.k8s.io/gateway-name, operator: In, values: [ {{ .Values.name }} ] }

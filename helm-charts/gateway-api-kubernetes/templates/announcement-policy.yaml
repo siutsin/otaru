@@ -1,0 +1,17 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  serviceSelector:
+    matchLabels:
+      component: apiserver
+  interfaces:
+    - {{ .Values.l2AnnouncementPolicy.interface }}
+  externalIPs: true
+  loadBalancerIPs: true

@@ -6,6 +6,7 @@ cilium:
     enabled: true
   gatewayAPI:
     enabled: true
+    enableAlpn: true
   hubble:
     relay:
       enabled: true
