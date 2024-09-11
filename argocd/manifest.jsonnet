@@ -55,7 +55,7 @@ local connectivity = [
 ];
 
 local monitoring = [
-  { wave: '03', name: 'kiali', namespace: 'istio-system' },
+//  { wave: '03', name: 'kiali', namespace: 'istio-system' },
   { wave: '10', name: 'healthcheck-io', namespace: 'istio-ingress' },
 ];
 
