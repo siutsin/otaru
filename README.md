@@ -27,12 +27,12 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                     | HAT                                                                                                                                                                                           | Role   | /dev/mmcblk0          | /dev/nvme0n1                                    |
-|----------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------|-------------------------------------------------|
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Extreme 32 GB | -                                               |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Worker | SanDisk Extreme 32 GB | -                                               |
-| raspberrypi-03 | Raspberry Pi 5 8GB         | [Raspberry Pi Active Cooler](https://www.raspberrypi.com/products/active-cooler/) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Worker | SanDisk Extreme 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
+| ID             | Device                     | HAT                                                                                                                                                                                           | Role   | /dev/mmcblk0                | /dev/nvme0n1                                    |
+|----------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------------|-------------------------------------------------|
+| raspberrypi-00 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Max Endurance 32 GB | -                                               |
+| raspberrypi-01 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Max Endurance 32 GB | -                                               |
+| raspberrypi-02 | Raspberry Pi 4 Model B 8GB | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                          | Master | SanDisk Max Endurance 32 GB | -                                               |
+| raspberrypi-03 | Raspberry Pi 5 8GB         | [Raspberry Pi Active Cooler](https://www.raspberrypi.com/products/active-cooler/) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Worker | SanDisk Extreme 32 GB       | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
 
 ## Cluster Components
 
@@ -86,41 +86,52 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     for i in {00..03}; do ssh-keygen -R "raspberrypi-$i.local"; done && for i in {00..03}; do ssh-keyscan "raspberrypi-$i.local" >> ~/.ssh/known_hosts; done
     ```
 3. **Set Up 1Password Credentials**
-    - Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json`.
-    - Save the access token to the file `token`.
-        ```shell
-        ❯ tree $(pwd) -L 1
-        /path/to/project/otaru
-        ├── 1password-credentials.json
-        ├── 1password-credentials.json.sample
-        ├── ...
-        ├── token
-        └── token.sample
-        ```
+
+   Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json` and
+   save the access token to the file `token`.
+
+    ```shell
+    ❯ tree $(pwd) -L 1
+    /path/to/project/otaru
+    ├── 1password-credentials.json
+    ├── 1password-credentials.json.sample
+    ├── ...
+    ├── token
+    └── token.sample
+    ```
+
 4. **Bootstrap Cluster**
     ```shell
-    make main
+    make
     ```
-5. **Update AdGuard Home Password**
-    - Update the password in the ConfigMap.
 
 ## Oopsy
+
+Update host packages and reboot the entire cluster.
 
 ```shell
 make maintenance
 ```
 
+Upgrade k3s kubernetes version and restart workloads.
+
 ```shell
 make upgrade-cluster
 ```
+
+Wipe everything and start from scratch.
 
 ```shell
 make nuke-cluster
 ```
 
+Rebuild the cluster.
+
 ```shell
-make rebuild-cluster
+make build-cluster
 ```
+
+Restart all workloads.
 
 ```shell
 make restart-all

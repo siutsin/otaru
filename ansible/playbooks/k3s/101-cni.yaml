@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+
+    # Gateway API CRDs
+
+    - name: Update dependency
+      shell: "bash ../../../helm-charts/gateway-api/hack/download-crds.sh"
+
+    - name: Apply gateway-api Helm template
+      shell: "helm template ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl create -f - 2>/dev/null || true"
+
+    # Apply Cilium with the first master node's API server address
+
+    - name: Read the kubeconfig file
+      set_fact:
+        kubeconfig_content: "{{ lookup('file', '~/.kube/config') }}"
+      no_log: true
+
+    - name: Extract the IP address from the kubeconfig
+      set_fact:
+        FIRST_MASTER_IP: "{{ kubeconfig_content | regex_search('server: https://([0-9.]+):6443', '\\1') }}"
+
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/cilium"
+
+    - name: Apply cilium Helm template
+      # https://github.com/cilium/cilium/issues/33239#issuecomment-2177949109
+      shell: "helm template ../../../helm-charts/cilium -n kube-system --api-versions='gateway.networking.k8s.io/v1/GatewayClass' --set cilium.k8sServiceHost={{ FIRST_MASTER_IP }} | kubectl create -f - 2>/dev/null || true"
+
+    - name: Wait for cilium-operator to rollout
+      shell: "kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m"
+
+    - name: Wait for cilium-envoy to rollout
+      shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
+
+    - name: Wait for cilium to rollout
+      shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
+
+    - name: Wait for hubble-relay to rollout
+      shell: "kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m"
+
+    - name: Wait for hubble-ui to rollout
+      shell: "kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m"
+
+    # Deploy kubernetes-service-patcher to watch and update the Kubernetes service to LoadBalancer type
+
+    - name: Update dependency
+      shell: "bash ../../../helm-charts/kubernetes-service-patcher/hack/create-manifest.sh"
+
+    - name: Apply kubernetes-service-patcher Helm template
+      shell: "helm template ../../../helm-charts/kubernetes-service-patcher -n default | kubectl create -f - 2>/dev/null || true"
+
+    - name: Wait for kubernetes-service-patcher to rollout
+      shell: "kubectl rollout status deploy/patcher-controller-manager -n default --timeout=15m"
+
+    # Assign dedicated virtual IP to Kubernetes api-server service
+
+    - name: Apply gateway-api-kubernetes Helm template
+      shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl create -f - 2>/dev/null || true"
+
+#    # Apply service routes
+#
+#    - name: Apply gateway-api-routes Helm template
+#      shell: "helm template ../../../helm-charts/gateway-api-routes -n kube-system | kubectl create -f - 2>/dev/null || true"

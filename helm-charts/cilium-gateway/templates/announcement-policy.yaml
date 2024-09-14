@@ -10,8 +10,8 @@ spec:
         operator: Exists
   serviceSelector:
     matchLabels:
-      gateway.networking.k8s.io/gateway-name: {{ .Values.name }}
+      gateway.networking.k8s.io/gateway-name: ingress
   interfaces:
-    - {{ .Values.l2AnnouncementPolicy.interface }}
+    {{- toYaml .Values.l2AnnouncementPolicy.interface | nindent 4 }}
   externalIPs: true
   loadBalancerIPs: true

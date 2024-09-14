@@ -7,6 +7,5 @@ spec:
   blocks:
     - cidr: {{ .Values.loadBalancerIPPool.cidr }}
   serviceSelector:
-    serviceSelector:
-      matchExpressions:
-        - { key: component, operator: In, values: [ apiserver ] }
+    matchExpressions:
+      - { key: component, operator: In, values: [ apiserver ] }

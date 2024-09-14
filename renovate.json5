@@ -18,13 +18,5 @@
         automerge: true,
       }
     },
-    {
-      matchDepNames: [
-        'base',
-        'gateway',
-        'istiod',
-      ],
-      "allowedVersions": "<=1.21.2"
-    },
   ],
 }

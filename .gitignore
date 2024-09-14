@@ -1,3 +1,7 @@
+# etcd certs
+certs/*
+!certs/.gitkeep
+
 # playground
 playground/init_master.yaml
 playground/init_worker.yaml

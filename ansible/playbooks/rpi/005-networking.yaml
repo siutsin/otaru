@@ -1,0 +1,51 @@
+---
+- hosts: raspberrypi
+  become: true
+  gather_facts: true
+
+  tasks:
+    - include_tasks: tasks/fix-arp.yaml
+
+    # workarounds for permissions issues with /etc/netplan/50-cloud-init.yaml
+    # for some reason, even sudo doesn't work, so we have to copy the file to the home directory,
+    # set the permissions, modify the file, and then move it back
+    - name: Copy netplan config to home directory
+      command: cp /etc/netplan/50-cloud-init.yaml /home/pi/50-cloud-init.yaml
+      become: true
+
+    - name: Change ownership of the copied netplan file to the user pi
+      command: chown pi:pi /home/pi/50-cloud-init.yaml
+      become: true
+
+    - name: Set dhcp4 to false, add addresses, and set routes for wlan0 using yq
+      command: |
+        /snap/bin/yq -i '
+          (.network.wifis.wlan0.dhcp4) = false |
+          (.network.wifis.wlan0.addresses) = ["{{ ansible_host_wlan0 }}/24"] |
+          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": "192.168.1.1"}] |
+          (.network.wifis.wlan0.nameservers.addresses) = ["192.168.1.1"]
+        ' /home/pi/50-cloud-init.yaml
+      become: false  # Run this as pi, since the file is owned by pi
+
+    - name: Change ownership of the modified netplan file back to root
+      command: chown root:root /home/pi/50-cloud-init.yaml
+      become: true
+
+    - name: Move the modified netplan file back to /etc/netplan
+      command: mv /home/pi/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml
+      become: true
+
+    - name: Apply netplan configuration
+      command: timeout 10s netplan apply
+      ignore_errors: true
+      become: true
+
+    - name: Wait for system to become reachable again
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 3
+        timeout: 600
+
+    - name: Reconnect with new static IP
+      meta: reset_connection

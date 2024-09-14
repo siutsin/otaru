@@ -1,14 +1,16 @@
 ---
 - import_playbook: rpi/000-journald.yaml
 - import_playbook: rpi/001-packages.yaml
-- import_playbook: rpi/002-cgroup.yaml
-# Reboot if the cgroup is added - this indicates a fresh installation.
+- import_playbook: rpi/002-pineberry-pi-hatdrive.yaml
+- import_playbook: rpi/003-waveshare-poe-hat.yaml
+- import_playbook: rpi/004-volume.yaml
+- import_playbook: rpi/005-networking.yaml
+- import_playbook: rpi/006-cgroup.yaml
 
-- import_playbook: rpi/100-waveshare-poe-hat.yaml
-- import_playbook: rpi/101-pineberry-pi-hatdrive.yaml
-- import_playbook: rpi/102-volume.yaml
-- import_playbook: rpi/103-reboot.yaml
-
-- import_playbook: k3s/200-node.yaml
-- import_playbook: k3s/201-node-label.yaml
-- import_playbook: k3s/202-bootstrap.yaml
+- import_playbook: k3s/100-init-cluster.yaml
+- import_playbook: k3s/101-cni.yaml
+- import_playbook: k3s/102-nodes.yaml
+- import_playbook: k3s/103-node-label.yaml
+- import_playbook: k3s/104-restart-workloads.yaml
+- import_playbook: k3s/105-fix-iptables.yaml
+- import_playbook: k3s/106-bootstrap.yaml

@@ -44,6 +44,8 @@ var _ = Describe("KubernetesServicePatcher Controller", func() {
 
 			By("verifying that the Service type is LoadBalancer")
 			Expect(service.Spec.Type).To(Equal(corev1.ServiceTypeLoadBalancer))
+			Expect(service.Annotations["metallb.universe.tf/allow-shared-ip"]).To(Equal("192.168.1.50"))
+			Expect(service.Annotations["metallb.universe.tf/loadBalancerIPs"]).To(Equal("192.168.1.50"))
 		})
 	})
 })

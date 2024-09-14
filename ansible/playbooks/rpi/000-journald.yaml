@@ -1,6 +1,7 @@
 ---
 - hosts: raspberrypi
   become: yes
+
   tasks:
     # Set the journald service to memory to prevent logs from being written to disk, thereby extending the SD card's lifespan.
     - name: Set journald to volatile storage

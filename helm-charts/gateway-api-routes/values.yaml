@@ -1,8 +1,0 @@
-name: gateway-api-routes
-namespace: kube-system
-
-l2AnnouncementPolicy:
-  interface: wlan0
-
-loadBalancerIPPool:
-  cidr: 192.168.1.53/32

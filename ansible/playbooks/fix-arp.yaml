@@ -1,0 +1,6 @@
+---
+- hosts: raspberrypi
+  become: true
+
+  tasks:
+    - include_tasks: rpi/tasks/fix-arp.yaml

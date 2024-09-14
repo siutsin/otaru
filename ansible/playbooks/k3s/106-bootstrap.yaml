@@ -4,29 +4,13 @@
 
   tasks:
 
-    # Namespaces
-
-    - name: Create Namespaces
-      shell: "helm template ../../../helm-charts/namespaces | kubectl create -f - 2>/dev/null || true"
-
-    # Istio
-
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/istio-base && helm dep update ../../../helm-charts/istiod && helm dep update ../../../helm-charts/istio-ingress"
-
-    - name: Apply istio-base Helm template
-      shell: "helm template ../../../helm-charts/istio-base -n istio-system | kubectl create -f - 2>/dev/null || true"
-
-    - name: Apply istiod Helm template
-      shell: "helm template ../../../helm-charts/istiod -n istio-system | kubectl create -f - 2>/dev/null || true"
-
-    - name: Wait for istiod to rollout
-      shell: "kubectl rollout status deploy/istiod -n istio-system --timeout=15m"
-
     # Argo CD
 
     - name: Update dependency
       shell: "helm dep update ../../../helm-charts/argocd"
+
+    - name: Create namespace
+      shell: "kubectl create namespace argocd || true"
 
     - name: Initialise Argo CD
       shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
@@ -45,6 +29,14 @@
 
     - name: Wait for argocd-application-controller to rollout
       shell: "kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m"
+
+    # Create namespaces
+
+    - name: Create external-secrets namespace
+      shell: "kubectl create namespace external-secrets || true"
+
+    - name: Create onepassword namespace
+      shell: "kubectl create namespace onepassword || true"
 
     # 1Password Connect
 
@@ -83,4 +75,4 @@
     # Bootstrap
 
     - name: Bootstrap Cluster
-      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd --set targetRevision=migration | kubectl create -f - 2>/dev/null || true"

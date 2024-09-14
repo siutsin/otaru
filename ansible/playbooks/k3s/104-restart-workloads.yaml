@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Restart all existing workloads
+      shell: "kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets,daemonsets -n {}"
+
+    - name: Wait for cilium-envoy to rollout
+      shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
+
+    - name: Wait for cilium to rollout
+      shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
+
+    - name: Wait for cilium-envoy to rollout
+      shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
+
+    - name: Wait for hubble-relay to rollout
+      shell: "kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m"
+
+    - name: Wait for coredns to rollout
+      shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"

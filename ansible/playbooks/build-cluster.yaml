@@ -1,0 +1,8 @@
+---
+- import_playbook: k3s/100-init-cluster.yaml
+- import_playbook: k3s/101-cni.yaml
+- import_playbook: k3s/102-nodes.yaml
+- import_playbook: k3s/103-node-label.yaml
+- import_playbook: k3s/104-restart-workloads.yaml
+- import_playbook: k3s/105-fix-iptables.yaml
+- import_playbook: k3s/106-bootstrap.yaml

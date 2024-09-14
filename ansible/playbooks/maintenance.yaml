@@ -1,3 +1,20 @@
 ---
-- import_playbook: rpi/001-packages.yaml
-- import_playbook: rpi/103-reboot.yaml
+- hosts: raspberrypi
+  become: true
+  serial:
+    - 33%
+    - 66%
+    - 100%
+
+  tasks:
+    - include_tasks: rpi/tasks/packages.yaml
+
+    - name: Reboot the system
+      reboot:
+
+    - name: Wait for system to become reachable
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600
