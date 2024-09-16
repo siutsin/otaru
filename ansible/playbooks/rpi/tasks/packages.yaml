@@ -1,0 +1,35 @@
+---
+- name: Run apt update and upgrade
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install apt packages
+  apt:
+    name:
+      - cryptsetup
+      - etcd-client
+      - git
+      - iptables
+      - net-tools
+      - open-iscsi
+      - parted
+      - python3-numpy
+      - python3-pip
+      - python3-rpi.gpio
+      - python3-smbus
+      - raspi-config
+      - ripgrep
+      - vim
+    state: present
+
+- name: Clean up unused packages
+  apt:
+    autoremove: yes
+    purge: yes
+
+- name: Install snap packages
+  snap:
+    name:
+      - k9s
+      - yq

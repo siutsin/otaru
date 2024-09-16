@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tls-certificate
+  namespace: {{ .Values.namespace }}
+spec:
+  secretName: tls-certificate
+  issuerRef:
+    kind: Issuer
+    name: letsencrypt
+  dnsNames:
+    - "*.internal.siutsin.com"
+    - "*.siutsin.com"
+  privateKey:
+    rotationPolicy: Always

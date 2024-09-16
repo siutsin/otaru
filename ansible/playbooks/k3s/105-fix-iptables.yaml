@@ -1,0 +1,9 @@
+---
+- hosts: raspberrypi
+  become: true
+
+  tasks:
+    # More details at https://github.com/siutsin/otaru/blob/master/documentation/gotcha.md#fix-iptables-rules-full-reconciliation-failed
+    - name: Fix iptables rules full reconciliation failed
+      command: iptables -t nat -F OLD_CILIUM_POST_nat
+      ignore_errors: true

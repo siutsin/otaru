@@ -1,0 +1,25 @@
+---
+- hosts: raspberrypi
+  become: true
+
+  tasks:
+    - name: Uninstall k3s on master
+      command: /usr/local/bin/k3s-uninstall.sh
+      when: "'master' in group_names"
+      ignore_errors: true
+
+    - name: Uninstall k3s agent on worker
+      command: /usr/local/bin/k3s-agent-uninstall.sh
+      when: "'worker' in group_names"
+      ignore_errors: true
+
+    - name: Wipe etcd data
+      shell: |
+        etcdctl \
+          --cacert /home/pi/certs/etcd/ca.pem \
+          --key /home/pi/certs/etcd/client-key.pem \
+          --cert /home/pi/certs/etcd/client.pem \
+          --endpoints=https://192.168.1.52:2379 \
+        del '' --prefix=true
+      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false

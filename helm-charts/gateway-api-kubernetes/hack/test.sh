@@ -11,8 +11,10 @@ kubectl config view --minify --raw -o jsonpath='{.users[0].user.client-certifica
 kubectl config view --minify --raw -o jsonpath='{.users[0].user.client-key-data}' | base64 --decode > "$CERT_PATH/client.key"
 kubectl config view --minify --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > "$CERT_PATH/ca.crt"
 
-LOAD_BALANCER_API_SERVER=https://192.168.1.52
+LOAD_BALANCER_API_SERVER=192.168.1.50
 
-curl -vvvv -m 2 --cert "$CERT_PATH/client.crt" --key "$CERT_PATH/client.key" --cacert "$CERT_PATH/ca.crt" "$LOAD_BALANCER_API_SERVER/livez?verbose" || true
+#arp -a | grep $LOAD_BALANCER_API_SERVER
+
+curl -vvvv -m 2 --cert "$CERT_PATH/client.crt" --key "$CERT_PATH/client.key" --cacert "$CERT_PATH/ca.crt" "https://$LOAD_BALANCER_API_SERVER:443/livez?verbose" || true
 
 rm -rf "$CERT_PATH"

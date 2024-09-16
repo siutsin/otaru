@@ -64,6 +64,13 @@ func (r *KubernetesServicePatcherReconciler) Reconcile(ctx context.Context, req 
 		// Ensure the resource version matches
 		service.ResourceVersion = originalResourceVersion
 
+		// Add or update the annotations
+		if service.Annotations == nil {
+			service.Annotations = make(map[string]string)
+		}
+		service.Annotations["metallb.universe.tf/allow-shared-ip"] = "192.168.1.50"
+		service.Annotations["metallb.universe.tf/loadBalancerIPs"] = "192.168.1.50"
+
 		if err := r.Update(ctx, &service); err != nil {
 			log.Error("failed to update Service to LoadBalancer", "error", err)
 			return ctrl.Result{}, err

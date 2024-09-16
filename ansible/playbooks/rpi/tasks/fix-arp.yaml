@@ -1,0 +1,4 @@
+---
+# https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
+- name: Enable promiscuous mode to answer ARP requests
+  command: ifconfig wlan0 promisc

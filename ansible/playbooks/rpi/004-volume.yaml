@@ -12,7 +12,6 @@
     - name: Check if /dev/nvme0n1 is partitioned
       command: lsblk -no PARTTYPE /dev/nvme0n1
       register: is_partitioned
-      failed_when: is_partitioned.stdout == ''
       changed_when: false
 
     - name: Create a new partition with parted

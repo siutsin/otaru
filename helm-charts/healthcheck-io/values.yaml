@@ -1,1 +1,1 @@
-namespace: istio-ingress
+namespace: cilium-gateway

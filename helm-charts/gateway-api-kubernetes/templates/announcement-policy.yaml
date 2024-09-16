@@ -12,6 +12,6 @@ spec:
     matchLabels:
       component: apiserver
   interfaces:
-    - {{ .Values.l2AnnouncementPolicy.interface }}
+    {{- toYaml .Values.l2AnnouncementPolicy.interface | nindent 4 }}
   externalIPs: true
   loadBalancerIPs: true
