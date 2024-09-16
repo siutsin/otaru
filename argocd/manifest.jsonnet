@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'migration';
+local revision = 'HEAD';
 
 local _ignoreDifferences = {
 //  application: {
@@ -31,7 +31,7 @@ local baseline = [
 // Re-track bootstrap resources
 local bootstrap = [
   { wave: '20', name: 'argocd', namespace: 'argocd' },
-//  { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
+  { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
