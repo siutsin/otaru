@@ -75,4 +75,4 @@
     # Bootstrap
 
     - name: Bootstrap Cluster
-      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd --set targetRevision=migration | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
