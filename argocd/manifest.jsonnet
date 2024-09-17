@@ -33,7 +33,11 @@ local baseline = [
 local bootstrap = [
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
+  { wave: '20', name: 'cilium', namespace: 'kube-system' },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
+  { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
+  { wave: '20', name: 'gateway-api-kubernetes', namespace: 'default' },
+  { wave: '20', name: 'kubernetes-service-patcher', namespace: 'default' },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 

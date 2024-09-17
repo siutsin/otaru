@@ -60,8 +60,3 @@
 
     - name: Apply gateway-api-kubernetes Helm template
       shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl create -f - 2>/dev/null || true"
-
-#    # Apply service routes
-#
-#    - name: Apply gateway-api-routes Helm template
-#      shell: "helm template ../../../helm-charts/gateway-api-routes -n kube-system | kubectl create -f - 2>/dev/null || true"
