@@ -8,7 +8,6 @@
   apt:
     name:
       - cryptsetup
-      - etcd-client
       - git
       - iptables
       - net-tools
@@ -23,13 +22,16 @@
       - vim
     state: present
 
+- name: Install apt packages for master nodes
+  apt:
+    name:
+      - etcd-client
+      - fzf
+      - kubectx
+    state: present
+  when: "'master' in group_names"
+
 - name: Clean up unused packages
   apt:
     autoremove: yes
     purge: yes
-
-- name: Install snap packages
-  snap:
-    name:
-      - k9s
-      - yq

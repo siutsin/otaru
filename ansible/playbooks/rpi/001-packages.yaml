@@ -3,7 +3,10 @@
   become: yes
 
   tasks:
-    - include_tasks: tasks/packages.yaml
+    - include_tasks: tasks/package-apt.yaml
+    - include_tasks: tasks/package-asdf.yaml
+    - include_tasks: tasks/package-snap.yaml
+    - include_tasks: tasks/package-binary.yaml
 
     - name: Load dm_crypt Kernel Module
       command: modprobe dm_crypt
@@ -42,14 +45,17 @@
           export ETCDCTL_CACERT=$HOME/certs/etcd/ca.pem
           export ETCDCTL_CERT=$HOME/certs/etcd/client.pem
           export ETCDCTL_KEY=$HOME/certs/etcd/client-key.pem
-  
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          
           # Custom Aliases
-          alias etcd-delete-all="etcdctl del "" --prefix=true"
           alias h="history"
+          alias k3s-agent-log="journalctl -u k3s-agent.service"
+          alias k3s-agent-status="systemctl status k3s-agent"
+          alias k3s-log="journalctl -u k3s.service"
+          alias k3s-status="systemctl status k3s"
+          alias kc="kubectx"
+          alias kn="kubens"
           alias la="ls -lah"
-          alias logk3s="journalctl -u k3s.service"
-          alias logk3sagent="journalctl -u k3s-agent.service"
-          alias update="sudo apt update && sudo apt upgrade -y"
 
           # copied from .oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh
 
@@ -220,3 +226,4 @@
           alias kdelj='kubectl delete job'
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
       become_user: pi
+      changed_when: false

@@ -4,7 +4,34 @@
   gather_facts: true
 
   tasks:
-    - include_tasks: tasks/fix-arp.yaml
+    # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
+    - name: Create systemd service to enable promiscuous mode for wlan0
+      copy:
+        dest: /etc/systemd/system/promisc-mode.service
+        content: |
+          [Unit]
+          Description=Enable promiscuous mode for wlan0
+          After=network.target
+          
+          [Service]
+          Type=oneshot
+          ExecStart=/sbin/ifconfig wlan0 promisc
+          
+          [Install]
+          WantedBy=multi-user.target
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd to apply changes
+      command: systemctl daemon-reload
+
+    - name: Enable promisc-mode service
+      systemd:
+        name: promisc-mode.service
+        enabled: true
+        state: started
+        daemon_reload: yes
 
     # workarounds for permissions issues with /etc/netplan/50-cloud-init.yaml
     # for some reason, even sudo doesn't work, so we have to copy the file to the home directory,

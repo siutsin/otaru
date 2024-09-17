@@ -1,0 +1,28 @@
+---
+- name: Check if stern is installed and fetch the version
+  shell: |
+    if command -v stern >/dev/null 2>&1; then
+      stern --version 2>&1 | grep -oP '(?<=version: )\d+\.\d+\.\d+'
+    else
+      echo "not installed"
+    fi
+  register: installed_version
+  ignore_errors: yes
+  changed_when: false
+  when: "'master' in group_names"
+
+- name: Get the latest stern version
+  shell: |
+    curl -s https://api.github.com/repos/stern/stern/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-
+  register: latest_version
+  changed_when: false
+  when: "'master' in group_names"
+
+- name: Install stern if the version is different or not installed
+  shell: |
+    STERN_VERSION="{{ latest_version.stdout }}"
+    wget -O /tmp/stern_${STERN_VERSION}_linux_arm64.tar.gz https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_arm64.tar.gz
+    tar -xzf /tmp/stern_${STERN_VERSION}_linux_arm64.tar.gz -C /tmp
+    mv /tmp/stern /usr/local/bin/stern
+    chmod +x /usr/local/bin/stern
+  when: "'master' in group_names and (installed_version.stdout == 'not installed' or installed_version.stdout != latest_version.stdout)"

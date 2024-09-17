@@ -7,10 +7,14 @@
     - 100%
 
   tasks:
-    - include_tasks: rpi/tasks/packages.yaml
+    - include_tasks: rpi/tasks/package-apt.yaml
+    - include_tasks: rpi/tasks/package-asdf.yaml
+    - include_tasks: rpi/tasks/package-snap.yaml
+    - include_tasks: rpi/tasks/package-binary.yaml
 
     - name: Reboot the system
       reboot:
+      changed_when: false
 
     - name: Wait for system to become reachable
       wait_for:

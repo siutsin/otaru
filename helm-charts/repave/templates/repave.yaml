@@ -4,11 +4,12 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  schedule: "0 2 * * *"
+  schedule: "0 21 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 600
       backoffLimit: 0
       template:
         metadata:
@@ -22,7 +23,12 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets,daemonsets -n {}
+                - |
+                  kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart daemonsets -n {} &&
+                  kubectl rollout status ds/cilium -n kube-system --timeout=15m &&
+                  kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m &&
+                  kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets -n {} &&
+                  kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m
           restartPolicy: Never
 ---
 apiVersion: v1

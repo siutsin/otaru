@@ -1,0 +1,5 @@
+---
+- name: Install snap packages
+  snap:
+    name:
+      - yq
