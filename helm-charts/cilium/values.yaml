@@ -2,13 +2,6 @@ cilium:
   encryption:
     enabled: true
     type: wireguard
-#  envoy:
-#    resources:
-#      requests:
-#        memory: 1Gi
-#        cpu: "1"
-#      limits:
-#        memory: 1Gi
   externalIPs:
     enabled: true
   gatewayAPI:
@@ -25,7 +18,7 @@ cilium:
   k8sClientRateLimit:
     qps: 50
     burst: 100
-  k8sServiceHost: CHANGE_ME
+  k8sServiceHost: 192.168.1.50
   k8sServicePort: 6443
   kubeProxyReplacement: true
   l2announcements:
