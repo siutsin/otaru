@@ -1,10 +1,13 @@
 # otaru
 
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.30.4+k3s1-blue)
+[![CodeQL](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
+[![Dependabot Updates](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates)
 [![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
 [![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
 [![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)
+[![tfsec](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml)
 
 > Over-Engineering at Its Finest.
 
