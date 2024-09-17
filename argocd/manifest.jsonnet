@@ -26,6 +26,7 @@ local application = [
 
 local baseline = [
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
+  { wave: '02', name: 'metrics-server', namespace: 'kube-system' },
 ];
 
 // Re-track bootstrap resources
