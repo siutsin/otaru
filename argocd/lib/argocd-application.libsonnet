@@ -10,9 +10,14 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
     finalizers: [
       'resources-finalizer.argocd.argoproj.io',
     ],
-    [if 'wave' in config then 'annotations']: {
-      'argocd.argoproj.io/sync-wave': config.wave,
-    },
+    annotations+: std.mergePatch(
+      (if 'wave' in config then {
+        'argocd.argoproj.io/sync-wave': config.wave,
+      } else {}),
+      (if 'serverSideDiff' in config then {
+        'argocd.argoproj.io/compare-options': 'ServerSideDiff=' + config.serverSideDiff,
+      } else {})
+    ),
   },
   spec: {
     project: defaultProject,
