@@ -62,8 +62,8 @@ local security = [
 ];
 
 local storage = [
-//  { wave: '04', name: 'longhorn', namespace: 'longhorn-system' },
-//  { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
+  { wave: '04', name: 'longhorn', namespace: 'longhorn-system' },
+  { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
 [
