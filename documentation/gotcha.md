@@ -12,7 +12,7 @@ addresses of the master nodes is by using the `kubernetes` service in the `defau
 To enable external access to the API server, the `kubernetes` service needs to be changed to a `LoadBalancer` type. However, when a new master node joins or is restarted, the
 `kubernetes` service will be automatically updated, reverting any changes made to it.
 
-### Workaround
+### Resolution
 
 A custom operator, `kubernetes-service-patcher`, was created to monitor and update the service type to `LoadBalancer` whenever a change is detected in the `kubernetes` service.
 
@@ -38,19 +38,51 @@ ARP requests over Wi-Fi, leading to service inaccessibility after a short period
 
 - The service is initially accessible but becomes unreachable over time.
 - `arping` commands result in timeouts, and the service cannot be reached.
+- `sudo tcpdump -i en0 arp` shows no response to ARP requests.
+- **cilium_l2_responder_v4** map shows no responses sent:
+  ```shell
+  $ kubectl -n kube-system exec ds/cilium -- bpftool map dump pinned /sys/fs/bpf/tc/globals/cilium_l2_responder_v4
+  [{
+          "key": {
+              "ip4": 855746752,
+              "ifindex": 3
+          },
+          "value": {
+              "responses_sent": 0
+          }
+      }
+  ]
+  ```
 
-### Workaround
+### Resolution
 
-Enable **promiscuous mode** on the Wi-Fi network interface using the following command:
-
-```bash
-sudo ifconfig <device> promisc
-```
-
-For example, if the device is `wlan0`, run:
+Enable **promiscuous mode** on the Wi-Fi network interface using the following command can temporarily resolve this issue. For example, if the device is `wlan0`, run:
 
 ```bash
 sudo ifconfig wlan0 promisc
+```
+
+Permanent solution is to add the following configuration to the `/etc/systemd/system/promisc-mode.service` file:
+
+```shell
+[Unit]
+Description=Enable promiscuous mode for wlan0
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ifconfig wlan0 promisc
+
+[Install]
+WantedBy=multi-user.target
+```
+
+then run the following commands to enable and start the service:
+
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable promisc-mode.service
+sudo systemctl start promisc-mode.service
 ```
 
 This configuration ensures the Raspberry Pi can respond to ARP requests, keeping services accessible over Wi-Fi.
@@ -62,7 +94,11 @@ For more details, see the [MetalLB troubleshooting guide](https://metallb.univer
 ## Pod Unable to Reach External Networks
 
 There can be connectivity issues where pod-to-pod traffic works, but pod-to-external world traffic times out. Hubble may indicate that the traffic is forwarded, but it still times
-out. The following error was found in the `cilium-agent` logs:
+out.
+
+### Symptoms
+
+The following error was found in the `cilium-agent` logs:
 
 ```shell
 cilium-tkzx5 cilium-agent time="2024-09-16T01:31:39Z" level=error msg="iptables rules full reconciliation failed, will retry another one later" error="failed to remove old backup rules: unable to run 'iptables -t nat -D OLD_CILIUM_POST_nat -s 10.42.0.0/24 ! -d nnn.nnn.nnn.nnn/24 ! -o cilium_+ -m comment --comment cilium masquerade non-cluster -j MASQUERADE' iptables command: exit status 1 stderr="iptables: Bad rule (does a matching rule exist in that chain?).\n"" subsys=iptables

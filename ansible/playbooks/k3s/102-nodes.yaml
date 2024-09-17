@@ -35,6 +35,14 @@
           --write-kubeconfig-mode=644
       when: "'master' in group_names"
 
+    - name: Change ownership of k3s.yaml to pi:pi
+      file:
+        path: /etc/rancher/k3s/k3s.yaml
+        owner: pi
+        group: pi
+        state: file
+      when: "'master' in group_names"
+
     - name: Install k3s on workers
       shell: |
         curl -sfL https://get.k3s.io | \

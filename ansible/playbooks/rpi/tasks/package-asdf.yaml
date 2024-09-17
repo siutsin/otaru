@@ -1,0 +1,38 @@
+---
+- name: Get the latest asdf release tag
+  shell: |
+    curl -s https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-
+  register: latest_asdf_tag
+  changed_when: false
+  when: "'master' in group_names"
+
+- name: Clone or update asdf to the latest tag
+  git:
+    repo: "https://github.com/asdf-vm/asdf.git"
+    dest: "/home/pi/.asdf"
+    version: "v{{ latest_asdf_tag.stdout }}"
+    update: yes
+  become: true
+  become_user: pi
+  when: "'master' in group_names"
+
+- name: Ensure asdf is sourced in .bashrc with completion after initialization
+  blockinfile:
+    path: /home/pi/.bashrc
+    block: |
+      # asdf initialization
+      . "$HOME/.asdf/asdf.sh"
+      . "$HOME/.asdf/completions/asdf.bash"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+  become_user: pi
+  changed_when: false
+  when: "'master' in group_names"
+
+- name: Install asdf packages
+  shell: |
+    /home/pi/.asdf/bin/asdf plugin add k9s
+    /home/pi/.asdf/bin/asdf install k9s latest
+    /home/pi/.asdf/bin/asdf global k9s latest
+  become_user: pi
+  changed_when: false
+  when: "'master' in group_names"

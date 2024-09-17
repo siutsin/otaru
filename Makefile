@@ -20,8 +20,4 @@ build-cluster:
 
 .PHONY: restart-all
 restart-all:
-	kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets,daemonsets -n {}
-
-.PHONY: fix-arp
-fix-arp:
-	ansible-playbook -i ansible/inventory.yaml ansible/playbooks/fix-arp.yaml
+	ansible-playbook -i ansible/inventory.yaml ansible/playbooks/restart-all.yaml
