@@ -14,8 +14,8 @@ Raspberry Pi provides [Raspberry Pi Imager](https://www.raspberrypi.com/software
 5. Click `NEXT`.
 6. For OS Customisation, follow the screenshots.
 
-   ![general](https://i.imgur.com/doBXbLf.png)
+   ![general](../assets/rpi-image-general.png)
 
-   ![services](https://i.imgur.com/M9G0OUL.png)
+   ![services](../assets/rpi-image-service.png)
 
 7. `hostname`, `username`, and the `public-key` are critical for accessing the system via SSH.

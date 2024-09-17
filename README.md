@@ -23,7 +23,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Architecture
 
-![Architecture](https://i.imgur.com/sAnmWzP.png)
+![Architecture](assets/otaru-architecture.png)
 
 ## Hardware
 
@@ -36,28 +36,30 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Cluster Components
 
-| Category     | Name                                                                                                | Remarks                                                                          |
-|--------------|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ad and tracker-blocking DNS server                                               |
-| Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                               |
-| Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                  |
-| Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                |
-| Application  | [Repave](helm-charts/repave)                                                                        | Daily restart of workloads within the cluster                                    |
-| Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                |
-| Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups.              |
-| CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                      |
-| Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                       |
-| Connectivity | [Istio](https://github.com/istio/istio)                                                             | Inbound North-South and East-West traffic with mTLS                              |
-| Connectivity | [MetalLB](https://github.com/metallb/metallb)                                                       | Internal bare-metal network load-balancer with L2 operating mode                 |
-| Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                     |
-| Monitoring   | [Kiali](https://github.com/kiali/kiali)                                                             | Monitor Istio Network; Read-Only                                                 |
-| Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                          |
-| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                 |
-| Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                    |
-| Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                           |
-| Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                          |
-| Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                     |
-| Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations |
+| Category     | Name                                                                                                | Remarks                                                                                                |
+|--------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                     |
+| Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                        |
+| Application  | [Jellyfin](https://jellyfin.org/)                                                                   | Home Media System                                                                                      |
+| Application  | [Kubernetes Service Patcher](helm-charts/kubernetes-service-patcher)                                | An operator to update the `kubernetes` service type to `LoadBalancer`.                                 |
+| Application  | [Repave](helm-charts/repave)                                                                        | Daily restart of workloads within the cluster                                                          |
+| Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                                      |
+| Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups.                                    |
+| CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                            |
+| Connectivity | [Cilium Gateway](helm-charts/cilium-gateway)                                                        | Cilium Ingress Controller with Virtual IP Layer 2 announcement and TLS termination                     |
+| Connectivity | [Cilium](https://cilium.io/)                                                                        | Cilium is a networking, observability, and security solution with an eBPF-based dataplane              |
+| Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                             |
+| Connectivity | [Gateway API Kubernetes](helm-charts/gateway-api-kubernetes)                                        | Virtual IP and Layer 2 announcement for `kubernetes` service's External IP                             |
+| Connectivity | [Gateway API](https://gateway-api.sigs.k8s.io/)                                                     | Kubernetes standard CRDs for managing network traffic.                                                 |
+| Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                                           |
+| Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines |
+| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                       |
+| Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                |
+| Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                                          |
+| Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                                                 |
+| Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                |
+| Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                           |
+| Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                       |
 
 ## IaaS, PaaS, and SaaS
 
