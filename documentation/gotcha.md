@@ -128,3 +128,16 @@ Once the chain is flushed on all nodes, pods will be able to reach external netw
 
 ---
 
+## Cilium Restart Causes API Server VIP Inaccessibility
+
+Occasionally, Cilium may restart, and if too many Cilium restarts occur across nodes, all nodes may go down. This can result in no node announcing the Virtual IP for the API
+server, making the API server Virtual IP inaccessible.
+
+### Symptoms
+
+The issue arises when no node is able to announce the API server's Virtual IP, leading to a disruption in access to the Kubernetes API server.
+
+### Solution
+
+One potential solution is to set the Cilium Kubernetes host to `127.0.0.1` with the port set to `6443`. However, this solution requires all nodes to be master nodes.
+Open GitHub issue related to this problem: [https://github.com/cilium/cilium/issues/19038](https://github.com/cilium/cilium/issues/19038)

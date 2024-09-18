@@ -2,25 +2,42 @@ all:
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_ssh_user: pi
+
   children:
-    master:
-      hosts: &rpi4
+    rpi4:
+      hosts:
         raspberrypi-00.local:
           ansible_host_wlan0: 192.168.1.60
         raspberrypi-01.local:
           ansible_host_wlan0: 192.168.1.61
         raspberrypi-02.local:
           ansible_host_wlan0: 192.168.1.62
-    worker:
-      hosts: &rpi5
+
+    rpi5:
+      hosts:
         raspberrypi-03.local:
           ansible_host_wlan0: 192.168.1.63
+
+    master:
+      children:
+        rpi4: { }
+        rpi5: { }
+
+    worker:
+      hosts: { }
+
     waveshare_poe_hat:
-      hosts: *rpi4
+      children:
+        rpi4: { }
+
     pineberry_pi_hatdrive:
-      hosts: *rpi5
+      children:
+        rpi5: { }
+
     volume:
-      hosts: *rpi5
+      children:
+        rpi5: { }
+
     raspberrypi:
       children:
         master: { }
