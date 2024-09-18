@@ -39,7 +39,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Cluster Components
 
-| Category     | Name                                                                                                | Remarks                                                                                                |
+| Category     | Name                                                                                                | Description                                                                                            |
 |--------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                     |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                        |
