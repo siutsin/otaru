@@ -18,8 +18,8 @@ cilium:
   k8sClientRateLimit:
     qps: 50
     burst: 100
-  k8sServiceHost: 192.168.1.50
-  k8sServicePort: 443
+  k8sServiceHost: 127.0.0.1
+  k8sServicePort: 6443
   kubeProxyReplacement: true
   l2announcements:
     enabled: true
