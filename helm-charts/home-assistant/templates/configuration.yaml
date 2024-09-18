@@ -8,7 +8,7 @@ data:
     http:
       use_x_forwarded_for: true
       trusted_proxies:
-        - "127.0.0.6"
+        - 10.42.0.0/16
 
     # Loads default set of integrations. Do not remove.
     default_config:
