@@ -12,8 +12,8 @@ locals {
   telegram_ip_addresses = [for ip in local.telegram_ip_raw : trimspace(trimprefix(ip, "\r"))]
 }
 
-resource "cloudflare_access_policy" "this" {
-  application_id = cloudflare_access_application.this.id
+resource "cloudflare_zero_trust_access_policy" "this" {
+  application_id = cloudflare_zero_trust_access_application.this.id
   zone_id        = var.zone_id
   name           = "Cluster IP List"
   precedence     = "1"
@@ -24,20 +24,20 @@ resource "cloudflare_access_policy" "this" {
   }
 }
 
-resource "cloudflare_access_policy" "github" {
-  application_id = cloudflare_access_application.this.id
+resource "cloudflare_zero_trust_access_policy" "github" {
+  application_id = cloudflare_zero_trust_access_application.this.id
   zone_id        = var.zone_id
   name           = "GitHub IP List"
   precedence     = "2"
   decision       = "bypass"
 
   include {
-    ip = data.github_ip_ranges.this.hooks
+    ip = data.github_ip_ranges.github_ip.hooks
   }
 }
 
-resource "cloudflare_access_policy" "uptime_robot" {
-  application_id = cloudflare_access_application.this.id
+resource "cloudflare_zero_trust_access_policy" "uptime_robot" {
+  application_id = cloudflare_zero_trust_access_application.this.id
   zone_id        = var.zone_id
   name           = "UptimeRobot IP List"
   precedence     = "3"
@@ -48,8 +48,8 @@ resource "cloudflare_access_policy" "uptime_robot" {
   }
 }
 
-resource "cloudflare_access_policy" "telegram" {
-  application_id = cloudflare_access_application.this.id
+resource "cloudflare_zero_trust_access_policy" "telegram" {
+  application_id = cloudflare_zero_trust_access_application.this.id
   zone_id        = var.zone_id
   name           = "Telegram IP List"
   precedence     = "4"

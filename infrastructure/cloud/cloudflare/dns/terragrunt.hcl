@@ -40,11 +40,6 @@ inputs = {
 
   internal_records = {
 
-    adguard_internal = {
-      name  = "adguard.internal"
-      value = local.internal_ip
-    },
-
     argocd_internal = {
       name  = "argocd.internal"
       value = local.internal_ip
@@ -60,13 +55,13 @@ inputs = {
       value = local.internal_ip
     },
 
-    jellyfin_internal = {
-      name  = "jellyfin.internal"
+    hubble_ui_internal = {
+      name  = "hubble-ui.internal"
       value = local.internal_ip
     },
 
-    kiali_internal = {
-      name  = "kiali.internal"
+    jellyfin_internal = {
+      name  = "jellyfin.internal"
       value = local.internal_ip
     },
 
