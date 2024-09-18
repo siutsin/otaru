@@ -66,7 +66,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## IaaS, PaaS, and SaaS
 
-| Category     | Name            | Service                                                                                    | Remarks                   |
+| Category     | Name            | Service                                                                                    | Description               |
 |--------------|-----------------|--------------------------------------------------------------------------------------------|---------------------------|
 | CI/CD        | Github          | [Actions](https://github.com/features/actions)                                             | Run Terragrunt            |
 | Connectivity | Cloudflare      | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control       |
