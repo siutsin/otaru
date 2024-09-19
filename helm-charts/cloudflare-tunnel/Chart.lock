@@ -1,0 +1,6 @@
+dependencies:
+- name: cloudflare-tunnel-remote
+  repository: https://siutsin.github.io/cloudflare-helm-charts/
+  version: 0.1.2-eso
+digest: sha256:a98dc619d8becf0ff1d3f5deb4604aa0bafb6b9db33c272bae90ecbd2c632187
+generated: "2024-09-19T16:54:51.443635+01:00"
