@@ -33,7 +33,7 @@ write_files:
               "server auth",
               "client auth"
             ],
-            "expiry": "876000h"
+            "expiry": "8760h"
           }
         }
       }
@@ -48,11 +48,10 @@ write_files:
         },
         "names": [
           {
-            "O": "Honest Achmed's Used Certificates",
-            "OU": "Hastily-Generated Values Divison",
+            "O": "My Organization",
+            "C": "US",
             "L": "San Francisco",
-            "ST": "California",
-            "C": "US"
+            "ST": "California"
           }
         ]
       }
@@ -60,7 +59,7 @@ write_files:
     permissions: '0644'
     content: |
       {
-        "CN": "etcd-cluster",
+        "CN": "etcd-server",
         "hosts": [
           "localhost",
           "127.0.0.1",
@@ -72,9 +71,10 @@ write_files:
         },
         "names": [
           {
+            "O": "My Organization",
             "C": "US",
-            "L": "CA",
-            "ST": "San Francisco"
+            "L": "San Francisco",
+            "ST": "California"
           }
         ]
       }
@@ -82,17 +82,17 @@ write_files:
     permissions: '0644'
     content: |
       {
-        "CN": "client",
-        "hosts": [""],
+        "CN": "etcd-client",
         "key": {
           "algo": "ecdsa",
           "size": 256
         },
         "names": [
           {
+            "O": "My Organization",
             "C": "US",
-            "L": "CA",
-            "ST": "San Francisco"
+            "L": "San Francisco",
+            "ST": "California"
           }
         ]
       }

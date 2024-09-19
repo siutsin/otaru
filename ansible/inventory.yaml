@@ -1,10 +1,11 @@
 all:
   vars:
     ansible_python_interpreter: /usr/bin/python3
-    ansible_ssh_user: pi
 
   children:
     rpi4:
+      vars:
+        ansible_ssh_user: pi
       hosts:
         raspberrypi-00.local:
           ansible_host_wlan0: 192.168.1.60
@@ -14,9 +15,18 @@ all:
           ansible_host_wlan0: 192.168.1.62
 
     rpi5:
+      vars:
+        ansible_ssh_user: pi
       hosts:
         raspberrypi-03.local:
           ansible_host_wlan0: 192.168.1.63
+
+    etcd:
+      vars:
+        ansible_ssh_user: ubuntu
+      hosts:
+        ubuntu.local:
+          ansible_host: 192.168.1.52
 
     master:
       children:

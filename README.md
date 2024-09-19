@@ -84,7 +84,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 1. **Install Tooling**
     ```shell
-    brew install ansible go-jsonnet helm kubectl terraform terragrunt
+    brew install ansible cilium go-jsonnet helm kubectl terraform terragrunt && ansible-galaxy collection install -r ansible/requirements.yaml
     ```
 2. **Add SSH Keys to `known_hosts`**
     ```shell
