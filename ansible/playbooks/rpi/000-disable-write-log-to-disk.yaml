@@ -2,32 +2,40 @@
 - hosts: raspberrypi
   become: yes
 
+  # Configure journald to use volatile storage and limit log size to prevent excessive disk writes,
+  # clear existing logs, and disable rsyslog to further reduce logging to disk.
+  # This helps extend the lifespan of the SD card by minimizing unnecessary writes.
   tasks:
-    # Set the journald service to memory to prevent logs from being written to disk, thereby extending the SD card's lifespan.
     - name: Set journald to volatile storage
       lineinfile:
         path: /etc/systemd/journald.conf
         regexp: '^#?Storage='
         line: 'Storage=volatile'
-      notify:
+      notify: &notify
         - Restart journald
+        - Clear all logs in /var/log
 
     - name: Set journald RuntimeMaxUse
       lineinfile:
         path: /etc/systemd/journald.conf
         regexp: '^#?RuntimeMaxUse='
         line: 'RuntimeMaxUse=100M'
-      notify:
-        - Restart journald
+      notify: *notify
+
+    - name: Disable rsyslog service
+      systemd:
+        name: rsyslog
+        enabled: false
+        state: stopped
 
     - name: Clear all logs in /var/log
       command: find /var/log -type f -exec truncate -s 0 {} +
-      become: yes
-      notify:
-        - Restart journald
 
   handlers:
     - name: Restart journald
       systemd:
         name: systemd-journald
         state: restarted
+
+    - name: Clear all logs in /var/log
+      command: find /var/log -type f -exec truncate -s 0 {} +

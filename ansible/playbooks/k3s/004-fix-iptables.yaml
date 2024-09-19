@@ -7,3 +7,10 @@
     - name: Fix iptables rules full reconciliation failed
       command: iptables -t nat -F OLD_CILIUM_POST_nat
       ignore_errors: true
+
+    - name: Add cron job to run iptables command every 15 minutes
+      cron:
+        name: "Flush OLD_CILIUM_POST_nat every 15 minutes"
+        minute: "*/15"
+        job: "/usr/sbin/iptables -t nat -F OLD_CILIUM_POST_nat || true"
+      ignore_errors: true
