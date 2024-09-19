@@ -1,57 +1,11 @@
+name: cloudflare-tunnel
 namespace: cloudflare-tunnel
 
-# source: https://github.com/hedgieinsocks/helm-charts/tree/add/eso-support
+cloudflare-tunnel-remote:
+  cloudflare:
+    secretName: cloudflare-tunnel
 
-# Default values for cloudflare-tunnel.
+  image:
+    tag: 2024.9.1
 
-# Cloudflare parameters.
-cloudflare:
-  secretName: cloudflare-tunnel
-
-image:
-  repository: cloudflare/cloudflared
-  pullPolicy: IfNotPresent
-  tag: 2024.9.1
-
-replicaCount: 2
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-# Security items common to everything in the pod.  Here we require that it
-# does not run as the user defined in the image, literally named "nonroot".
-podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 65532
-
-# Security items for one container. We lock it down.
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
-
-resources:
-  limits:
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-# Default affinity is to spread out over nodes; use this to override.
-affinity: {}
+  replicaCount: 4
