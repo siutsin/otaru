@@ -141,3 +141,21 @@ The issue arises when no node is able to announce the API server's Virtual IP, l
 
 One potential solution is to set the Cilium Kubernetes host to `127.0.0.1` with the port set to `6443`. However, this solution requires all nodes to be master nodes.
 Open GitHub issue related to this problem: [https://github.com/cilium/cilium/issues/19038](https://github.com/cilium/cilium/issues/19038)
+
+---
+
+## Unable to Delete Longhorn Volume
+
+When attempting to delete a Longhorn volume, it may become stuck due to validation errors, preventing its removal.
+
+### Symptoms
+
+The volume remains in the `deleting` state with validation errors, making it impossible to delete.
+For more details, refer to the related GitHub issue: [https://github.com/longhorn/longhorn/issues/4143](https://github.com/longhorn/longhorn/issues/4143).
+
+### Solution
+
+1. Run `kubectl edit validatingwebhookconfigurations.admissionregistration.k8s.io longhorn-webhook-validator` and locate the block related to the `volume` resource.
+2. Delete the entire rule block associated with the `volume` resource.
+3. Manually delete the volume.
+4. Restart the Longhorn components to regenerate the webhook configuration by running `kubectl rollout restart deploy,ds -n longhorn-system`.
