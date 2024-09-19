@@ -1,0 +1,71 @@
+name: grafana-cloud
+namespace: monitoring
+
+k8s-monitoring:
+  cluster:
+    name: &clusterName otaru
+
+  externalServices:
+    prometheus:
+      secret: &commonSecretConfig
+        create: false
+        name: prometheus-k8s-monitoring
+        namespace: monitoring
+    loki:
+      secret:
+        <<: *commonSecretConfig
+        name: loki-k8s-monitoring
+    tempo:
+      secret:
+        <<: *commonSecretConfig
+        name: tempo-k8s-monitoring
+
+  metrics:
+    scrapeInterval: 5m
+    alloy:
+      metricsTuning:
+        excludeMetrics: &excludeMetrics
+          - .*_bucket
+          - .*_count
+          - .*_sum
+    kube-state-metrics:
+      metricsTuning:
+        excludeMetrics: *excludeMetrics
+    node-exporter:
+      metricsTuning:
+        excludeMetrics: *excludeMetrics
+    cadvisor:
+      metricsTuning:
+        excludeMetrics: *excludeMetrics
+    cost:
+      metricsTuning:
+        excludeMetrics: *excludeMetrics
+
+  opencost:
+    opencost:
+      exporter:
+        defaultClusterId: *clusterName
+      prometheus:
+        external:
+          url: https://prometheus-prod-24-prod-eu-west-2.grafana.net/api/prom
+
+  logs:
+    pod_logs:
+      excludeNamespaces:
+        - argocd
+        - jung2bot
+        - jung2bot-dev
+        - monitoring
+
+  traces:
+    enabled: true
+
+  receivers:
+    grpc:
+      enabled: true
+    http:
+      enabled: true
+    zipkin:
+      enabled: true
+    grafanaCloudMetrics:
+      enabled: false

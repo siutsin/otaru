@@ -43,6 +43,7 @@ local connectivity = [
 ];
 
 local monitoring = [
+  { wave: '10', name: 'grafana-cloud', namespace: 'monitoring' },
   { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
 ];
 
