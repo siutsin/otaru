@@ -24,10 +24,27 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart daemonsets -n {} &&
-                  kubectl rollout status ds/cilium -n kube-system --timeout=15m &&
-                  kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m &&
+                  # Restart cilium daemonset first
+                  kubectl rollout restart daemonset/cilium -n kube-system &&
+                  kubectl rollout status daemonset/cilium -n kube-system --timeout=15m &&
+
+                  # Restart all daemonsets except cilium
+                  kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | \
+                    xargs -n2 -I {} kubectl get daemonsets -n {} --no-headers -o custom-columns=':metadata.name' | \
+                    grep -v cilium | xargs -n1 -I {ds} kubectl rollout restart daemonset/{ds} -n {} &&
+
+                  # Wait for the restarted daemonsets to be ready
+                  kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | \
+                    xargs -n2 -I {} kubectl get daemonsets -n {} --no-headers -o custom-columns=':metadata.name' | \
+                    grep -v cilium | xargs -n1 -I {ds} kubectl rollout status daemonset/{ds} -n {} --timeout=15m &&
+
+                  # Wait for the cilium-envoy deployment to be ready
+                  kubectl rollout status daemonsets/cilium-envoy -n kube-system --timeout=15m &&
+
+                  # Restart deployments and statefulsets in all namespaces
                   kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets -n {} &&
+
+                  # Wait for the cilium-operator deployment to be ready
                   kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m
           restartPolicy: Never
 ---

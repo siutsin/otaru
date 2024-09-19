@@ -3,17 +3,43 @@
   connection: local
 
   tasks:
-    - name: Restart all DaemonSets
-      shell: "kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart daemonsets -n {}"
 
-    - name: Wait for cilium to rollout
-      shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
+    - name: Restart cilium daemonset
+      command: kubectl rollout restart daemonset/cilium -n kube-system
+      ignore_errors: false
 
-    - name: Wait for cilium-envoy to rollout
-      shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
+    - name: Wait for cilium daemonset rollout to complete
+      command: kubectl rollout status daemonset/cilium -n kube-system --timeout=15m
+      ignore_errors: false
 
-    - name: Restart all Deployments and StatefulSets
-      shell: "kubectl get namespaces -o custom-columns=':metadata.name' --no-headers | xargs -n2 -I {} kubectl rollout restart deployments,statefulsets -n {}"
+    - name: Get all namespaces
+      command: kubectl get namespaces -o custom-columns=':metadata.name' --no-headers
+      register: namespaces
 
-    - name: Wait for cilium-operator to rollout
-      shell: "kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m"
+    - name: Restart all daemonsets except cilium in all namespaces
+      shell: |
+        kubectl get daemonsets -n {{ item }} --no-headers -o custom-columns=':metadata.name' | grep -v cilium | \
+        xargs -n1 -I {ds} kubectl rollout restart daemonset/{ds} -n {{ item }}
+      loop: "{{ namespaces.stdout_lines }}"
+      ignore_errors: false
+
+    - name: Wait for all daemonsets except cilium to complete rollout in all namespaces
+      shell: |
+        kubectl get daemonsets -n {{ item }} --no-headers -o custom-columns=':metadata.name' | grep -v cilium | \
+        xargs -n1 -I {ds} kubectl rollout status daemonset/{ds} -n {{ item }} --timeout=15m
+      loop: "{{ namespaces.stdout_lines }}"
+      ignore_errors: false
+
+    - name: Wait for cilium-envoy daemonset rollout to complete
+      command: kubectl rollout status daemonset/cilium-envoy -n kube-system --timeout=15m
+      ignore_errors: false
+
+    - name: Restart deployments and statefulsets in all namespaces
+      shell: |
+        kubectl rollout restart deployments,statefulsets -n {{ item }}
+      loop: "{{ namespaces.stdout_lines }}"
+      ignore_errors: false
+
+    - name: Wait for cilium-operator deployment to complete
+      command: kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m
+      ignore_errors: false
