@@ -1,15 +1,22 @@
 ---
+# etcd
+- import_playbook: etcd/000-packages.yaml
+- import_playbook: etcd/003-luks.yaml
+- import_playbook: etcd/002-firewall.yaml
+- import_playbook: etcd/001-config.yaml
+- import_playbook: etcd/004-etcd.yaml
+# rpi
 - import_playbook: rpi/000-journald.yaml
-- import_playbook: rpi/001-packages.yaml
+- import_playbook: rpi/001-config.yaml
 - import_playbook: rpi/002-pineberry-pi-hatdrive.yaml
 - import_playbook: rpi/003-waveshare-poe-hat.yaml
 - import_playbook: rpi/004-volume.yaml
 - import_playbook: rpi/005-networking.yaml
 - import_playbook: rpi/006-cgroup.yaml
-
-- import_playbook: k3s/100-init-cluster.yaml
-- import_playbook: k3s/101-cni.yaml
-- import_playbook: k3s/102-nodes.yaml
-- import_playbook: k3s/103-node-label.yaml
-- import_playbook: k3s/104-fix-iptables.yaml
-- import_playbook: k3s/105-bootstrap.yaml
+# k3s
+- import_playbook: k3s/000-init-cluster.yaml
+- import_playbook: k3s/001-cni.yaml
+- import_playbook: k3s/002-nodes.yaml
+- import_playbook: k3s/003-node-label.yaml
+- import_playbook: k3s/004-fix-iptables.yaml
+- import_playbook: k3s/005-bootstrap.yaml

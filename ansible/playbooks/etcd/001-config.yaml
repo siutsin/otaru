@@ -1,0 +1,24 @@
+---
+- hosts: etcd
+  become: yes
+
+  tasks:
+    - name: Ensure avahi-daemon is enabled and running
+      service:
+        name: avahi-daemon
+        enabled: yes
+        state: started
+
+    - name: Allow sudo without password for the ubuntu user
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^ubuntu ALL=\(ALL\) NOPASSWD: ALL'
+        line: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Set the default editor to vim for visudo
+      lineinfile:
+        path: /etc/environment
+        state: present
+        line: 'EDITOR=vim'

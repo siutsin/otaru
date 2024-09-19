@@ -1,0 +1,40 @@
+---
+- hosts: etcd
+  become: yes
+
+  tasks:
+    - name: Allow SSH through the firewall (port 22)
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+
+    - name: Allow Dropbear SSH through the firewall (port 1024)
+      ufw:
+        rule: allow
+        port: '1024'
+        proto: tcp
+
+    - name: Allow etcd client communication (port 2379)
+      ufw:
+        rule: allow
+        port: '2379'
+        proto: tcp
+
+    - name: Allow etcd peer communication (port 2380)
+      ufw:
+        rule: allow
+        port: '2380'
+        proto: tcp
+
+    - name: Enable UFW and start the firewall
+      ufw:
+        state: enabled
+        logging: 'on'
+        policy: deny
+      notify:
+        - Restart UFW
+
+  handlers:
+    - name: Restart UFW
+      command: ufw reload

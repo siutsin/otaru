@@ -1,0 +1,24 @@
+---
+- hosts: etcd
+  become: yes
+
+  tasks:
+    - name: Run apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install apt packages
+      apt:
+        name:
+          - avahi-daemon
+          - dropbear-initramfs
+          - golang-cfssl
+          - net-tools
+          - ufw
+        state: present
+
+    - name: Clean up unused packages
+      apt:
+        autoremove: yes
+        purge: yes

@@ -1,3 +1,2 @@
 ---
-- import_playbook: k3s/102-nodes.yaml
-- import_playbook: k3s/104-restart-workloads.yaml
+- import_playbook: k3s/002-nodes.yaml
