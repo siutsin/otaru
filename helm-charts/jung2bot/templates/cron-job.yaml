@@ -52,6 +52,7 @@ spec:
   successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 60
       template:
         metadata:
           annotations:

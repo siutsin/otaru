@@ -29,16 +29,16 @@ Switching to **Ubuntu Server 24.04 LTS** resolves this issue, avoiding the need 
 
 ---
 
-## Inaccessibility of Services Over Wi-Fi on Raspberry Pi
+## Inaccessibility of Services Over Network Interfaces on Raspberry Pi
 
-When using **Wi-Fi** on devices such as Raspberry Pi, services may become unreachable after an initial successful connection. This issue is caused by the device not responding to
-ARP requests over Wi-Fi, leading to service inaccessibility after a short period.
+When using **network interfaces** (e.g., Wi-Fi or Ethernet) on devices such as Raspberry Pi, services may become unreachable after an initial successful connection. This issue is
+caused by the device not responding to ARP requests, leading to service inaccessibility after a short period.
 
 ### Symptoms
 
 - The service is initially accessible but becomes unreachable over time.
 - `arping` commands result in timeouts, and the service cannot be reached.
-- `sudo tcpdump -i en0 arp` shows no response to ARP requests.
+- `sudo tcpdump -i <interface> arp` shows no response to ARP requests.
 - **cilium_l2_responder_v4** map shows no responses sent:
   ```shell
   $ kubectl -n kube-system exec ds/cilium -- bpftool map dump pinned /sys/fs/bpf/tc/globals/cilium_l2_responder_v4
@@ -56,28 +56,30 @@ ARP requests over Wi-Fi, leading to service inaccessibility after a short period
 
 ### Resolution
 
-Enable **promiscuous mode** on the Wi-Fi network interface using the following command can temporarily resolve this issue. For example, if the device is `wlan0`, run:
+Enable **promiscuous mode** on the network interface using the following command can temporarily resolve this issue. Replace `<interface>` with the actual interface name (e.g.,
+`wlan0`, `eth0`):
 
 ```bash
-sudo ifconfig wlan0 promisc
+sudo ifconfig <interface> promisc
 ```
 
-Permanent solution is to add the following configuration to the `/etc/systemd/system/promisc-mode.service` file:
+A permanent solution is to add the following configuration to the `/etc/systemd/system/promisc-mode.service` file, replacing `<interface>` with the correct interface name:
 
 ```shell
 [Unit]
-Description=Enable promiscuous mode for wlan0
+Description=Enable promiscuous mode for <interface>
 After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/sbin/ifconfig wlan0 promisc
+ExecStart=/sbin/ifconfig <interface1> promisc
+ExecStart=/sbin/ifconfig <interface2> promisc
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-then run the following commands to enable and start the service:
+Then run the following commands to enable and start the service:
 
 ```shell
 sudo systemctl daemon-reload
@@ -85,7 +87,7 @@ sudo systemctl enable promisc-mode.service
 sudo systemctl start promisc-mode.service
 ```
 
-This configuration ensures the Raspberry Pi can respond to ARP requests, keeping services accessible over Wi-Fi.
+This configuration ensures the Raspberry Pi can respond to ARP requests, keeping services accessible over the network interface.
 
 For more details, see the [MetalLB troubleshooting guide](https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service).
 
