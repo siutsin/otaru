@@ -21,7 +21,3 @@ build-cluster:
 .PHONY: restart-all
 restart-all:
 	ansible-playbook -i ansible/inventory.yaml ansible/playbooks/restart-all.yaml
-
-.PHONY: fix-iptables
-fix-iptables:
-	ansible-playbook -i ansible/inventory.yaml ansible/playbooks/fix-iptables.yaml

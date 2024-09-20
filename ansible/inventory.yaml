@@ -3,55 +3,56 @@ all:
     ansible_python_interpreter: /usr/bin/python3
 
   children:
-    rpi4:
-      vars:
-        ansible_ssh_user: pi
+    # Nodes
+    node00:
       hosts:
         raspberrypi-00.local:
+          ansible_ssh_user: pi
           ansible_host_eth0: 192.168.1.60
           ansible_host_wlan0: 192.168.1.80
+    node01:
+      hosts:
         raspberrypi-01.local:
+          ansible_ssh_user: pi
           ansible_host_eth0: 192.168.1.61
           ansible_host_wlan0: 192.168.1.81
+    node02:
+      hosts:
         raspberrypi-02.local:
+          ansible_ssh_user: pi
           ansible_host_eth0: 192.168.1.62
           ansible_host_wlan0: 192.168.1.82
-
-    rpi5:
-      vars:
-        ansible_ssh_user: pi
+    node03:
       hosts:
         raspberrypi-03.local:
+          ansible_ssh_user: pi
           ansible_host_eth0: 192.168.1.63
           ansible_host_wlan0: 192.168.1.83
-
     etcd:
-      vars:
-        ansible_ssh_user: ubuntu
       hosts:
         ubuntu.local:
+          ansible_ssh_user: ubuntu
           ansible_host: 192.168.1.52
-
+    # Groups
     master:
       children:
-        rpi4: { }
-        rpi5: { }
-
+        node00: { }
+        node01: { }
+        node02: { }
+        node03: { }
     worker:
-      hosts: { }
-
+      children: { }
     waveshare_poe_hat:
       children:
-        rpi4: { }
-
+        node00: { }
+        node01: { }
+        node02: { }
     pineberry_pi_hatdrive:
       children:
-        rpi5: { }
-
+        node03: { }
     volume:
       children:
-        rpi5: { }
-
+        node03: { }
     raspberrypi:
       children:
         master: { }

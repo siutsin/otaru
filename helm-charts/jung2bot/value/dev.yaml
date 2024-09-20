@@ -11,3 +11,5 @@ app:
     messageTable: jung2bot-dev-messages
     scaleUpReadCapacity: 1
     stage: dev
+  autoscaling:
+    min: 2

@@ -19,10 +19,6 @@
         kubeconfig_content: "{{ lookup('file', '~/.kube/config') }}"
       no_log: true
 
-    - name: Extract the IP address from the kubeconfig
-      set_fact:
-        FIRST_MASTER_IP: "{{ kubeconfig_content | regex_search('server: https://([0-9.]+):6443', '\\1') }}"
-
     - name: Update dependency
       shell: "helm dep update ../../../helm-charts/cilium"
 
@@ -39,11 +35,8 @@
     - name: Wait for cilium to rollout
       shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
 
-    - name: Wait for hubble-relay to rollout
-      shell: "kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m"
-
-    - name: Wait for hubble-ui to rollout
-      shell: "kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m"
+    - name: Wait for coredns to rollout
+      shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"
 
     # Deploy kubernetes-service-patcher to watch and update the Kubernetes service to LoadBalancer type
 

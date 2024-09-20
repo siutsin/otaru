@@ -6,6 +6,7 @@
     - name: Enable I2C via raspi-config
       # https://github.com/RPi-Distro/raspi-config/issues/206#issuecomment-1386435171
       shell: sudo raspi-config nonint do_i2c 0
+      changed_when: false
 
     - name: Display Info on OLED Display
       block:
@@ -16,10 +17,12 @@
           until: git_result is succeeded
           retries: 3
           delay: 5
+          changed_when: false
         - shell:
             cmd: bash /tmp/Waveshare_PoE_HAT-B/setup.sh
           become: yes
           become_user: pi
+          changed_when: false
 
     - name: Ensure POE-HAT service is running
       systemd:

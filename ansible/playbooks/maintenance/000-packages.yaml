@@ -1,0 +1,36 @@
+---
+- hosts: raspberrypi
+  become: true
+  serial:
+    - 33%
+    - 66%
+    - 100%
+
+  tasks:
+    - name: Get node name by removing .local from inventory_hostname
+      set_fact:
+        node_name: "{{ inventory_hostname | regex_replace('\\.local$', '') }}"
+
+    - name: Cordon the node
+      command: kubectl cordon {{ node_name }}
+
+    - name: Drain the node, ignoring PDBs
+      command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-local-data --disable-eviction
+
+    - include_tasks: ../rpi/tasks/package-apt.yaml
+    - include_tasks: ../rpi/tasks/package-asdf.yaml
+    - include_tasks: ../rpi/tasks/package-snap.yaml
+    - include_tasks: ../rpi/tasks/package-binary.yaml
+
+    - name: Reboot the system
+      reboot:
+
+    - name: Wait for system to become reachable
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 10
+        timeout: 600
+
+    - name: Uncordon the node
+      command: kubectl uncordon {{ node_name }}

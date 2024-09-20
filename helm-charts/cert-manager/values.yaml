@@ -1,6 +1,3 @@
 cert-manager:
   enableCertificateOwnerRef: true
   installCRDs: true
-  startupapicheck:
-    podAnnotations:
-      sidecar.istio.io/inject: "false"

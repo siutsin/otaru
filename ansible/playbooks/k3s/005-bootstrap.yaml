@@ -9,32 +9,6 @@
     - name: Create local-path storage class
       shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
 
-    # Argo CD
-
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/argocd"
-
-    - name: Create namespace
-      shell: "kubectl create namespace argocd || true"
-
-    - name: Initialise Argo CD
-      shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
-
-    - name: Wait for argocd-server to rollout
-      shell: "kubectl rollout status deploy/argocd-server -n argocd --timeout=15m"
-
-    - name: Wait for argocd-applicationset-controller to rollout
-      shell: "kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m"
-
-    - name: Wait for argocd-redis to rollout
-      shell: "kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m"
-
-    - name: Wait for argocd-repo-server to rollout
-      shell: "kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m"
-
-    - name: Wait for argocd-application-controller to rollout
-      shell: "kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m"
-
     # Create namespaces
 
     - name: Create external-secrets namespace
@@ -54,11 +28,31 @@
     - name: Initialise 1Password Secret Operator
       shell: "helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl create -f - 2>/dev/null || true"
 
-    - name: Wait for onepassword-connect to rollout
-      shell: "kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m"
+    # Argo CD
 
-    - name: Clean up onepassword-connect health check pod
-      shell: "kubectl delete pod onepassword-connect-health-check -n onepassword"
+    - name: Update dependency
+      shell: "helm dep update ../../../helm-charts/argocd"
+
+    - name: Create namespace
+      shell: "kubectl create namespace argocd || true"
+
+    - name: Initialise Argo CD
+      shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
+
+    # Wait for Argo CD and 1Password Connect to be ready
+
+    - name: Wait for 1Password Connect to be ready
+      shell: |
+        kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
+        kubectl delete pod onepassword-connect-health-check -n onepassword
+
+    - name: Wait for Argo CD to be ready
+      shell: |
+        kubectl rollout status deploy/argocd-server -n argocd --timeout=15m
+        kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m
+        kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
+        kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
+        kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
 
     # External Secrets Operator
 
@@ -68,14 +62,11 @@
     - name: Initialise External Secrets Operator
       shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"
 
-    - name: Wait for external-secrets to rollout
-      shell: "kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m"
-
-    - name: Wait for external-secrets-webhook to rollout
-      shell: "kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m"
-
-    - name: Wait for external-secrets-cert-controller to rollout
-      shell: "kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m"
+    - name: Wait for External Secrets to be ready
+      shell: |
+        kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m
+        kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m
+        kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m
 
     # Bootstrap
 
