@@ -5,16 +5,28 @@
 
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
-    - name: Create systemd service to enable promiscuous mode for wlan0
+    - name: Check if promisc-mode service exists
+      stat:
+        path: /etc/systemd/system/promisc-mode.service
+      register: promisc_mode_service
+
+    - name: Check if promisc-mode service is inactive or not
+      command: systemctl show promisc-mode.service --property=ActiveState
+      register: promisc_mode_status
+      changed_when: false
+      failed_when: false
+
+    - name: Create systemd service to enable promiscuous mode for eth0 and wlan0
       copy:
         dest: /etc/systemd/system/promisc-mode.service
         content: |
           [Unit]
-          Description=Enable promiscuous mode for wlan0
+          Description=Enable promiscuous mode for eth0 and wlan0
           After=network.target
           
           [Service]
           Type=oneshot
+          ExecStart=/sbin/ifconfig eth0 promisc
           ExecStart=/sbin/ifconfig wlan0 promisc
           
           [Install]
@@ -22,16 +34,10 @@
         owner: root
         group: root
         mode: '0644'
-
-    - name: Reload systemd to apply changes
-      command: systemctl daemon-reload
-
-    - name: Enable promisc-mode service
-      systemd:
-        name: promisc-mode.service
-        enabled: true
-        state: started
-        daemon_reload: yes
+      when: promisc_mode_status.stdout.strip() != "ActiveState=inactive"
+      changed_when: true
+      notify:
+        - Reload systemd and start promisc-mode service
 
     # workarounds for permissions issues with /etc/netplan/50-cloud-init.yaml
     # for some reason, even sudo doesn't work, so we have to copy the file to the home directory,
@@ -39,35 +45,69 @@
     - name: Copy netplan config to home directory
       command: cp /etc/netplan/50-cloud-init.yaml /home/pi/50-cloud-init.yaml
       become: true
+      changed_when: false
 
     - name: Change ownership of the copied netplan file to the user pi
       command: chown pi:pi /home/pi/50-cloud-init.yaml
       become: true
+      changed_when: false
 
-    - name: Set dhcp4 to false, add addresses, and set routes for wlan0 using yq
+    - name: Set dhcp4 to false, add addresses, and set routes for wlan0 and eth0 using yq
       command: |
         /snap/bin/yq -i '
+          (.network.ethernets.eth0.dhcp4) = false |
+          (.network.ethernets.eth0.addresses) = ["{{ ansible_host_eth0 }}/24"] |
+          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "192.168.1.1", "metric": 100}] |
+          (.network.ethernets.eth0.nameservers.addresses) = ["192.168.1.1"] |
           (.network.wifis.wlan0.dhcp4) = false |
           (.network.wifis.wlan0.addresses) = ["{{ ansible_host_wlan0 }}/24"] |
-          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": "192.168.1.1"}] |
+          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": "192.168.1.1", "metric": 200}] |
           (.network.wifis.wlan0.nameservers.addresses) = ["192.168.1.1"]
         ' /home/pi/50-cloud-init.yaml
       become: false  # Run this as pi, since the file is owned by pi
+      changed_when: false
+
+    - name: Check if the modified netplan file is different from the original
+      shell: diff /home/pi/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml
+      register: netplan_diff
+      ignore_errors: true
+      changed_when: netplan_diff.rc == 1
+      failed_when: netplan_diff.rc not in [0, 1]
 
     - name: Change ownership of the modified netplan file back to root
       command: chown root:root /home/pi/50-cloud-init.yaml
       become: true
+      when: netplan_diff.stdout != ""
 
     - name: Move the modified netplan file back to /etc/netplan
       command: mv /home/pi/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml
       become: true
+      when: netplan_diff.stdout != ""
+      notify:
+        - Apply netplan configuration
+
+    - name: Clean up temporary netplan file if no changes
+      file:
+        path: /home/pi/50-cloud-init.yaml
+        state: absent
+      when: netplan_diff.stdout == ""
+      changed_when: false
+
+  handlers:
+    - name: Reload systemd and start promisc-mode service
+      systemd:
+        name: promisc-mode.service
+        enabled: true
+        state: started
+        daemon_reload: yes
 
     - name: Apply netplan configuration
       command: timeout 10s netplan apply
       ignore_errors: true
       become: true
+      notify: Wait for system to become reachable
 
-    - name: Wait for system to become reachable again
+    - name: Wait for system to become reachable
       wait_for:
         host: "{{ inventory_hostname }}"
         port: 22
