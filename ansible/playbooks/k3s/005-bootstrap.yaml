@@ -4,6 +4,11 @@
 
   tasks:
 
+    # Set local-path not to be the default storage class
+
+    - name: Create local-path storage class
+      shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
+
     # Argo CD
 
     - name: Update dependency
