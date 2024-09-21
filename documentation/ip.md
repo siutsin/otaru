@@ -9,7 +9,3 @@
 | 192.168.1.61 | raspberrypi-01.local  | eth0      |
 | 192.168.1.62 | raspberrypi-02.local  | eth0      |
 | 192.168.1.63 | raspberrypi-03.local  | eth0      |
-| 192.168.1.80 | raspberrypi-00.local  | wlan0     |
-| 192.168.1.81 | raspberrypi-01.local  | wlan0     |
-| 192.168.1.82 | raspberrypi-02.local  | wlan0     |
-| 192.168.1.83 | raspberrypi-03.local  | wlan0     |

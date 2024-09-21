@@ -18,8 +18,8 @@ app:
     scaleUpReadCapacity: 600
     stage: prod
   autoscaling:
-    min: 2
-    max: 8
+    min: 6
+    max: 18
 
 cron:
   image:

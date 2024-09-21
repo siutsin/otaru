@@ -1,24 +1,3 @@
 ---
-- hosts: raspberrypi
-  become: true
-  serial:
-    - 33%
-    - 66%
-    - 100%
-
-  tasks:
-    - include_tasks: rpi/tasks/package-apt.yaml
-    - include_tasks: rpi/tasks/package-asdf.yaml
-    - include_tasks: rpi/tasks/package-snap.yaml
-    - include_tasks: rpi/tasks/package-binary.yaml
-
-    - name: Reboot the system
-      reboot:
-      changed_when: false
-
-    - name: Wait for system to become reachable
-      wait_for:
-        host: "{{ inventory_hostname }}"
-        port: 22
-        delay: 10
-        timeout: 600
+- import_playbook: maintenance/000-packages.yaml
+- import_playbook: maintenance/001-restart-daemonsets.yaml

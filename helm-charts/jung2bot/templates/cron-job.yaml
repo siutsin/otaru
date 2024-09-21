@@ -11,9 +11,6 @@ spec:
     spec:
       ttlSecondsAfterFinished: 60
       template:
-        metadata:
-          annotations:
-            sidecar.istio.io/inject: "false"
         spec:
           containers:
             - name: off-work
@@ -39,7 +36,6 @@ spec:
                 initialDelaySeconds: 30
           restartPolicy: Never
 ---
-{{ if eq .Values.app.env.stage "prod" }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -54,9 +50,6 @@ spec:
     spec:
       ttlSecondsAfterFinished: 60
       template:
-        metadata:
-          annotations:
-            sidecar.istio.io/inject: "false"
         spec:
           containers:
             - name: scale-up-database
@@ -85,4 +78,3 @@ spec:
                     - timeout
                 initialDelaySeconds: 30
           restartPolicy: Never
-{{ end }}

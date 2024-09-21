@@ -30,6 +30,7 @@
 
     - name: Clear all logs in /var/log
       command: find /var/log -type f -exec truncate -s 0 {} +
+      changed_when: false
 
   handlers:
     - name: Restart journald

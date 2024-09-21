@@ -7,7 +7,7 @@
 - import_playbook: etcd/004-etcd.yaml
 # rpi
 - import_playbook: rpi/000-disable-write-log-to-disk.yaml
-- import_playbook: rpi/001-config.yaml
+- import_playbook: rpi/001-packages.yaml
 - import_playbook: rpi/002-pineberry-pi-hatdrive.yaml
 - import_playbook: rpi/003-waveshare-poe-hat.yaml
 - import_playbook: rpi/004-volume.yaml

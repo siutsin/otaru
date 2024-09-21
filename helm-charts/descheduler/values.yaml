@@ -1,4 +1,5 @@
 descheduler:
-  podLabels:
-    sidecar.istio.io/inject: "false"
-  successfulJobsHistoryLimit: "0"
+  successfulJobsHistoryLimit: "1"
+  resources:
+    limits:
+      memory: 256Mi
