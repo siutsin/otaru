@@ -8,6 +8,11 @@ local _ignoreDifferences = {
   }
 };
 
+local _grafanaDashboards = [
+  'dashboards/k3s-cluster-monitoring.yaml',
+  'dashboards/prometheus-stats.yaml.yaml'
+];
+
 local application = [
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
 //  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
@@ -21,7 +26,6 @@ local application = [
 
 local baseline = [
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
-  { wave: '02', name: 'metrics-server', namespace: 'kube-system' },
 ];
 
 // Re-track bootstrap resources
@@ -43,8 +47,10 @@ local connectivity = [
 ];
 
 local monitoring = [
-  { wave: '10', name: 'grafana-cloud', namespace: 'monitoring' },
   { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
+  { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
+  { wave: '10', name: 'monitoring-volume', namespace: 'monitoring' },
+  { wave: '11', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
 
 local scheduling = [

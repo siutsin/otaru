@@ -5,7 +5,9 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   acme:
-    server: https://acme-staging-v02.api.letsencrypt.org/directory # Temporarily switch to the staging server due to hitting rate limits
+    # Temporarily switch to the staging server when hitting the rate limits
+    # server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     email: jet_quern_0g@icloud.com
     privateKeySecretRef:
       name: letsencrypt

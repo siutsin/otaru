@@ -1,0 +1,100 @@
+name: monitoring
+namespace: monitoring
+
+httpRoutes:
+  prometheus:
+    service:
+      name: monitoring-prometheus-server
+      port: 80
+  loki:
+    service:
+      name: monitoring-loki
+      port: 3100
+  grafana:
+    service:
+      name: monitoring-grafana
+      port: 80
+
+prometheus:
+  server:
+    persistentVolume:
+      existingClaim: prometheus-pvc
+  alertmanager:
+    enabled: false
+
+grafana:
+  admin:
+    existingSecret: grafana
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://monitoring-prometheus-server.monitoring.svc.cluster.local
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
+  #          # https://github.com/grafana/loki/issues/11893#issuecomment-2326070697
+  #          jsonData:
+  #            httpHeaderName1: 'Accept'
+  #          secureJsonData:
+  #            httpHeaderValue1: '*/*'
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: default
+          folder: ''
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards
+
+# It appears that the loki chart with v3 is not working as expected. Using loki-stack with v2 instead.
+loki-stack:
+  loki:
+    image:
+      tag: 2.9.10
+    nodeSelector:
+      volume: "true"
+    persistence:
+      enabled: true
+      existingClaim: loki-pvc
+  promtail:
+    config:
+      clients:
+        - url: http://monitoring-loki:3100/loki/api/v1/push
+
+#loki:
+#  deploymentMode: SingleBinary
+#  loki:
+#    commonConfig:
+#      replication_factor: 1
+#    storage:
+#      type: filesystem
+#    schemaConfig:
+#      configs:
+#        - from: 2024-09-21
+#          object_store: filesystem
+#          store: tsdb
+#          schema: v13
+#          index:
+#            prefix: index_
+#            period: 24h
+#  singleBinary:
+#    replicas: 1
+#    nodeSelector:
+#      volume: "true"
+#    persistence:
+#      storageClass: longhorn-crypto-global
+#  backend:
+#    replicas: 0
+#  read:
+#    replicas: 0
+#  write:
+#    replicas: 0
+#  chunksCache:
+#    allocatedMemory: 2048M
+#  resultsCache:
+#    allocatedMemory: 512M
