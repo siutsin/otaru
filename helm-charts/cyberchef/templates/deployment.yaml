@@ -12,14 +12,20 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
+      automountServiceAccountToken: false
       containers:
         - name: cyberchef
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+                - CHOWN
+                - SETGID
+                - SETUID
           ports:
             - name: main
               containerPort: {{ .Values.service.targetPort }}
@@ -30,4 +36,10 @@ spec:
               path: /
               scheme: HTTP
           resources:
-            {{- toYaml .Values.deployment.resources | nindent 12 }}
+            requests:
+              cpu: 100m
+              memory: 100Mi
+              ephemeral-storage: 100Mi
+            limits:
+              memory: 100Mi
+              ephemeral-storage: 100Mi

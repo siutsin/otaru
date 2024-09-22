@@ -3,15 +3,9 @@ namespace: cyberchef
 
 deployment:
   image:
-    repository: mpepping/cyberchef
-    tag: v10.19.2
-  resources:
-    requests:
-      cpu: 10m
-      memory: 50Mi
-    limits:
-      memory: 50Mi
+    repository: ghcr.io/siutsin/cyberchef
+    tag: v10.19.2-arm64
 
 service:
-  port: 10219
-  targetPort: 8000
+  port: 8080
+  targetPort: 80
