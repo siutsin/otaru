@@ -9,8 +9,11 @@ local _ignoreDifferences = {
 };
 
 local _grafanaDashboards = [
+  'dashboards/container-log-dashboard.yaml',
+  'dashboards/falco.yaml',
   'dashboards/k3s-cluster-monitoring.yaml',
-  'dashboards/prometheus-stats.yaml'
+  'dashboards/onzack-cluster-monitoring.yaml',
+  'dashboards/prometheus-stats.yaml',
 ];
 
 local application = [
@@ -61,6 +64,7 @@ local scheduling = [
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
+  { wave: '10', name: 'falco', namespace: 'falco' },
 ];
 
 local storage = [

@@ -1,0 +1,7 @@
+grafana:
+  dashboards:
+    default:
+      container-log-dashboard:
+        gnetId: 16966
+        revision: 1
+        datasource: Loki

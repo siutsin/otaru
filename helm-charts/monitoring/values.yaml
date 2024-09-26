@@ -19,6 +19,9 @@ prometheus:
   server:
     persistentVolume:
       existingClaim: prometheus-pvc
+    nodeSelector:
+      volume: "true"
+    retentionSize: 7.5GB
   alertmanager:
     enabled: false
 

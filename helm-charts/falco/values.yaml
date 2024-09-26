@@ -1,0 +1,7 @@
+falco:
+  tty: true
+  falcosidekick:
+    enabled: true
+    config:
+      loki:
+        hostport: http://monitoring-loki.monitoring.svc.cluster.local:3100

@@ -1,0 +1,750 @@
+grafana:
+  dashboards:
+    default:
+      falco:
+        json: |
+          {
+            "annotations": {
+              "list": [
+                {
+                  "builtIn": 1,
+                  "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                  },
+                  "enable": true,
+                  "hide": true,
+                  "iconColor": "rgba(0, 211, 255, 1)",
+                  "name": "Annotations & Alerts",
+                  "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                  },
+                  "type": "dashboard"
+                }
+              ]
+            },
+            "description": "Grafana dashboard for Falco output events",
+            "editable": true,
+            "fiscalYearStartMonth": 0,
+            "gnetId": 17319,
+            "graphTooltip": 0,
+            "id": 6,
+            "links": [],
+            "liveNow": false,
+            "panels": [
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 0
+                },
+                "id": 18,
+                "panels": [],
+                "title": "Overview",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 9,
+                  "w": 4,
+                  "x": 0,
+                  "y": 1
+                },
+                "id": 22,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "area",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.0",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time({$filter_falco_logs,priority=~\"$priority\"}[$__range]))",
+                    "hide": false,
+                    "queryType": "instant",
+                    "refId": "B"
+                  }
+                ],
+                "title": "Total Events",
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "description": "",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      }
+                    },
+                    "mappings": []
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 9,
+                  "w": 6,
+                  "x": 4,
+                  "y": 1
+                },
+                "id": 12,
+                "options": {
+                  "displayLabels": [],
+                  "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "values": [
+                      "value"
+                    ]
+                  },
+                  "pieType": "pie",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (source) (count_over_time({$filter_falco_logs,priority=~\"$priority\"}[$__range]))",
+                    "hide": false,
+                    "legendFormat": "{{source}}",
+                    "queryType": "range",
+                    "refId": "B"
+                  }
+                ],
+                "title": "Sources",
+                "type": "piechart"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "description": "",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      }
+                    },
+                    "mappings": []
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 9,
+                  "w": 6,
+                  "x": 10,
+                  "y": 1
+                },
+                "id": 9,
+                "options": {
+                  "displayLabels": [],
+                  "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "values": [
+                      "value"
+                    ]
+                  },
+                  "pieType": "pie",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (priority) (count_over_time({$filter_falco_logs,priority=~\"$priority\"}[$__range]))",
+                    "hide": false,
+                    "legendFormat": "{{priority}}",
+                    "queryType": "range",
+                    "refId": "B"
+                  }
+                ],
+                "title": "Priorities",
+                "type": "piechart"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "description": "",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      }
+                    },
+                    "mappings": []
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 9,
+                  "w": 8,
+                  "x": 16,
+                  "y": 1
+                },
+                "id": 13,
+                "options": {
+                  "displayLabels": [],
+                  "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "values": [
+                      "value"
+                    ]
+                  },
+                  "pieType": "pie",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                  }
+                },
+                "pluginVersion": "8.5.3",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (rule) (count_over_time({$filter_falco_logs,priority=~\"$priority\"}[$__range]))",
+                    "hide": false,
+                    "legendFormat": "{{rule}}",
+                    "queryType": "range",
+                    "refId": "B"
+                  }
+                ],
+                "title": "Rules",
+                "type": "piechart"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "barWidthFactor": 0.6,
+                      "drawStyle": "bars",
+                      "fillOpacity": 10,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "linear",
+                      "lineStyle": {
+                        "fill": "solid"
+                      },
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "auto",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "normal"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 80
+                        }
+                      ]
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 12,
+                  "w": 12,
+                  "x": 0,
+                  "y": 10
+                },
+                "id": 14,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "lastNotNull",
+                      "mean",
+                      "min",
+                      "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                  }
+                },
+                "pluginVersion": "8.5.3",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (priority) (count_over_time({$filter_falco_logs,priority=~\"$priority\"}[1m]))",
+                    "legendFormat": "{{priority}}",
+                    "queryType": "range",
+                    "refId": "A",
+                    "resolution": 1
+                  }
+                ],
+                "title": "Events rate",
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "P8E80F9AEF21F6940"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "custom": {
+                      "align": "auto",
+                      "cellOptions": {
+                        "type": "auto"
+                      },
+                      "filterable": false,
+                      "inspect": false
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "noValue": "No Rule Violations from Pods",
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 80
+                        }
+                      ]
+                    }
+                  },
+                  "overrides": [
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "Rule Violation"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.cellOptions",
+                          "value": {
+                            "mode": "lcd",
+                            "type": "gauge"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "gridPos": {
+                  "h": 12,
+                  "w": 12,
+                  "x": 12,
+                  "y": 10
+                },
+                "id": 16,
+                "options": {
+                  "cellHeight": "sm",
+                  "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                      "sum"
+                    ],
+                    "show": false
+                  },
+                  "showHeader": true,
+                  "sortBy": [
+                    {
+                      "desc": true,
+                      "displayName": "Rule Violations"
+                    }
+                  ]
+                },
+                "pluginVersion": "11.2.0",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "editorMode": "code",
+                    "expr": "topk($top, \r\n  sum by (k8s_pod_name,k8s_ns) (\r\n    count_over_time({$filter_falco_logs,priority=~\"$priority\",priority!=\"Debug\"} \r\n      | logfmt | __error__ = \"\" \r\n      | container!=\"host\", k8s_pod_name!=\"<NA>\" \r\n      | label_format k8s_pod_name=`{{ .k8s_pod_name | replace \")\" \"\" }}`[$__range]   # Replace \")\" in pod name with \"\"\r\n    )\r\n  )\r\n)",
+                    "hide": false,
+                    "legendFormat": "",
+                    "queryType": "instant",
+                    "refId": "B"
+                  }
+                ],
+                "title": "Top $top Pods",
+                "transformations": [
+                  {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "includeByName": {},
+                      "indexByName": {
+                        "Time": 0,
+                        "Value #B": 3,
+                        "k8s_ns": 1,
+                        "k8s_pod_name": 2
+                      },
+                      "renameByName": {
+                        "Value #B": "Rule Violations",
+                        "k8s_ns": "Namespace",
+                        "k8s_pod": "Pod",
+                        "k8s_pod_name": "Pod"
+                      }
+                    }
+                  }
+                ],
+                "type": "table"
+              },
+              {
+                "collapsed": true,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 22
+                },
+                "id": 20,
+                "panels": [
+                  {
+                    "datasource": {
+                      "type": "loki",
+                      "uid": "P8E80F9AEF21F6940"
+                    },
+                    "gridPos": {
+                      "h": 22,
+                      "w": 24,
+                      "x": 0,
+                      "y": 23
+                    },
+                    "id": 11,
+                    "options": {
+                      "dedupStrategy": "none",
+                      "enableLogDetails": true,
+                      "prettifyLogMessage": false,
+                      "showCommonLabels": false,
+                      "showLabels": false,
+                      "showTime": false,
+                      "sortOrder": "Descending",
+                      "wrapLogMessage": false
+                    },
+                    "pluginVersion": "8.5.3",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "loki",
+                          "uid": "P8E80F9AEF21F6940"
+                        },
+                        "expr": "{from=\"falcosidekick\",priority=~\"$priority\"} |~ \"(?i)$searchpattern\"\n| line_format `{{ if eq .priority \"Emergency\" }} ❌ {{ else if eq .priority \"Alert\" }} ❌ {{ else if eq .priority \"Critical\" }} ❌ {{ else if eq .priority \"Error\" }} 🔴 {{ else if eq .priority \"Warning\" }} 🟠 {{ else if eq .priority \"Notice\" }} 🟡 {{ else if eq .priority \"Informational\" }} 🔵 {{ else if eq .priority \"Debug\" }} 🟣 {{__line__}} {{else}} ⚪ {{end}} {{__line__}}`",
+                        "queryType": "range",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Logs",
+                    "transformations": [],
+                    "type": "logs"
+                  }
+                ],
+                "title": "Logs",
+                "type": "row"
+              }
+            ],
+            "refresh": "auto",
+            "schemaVersion": 39,
+            "tags": [
+              "Security",
+              "Runtime"
+            ],
+            "templating": {
+              "list": [
+                {
+                  "current": {
+                    "selected": false,
+                    "text": "Loki",
+                    "value": "P8E80F9AEF21F6940"
+                  },
+                  "hide": 0,
+                  "includeAll": false,
+                  "label": "Datasource",
+                  "multi": false,
+                  "name": "datasource",
+                  "options": [],
+                  "query": "loki",
+                  "queryValue": "",
+                  "refresh": 1,
+                  "regex": "",
+                  "skipUrlSync": false,
+                  "type": "datasource"
+                },
+                {
+                  "current": {
+                    "selected": false,
+                    "text": "from=\"falcosidekick\"",
+                    "value": "from=\"falcosidekick\""
+                  },
+                  "description": "LogQL filter to get only Falco logs.",
+                  "hide": 2,
+                  "includeAll": false,
+                  "multi": false,
+                  "name": "filter_falco_logs",
+                  "options": [
+                    {
+                      "selected": true,
+                      "text": "from=\"falcosidekick\"",
+                      "value": "from=\"falcosidekick\""
+                    }
+                  ],
+                  "query": "from=\"falcosidekick\"",
+                  "skipUrlSync": false,
+                  "type": "custom"
+                },
+                {
+                  "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                  },
+                  "datasource": {
+                    "type": "loki",
+                    "uid": "P8E80F9AEF21F6940"
+                  },
+                  "definition": "",
+                  "hide": 0,
+                  "includeAll": true,
+                  "label": "Priority",
+                  "multi": true,
+                  "name": "priority",
+                  "options": [],
+                  "query": {
+                    "label": "priority",
+                    "refId": "LokiVariableQueryEditor-VariableQuery",
+                    "stream": "{$filter_falco_logs}",
+                    "type": 1
+                  },
+                  "refresh": 2,
+                  "regex": "",
+                  "skipUrlSync": false,
+                  "sort": 1,
+                  "type": "query"
+                },
+                {
+                  "current": {
+                    "selected": false,
+                    "text": "10",
+                    "value": "10"
+                  },
+                  "description": "this variable is only for the Top Panel!",
+                  "hide": 0,
+                  "includeAll": false,
+                  "label": "Top",
+                  "multi": false,
+                  "name": "top",
+                  "options": [
+                    {
+                      "selected": false,
+                      "text": "5",
+                      "value": "5"
+                    },
+                    {
+                      "selected": true,
+                      "text": "10",
+                      "value": "10"
+                    },
+                    {
+                      "selected": false,
+                      "text": "20",
+                      "value": "20"
+                    },
+                    {
+                      "selected": false,
+                      "text": "50",
+                      "value": "50"
+                    }
+                  ],
+                  "query": "5,10,20,50",
+                  "queryValue": "",
+                  "skipUrlSync": false,
+                  "type": "custom"
+                },
+                {
+                  "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                  },
+                  "description": "this variable is only for the Logs Panel!",
+                  "hide": 0,
+                  "label": "Search-Pattern",
+                  "name": "searchpattern",
+                  "options": [
+                    {
+                      "selected": true,
+                      "text": "",
+                      "value": ""
+                    }
+                  ],
+                  "query": "",
+                  "skipUrlSync": false,
+                  "type": "textbox"
+                }
+              ]
+            },
+            "time": {
+              "from": "now-24h",
+              "to": "now"
+            },
+            "timepicker": {},
+            "timezone": "",
+            "title": "Falco",
+            "uid": "ozk-flc-mon",
+            "version": 2,
+            "weekStart": ""
+          }
