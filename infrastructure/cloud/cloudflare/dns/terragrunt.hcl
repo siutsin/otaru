@@ -50,6 +50,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    grafana_internal = {
+      name  = "grafana.internal"
+      value = local.internal_ip
+    },
+
     home_assistant_internal = {
       name  = "home-assistant.internal"
       value = local.internal_ip
@@ -65,6 +70,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    loki_internal = {
+      name  = "loki.internal"
+      value = local.internal_ip
+    },
+
     longhorn_internal = {
       name  = "longhorn.internal"
       value = local.internal_ip
@@ -72,6 +82,11 @@ inputs = {
 
     projectsend_internal = {
       name  = "projectsend.internal"
+      value = local.internal_ip
+    },
+
+    prometheus_internal = {
+      name  = "prometheus.internal"
       value = local.internal_ip
     },
 

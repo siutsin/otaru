@@ -1,0 +1,11 @@
+longhorn-volume-lib:
+  namespace: monitoring
+  volumes:
+    prometheus:
+      size: "8Gi"
+      sizeBytes: "8589934592"
+      fromBackup: ""
+    loki:
+      size: "8Gi"
+      sizeBytes: "8589934592"
+      fromBackup: ""
