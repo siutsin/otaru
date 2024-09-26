@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'migration';
+local revision = 'HEAD';
 
 local _ignoreDifferences = {
   scheduling: {
