@@ -10,7 +10,7 @@ local _ignoreDifferences = {
 
 local _grafanaDashboards = [
   'dashboards/k3s-cluster-monitoring.yaml',
-  'dashboards/prometheus-stats.yaml.yaml'
+  'dashboards/prometheus-stats.yaml'
 ];
 
 local application = [
