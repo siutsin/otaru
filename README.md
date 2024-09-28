@@ -6,7 +6,6 @@
 [![Dependabot Updates](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates)
 [![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
 [![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
-[![Terragrunt](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/terragrunt.yaml)
 [![tfsec](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml)
 
 > Over-Engineering at Its Finest.
@@ -160,19 +159,6 @@ make generate-atlantis-yaml
 
 | Key                             |
 |---------------------------------|
-| AWS_ACCESS_KEY_ID               |
-| AWS_SECRET_ACCESS_KEY           |
-| B2_APPLICATION_KEY              |
-| B2_APPLICATION_KEY_ID           |
-| CLOUDFLARE_ACCOUNT_ID           |
-| CLOUDFLARE_API_TOKEN            |
-| CLOUDFLARE_TUNNEL_SECRET        |
-| CLOUDFLARE_ZONE                 |
-| CLOUDFLARE_ZONE_ID              |
-| CLOUDFLARE_ZONE_SUBDOMAIN       |
-| CLOUDFLARE_ZONE_TUNNEL_IP_LIST  |
-| GH_ADD_COMMENT_TOKEN            |
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
-| UPTIME_ROBOT_API_KEY            |
 
 </details>
