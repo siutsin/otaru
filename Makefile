@@ -21,3 +21,7 @@ build-cluster:
 .PHONY: restart-all
 restart-all:
 	ansible-playbook -i ansible/inventory.yaml ansible/playbooks/restart-all.yaml
+
+.PHONY: generate-atlantis-yaml
+generate-atlantis-yaml:
+	bash hack/generate-atlantis-yaml.sh

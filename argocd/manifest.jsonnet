@@ -43,6 +43,10 @@ local bootstrap = [
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
+local cicd = [
+  { wave: '10', name: 'atlantis', namespace: 'atlantis' },
+];
+
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
   { wave: '02', name: 'cilium-gateway', namespace: 'cilium-gateway' },
@@ -74,5 +78,5 @@ local storage = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + connectivity + monitoring + scheduling + security + storage
+  for appConfig in application + baseline + bootstrap + cicd + connectivity + monitoring + scheduling + security + storage
 ]
