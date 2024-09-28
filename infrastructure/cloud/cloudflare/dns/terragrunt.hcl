@@ -45,6 +45,11 @@ inputs = {
       value = local.internal_ip
     },
 
+    atlantis_internal = {
+      name  = "atlantis.internal"
+      value = local.internal_ip
+    },
+
     cyberchef_internal = {
       name  = "cyberchef.internal"
       value = local.internal_ip

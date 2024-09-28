@@ -49,6 +49,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [SFTPGo](https://github.com/drakkan/sftpgo)                                                         | SFTP for Jellyfin                                                                                                       |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups.                                                     |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                                             |
+| CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | Terraform Pull Request Automation                                                                                       |
 | Connectivity | [Cilium Gateway](helm-charts/cilium-gateway)                                                        | Cilium Ingress Controller with Virtual IP Layer 2 announcement and TLS termination                                      |
 | Connectivity | [Cilium](https://cilium.io/)                                                                        | Cilium is a networking, observability, and security solution with an eBPF-based dataplane                               |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                                              |
@@ -144,6 +145,12 @@ Restart all workloads.
 
 ```shell
 make restart-all
+```
+
+Generate atlantis.yaml.
+
+```shell
+make generate-atlantis-yaml
 ```
 
 ## Repository Configuration

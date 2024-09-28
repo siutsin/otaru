@@ -1,0 +1,76 @@
+# This file is generated automatically by running 'make generate-atlantis-yaml'. Do not modify manually.
+
+version: 3
+automerge: true
+parallel_plan: true
+parallel_apply: false
+projects:
+  - name: cloud-b2-bucket
+    dir: infrastructure/cloud/b2/bucket
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-uptime-robot-otaru
+    dir: infrastructure/cloud/uptime-robot/otaru
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-cloudflare-access
+    dir: infrastructure/cloud/cloudflare/access
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-cloudflare-tunnel
+    dir: infrastructure/cloud/cloudflare/tunnel
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-cloudflare-dns
+    dir: infrastructure/cloud/cloudflare/dns
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-aws-jung2bot-dynamodb
+    dir: infrastructure/cloud/aws/jung2bot/dynamodb
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-aws-jung2bot-sqs
+    dir: infrastructure/cloud/aws/jung2bot/sqs
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-aws-jung2bot-dev-dynamodb
+    dir: infrastructure/cloud/aws/jung2bot-dev/dynamodb
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: cloud-aws-jung2bot-dev-sqs
+    dir: infrastructure/cloud/aws/jung2bot-dev/sqs
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+workflows:
+  terragrunt:
+    plan:
+      steps:
+        - env:
+            name: TF_IN_AUTOMATION
+            value: 'true'
+        - run: find . -name '.terragrunt-cache' | xargs rm -rf
+        - run: terragrunt init -reconfigure
+        - run:
+            command: terragrunt plan -input=false -out=$PLANFILE
+            output: strip_refreshing
+    apply:
+      steps:
+        - run: terragrunt apply $PLANFILE

@@ -1,0 +1,51 @@
+name: atlantis
+namespace: atlantis
+
+atlantis:
+  orgAllowlist: github.com/siutsin/*
+  atlantisUrl: https://atlantis.internal.siutsin.com
+  github:
+    user: siutsin
+  vcsSecretName: atlantis-github-webhook
+  service:
+    type: ClusterIP
+  volumeClaim:
+    storageClassName: longhorn-crypto-global
+  nodeSelector:
+    volume: "true"
+  loadEnvFromSecrets:
+    - atlantis-aws
+    - atlantis-b2
+    - atlantis-cloudflare
+    - atlantis-github
+    - atlantis-uptime-robot
+  ingress:
+    enabled: false
+  hidePrevPlanComments: true
+  # https://www.runatlantis.io/docs/custom-workflows.html#terragrunt
+  # https://www.runatlantis.io/blog/2024/integrating-atlantis-with-opentofu
+  environment:
+    ATLANTIS_TF_DOWNLOAD: false
+    TERRAGRUNT_TFPATH: /usr/local/bin/tofu
+  initConfig:
+    enabled: true
+    image: quay.io/curl/curl:latest
+    script: |
+      #!/bin/sh
+      set -eoux pipefail
+
+      TG_LATEST_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+      TG_FILE="${INIT_SHARED_DIR}/terragrunt"
+      wget "https://github.com/gruntwork-io/terragrunt/releases/download/v$TG_LATEST_VERSION/terragrunt_linux_arm64" -O "${TG_FILE}"
+      TG_SHA256_SUM=$(curl -s -L "https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_LATEST_VERSION}/SHA256SUMS" | grep 'terragrunt_linux_arm64' | awk '{print $1}')
+      echo "${TG_SHA256_SUM}  ${TG_FILE}" | sha256sum -c
+      chmod 755 "${TG_FILE}"
+      terragrunt -v
+  repoConfig: |
+    ---
+    repos:
+    - id: /.*/
+      apply_requirements: [mergeable]
+      allow_custom_workflows: true
+      delete_source_branch_on_merge: true
+      allowed_overrides: [workflow, apply_requirements]
