@@ -1,3 +1,4 @@
 ---
 - import_playbook: maintenance/000-packages.yaml
 - import_playbook: maintenance/001-restart-daemonsets.yaml
+- import_playbook: maintenance/002-restart-other-workloads.yaml
