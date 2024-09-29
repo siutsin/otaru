@@ -5,6 +5,12 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   gatewayClassName: cilium
+  infrastructure:
+    annotations:
+      lbipam.cilium.io/sharing-key: ingress
+      lbipam.cilium.io/sharing-cross-namespace: jellyfin
+    labels:
+      lb-ip-pool: cilium-gateway
   listeners:
     - name: https
       protocol: HTTPS
