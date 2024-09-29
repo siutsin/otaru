@@ -85,11 +85,6 @@ inputs = {
       value = local.internal_ip
     },
 
-    projectsend_internal = {
-      name  = "projectsend.internal"
-      value = local.internal_ip
-    },
-
     prometheus_internal = {
       name  = "prometheus.internal"
       value = local.internal_ip

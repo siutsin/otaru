@@ -24,9 +24,6 @@ spec:
         - name: sftpgo-config
           configMap:
             name: sftpgo
-        - name: projectsend-config
-          persistentVolumeClaim:
-            claimName: projectsend-config-pvc
         - name: jellyfin-config
           persistentVolumeClaim:
             claimName: jellyfin-config-pvc
@@ -37,6 +34,7 @@ spec:
       {{- if .Values.jellyfin.affinity }}
       affinity: {{ toYaml .Values.jellyfin.affinity | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.jellyfin.image.repository }}:{{ .Values.jellyfin.image.tag }}"
@@ -97,27 +95,4 @@ spec:
               name: sftpgo-home
             - mountPath: /srv/sftpgo
               name: sftpgo-data
-            {{- include "jellyfin.volumeMount" . | nindent 12 }}
-        - name: projectsend
-          securityContext:
-            runAsUser: 0
-          image: "ghcr.io/linuxserver/projectsend:r1605-ls190"
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: TZ
-              value: "Europe/London"
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            {{- include "jellyfin.probe" . | nindent 12 }}
-          readinessProbe:
-            {{- include "jellyfin.probe" . | nindent 12 }}
-          volumeMounts:
-            - mountPath: /config/projectsend
-              name: projectsend-config
             {{- include "jellyfin.volumeMount" . | nindent 12 }}
