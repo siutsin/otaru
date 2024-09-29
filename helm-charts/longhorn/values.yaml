@@ -12,6 +12,7 @@ longhorn:
     replicaAutoBalance: best-effort
     backupTarget: s3://github-otaru-media-storage@eu-west-1/
     backupTargetCredentialSecret: b2-secret
+    snapshotMaxCount: 250
 
 encryption:
   secretName: longhorn-crypto
