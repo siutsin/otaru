@@ -1,0 +1,364 @@
+apiVersion: v1
+entries:
+  argocd:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:00.57297165Z"
+    dependencies:
+    - name: argo-cd
+      repository: https://argoproj.github.io/argo-helm
+      version: 7.6.7
+    description: A Helm chart for Kubernetes
+    digest: 2b397b2b00dd290c8d30c9820956295f9e8ebc9e83c8836277b8c47a7fa469e3
+    name: argocd
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/argocd-0.1.0/argocd-0.1.0.tgz
+    version: 0.1.0
+  argocd-bootstrap:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:00.811230085Z"
+    description: A Helm chart for Kubernetes
+    digest: e8d1a1abe4db1ed2696ed0701c8a86d8ba3f8f8b195e7551263410986191730b
+    name: argocd-bootstrap
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/argocd-bootstrap-0.1.0/argocd-bootstrap-0.1.0.tgz
+    version: 0.1.0
+  argocd-config:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.04233176Z"
+    description: A Helm chart for Kubernetes
+    digest: dd2bdaf0ef1924bdd7d81f7bade812ef69e3838be19145d9b2aa52dae108cc5f
+    name: argocd-config
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/argocd-config-0.1.0/argocd-config-0.1.0.tgz
+    version: 0.1.0
+  atlantis:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.235596919Z"
+    dependencies:
+    - name: atlantis
+      repository: https://runatlantis.github.io/helm-charts
+      version: 5.5.2
+    description: A Helm chart for Kubernetes
+    digest: 38cc6c08be52d8791af3527cbf0ee541f21673acdc94909fe711c493d86c275d
+    name: atlantis
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/atlantis-0.1.0/atlantis-0.1.0.tgz
+    version: 0.1.0
+  cert-manager:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.431029443Z"
+    dependencies:
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.15.3
+    description: A Helm chart for Kubernetes
+    digest: 3183290f596111fef4a981d6981be19a1d466b02150935a06de272534fec1c27
+    name: cert-manager
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cert-manager-0.1.0/cert-manager-0.1.0.tgz
+    version: 0.1.0
+  cilium:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.627208822Z"
+    dependencies:
+    - name: cilium
+      repository: https://helm.cilium.io/
+      version: 1.16.2
+    description: A Helm chart for Kubernetes
+    digest: 78783845a51216c74aa09ae96eca6bb5c4725fd51b85e7493d1398f51dae1b19
+    name: cilium
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cilium-0.1.0/cilium-0.1.0.tgz
+    version: 0.1.0
+  cilium-gateway:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.797923749Z"
+    description: A Helm chart for Kubernetes
+    digest: 849851f2762afd943aef3219123738ba24da3d97bd0cc6184f13b9e2a45ad7d4
+    name: cilium-gateway
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cilium-gateway-0.1.0/cilium-gateway-0.1.0.tgz
+    version: 0.1.0
+  cloudflare-tunnel:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:01.984813036Z"
+    dependencies:
+    - name: cloudflare-tunnel-remote
+      repository: https://siutsin.github.io/cloudflare-helm-charts/
+      version: 0.1.2-eso
+    description: A Helm chart for Kubernetes
+    digest: 31ffd8fb0a1dbf86824b0d5d6a1ca78570695578a0ffdabf69f1c79c84d93421
+    name: cloudflare-tunnel
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cloudflare-tunnel-0.1.0/cloudflare-tunnel-0.1.0.tgz
+    version: 0.1.0
+  cyberchef:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:02.164186058Z"
+    description: A Helm chart for Kubernetes
+    digest: 8294aadd41a2e9b9dc89bcacc7114011d5a23f2ad7dbac1574288b7905f849a0
+    name: cyberchef
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cyberchef-0.1.0/cyberchef-0.1.0.tgz
+    version: 0.1.0
+  descheduler:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:02.353505911Z"
+    dependencies:
+    - name: descheduler
+      repository: https://kubernetes-sigs.github.io/descheduler/
+      version: 0.31.0
+    description: A Helm chart for Kubernetes
+    digest: 8b25d052c2e92b1b61e1afe09785fe149cdc792394cd8a07bf00869f29d9a9fd
+    name: descheduler
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/descheduler-0.1.0/descheduler-0.1.0.tgz
+    version: 0.1.0
+  external-secrets:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:02.648088412Z"
+    dependencies:
+    - name: external-secrets
+      repository: https://charts.external-secrets.io/
+      version: 0.10.4
+    description: A Helm chart for Kubernetes
+    digest: 3673ac9fa4f84c9b3741582b61fc7316d2120687b5f1d13864a0807b5bc428dd
+    name: external-secrets
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/external-secrets-0.1.0/external-secrets-0.1.0.tgz
+    version: 0.1.0
+  falco:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:02.892442933Z"
+    dependencies:
+    - name: falco
+      repository: https://falcosecurity.github.io/charts
+      version: 4.9.0
+    description: A Helm chart for Kubernetes
+    digest: 33bb1cf70cfda81f134b577f8d43c20267b73165b43f4c0857281bb416fb7d47
+    name: falco
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/falco-0.1.0/falco-0.1.0.tgz
+    version: 0.1.0
+  gateway-api:
+  - apiVersion: v2
+    appVersion: 1.1.0
+    created: "2024-10-04T23:15:03.097780452Z"
+    description: A Helm chart for Kubernetes
+    digest: 026c086e5e2d8d03c88294655188c08d34240c28c0540c3a7be339b0645e2a96
+    name: gateway-api
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/gateway-api-0.1.0/gateway-api-0.1.0.tgz
+    version: 0.1.0
+  gateway-api-kubernetes:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:03.285120309Z"
+    description: A Helm chart for Kubernetes
+    digest: d915883e7e6d4b1e1ac540abcfbdb9c40f6748b201eb632d86c5f3b99be49352
+    name: gateway-api-kubernetes
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/gateway-api-kubernetes-0.1.0/gateway-api-kubernetes-0.1.0.tgz
+    version: 0.1.0
+  healthcheck-io:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:03.462059793Z"
+    description: A Helm chart for Kubernetes
+    digest: bb63eb65e49e52e42bc1a28bc15aa71f9a21ddab94757375d724777f7daa55f1
+    name: healthcheck-io
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/healthcheck-io-0.1.0/healthcheck-io-0.1.0.tgz
+    version: 0.1.0
+  home-assistant:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:03.646769415Z"
+    description: A Helm chart for Kubernetes
+    digest: bc7607c1cc4ee844564168c25d4b469f82b04fbc33c85b8435a664ac7258137f
+    name: home-assistant
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/home-assistant-0.1.0/home-assistant-0.1.0.tgz
+    version: 0.1.0
+  home-assistant-volume:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:03.844434287Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: file://../longhorn-volume-lib
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 1c856077ac4345dc6c7cb7e79fb407949edce6fc5b6a3a05da0a4439522cc504
+    name: home-assistant-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/home-assistant-volume-0.1.0/home-assistant-volume-0.1.0.tgz
+    version: 0.1.0
+  httpbin:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.017807943Z"
+    description: A Helm chart for Kubernetes
+    digest: 3ee6b760d2c91d44f58d850a23d0e562b9fd71f5981d4756ade5bf42a7855f62
+    name: httpbin
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/httpbin-0.1.0/httpbin-0.1.0.tgz
+    version: 0.1.0
+  jung2bot:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.188715273Z"
+    description: A Helm chart for Kubernetes
+    digest: 94f6b8b64ddcb519112add488607d3b3a59a0bd444eb7bd018265cc7b5d6fd65
+    name: jung2bot
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/jung2bot-0.1.0/jung2bot-0.1.0.tgz
+    version: 0.1.0
+  keda:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.368825636Z"
+    dependencies:
+    - name: keda
+      repository: https://kedacore.github.io/charts
+      version: 2.15.1
+    description: A Helm chart for Kubernetes
+    digest: a76727ed1f496f303fb25c902d7705d78e89523c371f65635a9a8860ddb206fc
+    name: keda
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/keda-0.1.0/keda-0.1.0.tgz
+    version: 0.1.0
+  kubernetes-service-patcher:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.548614962Z"
+    description: A Helm chart for Kubernetes
+    digest: 7fee26ce60d1c5efd56da41b3752e03e9b1931d8518bacfa74844beff8bd3fcb
+    name: kubernetes-service-patcher
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/kubernetes-service-patcher-0.1.0/kubernetes-service-patcher-0.1.0.tgz
+    version: 0.1.0
+  longhorn:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.771760745Z"
+    dependencies:
+    - name: longhorn
+      repository: https://charts.longhorn.io
+      version: 1.7.1
+    description: A Helm chart for Kubernetes
+    digest: 6ed5f4ba7f998749216751ba5db2730f7853bec0df962f7c7774be6b34f8ad66
+    name: longhorn
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/longhorn-0.1.0/longhorn-0.1.0.tgz
+    version: 0.1.0
+  longhorn-config:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:04.945469782Z"
+    description: A Helm chart for Kubernetes
+    digest: 36b8628d66ba2351c6a316cbc4cbe3e0700880713e8d4ae2cc269f5d310dfff6
+    name: longhorn-config
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/longhorn-config-0.1.0/longhorn-config-0.1.0.tgz
+    version: 0.1.0
+  longhorn-volume-lib:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:05.133608686Z"
+    description: A Helm chart for Kubernetes
+    digest: 69bd296b586dedf3e41e71004ebd82943a75214d76b2f362dcf8040f6be6bf75
+    name: longhorn-volume-lib
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/longhorn-volume-lib-0.1.0/longhorn-volume-lib-0.1.0.tgz
+    version: 0.1.0
+  metrics-server:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:05.309738051Z"
+    dependencies:
+    - name: metrics-server
+      repository: https://kubernetes-sigs.github.io/metrics-server/
+      version: 3.12.1
+    description: A Helm chart for Kubernetes
+    digest: 68dd5780fa21e7ddc5e7ea06606826c19c0966fe79a2d4d7122c15cb7d58ec8d
+    name: metrics-server
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/metrics-server-0.1.0/metrics-server-0.1.0.tgz
+    version: 0.1.0
+  monitoring:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:05.52715168Z"
+    dependencies:
+    - name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 25.27.0
+    - name: loki-stack
+      repository: https://grafana.github.io/helm-charts
+      version: 2.10.2
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 8.5.1
+    description: A Helm chart for Kubernetes
+    digest: e6657b3ca877b2b39b5475c9f09f65c1a825656005134b7a62d1a70972f4c3dd
+    name: monitoring
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/monitoring-0.1.0/monitoring-0.1.0.tgz
+    version: 0.1.0
+  monitoring-volume:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:05.690004361Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: file://../longhorn-volume-lib
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: c67b99a4e8e362795ca6c0efb28f8c6de859cf7da77e9aa9e0165222077c350b
+    name: monitoring-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/monitoring-volume-0.1.0/monitoring-volume-0.1.0.tgz
+    version: 0.1.0
+  onepassword-connect:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:05.858000438Z"
+    dependencies:
+    - name: connect
+      repository: https://1password.github.io/connect-helm-charts
+      version: 1.16.0
+    description: A Helm chart for Kubernetes
+    digest: c5b04e164c4af26ccc9dda0182cd750c8bfc73605496d344648ab9d2ceca6add
+    name: onepassword-connect
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/onepassword-connect-0.1.0/onepassword-connect-0.1.0.tgz
+    version: 0.1.0
+  reloader:
+  - apiVersion: v2
+    created: "2024-10-04T23:15:06.054141216Z"
+    dependencies:
+    - name: reloader
+      repository: https://stakater.github.io/stakater-charts
+      version: 1.1.0
+    description: A Helm chart for Kubernetes
+    digest: 7d09450a0eaa2521949d4e39df3ef8974987a6570e1d61265aae92a00c011a24
+    name: reloader
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-10-04T23:15:06.054153499Z"
