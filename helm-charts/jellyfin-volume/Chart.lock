@@ -1,6 +1,0 @@
-dependencies:
-- name: longhorn-volume-lib
-  repository: file://../longhorn-volume-lib
-  version: 0.1.0
-digest: sha256:7d2b3571d60c70980880dcb00b4d419b2e7167cc85285f3b1a3248f75ad1f1b9
-generated: "2024-01-10T21:40:44.900521Z"

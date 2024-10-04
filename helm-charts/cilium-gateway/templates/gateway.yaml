@@ -8,7 +8,7 @@ spec:
   infrastructure:
     annotations:
       lbipam.cilium.io/sharing-key: ingress
-      lbipam.cilium.io/sharing-cross-namespace: jellyfin
+      lbipam.cilium.io/sharing-cross-namespace: "*"
     labels:
       lb-ip-pool: cilium-gateway
   listeners:

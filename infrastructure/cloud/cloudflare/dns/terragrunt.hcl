@@ -39,7 +39,6 @@ inputs = {
   # private
 
   internal_records = {
-
     argocd_internal = {
       name  = "argocd.internal"
       value = local.internal_ip
@@ -70,11 +69,6 @@ inputs = {
       value = local.internal_ip
     },
 
-    jellyfin_internal = {
-      name  = "jellyfin.internal"
-      value = local.internal_ip
-    },
-
     loki_internal = {
       name  = "loki.internal"
       value = local.internal_ip
@@ -87,11 +81,6 @@ inputs = {
 
     prometheus_internal = {
       name  = "prometheus.internal"
-      value = local.internal_ip
-    },
-
-    sftpgo_internal = {
-      name  = "sftpgo.internal"
       value = local.internal_ip
     },
   }
