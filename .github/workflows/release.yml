@@ -1,0 +1,52 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
+    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: add repos
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo add atlantis https://runatlantis.github.io/helm-charts
+          helm repo add cert-manager https://charts.jetstack.io
+          helm repo add cilium https://helm.cilium.io/
+          helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
+          helm repo add external-secrets-operator https://charts.external-secrets.io
+          helm repo add falcosecurity https://falcosecurity.github.io/charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo add longhorn https://charts.longhorn.io
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
+          helm repo add onepassword-connect https://1password.github.io/connect-helm-charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add siutsin-cloudflare https://siutsin.github.io/cloudflare-helm-charts
+          helm repo add stakater https://stakater.github.io/stakater-charts
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1
+        with:
+          charts_dir: helm-charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
