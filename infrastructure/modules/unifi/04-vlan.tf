@@ -1,9 +1,6 @@
 resource "unifi_network" "vlan" {
   for_each = var.vlan
 
-  name    = each.value.name
-  purpose = each.value.purpose
-
   dhcp_enabled           = each.value.dhcp_enabled
   dhcp_start             = each.value.dhcp_start
   dhcp_stop              = each.value.dhcp_stop
@@ -17,5 +14,7 @@ resource "unifi_network" "vlan" {
   ipv6_ra_priority       = each.value.ipv6_ra_priority
   ipv6_ra_valid_lifetime = each.value.ipv6_ra_valid_lifetime
   multicast_dns          = each.value.multicast_dns
+  name                   = each.value.name
+  purpose                = each.value.purpose
   subnet                 = each.value.subnet
 }
