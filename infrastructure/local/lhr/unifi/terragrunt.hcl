@@ -7,17 +7,18 @@ terraform {
 }
 
 inputs = {
-  device_gateway = {
+  site = {
+    site00 = {
+      description = "Default"
+    }
+  }
+  device = {
     gateway00 = {
       name = "Cloud Gateway Ultra"
     }
-  }
-  device_switch = {
     switch00 = {
       name = "USW Lite 8 PoE"
     }
-  }
-  device_wifi = {
     wifi00 = {
       name = "U7 Pro"
     }
