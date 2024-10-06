@@ -22,4 +22,14 @@ inputs = {
       name = "U7 Pro"
     }
   }
+  wan = {
+    wan00 = {
+      name             = "Primary (WAN1)"
+      purpose          = "wan"
+      wan_dns          = ["1.1.1.2", "1.0.0.2"]
+      wan_networkgroup = "WAN"
+      wan_type         = "dhcp"
+      wan_type_v6      = "disabled"
+    }
+  }
 }
