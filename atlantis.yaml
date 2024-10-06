@@ -5,6 +5,12 @@ automerge: true
 parallel_plan: true
 parallel_apply: false
 projects:
+  - name: local-lhr-unifi
+    dir: infrastructure/local/lhr/unifi
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
   - name: cloud-b2-bucket
     dir: infrastructure/cloud/b2/bucket
     workspace: terragrunt
