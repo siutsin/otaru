@@ -12,17 +12,13 @@ inputs = {
       description = "Default"
     }
   }
-  device_gateway = {
+  device = {
     gateway00 = {
       name = "Cloud Gateway Ultra"
     }
-  }
-  device_switch = {
     switch00 = {
       name = "USW Lite 8 PoE"
     }
-  }
-  device_wifi = {
     wifi00 = {
       name = "U7 Pro"
     }

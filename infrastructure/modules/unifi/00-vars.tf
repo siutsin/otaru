@@ -4,19 +4,7 @@ variable "site" {
   }))
 }
 
-variable "device_gateway" {
-  type = map(object({
-    name = string
-  }))
-}
-
-variable "device_switch" {
-  type = map(object({
-    name = string
-  }))
-}
-
-variable "device_wifi" {
+variable "device" {
   type = map(object({
     name = string
   }))
