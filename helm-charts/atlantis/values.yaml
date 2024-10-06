@@ -18,6 +18,7 @@ atlantis:
     - atlantis-b2
     - atlantis-cloudflare
     - atlantis-github
+    - atlantis-unifi
     - atlantis-uptime-robot
   ingress:
     enabled: false
