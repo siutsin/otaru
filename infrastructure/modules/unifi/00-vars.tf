@@ -15,3 +15,14 @@ variable "device_wifi" {
     name = string
   }))
 }
+
+variable "wan" {
+  type = map(object({
+    name             = string
+    purpose          = string
+    wan_dns          = list(string)
+    wan_networkgroup = string
+    wan_type         = string
+    wan_type_v6      = string
+  }))
+}
