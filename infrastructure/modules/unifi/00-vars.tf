@@ -23,8 +23,6 @@ variable "wan" {
 
 variable "vlan" {
   type = map(object({
-    name                   = string
-    purpose                = optional(string, "corporate")
     dhcp_enabled           = optional(bool, true)
     dhcp_start             = string
     dhcp_stop              = string
@@ -38,6 +36,21 @@ variable "vlan" {
     ipv6_ra_priority       = optional(string, "high")
     ipv6_ra_valid_lifetime = optional(number, 0)
     multicast_dns          = optional(bool, true)
+    name                   = string
+    purpose                = optional(string, "corporate")
     subnet                 = string
+  }))
+}
+
+variable "wlan" {
+  type = map(object({
+    name            = string
+    network_id_key  = string
+    passphrase      = string
+    pmf_mode        = optional(string, "optional")
+    security        = optional(string, "wpapsk")
+    wlan_band       = optional(string, "both")
+    wpa3_support    = optional(bool, true)
+    wpa3_transition = optional(bool, true)
   }))
 }
