@@ -7,6 +7,11 @@ terraform {
 }
 
 inputs = {
+  site = {
+    site00 = {
+      description = "Default"
+    }
+  }
   device_gateway = {
     gateway00 = {
       name = "Cloud Gateway Ultra"

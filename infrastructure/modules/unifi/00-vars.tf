@@ -1,3 +1,9 @@
+variable "site" {
+  type = map(object({
+    description = string
+  }))
+}
+
 variable "device_gateway" {
   type = map(object({
     name = string
