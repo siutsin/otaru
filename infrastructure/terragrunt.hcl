@@ -18,6 +18,11 @@ locals {
 
   uptime_robot_api_key = get_env("UPTIME_ROBOT_API_KEY")
   uptime_robot_version = local.version_vars.uptime_robot_version
+
+  unifi_username = get_env("UNIFI_USERNAME")
+  unifi_password = get_env("UNIFI_PASSWORD")
+  unifi_api_url  = get_env("UNIFI_API_URL")
+  unifi_version  = local.version_vars.unifi_version
 }
 
 generate "provider" {
@@ -45,6 +50,10 @@ terraform {
     uptimerobot = {
       source  = "vexxhost/uptimerobot"
       version = "${local.uptime_robot_version}"
+    }
+    unifi = {
+      source  = "akerl/unifi"
+      version = "${local.unifi_version}"
     }
   }
 }
@@ -75,6 +84,13 @@ provider "github" {
 
 provider "uptimerobot" {
   api_key = "${local.uptime_robot_api_key}"
+}
+
+provider "unifi" {
+  username       = "${local.unifi_username}"
+  password       = "${local.unifi_password}"
+  api_url        = "${local.unifi_api_url}"
+  allow_insecure = true # self-signed for now
 }
 EOF
 }
