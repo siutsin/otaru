@@ -19,8 +19,6 @@ prometheus:
   server:
     persistentVolume:
       existingClaim: prometheus-pvc
-    nodeSelector:
-      volume: "true"
     retentionSize: 7.5GB
   alertmanager:
     enabled: false
@@ -59,8 +57,6 @@ loki-stack:
   loki:
     image:
       tag: 2.9.10
-    nodeSelector:
-      volume: "true"
     persistence:
       enabled: true
       existingClaim: loki-pvc
@@ -87,8 +83,6 @@ loki-stack:
 #            period: 24h
 #  singleBinary:
 #    replicas: 1
-#    nodeSelector:
-#      volume: "true"
 #    persistence:
 #      storageClass: longhorn-crypto-global
 #  backend:

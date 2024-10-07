@@ -11,8 +11,6 @@ atlantis:
     type: ClusterIP
   volumeClaim:
     storageClassName: longhorn-crypto-global
-  nodeSelector:
-    volume: "true"
   loadEnvFromSecrets:
     - atlantis-aws
     - atlantis-b2
