@@ -90,11 +90,10 @@ inputs = {
       network_id_key = "vlan00"
       passphrase     = local.wlan00_password
     }
-    wlan01 = {
+    wlan03 = {
       name           = local.wlan01_ssid
-      network_id_key = "vlan00"
+      network_id_key = "vlan03"
       passphrase     = local.wlan01_password
-      wlan_band      = "2g"
     }
   }
 }
