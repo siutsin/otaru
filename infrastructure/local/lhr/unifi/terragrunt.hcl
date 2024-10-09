@@ -47,6 +47,42 @@ inputs = {
       name        = "Default"
       subnet      = "192.168.1.0/24"
     }
+    # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255
+    vlan01 = {
+      dhcp_start  = "192.168.3.6"
+      dhcp_stop   = "192.168.3.254"
+      domain_name = "guest.localdomain"
+      name        = "Guest"
+      purpose     = "guest"
+      subnet      = "192.168.3.0/24"
+      vlan_id     = 3
+    }
+    vlan02 = {
+      dhcp_start  = "192.168.4.6"
+      dhcp_stop   = "192.168.4.254"
+      domain_name = "service.localdomain"
+      name        = "Service"
+      subnet      = "192.168.4.0/24"
+      vlan_id     = 4
+    }
+    vlan03 = {
+      dhcp_start  = "192.168.5.6"
+      dhcp_stop   = "192.168.5.254"
+      domain_name = "public.iot.localdomain"
+      name        = "IoT Public"
+      subnet      = "192.168.5.0/24"
+      vlan_id     = 5
+      # Manually enabled Isolated Network
+    }
+    vlan04 = {
+      dhcp_start  = "192.168.6.6"
+      dhcp_stop   = "192.168.6.254"
+      domain_name = "private.iot.localdomain"
+      name        = "IoT Private"
+      subnet      = "192.168.6.0/24"
+      vlan_id     = 6
+      # Manually enabled Isolated Network
+    }
   }
   wlan = {
     wlan00 = {
