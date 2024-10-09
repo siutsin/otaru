@@ -17,4 +17,5 @@ resource "unifi_network" "vlan" {
   name                   = each.value.name
   purpose                = each.value.purpose
   subnet                 = each.value.subnet
+  vlan_id                = each.value.vlan_id
 }

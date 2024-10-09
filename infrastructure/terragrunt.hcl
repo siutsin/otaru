@@ -52,7 +52,7 @@ terraform {
       version = "${local.uptime_robot_version}"
     }
     unifi = {
-      source  = "akerl/unifi"
+      source  = "paultyng/unifi"
       version = "${local.unifi_version}"
     }
   }
