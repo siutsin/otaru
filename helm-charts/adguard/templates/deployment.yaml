@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adguard-home
+  name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
@@ -36,7 +36,7 @@ spec:
             - mountPath: /opt/adguardhome/conf
               name: config
       containers:
-        - name: adguard-home
+        - name: {{ .Values.name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           env:
             - name: TZ
@@ -64,4 +64,4 @@ spec:
           emptyDir: { }
         - name: configmap
           configMap:
-            name: adguard-home-configmap
+            name: {{ .Values.name }}-configmap

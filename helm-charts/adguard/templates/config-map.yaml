@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: adguard-home-configmap
+  name: {{ .Values.name }}-configmap
   namespace: {{ .Values.namespace }}
 data:
   AdGuardHome.yaml: |
