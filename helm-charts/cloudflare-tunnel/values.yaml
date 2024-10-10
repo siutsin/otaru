@@ -8,4 +8,4 @@ cloudflare-tunnel-remote:
   image:
     tag: 2024.9.1
 
-  replicaCount: 2
+  replicaCount: 3
