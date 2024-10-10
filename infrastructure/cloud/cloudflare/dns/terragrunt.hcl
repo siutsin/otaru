@@ -39,6 +39,11 @@ inputs = {
   # private
 
   internal_records = {
+    adguard_internal = {
+      name  = "adguard.internal"
+      value = local.internal_ip
+    },
+
     argocd_internal = {
       name  = "argocd.internal"
       value = local.internal_ip
