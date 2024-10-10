@@ -4,7 +4,7 @@ local revision = 'HEAD';
 
 local _ignoreDifferences = {
   application: {
-    adguard: [{ group: '*', kind: 'ConfigMap', name: 'adguard-home-configmap', jqPathExpressions: ['.data'] }],
+    adguard: [{ group: '*', kind: 'ConfigMap', name: 'adguard-configmap', jqPathExpressions: ['.data'] }],
   },
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
