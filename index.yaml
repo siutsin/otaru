@@ -1,5 +1,15 @@
 apiVersion: v1
 entries:
+  adguard:
+  - apiVersion: v2
+    created: "2024-10-10T22:39:55.058607716Z"
+    description: A Helm chart for Kubernetes
+    digest: 48870813bc3fb1466800b2e8ba25a8ff375f2f5a332d434db14cacf9f89a924d
+    name: adguard
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/adguard-0.1.0/adguard-0.1.0.tgz
+    version: 0.1.0
   argocd:
   - apiVersion: v2
     created: "2024-10-04T23:15:00.57297165Z"
@@ -361,4 +371,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-04T23:15:06.054153499Z"
+generated: "2024-10-10T22:39:55.79181247Z"
