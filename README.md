@@ -41,6 +41,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 | Category     | Name                                                                                                | Description                                                                                                             |
 |--------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Application  | [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)                                          | Ad and tracker-blocking DNS server                                                                                      |
 | Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                                      |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                                         |
 | Application  | [Kubernetes Service Patcher](helm-charts/kubernetes-service-patcher)                                | An operator to update the `kubernetes` service type to `LoadBalancer`.                                                  |

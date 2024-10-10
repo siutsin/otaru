@@ -3,6 +3,9 @@ local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 local revision = 'HEAD';
 
 local _ignoreDifferences = {
+  application: {
+    adguardHome: [{ group: '*', kind: 'ConfigMap', name: 'adguard-home-configmap', jqPathExpressions: ['.data'] }],
+  },
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
   }
@@ -17,6 +20,7 @@ local _grafanaDashboards = [
 ];
 
 local application = [
+  { wave: '10', name: 'adguard-home', namespace: 'adguard-home', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguardHome },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
   { wave: '10', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot' },
