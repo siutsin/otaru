@@ -26,7 +26,7 @@ data:
       querylog_file_enabled: false
       querylog_interval: 1h
       querylog_size_memory: 1000
-      anonymize_client_ip: true
+      anonymize_client_ip: false
       protection_enabled: true
       blocking_mode: default
       blocking_ipv4: ""
