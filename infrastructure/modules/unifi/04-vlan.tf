@@ -1,6 +1,7 @@
 resource "unifi_network" "vlan" {
   for_each = var.vlan
 
+  dhcp_dns               = each.value.dhcp_dns
   dhcp_enabled           = each.value.dhcp_enabled
   dhcp_start             = each.value.dhcp_start
   dhcp_stop              = each.value.dhcp_stop

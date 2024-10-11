@@ -1,7 +1,7 @@
 locals {
   #  https://uptimerobot.com/help/locations/
   #  https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt
-  uptime_robot_ip_raw       = split("\n", chomp(file("${path.module}/ip/uptime-robot-ipv4-ipv6.txt")))
+  uptime_robot_ip_raw = split("\n", chomp(file("${path.module}/ip/uptime-robot-ipv4-ipv6.txt")))
   uptime_robot_ip_addresses = [
     for ip in local.uptime_robot_ip_raw :
     format("%s/%s", trimspace(trimprefix(ip, "\r")), strcontains(ip, ".") ? "32" : "128")

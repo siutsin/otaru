@@ -43,8 +43,8 @@ inputs = {
     vlan00 = {
       dhcp_start  = "192.168.1.6"
       dhcp_stop   = "192.168.1.254"
-      domain_name = "localdomain"
-      name        = "Default"
+      domain_name = "service.localdomain"
+      name        = "Service"
       subnet      = "192.168.1.0/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255
@@ -60,8 +60,8 @@ inputs = {
     vlan02 = {
       dhcp_start  = "192.168.4.6"
       dhcp_stop   = "192.168.4.254"
-      domain_name = "service.localdomain"
-      name        = "Service"
+      domain_name = "client.localdomain"
+      name        = "Client"
       subnet      = "192.168.4.0/24"
       vlan_id     = 4
     }
@@ -87,7 +87,7 @@ inputs = {
   wlan = {
     wlan00 = {
       name           = local.wlan00_ssid
-      network_id_key = "vlan00"
+      network_id_key = "vlan02"
       passphrase     = local.wlan00_password
     }
     wlan03 = {
