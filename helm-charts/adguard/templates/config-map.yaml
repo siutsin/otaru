@@ -110,6 +110,14 @@ data:
         url: https://big.oisd.nl
         name: OISD Big
         id: 3
+      - enabled: true
+        url: https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Formats/GoodbyeAds-AdBlock-Filter.txt
+        name: GoodbyeAds
+        id: 4
+      - enabled: true
+        url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt
+        name: Hagezi Multi PRO
+        id: 5
     whitelist_filters: []
     user_rules: []
     dhcp:
