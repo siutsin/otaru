@@ -20,6 +20,8 @@ prometheus:
     persistentVolume:
       existingClaim: prometheus-pvc
     retentionSize: 7.5GB
+    nodeSelector:
+      volume: "true"
   alertmanager:
     enabled: false
 
@@ -60,6 +62,8 @@ loki-stack:
     persistence:
       enabled: true
       existingClaim: loki-pvc
+    nodeSelector:
+      volume: "true"
   promtail:
     config:
       clients:
