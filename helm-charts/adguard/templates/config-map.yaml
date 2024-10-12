@@ -38,13 +38,14 @@ data:
       ratelimit_whitelist: []
       refuse_any: true
       upstream_dns:
+        - https://dns.quad9.net/dns-query
         - https://security.cloudflare-dns.com/dns-query
       upstream_dns_file: ""
       bootstrap_dns:
+        - 9.9.9.9
+        - 149.112.112.112
         - 1.1.1.2
         - 1.0.0.2
-        - 2606:4700:4700::1112
-        - 2606:4700:4700::1002
       all_servers: false
       fastest_addr: false
       fastest_timeout: 1s
