@@ -22,5 +22,5 @@ spec:
   groups:
     - default
   name: trim
-  retain: 1
+  retain: 0
   concurrency: 1
