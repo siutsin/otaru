@@ -2,9 +2,8 @@
 - hosts: raspberrypi
   become: true
   serial:
-    - 25%
-    - 50%
-    - 75%
+    - 33%
+    - 66%
     - 100%
 
   tasks:

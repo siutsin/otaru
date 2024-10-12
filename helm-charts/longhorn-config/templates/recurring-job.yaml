@@ -1,4 +1,4 @@
-apiVersion: longhorn.io/v1beta1
+apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
   name: backup
@@ -8,5 +8,19 @@ spec:
   task: backup
   groups:
     - default
+  retain: 1
+  concurrency: 1
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: trim
+  namespace: {{ .Values.namespace }}
+spec:
+  cron: "14 6 * * *"
+  task: filesystem-trim
+  groups:
+    - default
+  name: trim
   retain: 1
   concurrency: 1
