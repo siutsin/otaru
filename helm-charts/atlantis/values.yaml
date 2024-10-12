@@ -9,6 +9,8 @@ atlantis:
   vcsSecretName: atlantis-github-webhook
   service:
     type: ClusterIP
+  nodeSelector:
+    volume: "true"
   volumeClaim:
     storageClassName: longhorn-crypto-global
   loadEnvFromSecrets:
