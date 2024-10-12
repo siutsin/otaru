@@ -17,7 +17,7 @@ metadata:
   name: trim
   namespace: {{ .Values.namespace }}
 spec:
-  cron: "14 6 * * *"
+  cron: "34 18 * * *"
   task: filesystem-trim
   groups:
     - default
