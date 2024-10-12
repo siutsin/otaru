@@ -91,7 +91,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     ```
 2. **Add SSH Keys to `known_hosts`**
     ```shell
-    for i in {00..03}; do ssh-keygen -R "raspberrypi-$i.local"; done && for i in {00..03}; do ssh-keyscan "raspberrypi-$i.local" >> ~/.ssh/known_hosts; done
+    for i in {60..63}; do ssh-keygen -R "192.168.1.$i"; done && for i in {60..63}; do ssh-keyscan "192.168.1.$i" >> ~/.ssh/known_hosts; done
     ```
 3. **Set Up 1Password Credentials**
 
