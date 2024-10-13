@@ -7,10 +7,14 @@ terraform {
 }
 
 locals {
-  wlan00_password = get_env("UNIFI_LHR_WLAN00_PASSWORD")
-  wlan00_ssid     = get_env("UNIFI_LHR_WLAN00_SSID")
   wlan01_password = get_env("UNIFI_LHR_WLAN01_PASSWORD")
   wlan01_ssid     = get_env("UNIFI_LHR_WLAN01_SSID")
+  wlan02_password = get_env("UNIFI_LHR_WLAN02_PASSWORD")
+  wlan02_ssid     = get_env("UNIFI_LHR_WLAN02_SSID")
+  wlan03_password = get_env("UNIFI_LHR_WLAN03_PASSWORD")
+  wlan03_ssid     = get_env("UNIFI_LHR_WLAN03_SSID")
+  wlan04_password = get_env("UNIFI_LHR_WLAN04_PASSWORD")
+  wlan04_ssid     = get_env("UNIFI_LHR_WLAN04_SSID")
 }
 
 inputs = {
@@ -85,15 +89,25 @@ inputs = {
     }
   }
   wlan = {
-    wlan00 = {
-      name           = local.wlan00_ssid
+    wlan01 = {
+      name           = local.wlan01_ssid
+      network_id_key = "vlan01"
+      passphrase     = local.wlan01_password
+    }
+    wlan02 = {
+      name           = local.wlan02_ssid
       network_id_key = "vlan02"
-      passphrase     = local.wlan00_password
+      passphrase     = local.wlan02_password
     }
     wlan03 = {
-      name           = local.wlan01_ssid
+      name           = local.wlan03_ssid
       network_id_key = "vlan03"
-      passphrase     = local.wlan01_password
+      passphrase     = local.wlan03_password
+    }
+    wlan04 = {
+      name           = local.wlan04_ssid
+      network_id_key = "vlan04"
+      passphrase     = local.wlan04_password
     }
   }
 }
