@@ -58,6 +58,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/atlantis-0.1.0/atlantis-0.1.0.tgz
     version: 0.1.0
+  blocky:
+  - apiVersion: v2
+    created: "2024-10-13T16:57:59.275556001Z"
+    description: A Helm chart for Kubernetes
+    digest: 65cf467cc29ec90301256d390bfafb02ccfdbfb1237771980601dd0db83a65c3
+    name: blocky
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/blocky-0.1.0/blocky-0.1.0.tgz
+    version: 0.1.0
   cert-manager:
   - apiVersion: v2
     created: "2024-10-04T23:15:01.431029443Z"
@@ -381,4 +391,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-13T16:40:14.444144158Z"
+generated: "2024-10-13T16:57:59.275575417Z"
