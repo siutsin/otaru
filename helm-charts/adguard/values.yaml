@@ -6,4 +6,4 @@ image:
   repository: adguard/adguardhome
   tag: v0.107.53
 
-replicas: 2
+replicas: 1
