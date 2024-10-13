@@ -3,12 +3,16 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.name }}-configmap
   namespace: {{ .Values.namespace }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 data:
   config.yml: |
+    ports:
+      http: {{ .Values.deployment.ports.http }}
     prometheus:
       enable: true
     upstreams:
-      timeout: 30s
+      timeout: 5s
       groups:
         default:
           - https://dns.quad9.net/dns-query
@@ -28,9 +32,16 @@ data:
           - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
           - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
           - https://big.oisd.nl/domainswild
-          - https://cdn.jsdelivr.net/gh/jerryn70/GoodbyeAds@master/Hosts/GoodbyeAds.txt
+          - https://raw.githubusercontent.com/siutsin/GoodbyeAds/refs/heads/master-patched/Hosts/GoodbyeAds.txt
           - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
+      clientGroupsBlock:
+        default:
+          - ads
+      blockType: zeroIp
       loading:
+        concurrency: 10
+        maxErrorsPerSource: 50
         downloads:
-          timeout: 4m
-          cooldown: 1s
+          timeout: 10m
+          attempts: 5
+          cooldown: 10s

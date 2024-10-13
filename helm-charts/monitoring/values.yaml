@@ -53,6 +53,9 @@ grafana:
           allowUiUpdates: true
           options:
             path: /var/lib/grafana/dashboards
+  grafana.ini:
+    panels:
+      disable_sanitize_html: true
 
 # It appears that the loki chart with v3 is not working as expected. Using loki-stack with v2 instead.
 loki-stack:
@@ -64,6 +67,14 @@ loki-stack:
       existingClaim: loki-pvc
     nodeSelector:
       volume: "true"
+    config:
+      limits_config:
+        split_queries_by_interval: 24h
+        max_query_parallelism: 100
+      query_scheduler:
+        max_outstanding_requests_per_tenant: 4096
+      frontend:
+        max_outstanding_per_tenant: 4096
   promtail:
     config:
       clients:

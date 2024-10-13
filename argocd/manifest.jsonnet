@@ -3,15 +3,13 @@ local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 local revision = 'housekeeping';
 
 local _ignoreDifferences = {
-  application: {
-    adguard: [{ group: '*', kind: 'ConfigMap', name: 'adguard-configmap', jqPathExpressions: ['.data'] }],
-  },
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
   }
 };
 
 local _grafanaDashboards = [
+  'dashboards/blocky.yaml',
   'dashboards/container-log-dashboard.yaml',
   'dashboards/falco.yaml',
   'dashboards/k3s-cluster-monitoring.yaml',
@@ -20,7 +18,6 @@ local _grafanaDashboards = [
 ];
 
 local application = [
-  { wave: '10', name: 'adguard', namespace: 'adguard', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguard },
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },

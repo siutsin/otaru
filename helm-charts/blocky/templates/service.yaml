@@ -1,18 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.name }}-prometheus
+  name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
   type: ClusterIP
   ports:
-    - port: 4000
-      targetPort: 4000
+    - port: {{ .Values.deployment.ports.http }}
+      targetPort: {{ .Values.deployment.ports.http }}
       protocol: TCP
-      name: prometheus
+      name: http
   selector:
     app.kubernetes.io/name: {{ .Values.name }}
 ---
+# Cilium Gateway API doesn't support TCPRoute and UDPRoute as of 13 Oct 2024
+# So we need to create a LoadBalancer service with LB IPAM sharing-key annotation to expose the DNS service
+# Ref: https://github.com/cilium/cilium/issues/21929#issuecomment-2378680937
 apiVersion: v1
 kind: Service
 metadata:
