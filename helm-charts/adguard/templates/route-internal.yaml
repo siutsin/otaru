@@ -22,3 +22,5 @@ spec:
           name: {{ .Values.name }}
           port: 3000
           weight: 1
+      sessionPersistence:
+        type: Cookie
