@@ -14,9 +14,54 @@ deployment:
       - /app/blocky
       - healthcheck
   ports:
-    http: 4000
+    http: &port 4000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 300Mi
+    limits:
+      memory: 300Mi
 
 hpa:
   autoscaling:
     min: 3
     max: 6
+
+configYaml:
+  ports:
+    http: *port
+    prometheus:
+      enable: true
+    bootstrapDns:
+      - upstream: &upstream1 https://dns.quad9.net/dns-query
+        ips:
+          - 9.9.9.9
+          - 149.112.112.112
+      - upstream: &upstream2 https://security.cloudflare-dns.com/dns-query
+        ips:
+          - 1.1.1.2
+          - 1.0.0.2
+    upstreams:
+      timeout: 5s
+      groups:
+        default:
+          - *upstream1
+          - *upstream2
+    blocking:
+      denylists:
+        ads:
+          - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+          - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
+          - https://big.oisd.nl/domainswild
+          - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
+      clientGroupsBlock:
+        default:
+          - ads
+      blockType: zeroIp
+      loading:
+        concurrency: 10
+        maxErrorsPerSource: 50
+        downloads:
+          timeout: 10m
+          attempts: 5
+          cooldown: 10s

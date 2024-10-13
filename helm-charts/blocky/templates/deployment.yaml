@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
   annotations:
-    reloader.stakater.com/search: "true"
+    reloader.stakater.com/auto: "true"
 spec:
   selector:
     matchLabels:
@@ -32,6 +32,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       securityContext:
         fsGroup: 100
+      automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
           securityContext:
@@ -63,12 +64,7 @@ spec:
             - name: config
               mountPath: /app/config.yml
               subPath: config.yml
-          resources:
-            requests:
-              cpu: 100m
-              memory: 300Mi
-            limits:
-              memory: 300Mi
+          resources: {{ toYaml .Values.deployment.resources | nindent 12 }}
       volumes:
         - name: config
           configMap:
