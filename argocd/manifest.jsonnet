@@ -21,6 +21,7 @@ local _grafanaDashboards = [
 
 local application = [
   { wave: '10', name: 'adguard', namespace: 'adguard', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.application.adguard },
+  { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
   { wave: '10', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot' },
