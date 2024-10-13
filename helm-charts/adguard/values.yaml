@@ -1,9 +1,0 @@
-name: adguard
-namespace: adguard
-ip: "192.168.1.51"
-
-image:
-  repository: adguard/adguardhome
-  tag: v0.107.53
-
-replicas: 1

@@ -2,6 +2,9 @@ name: blocky
 namespace: blocky
 ip: "192.168.1.51"
 
+app:
+  timezone: Europe/London
+
 deployment:
   image:
     repository: ghcr.io/0xerr0r/blocky
@@ -10,3 +13,10 @@ deployment:
     command:
       - /app/blocky
       - healthcheck
+  ports:
+    http: 4000
+
+hpa:
+  autoscaling:
+    min: 3
+    max: 6

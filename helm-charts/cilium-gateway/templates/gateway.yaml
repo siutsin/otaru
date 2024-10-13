@@ -6,6 +6,9 @@ metadata:
 spec:
   gatewayClassName: cilium
   infrastructure:
+    # Cilium Gateway API doesn't support TCPRoute and UDPRoute as of 13 Oct 2024
+    # So we need to create a LoadBalancer service with LB IPAM sharing-key annotation to expose the DNS service
+    # Ref: https://github.com/cilium/cilium/issues/21929#issuecomment-2378680937
     annotations:
       lbipam.cilium.io/sharing-key: ingress
       lbipam.cilium.io/sharing-cross-namespace: "*"
