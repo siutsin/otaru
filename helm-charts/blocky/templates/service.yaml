@@ -7,9 +7,9 @@ spec:
   type: ClusterIP
   ports:
     - port: 4000
-      targetPort: http
+      targetPort: 4000
       protocol: TCP
-      name: http
+      name: prometheus
   selector:
     app.kubernetes.io/name: {{ .Values.name }}
 ---
