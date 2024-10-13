@@ -88,5 +88,10 @@ inputs = {
       name  = "prometheus.internal"
       value = local.internal_ip
     },
+
+    unifi_internal = {
+      name  = "unifi.internal"
+      value = "192.168.1.1"
+    },
   }
 }
