@@ -7,8 +7,10 @@
 - name: Install apt packages
   apt:
     name:
+      - bmon
       - cryptsetup
       - git
+      - iftop
       - iptables
       - net-tools
       - open-iscsi
@@ -19,6 +21,8 @@
       - python3-smbus
       - raspi-config
       - ripgrep
+      - slurm
+      - tcptrack
       - vim
     state: present
 

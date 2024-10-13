@@ -16,8 +16,6 @@ spec:
         name: longhorn-setup-cypto-discard
     spec:
       automountServiceAccountToken: false
-      nodeSelector:
-        volume: "true"
       containers:
         - name: longhorn-setup-cypto-discard
           command: ["sh", "-c", "apk add cryptsetup device-mapper && while true; do echo updating now; for LONGHORN_VOLUME in `ls /dev/longhorn/`; do cryptsetup --key-file=/etc/luks/longhorn-crypto/CRYPTO_KEY_VALUE --allow-discards --persistent refresh $LONGHORN_VOLUME; done; echo done; dmsetup table; sleep 1h; done"]
