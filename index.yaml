@@ -164,6 +164,16 @@ entries:
     version: 0.1.0
   gateway-api:
   - apiVersion: v2
+    appVersion: 1.2.0
+    created: "2024-10-13T16:40:13.834303568Z"
+    description: A Helm chart for Kubernetes
+    digest: c96637f07e4199785cbd9f3954a8b8e5ee1872ab63aeecdf32518f5f758e2fe6
+    name: gateway-api
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/gateway-api-1.2.0/gateway-api-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v2
     appVersion: 1.1.0
     created: "2024-10-04T23:15:03.097780452Z"
     description: A Helm chart for Kubernetes
@@ -371,4 +381,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-10T22:39:55.79181247Z"
+generated: "2024-10-13T16:40:14.444144158Z"
