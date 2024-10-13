@@ -1,0 +1,12 @@
+name: blocky
+namespace: blocky
+ip: "192.168.1.51"
+
+deployment:
+  image:
+    repository: ghcr.io/0xerr0r/blocky
+    tag: v0.24
+  probeExec:
+    command:
+      - /app/blocky
+      - healthcheck

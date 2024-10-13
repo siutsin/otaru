@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  config.yml: |
+    prometheus:
+      enable: true
+    upstreams:
+      timeout: 30s
+      groups:
+        default:
+          - https://dns.quad9.net/dns-query
+          - https://security.cloudflare-dns.com/dns-query
+    bootstrapDns:
+      - upstream: https://dns.quad9.net/dns-query
+        ips:
+          - 9.9.9.9
+          - 149.112.112.112
+      - upstream: https://security.cloudflare-dns.com/dns-query
+        ips:
+          - 1.1.1.2
+          - 1.0.0.2
+    blocking:
+      denylists:
+        ads:
+          - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+          - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
+          - https://big.oisd.nl/domainswild
+          - https://cdn.jsdelivr.net/gh/jerryn70/GoodbyeAds@master/Hosts/GoodbyeAds.txt
+          - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
+      loading:
+        downloads:
+          timeout: 4m
+          cooldown: 1s
