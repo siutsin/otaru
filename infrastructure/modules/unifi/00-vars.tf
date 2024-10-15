@@ -56,3 +56,12 @@ variable "wlan" {
     wpa3_transition = optional(bool, true)
   }))
 }
+
+variable "setting" {
+  type = map(object({
+    site_key       = string
+    ssh_key_name   = optional(string, "UniFi Site Manager")
+    ssh_key_type   = optional(string, "ssh-rsa")
+    ssh_public_key = string
+  }))
+}
