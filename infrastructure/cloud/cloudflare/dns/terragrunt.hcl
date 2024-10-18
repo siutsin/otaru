@@ -39,11 +39,6 @@ inputs = {
   # private
 
   internal_records = {
-    adguard_internal = {
-      name  = "adguard.internal"
-      value = local.internal_ip
-    },
-
     argocd_internal = {
       name  = "argocd.internal"
       value = local.internal_ip
@@ -66,11 +61,6 @@ inputs = {
 
     home_assistant_internal = {
       name  = "home-assistant.internal"
-      value = local.internal_ip
-    },
-
-    hubble_ui_internal = {
-      name  = "hubble-ui.internal"
       value = local.internal_ip
     },
 
