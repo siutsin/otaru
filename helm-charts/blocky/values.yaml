@@ -67,4 +67,4 @@ configYaml:
         cooldown: 10s
   customDNS:
     mapping:
-      hubble-ui.internal: 192.168.1.51
+      hubble-ui.internal.siutsin.com: 192.168.1.51
