@@ -65,3 +65,6 @@ configYaml:
         timeout: 10m
         attempts: 5
         cooldown: 10s
+  customDNS:
+    mapping:
+      hubble-ui.internal: 192.168.1.51
