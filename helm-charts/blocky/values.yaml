@@ -67,4 +67,13 @@ configYaml:
         cooldown: 10s
   customDNS:
     mapping:
-      hubble-ui.internal.siutsin.com: 192.168.1.51
+      argocd.internal.siutsin.com: &gatewayIP 192.168.1.51
+      atlantis.internal.siutsin.com: *gatewayIP
+      cyberchef.internal.siutsin.com: *gatewayIP
+      grafana.internal.siutsin.com: *gatewayIP
+      home-assistant.internal.siutsin.com: *gatewayIP
+      hubble-ui.internal.siutsin.com: *gatewayIP
+      loki.internal.siutsin.com: *gatewayIP
+      longhorn.internal.siutsin.com: *gatewayIP
+      prometheus.internal.siutsin.com: *gatewayIP
+      unifi.internal.siutsin.com: 192.168.1.1
