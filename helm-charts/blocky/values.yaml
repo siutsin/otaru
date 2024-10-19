@@ -24,8 +24,8 @@ deployment:
 
 hpa:
   autoscaling:
-    min: 3
-    max: 3
+    min: 2
+    max: 2
 
 configYaml:
   ports:
