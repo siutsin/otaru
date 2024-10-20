@@ -47,7 +47,7 @@ inputs = {
     vlan01 = {
       dhcp_start = "192.168.1.6"
       dhcp_stop  = "192.168.1.254"
-      name       = "Service"
+      name       = "Default"
       subnet     = "192.168.1.0/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255.
@@ -69,14 +69,14 @@ inputs = {
     vlan05 = {
       dhcp_start = "192.168.5.100"
       dhcp_stop  = "192.168.5.254"
-      name       = "IoT Public"
+      name       = "IoT"
       subnet     = "192.168.5.0/24"
       vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start = "192.168.6.100"
-      dhcp_stop  = "192.168.6.254"
-      name       = "IoT Private"
+      dhcp_start = "192.168.6.6"
+      dhcp_stop  = "192.168.6.40"
+      name       = "IoT - Ring Chime"
       subnet     = "192.168.6.0/24"
       vlan_id    = 6
     }
@@ -100,14 +100,22 @@ inputs = {
       passphrase     = local.wlan02_password
     }
     wlan03 = {
-      name           = local.wlan03_ssid
-      network_id_key = "vlan05"
-      passphrase     = local.wlan03_password
+      name            = local.wlan03_ssid
+      network_id_key  = "vlan05"
+      passphrase      = local.wlan03_password
+      pmf_mode        = "disabled"
+      wlan_band       = "2g"
+      wpa3_support    = false
+      wpa3_transition = false
     }
     wlan04 = {
-      name           = local.wlan04_ssid
-      network_id_key = "vlan06"
-      passphrase     = local.wlan04_password
+      name            = local.wlan04_ssid
+      network_id_key  = "vlan06"
+      passphrase      = local.wlan04_password
+      pmf_mode        = "disabled"
+      wlan_band       = "2g"
+      wpa3_support    = false
+      wpa3_transition = false
     }
   }
   setting = {

@@ -12,12 +12,13 @@ variable "device" {
 
 variable "wan" {
   type = map(object({
-    name             = string
-    purpose          = optional(string, "wan")
-    wan_dns          = list(string)
-    wan_networkgroup = string
-    wan_type         = string
-    wan_type_v6      = string
+    name                = string
+    purpose             = optional(string, "wan")
+    wan_dhcp_v6_pd_size = optional(number, 48)
+    wan_dns             = list(string)
+    wan_networkgroup    = string
+    wan_type            = string
+    wan_type_v6         = string
   }))
 }
 
@@ -36,7 +37,7 @@ variable "vlan" {
     ipv6_ra_enable         = optional(bool, true)
     ipv6_ra_priority       = optional(string, "high")
     ipv6_ra_valid_lifetime = optional(number, 0)
-    multicast_dns          = optional(bool, true)
+    multicast_dns          = optional(bool, false)
     name                   = string
     purpose                = optional(string, "corporate")
     subnet                 = string

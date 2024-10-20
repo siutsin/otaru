@@ -47,31 +47,24 @@ configYaml:
       default:
         - *upstream1
         - *upstream2
-#  blocking:
-#    denylists:
-#      ads:
-#        - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
-#        - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
-#        - https://big.oisd.nl/domainswild
-#        - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
-#    allowlists:
-#      ads:
-#        - |
-#          # required by Ring Chime Pro (2nd Gen)
-#          app-measurement.com
-#          events.mobile.crashtracking.prod.ring.com
-#          local
-#    clientGroupsBlock:
-#      default:
-#        - ads
-#    blockType: zeroIp
-#    loading:
-#      concurrency: 10
-#      maxErrorsPerSource: 50
-#      downloads:
-#        timeout: 10m
-#        attempts: 5
-#        cooldown: 10s
+  blocking:
+    denylists:
+      ads:
+        - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+        - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
+        - https://big.oisd.nl/domainswild
+        - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
+    clientGroupsBlock:
+      default:
+        - ads
+    blockType: zeroIp
+    loading:
+      concurrency: 10
+      maxErrorsPerSource: 50
+      downloads:
+        timeout: 10m
+        attempts: 5
+        cooldown: 10s
   customDNS:
     mapping:
       argocd.internal.siutsin.com: &gatewayIP 192.168.1.51
