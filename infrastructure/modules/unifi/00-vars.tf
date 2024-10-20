@@ -29,7 +29,7 @@ variable "vlan" {
     dhcp_stop              = string
     dhcp_v6_start          = optional(string, "::2")
     dhcp_v6_stop           = optional(string, "::7d1")
-    domain_name            = optional(string, "")
+    domain_name            = optional(string, "local")
     ipv6_interface_type    = optional(string, "none")
     ipv6_pd_start          = optional(string, "::2")
     ipv6_pd_stop           = optional(string, "::7d1")

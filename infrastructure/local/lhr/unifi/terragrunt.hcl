@@ -45,53 +45,47 @@ inputs = {
   }
   vlan = {
     vlan01 = {
-      dhcp_start  = "192.168.1.6"
-      dhcp_stop   = "192.168.1.254"
-      domain_name = "service.localdomain"
-      name        = "Service"
-      subnet      = "192.168.1.0/24"
+      dhcp_start = "192.168.1.6"
+      dhcp_stop  = "192.168.1.254"
+      name       = "Service"
+      subnet     = "192.168.1.0/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255.
     vlan03 = {
-      dhcp_start  = "192.168.3.6"
-      dhcp_stop   = "192.168.3.254"
-      domain_name = "guest.localdomain"
-      name        = "Guest"
-      purpose     = "guest"
-      subnet      = "192.168.3.0/24"
-      vlan_id     = 3
+      dhcp_start = "192.168.3.6"
+      dhcp_stop  = "192.168.3.254"
+      name       = "Guest"
+      purpose    = "guest"
+      subnet     = "192.168.3.0/24"
+      vlan_id    = 3
     }
     vlan04 = {
-      dhcp_start  = "192.168.4.6"
-      dhcp_stop   = "192.168.4.254"
-      domain_name = "client.localdomain"
-      name        = "Client"
-      subnet      = "192.168.4.0/24"
-      vlan_id     = 4
+      dhcp_start = "192.168.4.6"
+      dhcp_stop  = "192.168.4.254"
+      name       = "Client"
+      subnet     = "192.168.4.0/24"
+      vlan_id    = 4
     }
     vlan05 = {
-      dhcp_start  = "192.168.5.6"
-      dhcp_stop   = "192.168.5.254"
-      domain_name = "public.iot.localdomain"
-      name        = "IoT Public"
-      subnet      = "192.168.5.0/24"
-      vlan_id     = 5
+      dhcp_start = "192.168.5.6"
+      dhcp_stop  = "192.168.5.254"
+      name       = "IoT Public"
+      subnet     = "192.168.5.0/24"
+      vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start  = "192.168.6.6"
-      dhcp_stop   = "192.168.6.254"
-      domain_name = "private.iot.localdomain"
-      name        = "IoT Private"
-      subnet      = "192.168.6.0/24"
-      vlan_id     = 6
+      dhcp_start = "192.168.6.6"
+      dhcp_stop  = "192.168.6.254"
+      name       = "IoT Private"
+      subnet     = "192.168.6.0/24"
+      vlan_id    = 6
     }
     vlan07 = {
-      dhcp_start  = "192.168.7.6"
-      dhcp_stop   = "192.168.7.254"
-      domain_name = "work.localdomain"
-      name        = "Work"
-      subnet      = "192.168.7.0/24"
-      vlan_id     = 7
+      dhcp_start = "192.168.7.6"
+      dhcp_stop  = "192.168.7.254"
+      name       = "Work"
+      subnet     = "192.168.7.0/24"
+      vlan_id    = 7
     }
   }
   wlan = {
