@@ -51,7 +51,7 @@ inputs = {
       name        = "Service"
       subnet      = "192.168.1.0/24"
     }
-    # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255
+    # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255.
     vlan03 = {
       dhcp_start  = "192.168.3.6"
       dhcp_stop   = "192.168.3.254"
