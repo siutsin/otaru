@@ -67,14 +67,14 @@ inputs = {
       vlan_id    = 4
     }
     vlan05 = {
-      dhcp_start = "192.168.5.6"
+      dhcp_start = "192.168.5.100"
       dhcp_stop  = "192.168.5.254"
       name       = "IoT Public"
       subnet     = "192.168.5.0/24"
       vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start = "192.168.6.6"
+      dhcp_start = "192.168.6.100"
       dhcp_stop  = "192.168.6.254"
       name       = "IoT Private"
       subnet     = "192.168.6.0/24"
