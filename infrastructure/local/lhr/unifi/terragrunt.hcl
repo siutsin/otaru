@@ -74,11 +74,13 @@ inputs = {
       vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start = "192.168.6.6"
-      dhcp_stop  = "192.168.6.40"
-      name       = "IoT - Ring Chime"
-      subnet     = "192.168.6.0/24"
-      vlan_id    = 6
+      dhcp_start  = "192.168.6.6"
+      dhcp_stop   = "192.168.6.40"
+      name        = "IoT - Ring Chime"
+      subnet      = "192.168.6.0/24"
+      vlan_id     = 6
+      dhcp_dns    = ["8.8.8.8", "8.8.4.4"]
+      domain_name = ""
     }
     vlan07 = {
       dhcp_start = "192.168.7.6"
