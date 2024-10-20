@@ -44,7 +44,7 @@ inputs = {
     }
   }
   vlan = {
-    vlan00 = {
+    vlan01 = {
       dhcp_start  = "192.168.1.6"
       dhcp_stop   = "192.168.1.254"
       domain_name = "service.localdomain"
@@ -52,7 +52,7 @@ inputs = {
       subnet      = "192.168.1.0/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255
-    vlan01 = {
+    vlan03 = {
       dhcp_start  = "192.168.3.6"
       dhcp_stop   = "192.168.3.254"
       domain_name = "guest.localdomain"
@@ -61,7 +61,7 @@ inputs = {
       subnet      = "192.168.3.0/24"
       vlan_id     = 3
     }
-    vlan02 = {
+    vlan04 = {
       dhcp_start  = "192.168.4.6"
       dhcp_stop   = "192.168.4.254"
       domain_name = "client.localdomain"
@@ -69,44 +69,50 @@ inputs = {
       subnet      = "192.168.4.0/24"
       vlan_id     = 4
     }
-    vlan03 = {
+    vlan05 = {
       dhcp_start  = "192.168.5.6"
       dhcp_stop   = "192.168.5.254"
       domain_name = "public.iot.localdomain"
       name        = "IoT Public"
       subnet      = "192.168.5.0/24"
       vlan_id     = 5
-      # Manually enabled Isolated Network
     }
-    vlan04 = {
+    vlan06 = {
       dhcp_start  = "192.168.6.6"
       dhcp_stop   = "192.168.6.254"
       domain_name = "private.iot.localdomain"
       name        = "IoT Private"
       subnet      = "192.168.6.0/24"
       vlan_id     = 6
-      # Manually enabled Isolated Network
+    }
+    vlan07 = {
+      dhcp_start  = "192.168.7.6"
+      dhcp_stop   = "192.168.7.254"
+      domain_name = "work.localdomain"
+      name        = "Work"
+      subnet      = "192.168.7.0/24"
+      vlan_id     = 7
     }
   }
   wlan = {
     wlan01 = {
       name           = local.wlan01_ssid
-      network_id_key = "vlan01"
+      network_id_key = "vlan03"
       passphrase     = local.wlan01_password
     }
     wlan02 = {
       name           = local.wlan02_ssid
-      network_id_key = "vlan02"
+      network_id_key = "vlan04"
       passphrase     = local.wlan02_password
     }
     wlan03 = {
       name           = local.wlan03_ssid
-      network_id_key = "vlan03"
+      network_id_key = "vlan05"
       passphrase     = local.wlan03_password
     }
     wlan04 = {
       name           = local.wlan04_ssid
-      network_id_key = "vlan04"
+      network_id_key = "vlan06"
       passphrase     = local.wlan04_password
     }
   }
