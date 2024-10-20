@@ -1,6 +1,6 @@
 name: blocky
 namespace: blocky
-ip: "192.168.1.51"
+ip: 192.168.1.51
 
 app:
   timezone: Europe/London
@@ -33,14 +33,14 @@ configYaml:
   prometheus:
     enable: true
   bootstrapDns:
-    - upstream: &upstream1 https://dns10.quad9.net/dns-query
+    - upstream: &upstream1 https://dns.quad9.net/dns-query
       ips:
-        - 9.9.9.10
-        - 149.112.112.10
-    - upstream: &upstream2 https://cloudflare-dns.com/dns-query
+        - 9.9.9.9
+        - 149.112.112.112
+    - upstream: &upstream2 https://security.cloudflare-dns.com/dns-query
       ips:
-        - 1.1.1.1
-        - 1.0.0.1
+        - 1.1.1.2
+        - 1.0.0.2
   upstreams:
     timeout: 5s
     groups:
@@ -54,11 +54,6 @@ configYaml:
         - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
         - https://big.oisd.nl/domainswild
         - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
-    allowlists:
-      ads:
-        - |
-          # required by Ring Chime Pro (2nd Gen)
-          local
     clientGroupsBlock:
       default:
         - ads

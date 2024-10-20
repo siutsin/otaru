@@ -45,53 +45,50 @@ inputs = {
   }
   vlan = {
     vlan01 = {
-      dhcp_start  = "192.168.1.6"
-      dhcp_stop   = "192.168.1.254"
-      domain_name = "service.localdomain"
-      name        = "Service"
-      subnet      = "192.168.1.0/24"
+      dhcp_start = "192.168.1.6"
+      dhcp_stop  = "192.168.1.254"
+      name       = "Default"
+      subnet     = "192.168.1.0/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255.
     vlan03 = {
-      dhcp_start  = "192.168.3.6"
-      dhcp_stop   = "192.168.3.254"
-      domain_name = "guest.localdomain"
-      name        = "Guest"
-      purpose     = "guest"
-      subnet      = "192.168.3.0/24"
-      vlan_id     = 3
+      dhcp_start = "192.168.3.6"
+      dhcp_stop  = "192.168.3.254"
+      name       = "Guest"
+      purpose    = "guest"
+      subnet     = "192.168.3.0/24"
+      vlan_id    = 3
     }
     vlan04 = {
-      dhcp_start  = "192.168.4.6"
-      dhcp_stop   = "192.168.4.254"
-      domain_name = "client.localdomain"
-      name        = "Client"
-      subnet      = "192.168.4.0/24"
-      vlan_id     = 4
+      dhcp_start = "192.168.4.6"
+      dhcp_stop  = "192.168.4.254"
+      name       = "Client"
+      subnet     = "192.168.4.0/24"
+      vlan_id    = 4
     }
+    # TODO: fix chime pro issue
+    # https://community.ui.com/questions/Ring-Chime-Pro-fell-off-the-network-and-wont-reconnect/b6ca1989-4495-44af-8c1d-b8ff71da1739
+    # https://community.ui.com/questions/U6-pro-Ring-Chime-pro-issue/e40c5c97-121b-4579-ac06-df0fcbd89ea6
     vlan05 = {
-      dhcp_start  = "192.168.5.6"
-      dhcp_stop   = "192.168.5.254"
-      domain_name = "public.iot.localdomain"
-      name        = "IoT Public"
-      subnet      = "192.168.5.0/24"
-      vlan_id     = 5
+      dhcp_start = "192.168.5.100"
+      dhcp_stop  = "192.168.5.254"
+      name       = "IoT Public"
+      subnet     = "192.168.5.0/24"
+      vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start  = "192.168.6.6"
-      dhcp_stop   = "192.168.6.254"
-      domain_name = "private.iot.localdomain"
-      name        = "IoT Private"
-      subnet      = "192.168.6.0/24"
-      vlan_id     = 6
+      dhcp_start = "192.168.6.6"
+      dhcp_stop  = "192.168.6.40"
+      name       = "IoT Private"
+      subnet     = "192.168.6.0/24"
+      vlan_id    = 6
     }
     vlan07 = {
-      dhcp_start  = "192.168.7.6"
-      dhcp_stop   = "192.168.7.254"
-      domain_name = "work.localdomain"
-      name        = "Work"
-      subnet      = "192.168.7.0/24"
-      vlan_id     = 7
+      dhcp_start = "192.168.7.6"
+      dhcp_stop  = "192.168.7.254"
+      name       = "Work"
+      subnet     = "192.168.7.0/24"
+      vlan_id    = 7
     }
   }
   wlan = {
@@ -106,14 +103,22 @@ inputs = {
       passphrase     = local.wlan02_password
     }
     wlan03 = {
-      name           = local.wlan03_ssid
-      network_id_key = "vlan05"
-      passphrase     = local.wlan03_password
+      name            = local.wlan03_ssid
+      network_id_key  = "vlan05"
+      passphrase      = local.wlan03_password
+      pmf_mode        = "disabled"
+      wlan_band       = "2g"
+      wpa3_support    = false
+      wpa3_transition = false
     }
     wlan04 = {
-      name           = local.wlan04_ssid
-      network_id_key = "vlan06"
-      passphrase     = local.wlan04_password
+      name            = local.wlan04_ssid
+      network_id_key  = "vlan06"
+      passphrase      = local.wlan04_password
+      pmf_mode        = "disabled"
+      wlan_band       = "2g"
+      wpa3_support    = false
+      wpa3_transition = false
     }
   }
   setting = {

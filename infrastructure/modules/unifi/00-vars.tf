@@ -12,12 +12,13 @@ variable "device" {
 
 variable "wan" {
   type = map(object({
-    name             = string
-    purpose          = optional(string, "wan")
-    wan_dns          = list(string)
-    wan_networkgroup = string
-    wan_type         = string
-    wan_type_v6      = string
+    name                = string
+    purpose             = optional(string, "wan")
+    wan_dhcp_v6_pd_size = optional(number, 48)
+    wan_dns             = list(string)
+    wan_networkgroup    = string
+    wan_type            = string
+    wan_type_v6         = string
   }))
 }
 
@@ -29,7 +30,7 @@ variable "vlan" {
     dhcp_stop              = string
     dhcp_v6_start          = optional(string, "::2")
     dhcp_v6_stop           = optional(string, "::7d1")
-    domain_name            = optional(string, "")
+    domain_name            = optional(string, "local")
     ipv6_interface_type    = optional(string, "none")
     ipv6_pd_start          = optional(string, "::2")
     ipv6_pd_stop           = optional(string, "::7d1")
