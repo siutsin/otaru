@@ -5,61 +5,67 @@ automerge: true
 parallel_plan: true
 parallel_apply: false
 projects:
-  - name: local-lhr-unifi
+  - name: infrastructure/local/lhr/unifi-firewall-rules
+    dir: infrastructure/local/lhr/unifi-firewall-rules
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: infrastructure/local/lhr/unifi
     dir: infrastructure/local/lhr/unifi
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-b2-bucket
+  - name: infrastructure/cloud/b2/bucket
     dir: infrastructure/cloud/b2/bucket
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-uptime-robot-otaru
+  - name: infrastructure/cloud/uptime-robot/otaru
     dir: infrastructure/cloud/uptime-robot/otaru
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-cloudflare-access
+  - name: infrastructure/cloud/cloudflare/access
     dir: infrastructure/cloud/cloudflare/access
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-cloudflare-tunnel
+  - name: infrastructure/cloud/cloudflare/tunnel
     dir: infrastructure/cloud/cloudflare/tunnel
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-cloudflare-dns
+  - name: infrastructure/cloud/cloudflare/dns
     dir: infrastructure/cloud/cloudflare/dns
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-aws-jung2bot-dynamodb
+  - name: infrastructure/cloud/aws/jung2bot/dynamodb
     dir: infrastructure/cloud/aws/jung2bot/dynamodb
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-aws-jung2bot-sqs
+  - name: infrastructure/cloud/aws/jung2bot/sqs
     dir: infrastructure/cloud/aws/jung2bot/sqs
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-aws-jung2bot-dev-dynamodb
+  - name: infrastructure/cloud/aws/jung2bot-dev/dynamodb
     dir: infrastructure/cloud/aws/jung2bot-dev/dynamodb
     workspace: terragrunt
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: cloud-aws-jung2bot-dev-sqs
+  - name: infrastructure/cloud/aws/jung2bot-dev/sqs
     dir: infrastructure/cloud/aws/jung2bot-dev/sqs
     workspace: terragrunt
     autoplan:

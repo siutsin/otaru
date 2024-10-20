@@ -31,11 +31,10 @@ EOF
 # Find all occurrences of terragrunt.hcl in the infrastructure folder, excluding .terragrunt-cache and base directory file
 find "${BASE_DIR}" -type d -name ".terragrunt-cache" -prune -o -type f -name "terragrunt.hcl" ! -path "${BASE_DIR}/terragrunt.hcl" -print | while read -r terragrunt_path; do
     project_dir=$(dirname "$terragrunt_path")
-    project_name=$(echo "$project_dir" | sed 's/\//-/g' | sed 's/^infrastructure-//')
 
     yq eval -i "
       .projects += [{
-        \"name\": \"${project_name}\",
+        \"name\": \"${project_dir}\",
         \"dir\": \"${project_dir}\",
         \"workspace\": \"terragrunt\",
         \"autoplan\": {
