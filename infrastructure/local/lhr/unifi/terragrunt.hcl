@@ -66,21 +66,22 @@ inputs = {
       subnet     = "192.168.4.0/24"
       vlan_id    = 4
     }
+    # TODO: fix chime pro issue
+    # https://community.ui.com/questions/Ring-Chime-Pro-fell-off-the-network-and-wont-reconnect/b6ca1989-4495-44af-8c1d-b8ff71da1739
+    # https://community.ui.com/questions/U6-pro-Ring-Chime-pro-issue/e40c5c97-121b-4579-ac06-df0fcbd89ea6
     vlan05 = {
       dhcp_start = "192.168.5.100"
       dhcp_stop  = "192.168.5.254"
-      name       = "IoT"
+      name       = "IoT Public"
       subnet     = "192.168.5.0/24"
       vlan_id    = 5
     }
     vlan06 = {
-      dhcp_start  = "192.168.6.6"
-      dhcp_stop   = "192.168.6.40"
-      name        = "IoT - Ring Chime"
-      subnet      = "192.168.6.0/24"
-      vlan_id     = 6
-      dhcp_dns    = ["8.8.8.8", "8.8.4.4"]
-      domain_name = ""
+      dhcp_start = "192.168.6.6"
+      dhcp_stop  = "192.168.6.40"
+      name       = "IoT Private"
+      subnet     = "192.168.6.0/24"
+      vlan_id    = 6
     }
     vlan07 = {
       dhcp_start = "192.168.7.6"

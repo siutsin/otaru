@@ -37,7 +37,7 @@ variable "vlan" {
     ipv6_ra_enable         = optional(bool, true)
     ipv6_ra_priority       = optional(string, "high")
     ipv6_ra_valid_lifetime = optional(number, 0)
-    multicast_dns          = optional(bool, false)
+    multicast_dns          = optional(bool, true)
     name                   = string
     purpose                = optional(string, "corporate")
     subnet                 = string
