@@ -56,12 +56,10 @@ dependency "unifi" {
 inputs = {
   firewall_rules = {
     # Common
-    allow_all_vlans_to_local_dns_server = {
+    allow_all_vlans_to_otaru_gateway = {
       action     = "accept"
-      dst_port   = "53"
-      name       = "Allow Traffic from All VLANs to Local DNS Server"
+      name       = "Allow Traffic from All VLANs to Otaru Gateway"
       rule_index = 20000
-      protocol   = "tcp_udp"
       ruleset    = "LAN_IN"
 
       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
