@@ -11,6 +11,13 @@ metadata:
     volume.kubernetes.io/provisioner-deletion-secret-namespace: longhorn-system
   labels:
     binding-key: {{ $key }}
+    app.kubernetes.io/name: {{ $key }}
+    {{- if or $value.enableBackup (not (hasKey $value "enableBackup")) }}
+    recurring-job-group.longhorn.io/backup: enabled
+    {{- end }}
+    {{- if or $value.enableTrim (not (hasKey $value "enableTrim")) }}
+    recurring-job-group.longhorn.io/trim: enabled
+    {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -39,6 +46,14 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ $key }}-pvc
   namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $key }}
+    {{- if or $value.enableBackup (not (hasKey $value "enableBackup")) }}
+    recurring-job-group.longhorn.io/backup: enabled
+    {{- end }}
+    {{- if or $value.enableTrim (not (hasKey $value "enableTrim")) }}
+    recurring-job-group.longhorn.io/trim: enabled
+    {{- end }}
 spec:
   storageClassName: longhorn-crypto-global
   accessModes:
@@ -55,6 +70,14 @@ kind: Volume
 metadata:
   name: {{ $key }}-vol
   namespace: longhorn-system
+  labels:
+    app.kubernetes.io/name: {{ $key }}
+    {{- if or $value.enableBackup (not (hasKey $value "enableBackup")) }}
+    recurring-job-group.longhorn.io/backup: enabled
+    {{- end }}
+    {{- if or $value.enableTrim (not (hasKey $value "enableTrim")) }}
+    recurring-job-group.longhorn.io/trim: enabled
+    {{- end }}
 spec:
   accessMode: rwo
   encrypted: true

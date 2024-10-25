@@ -3,4 +3,4 @@ dependencies:
   repository: file://../longhorn-volume-lib
   version: 0.2.0
 digest: sha256:aaa34bf93692fee01818b2a2226f63c07f301a98f3060bc596d5085d4a7dd8a8
-generated: "2024-10-25T13:32:22.523038+01:00"
+generated: "2024-10-25T13:27:45.556341+01:00"
