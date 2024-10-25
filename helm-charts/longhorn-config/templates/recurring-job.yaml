@@ -8,20 +8,20 @@ spec:
   cron: "0 */3 * * *"
   task: backup
   groups:
-    - default
+    - backup
   retain: 1
   concurrency: 1
 ---
-{{/*apiVersion: longhorn.io/v1beta2*/}}
-{{/*kind: RecurringJob*/}}
-{{/*metadata:*/}}
-{{/*  name: trim*/}}
-{{/*  namespace: {{ .Values.namespace }}*/}}
-{{/*spec:*/}}
-{{/*  cron: "55 * * * *"*/}}
-{{/*  task: filesystem-trim*/}}
-{{/*  groups:*/}}
-{{/*    - default*/}}
-{{/*  name: trim*/}}
-{{/*  retain: 0*/}}
-{{/*  concurrency: 1*/}}
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: trim
+  namespace: {{ .Values.namespace }}
+spec:
+  cron: "55 * * * *"
+  task: filesystem-trim
+  groups:
+    - trim
+  name: trim
+  retain: 0
+  concurrency: 1

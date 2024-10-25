@@ -3,4 +3,6 @@ namespace: ""
 #    size: "2Gi"
 #    sizeBytes: "2147483648"
 #    fromBackup: "s3://bucket@region/?backup=backup-id&volume=vol-name"
+#    enableBackup: true (optional)
+#    enableTrim: true (optional)
 volumes: [ ]
