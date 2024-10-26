@@ -5,3 +5,5 @@ longhorn-volume-lib:
       size: "10Gi"
       sizeBytes: "10737418240"
       fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-3a8df524c56b4a84&volume=home-assistant-config-vol"
+      # temp disbale
+      enableBackup: false
