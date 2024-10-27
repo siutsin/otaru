@@ -247,6 +247,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/httpbin-0.1.0/httpbin-0.1.0.tgz
     version: 0.1.0
+  jsoncrack:
+  - apiVersion: v2
+    created: "2024-10-27T03:43:35.677907Z"
+    description: A Helm chart for Kubernetes
+    digest: 8a2c8279550e7bf9e2875e087583be570e1701f005109fc4ab06ffb2c5054f9d
+    name: jsoncrack
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/jsoncrack-0.1.0/jsoncrack-0.1.0.tgz
+    version: 0.1.0
   jung2bot:
   - apiVersion: v2
     created: "2024-10-04T23:15:04.188715273Z"
@@ -400,4 +410,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-25T13:33:39.669308958Z"
+generated: "2024-10-27T03:43:35.67792857Z"
