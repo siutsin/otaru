@@ -73,6 +73,7 @@ configYaml:
       grafana.internal.siutsin.com: *gatewayIP
       home-assistant.internal.siutsin.com: *gatewayIP
       hubble-ui.internal.siutsin.com: *gatewayIP
+      jsoncrack.internal.siutsin.com: *gatewayIP
       loki.internal.siutsin.com: *gatewayIP
       longhorn.internal.siutsin.com: *gatewayIP
       prometheus.internal.siutsin.com: *gatewayIP
