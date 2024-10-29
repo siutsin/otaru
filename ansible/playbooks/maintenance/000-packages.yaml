@@ -12,7 +12,7 @@
       command: kubectl cordon {{ node_name }}
 
     - name: Drain the node, ignoring PDBs
-      command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-local-data --disable-eviction
+      command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
 
     - include_tasks: ../rpi/tasks/package-apt.yaml
     - include_tasks: ../rpi/tasks/package-asdf.yaml
