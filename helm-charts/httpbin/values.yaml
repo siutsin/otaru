@@ -4,7 +4,7 @@ namespace: httpbin
 app:
   image:
     repository: kong/httpbin
-    tag: 0.2.0
+    tag: 0.2.1
   autoscaling:
     min: 3
     max: 6
