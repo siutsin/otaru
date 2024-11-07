@@ -5,7 +5,7 @@ type: application
 version: 0.1.0
 dependencies:
   - name: prometheus
-    version: 25.28.0
+    version: 25.29.0
     repository: https://prometheus-community.github.io/helm-charts
 #  - name: loki
 #    version: 6.12.0
