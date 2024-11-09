@@ -17,6 +17,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
+          imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
             runAsUser: 100
