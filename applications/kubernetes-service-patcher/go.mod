@@ -3,7 +3,7 @@ module github.com/siutsin/otaru/applications/kubernetes-service-patcher
 go 1.23.0
 
 require (
-	github.com/onsi/ginkgo/v2 v2.21.0
+	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.35.1
 	golang.org/x/tools v0.27.0
 	k8s.io/api v0.31.2
