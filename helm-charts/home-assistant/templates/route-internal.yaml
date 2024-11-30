@@ -20,5 +20,5 @@ spec:
         - group: ""
           kind: Service
           name: {{ .Values.name }}
-          port: 8080
+          port: 8123
           weight: 1
