@@ -53,63 +53,99 @@ dependency "unifi" {
 # For example, firewall rules configured under LAN In will apply to traffic from the LAN (Corporate) network, destined for other networks. Firewall rules configured under LAN
 # Local will apply to traffic from the LAN (Corporate) network, destined for the UDM/USG itself.
 
-inputs = {
-  firewall_rules = {
-    # Common
-    allow_all_vlans_to_otaru_gateway = {
-      action     = "accept"
-      name       = "Allow Traffic from All VLANs to Otaru Gateway"
-      rule_index = 20000
-      ruleset    = "LAN_IN"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-      dst_address            = local.gateway_ip
-    }
-    # IoT Public
-    allow_iot_public_to_self = {
-      action     = "accept"
-      name       = "Allow Traffic from IoT Public to itself"
-      rule_index = 20500
-      ruleset    = "LAN_IN"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-      dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-    }
-    block_iot_public_to_all_vlans = {
-      action     = "drop"
-      name       = "Block Traffic from IoT Public to All VLANs"
-      rule_index = 20510
-      ruleset    = "LAN_IN"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-      dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-    }
-    # IoT Private
-    allow_iot_private_to_self = {
-      action     = "accept"
-      name       = "Allow Traffic from IoT Private to itself"
-      rule_index = 20600
-      ruleset    = "LAN_IN"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-      dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-    }
-    block_iot_private_to_all_vlans = {
-      action     = "drop"
-      name       = "Block Traffic from IoT Private to All VLANs"
-      rule_index = 20610
-      ruleset    = "LAN_IN"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-      dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-    }
-    block_iot_private_to_internet = {
-      action     = "drop"
-      name       = "Block Traffic from IoT Private to Internet"
-      rule_index = 20620
-      ruleset    = "WAN_OUT"
-
-      src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-    }
-  }
-}
+# inputs = {
+#   firewall_rules = {
+#     # Common
+#     allow_all_vlans_to_otaru_gateway = {
+#       action     = "accept"
+#       name       = "Allow Traffic from All VLANs to Otaru Gateway"
+#       rule_index = 20000
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
+#       dst_address            = local.gateway_ip
+#     }
+#     # vlan05
+#     allow_vlan01_to_vlan05 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan01 to vlan05"
+#       rule_index = 20501
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan01"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
+#     }
+#     allow_vlan04_to_vlan05 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan04 to vlan05"
+#       rule_index = 20504
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan04"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
+#     }
+#     allow_vlan05_to_vlan05 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan05 to vlan05"
+#       rule_index = 20505
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
+#     }
+#     block_vlan05_to_all_vlans = {
+#       action     = "drop"
+#       name       = "Block Traffic from vlan05 to All VLANs"
+#       rule_index = 20510
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
+#     }
+#     # vlan06
+#     allow_vlan01_to_vlan06 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan01 to vlan06"
+#       rule_index = 20601
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan01"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#     }
+#     allow_vlan04_to_vlan06 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan04 to vlan06"
+#       rule_index = 20604
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan04"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#     }
+#     allow_vlan06_to_vlan06 = {
+#       action     = "accept"
+#       name       = "Allow Traffic from vlan06 to vlan06"
+#       rule_index = 20606
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#     }
+#     block_vlan06_to_all_vlans = {
+#       action     = "drop"
+#       name       = "Block Traffic from vlan06 to All VLANs"
+#       rule_index = 20610
+#       ruleset    = "LAN_IN"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
+#     }
+#     block_vlan06_to_internet = {
+#       action     = "drop"
+#       name       = "Block Traffic from vlan06 to Internet"
+#       rule_index = 20620
+#       ruleset    = "WAN_OUT"
+#
+#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
+#     }
+#   }
+# }
