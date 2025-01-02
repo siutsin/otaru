@@ -4,7 +4,7 @@ metadata:
   name: backup
   namespace: {{ .Values.namespace }}
 spec:
-  cron: "*/3 * * * *"
+  cron: "0 */3 * * *"
   task: backup
   groups:
     - backup
