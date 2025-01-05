@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Restart longhorn daemonsets
+      command: kubectl rollout restart daemonsets -n longhorn-system
+      changed_when: false
+
+    - name: Wait for all longhorn daemonsets to complete rollout
+      command: kubectl rollout status daemonset -n longhorn-system --timeout=15m
+      changed_when: false
+      register: ds_rollout_result
+      retries: 5
+      delay: 10
+      until: ds_rollout_result.rc == 0
+
+    - name: Restart all longhorn deployments
+      command: kubectl rollout restart deployments -n longhorn-system
+      changed_when: false
+
+    - name: Wait for all longhorn deployments to complete rollout
+      command: kubectl rollout status deployment -n longhorn-system --timeout=15m
+      changed_when: false
+      register: deploy_rollout_result
+      retries: 5
+      delay: 10
+      until: deploy_rollout_result.rc == 0
+
+    - name: Wait for all remaining pods in longhorn-system to be running
+      command: kubectl wait --for=condition=Ready pods --all -n longhorn-system --timeout=15m
+      changed_when: false
+      register: pod_ready_result
+      retries: 5
+      delay: 10
+      until: pod_ready_result.rc == 0
