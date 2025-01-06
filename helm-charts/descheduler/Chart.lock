@@ -1,6 +1,6 @@
 dependencies:
 - name: descheduler
   repository: https://kubernetes-sigs.github.io/descheduler/
-  version: 0.31.0
-digest: sha256:01adc12d362158ecf8e9ae11cd2142dc2e7a6c2aea82ec2cf44b0d7ee7fb5577
-generated: "2024-09-13T01:36:26.793046063Z"
+  version: 0.32.0
+digest: sha256:84196a7ced4f97be7b0337bf4f1cac184503c3d3930bdb17d53b31cb7c8332e3
+generated: "2025-01-06T02:04:28.825007174Z"
