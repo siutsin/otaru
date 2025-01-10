@@ -4,7 +4,7 @@ namespace: home-assistant
 deployment:
   image:
     repository: ghcr.io/home-assistant/home-assistant
-    tag: 2025.1.1
+    tag: 2025.1.2
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
