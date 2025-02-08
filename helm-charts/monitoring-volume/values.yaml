@@ -7,7 +7,7 @@ longhorn-volume-lib:
       fromBackup: ""
       enableBackup: false
     loki:
-      size: "8Gi"
-      sizeBytes: "8589934592"
+      size: "20Gi"
+      sizeBytes: "21474836480"
       fromBackup: ""
       enableBackup: false
