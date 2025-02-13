@@ -57,7 +57,7 @@ local monitoring = [
   { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
   { wave: '10', name: 'monitoring-volume', namespace: 'monitoring' },
-  //{ wave: '11', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
+  { wave: '11', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
 
 local scheduling = [
