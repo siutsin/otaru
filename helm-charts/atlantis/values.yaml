@@ -13,6 +13,7 @@ atlantis:
     volume: "true"
   volumeClaim:
     storageClassName: longhorn-crypto-global
+    dataStorage: 15Gi
   loadEnvFromSecrets:
     - atlantis-aws
     - atlantis-b2
