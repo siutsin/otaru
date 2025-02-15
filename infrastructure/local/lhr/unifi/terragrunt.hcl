@@ -1,5 +1,5 @@
 include {
-  path = find_in_parent_folders()
+  path = find_in_parent_folders("root.hcl")
 }
 
 terraform {
@@ -30,8 +30,14 @@ inputs = {
     switch00 = {
       name = "USW Lite 8 PoE"
     }
+    switch01 = {
+      name = "Switch Ultra"
+    }
     wifi00 = {
-      name = "U7 Pro"
+      name = "U7 Pro 1/F"
+    }
+    wifi01 = {
+      name = "U7 Pro G/F"
     }
   }
   wan = {
@@ -84,6 +90,7 @@ inputs = {
       vlan_id    = 6
     }
     vlan07 = {
+      dhcp_dns   = ["1.1.1.2", "1.0.0.2"]
       dhcp_start = "192.168.7.6"
       dhcp_stop  = "192.168.7.254"
       name       = "Work"
@@ -104,7 +111,7 @@ inputs = {
     }
     wlan03 = {
       name            = local.wlan03_ssid
-      network_id_key  = "vlan05"
+      network_id_key  = "vlan01" # some IoT devices do not support vlan tag. All IoT devices will assign to the default vlan from now on.
       passphrase      = local.wlan03_password
       pmf_mode        = "disabled"
       wlan_band       = "2g"
@@ -112,13 +119,9 @@ inputs = {
       wpa3_transition = false
     }
     wlan04 = {
-      name            = local.wlan04_ssid
-      network_id_key  = "vlan06"
-      passphrase      = local.wlan04_password
-      pmf_mode        = "disabled"
-      wlan_band       = "2g"
-      wpa3_support    = false
-      wpa3_transition = false
+      name           = local.wlan04_ssid
+      network_id_key = "vlan01" # some IoT devices do not support vlan tag. All IoT devices will assign to the default vlan from now on.
+      passphrase     = local.wlan04_password
     }
   }
   setting = {
