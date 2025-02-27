@@ -29,13 +29,17 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Hardware
 
-| ID             | Device                              | HAT                                                                                                                                                                                                            | Role   | /dev/mmcblk0                | /dev/nvme0n1                                    |
-|----------------|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|-----------------------------|-------------------------------------------------|
-| etcd           | Intel NUC Mini PC Core i3-3217U 8GB | -                                                                                                                                                                                                              | -      | -                           | -                                               |
-| raspberrypi-00 | Raspberry Pi 4 Model B 8GB          | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                                           | Master | SanDisk Max Endurance 32 GB | -                                               |
-| raspberrypi-01 | Raspberry Pi 4 Model B 8GB          | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                                           | Master | SanDisk Max Endurance 32 GB | -                                               |
-| raspberrypi-02 | Raspberry Pi 4 Model B 8GB          | [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b)                                                                                                           | Master | SanDisk Max Endurance 32 GB | -                                               |
-| raspberrypi-03 | Raspberry Pi 5 8GB                  | [Waveshare PoE HAT (F)](https://thepihut.com/products/poe-hat-for-raspberry-pi-5-with-cooling-fan) + [Pineberry Pi HatDrive! Bottom](https://pineberrypi.com/products/hatdrive-bottom-2230-2242-2280-for-rpi5) | Master | SanDisk Max Endurance 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
+![rack](assets/rack.jpeg)
+
+| Device                              | Description                                                                                                                 | /dev/mmcblk0                | /dev/nvme0n1                                    |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------|
+| Intel NUC Mini PC Core i3-3217U 8GB | etcd                                                                                                                        | -                           | -                                               |
+| Raspberry Pi 4 Model B 8GB          | raspberry-00 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
+| Raspberry Pi 4 Model B 8GB          | raspberry-01 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
+| Raspberry Pi 4 Model B 8GB          | raspberry-02 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
+| Raspberry Pi 5 8GB                  | raspberry-03 Node with [Waveshare PoE HAT (F)](https://thepihut.com/products/poe-hat-for-raspberry-pi-5-with-cooling-fan)   | SanDisk Max Endurance 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
+| UniFi Switch Ultra                  | PoE Switch                                                                                                                  | -                           | -                                               |
+| GeeekPi 10" 2U Rack Mount           | Rack Mount for Raspberry Pi with PCIe to M.2 NVMe Adapters                                                                  | -                           | -                                               |
 
 ## Cluster Components
 
