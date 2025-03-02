@@ -410,4 +410,28 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-27T03:43:35.67792857Z"
+  yaade:
+  - apiVersion: v2
+    created: "2025-03-02T21:33:58.434705055Z"
+    description: A Helm chart for Kubernetes
+    digest: ec85a0db5466199ac857f75ec807e8f9e22f9f3828c0901908f44b1d2458f204
+    name: yaade
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/yaade-0.1.0/yaade-0.1.0.tgz
+    version: 0.1.0
+  yaade-volume:
+  - apiVersion: v2
+    created: "2025-03-02T21:33:58.525941004Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: file://../longhorn-volume-lib
+      version: 0.2.0
+    description: A Helm chart for Kubernetes
+    digest: f8ec91755148b7a42e10e653ed2d5ad2a744b65bbb18b96f5a6f9d20d47923fa
+    name: yaade-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-03-02T21:33:58.525961663Z"
