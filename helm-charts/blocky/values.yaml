@@ -77,4 +77,5 @@ configYaml:
       loki.internal.siutsin.com: *gatewayIP
       longhorn.internal.siutsin.com: *gatewayIP
       prometheus.internal.siutsin.com: *gatewayIP
+      yaade.internal.siutsin.com: *gatewayIP
       unifi: 192.168.1.1

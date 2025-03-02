@@ -1,0 +1,11 @@
+name: yaade
+namespace: yaade
+
+deployment:
+  image:
+    repository: esperotech/yaade
+    tag: latest
+
+service:
+  port: 9339
+  targetPort: 9339
