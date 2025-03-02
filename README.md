@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.31.4+k3s1-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.31.6+k3s1-blue)
 [![CodeQL](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
 [![Dependabot Updates](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates)
