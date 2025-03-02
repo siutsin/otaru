@@ -12,6 +12,8 @@
       register: master_token
       run_once: true
       delegate_to: raspberrypi-00.local
+      retries: 5
+      delay: 10
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       no_log: true
 
@@ -33,6 +35,8 @@
           --tls-san {{ LB_API_SERVER_IP }} \
           --tls-san $(hostname -I | awk '{print $1}') \
           --write-kubeconfig-mode=644
+      retries: 5
+      delay: 10
       when: "'master' in group_names"
 
     - name: Change ownership of k3s.yaml to pi:pi
@@ -41,6 +45,8 @@
         owner: pi
         group: pi
         state: file
+      retries: 5
+      delay: 10
       when: "'master' in group_names"
 
     - name: Install k3s on workers
@@ -49,11 +55,15 @@
           K3S_TOKEN={{ hostvars[groups['master'][0]]['master_token']['stdout'] }} \
           K3S_URL=https://{{ LB_API_SERVER_IP }}:443 \
           sh -
+      retries: 5
+      delay: 10
       when: "'worker' in group_names"
 
     - name: Get FIRST_MASTER_IP
       set_fact:
         FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+      retries: 5
+      delay: 10
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace first master IP with LB_API_SERVER_IP in local kube config
@@ -65,4 +75,6 @@
       become: yes
       become_user: simon
       run_once: true
+      retries: 5
+      delay: 10
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
