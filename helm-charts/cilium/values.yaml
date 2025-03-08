@@ -32,4 +32,19 @@ cilium:
     leaseRenewDeadline: 1s
     leaseRetryPeriod: 200ms
   operator:
-    replicas: 1
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                io.cilium/app: operator
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: volume
+                  operator: NotIn
+                  values:
+                    - "true"
