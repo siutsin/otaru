@@ -5,17 +5,24 @@
   tasks:
     - name: Get all namespaces
       command: kubectl get namespaces -o custom-columns=':metadata.name' --no-headers
-      register: namespaces
       changed_when: false
+      register: namespaces
+      retries: 5
+      delay: 10
+      until: namespaces.rc == 0
 
     - name: Restart deployments and statefulsets in other namespaces
       command: kubectl rollout restart deployments,statefulsets -n {{ item }}
       loop: "{{ namespaces.stdout_lines }}"
       when: item not in ['kube-system', 'longhorn-system']
       changed_when: false
+      register: ds_restart
+      retries: 5
+      delay: 10
+      until: ds_restart.rc == 0
 
     - name: Wait for all deployments and statefulsets to complete rollout in other namespaces
-      command: kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=15m
+      command: kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=5m
       loop: "{{ namespaces.stdout_lines }}"
       changed_when: false
       register: deploy_sts_rollout_result

@@ -8,7 +8,7 @@
       changed_when: false
 
     - name: Wait for all longhorn daemonsets to complete rollout
-      command: kubectl rollout status daemonset -n longhorn-system --timeout=15m
+      command: kubectl rollout status daemonset -n longhorn-system --timeout=5m
       changed_when: false
       register: ds_rollout_result
       retries: 5
@@ -20,17 +20,74 @@
       changed_when: false
 
     - name: Wait for all longhorn deployments to complete rollout
-      command: kubectl rollout status deployment -n longhorn-system --timeout=15m
+      command: kubectl rollout status deployment -n longhorn-system --timeout=5m
       changed_when: false
       register: deploy_rollout_result
       retries: 5
       delay: 10
       until: deploy_rollout_result.rc == 0
 
-    - name: Wait for all remaining pods in longhorn-system to be running
-      command: kubectl wait --for=condition=Ready pods --all -n longhorn-system --timeout=15m
+    # trim cron job pod's success status will block the wait. Split it by labels
+    - name: Wait for pods in longhorn-system to be running - longhorn-driver-deployer, longhorn-manager, longhorn-ui
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app.kubernetes.io/name=longhorn
       changed_when: false
-      register: pod_ready_result
+      register: pod_ready_result_1
       retries: 5
       delay: 10
-      until: pod_ready_result.rc == 0
+      until: pod_ready_result_1.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - csi-attacher
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-attacher
+      changed_when: false
+      register: pod_ready_result_2
+      retries: 5
+      delay: 10
+      until: pod_ready_result_2.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - csi-provisioner
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-provisioner
+      changed_when: false
+      register: pod_ready_result_3
+      retries: 5
+      delay: 10
+      until: pod_ready_result_3.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - csi-resizer
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-resizer
+      changed_when: false
+      register: pod_ready_result_4
+      retries: 5
+      delay: 10
+      until: pod_ready_result_4.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - csi-snapshotter
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-snapshotter
+      changed_when: false
+      register: pod_ready_result_5
+      retries: 5
+      delay: 10
+      until: pod_ready_result_5.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - cypto-volume-allow-discards
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l name=longhorn-setup-cypto-discard
+      changed_when: false
+      register: pod_ready_result_6
+      retries: 5
+      delay: 10
+      until: pod_ready_result_6.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - instance-manager
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l longhorn.io/component=instance-manager
+      changed_when: false
+      register: pod_ready_result_7
+      retries: 5
+      delay: 10
+      until: pod_ready_result_7.rc == 0
+
+    - name: Wait for pods in longhorn-system to be running - longhorn-csi-plugin
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=longhorn-csi-plugin
+      changed_when: false
+      register: pod_ready_result_8
+      retries: 5
+      delay: 10
+      until: pod_ready_result_8.rc == 0
