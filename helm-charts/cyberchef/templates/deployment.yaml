@@ -43,3 +43,13 @@ spec:
             limits:
               memory: 100Mi
               ephemeral-storage: 100Mi
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: volume
+                    operator: NotIn
+                    values:
+                      - "true"

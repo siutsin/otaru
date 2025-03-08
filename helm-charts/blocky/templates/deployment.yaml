@@ -28,6 +28,15 @@ spec:
                     values:
                       - {{ .Values.name }}
               topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: volume
+                    operator: NotIn
+                    values:
+                      - "true"
       securityContext:
         fsGroup: 100
       automountServiceAccountToken: false

@@ -30,4 +30,13 @@ spec:
             httpGet:
               path: /
               port: http
-
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: volume
+                    operator: NotIn
+                    values:
+                      - "true"
