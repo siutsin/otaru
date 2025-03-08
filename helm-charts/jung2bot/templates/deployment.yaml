@@ -28,6 +28,16 @@ spec:
                       values:
                         - {{ .Values.name }}
                 topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: volume
+                    operator: NotIn
+                    values:
+                      - "true"
+      automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
@@ -47,8 +57,10 @@ spec:
             requests:
               cpu: "0.1"
               memory: "300Mi"
+              ephemeral-storage: "100Mi"
             limits:
               memory: "300Mi"
+              ephemeral-storage: "100Mi"
           env:
             - name: PROFILE
               value: {{ .Values.app.env.profile }}

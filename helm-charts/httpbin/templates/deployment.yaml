@@ -27,8 +27,17 @@ spec:
                       values:
                         - {{ .Values.name }}
                 topologyKey: "kubernetes.io/hostname"
+      automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: "100Mi"
+              ephemeral-storage: "100Mi"
+            limits:
+              memory: "100Mi"
+              ephemeral-storage: "100Mi"

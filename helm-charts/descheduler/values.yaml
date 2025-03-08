@@ -3,3 +3,13 @@ descheduler:
   resources:
     limits:
       memory: 256Mi
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: NotIn
+                values:
+                  - "true"
