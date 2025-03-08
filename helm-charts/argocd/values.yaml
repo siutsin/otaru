@@ -1,4 +1,15 @@
 argo-cd:
+  global:
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: volume
+                  operator: NotIn
+                  values:
+                    - "true"
   configs:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/

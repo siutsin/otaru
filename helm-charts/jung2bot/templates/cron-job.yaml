@@ -35,6 +35,16 @@ spec:
                     - timeout
                 initialDelaySeconds: 30
           restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  preference:
+                    matchExpressions:
+                      - key: volume
+                        operator: NotIn
+                        values:
+                          - "true"
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -78,3 +88,13 @@ spec:
                     - timeout
                 initialDelaySeconds: 30
           restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  preference:
+                    matchExpressions:
+                      - key: volume
+                        operator: NotIn
+                        values:
+                          - "true"

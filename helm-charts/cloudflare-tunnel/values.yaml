@@ -9,3 +9,14 @@ cloudflare-tunnel-remote:
     tag: 2024.9.1
 
   replicaCount: 3
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: NotIn
+                values:
+                  - "true"
