@@ -8,7 +8,7 @@
       changed_when: false
 
     - name: Wait for all daemonsets in kube-system namespace to complete rollout
-      command: kubectl rollout status daemonset -n kube-system --timeout=15m
+      command: kubectl rollout status daemonset -n kube-system --timeout=5m
       changed_when: false
       register: ds_rollout_result
       retries: 5
@@ -20,7 +20,7 @@
       changed_when: false
 
     - name: Wait for all deployments in kube-system namespace to complete rollout
-      command: kubectl rollout status deployment -n kube-system --timeout=15m
+      command: kubectl rollout status deployment -n kube-system --timeout=5m
       changed_when: false
       register: deploy_rollout_result
       retries: 5
