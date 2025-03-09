@@ -75,19 +75,21 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## IaaS, PaaS, and SaaS
 
-| Category     | Name            | Service                                                                                    | Description               |
-|--------------|-----------------|--------------------------------------------------------------------------------------------|---------------------------|
-| CI/CD        | Github          | [Actions](https://github.com/features/actions)                                             | Run Terragrunt            |
-| Connectivity | Cloudflare      | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control       |
-| Connectivity | Cloudflare      | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service |
-| Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity         |
-| Connectivity | Cloudflare      | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network   |
-| Monitoring   | Healthchecks.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check - Heartbeat  |
-| Monitoring   | UptimeRobot     | [UptimeRobot](https://uptimerobot.com/)                                                    | Health Check              |
-| Security     | 1Password       | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation        |
-| Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority     |
-| Storage      | AWS             | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State    |
-| Storage      | Backblaze       | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup             |
+| Category     | Name            | Service                                                                                    | Description                        |
+|--------------|-----------------|--------------------------------------------------------------------------------------------|------------------------------------|
+| CI/CD        | Github          | [Actions](https://github.com/features/actions)                                             | Run Terragrunt                     |
+| CI/CD        | Sourcery        | [AI Code Reviews](https://docs.sourcery.ai/)                                               | Instant feedback for Pull Requests |
+| Connectivity | Cloudflare      | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)                | Edge Access Control                |
+| Connectivity | Cloudflare      | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service          |
+| Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity                  |
+| Connectivity | Cloudflare      | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network            |
+| Monitoring   | Healthchecks.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check - Heartbeat           |
+| Monitoring   | UptimeRobot     | [UptimeRobot](https://uptimerobot.com/)                                                    | Health Check                       |
+| Security     | 1Password       | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation                 |
+| Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority              |
+| Security     | Snyk            | [Snyk](https://app.snyk.io/)                                                               | Detects vulnerabilities            |
+| Storage      | AWS             | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State             |
+| Storage      | Backblaze       | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup                      |
 
 ## Bootstrap Cluster
 
