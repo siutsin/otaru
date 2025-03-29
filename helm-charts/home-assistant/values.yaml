@@ -1,6 +1,8 @@
 name: home-assistant
 namespace: home-assistant
 
+ip: 192.168.1.51
+
 deployment:
   image:
     repository: ghcr.io/home-assistant/home-assistant

@@ -14,3 +14,27 @@ spec:
       appProtocol: kubernetes.io/ws
   selector:
     app.kubernetes.io/name: home-assistant
+---
+# Cilium Gateway API doesn't support TCPRoute and UDPRoute as of 13 Oct 2024
+# So we need to create a LoadBalancer service with LB IPAM sharing-key annotation to expose the DNS service
+# Ref: https://github.com/cilium/cilium/issues/21929#issuecomment-2378680937
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-coap
+  namespace: {{ .Values.namespace }}
+  annotations:
+    lbipam.cilium.io/ips: {{ .Values.ip | quote }}
+    lbipam.cilium.io/sharing-key: ingress
+    lbipam.cilium.io/sharing-cross-namespace: "*"
+  labels:
+    lb-ip-pool: cilium-gateway
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Values.name }}
+  type: LoadBalancer
+  ports:
+    - port: 5683
+      targetPort: coap
+      protocol: UDP
+      name: coap
