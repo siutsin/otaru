@@ -30,6 +30,9 @@ spec:
             - name: http
               containerPort: 8123
               protocol: TCP
+            - name: coap
+              containerPort: 5683
+              protocol: UDP
           livenessProbe:
             httpGet:
               path: /
