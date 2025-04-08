@@ -1,9 +1,8 @@
 locals {
-  #  https://uptimerobot.com/help/locations/
-  #  https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt
-  uptime_robot_ip_raw = split("\n", chomp(file("${path.module}/ip/uptime-robot-ipv4-ipv6.txt")))
-  uptime_robot_ip_addresses = [
-    for ip in local.uptime_robot_ip_raw :
+  #  https://api.webgazer.io/ip-addresses
+  webgazer_ip_raw = split("\n", chomp(file("${path.module}/ip/webgazer.txt")))
+  webgazer_ip_addresses = [
+    for ip in local.webgazer_ip_raw :
     format("%s/%s", trimspace(trimprefix(ip, "\r")), strcontains(ip, ".") ? "32" : "128")
   ]
 
@@ -36,15 +35,15 @@ resource "cloudflare_zero_trust_access_policy" "github" {
   }
 }
 
-resource "cloudflare_zero_trust_access_policy" "uptime_robot" {
+resource "cloudflare_zero_trust_access_policy" "webgazer" {
   application_id = cloudflare_zero_trust_access_application.this.id
   zone_id        = var.zone_id
-  name           = "UptimeRobot IP List"
+  name           = "WebGazer IP List"
   precedence     = "3"
   decision       = "bypass"
 
   include {
-    ip = local.uptime_robot_ip_addresses
+    ip = local.webgazer_ip_addresses
   }
 }
 

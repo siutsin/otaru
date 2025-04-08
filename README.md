@@ -84,7 +84,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity                  |
 | Connectivity | Cloudflare      | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network            |
 | Monitoring   | Healthchecks.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check - Heartbeat           |
-| Monitoring   | UptimeRobot     | [UptimeRobot](https://uptimerobot.com/)                                                    | Health Check                       |
+| Monitoring   | WebGazer        | [Uptime Monitoring](https://www.webgazer.io/)                                              | Health Check                       |
 | Security     | 1Password       | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation                 |
 | Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority              |
 | Security     | Snyk            | [Snyk](https://app.snyk.io/)                                                               | Detects vulnerabilities            |
@@ -159,13 +159,14 @@ Generate atlantis.yaml.
 make generate-atlantis-yaml
 ```
 
+## System Status
+
+[WebGazer](https://www.webgazer.io/s?id=493)
+
 ## Repository Configuration
 
-<details>
-<summary>Secrets for GitHub Actions</summary>
+Secrets for GitHub Actions
 
 | Key                             |
 |---------------------------------|
 | GH_DELETE_UNTAGGED_IMAGES_TOKEN |
-
-</details>
