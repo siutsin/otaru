@@ -61,7 +61,7 @@ func (r *KubernetesServicePatcherReconciler) Reconcile(ctx context.Context, req 
 		// Update the service
 		service.Spec.Type = corev1.ServiceTypeLoadBalancer
 
-		// Ensure the resource version matches
+		// Ensure the resource version matches to prevent race conditions and ensure consistency when multiple clients try to update the same resource simultaneously
 		service.ResourceVersion = originalResourceVersion
 
 		// Add or update the annotations
