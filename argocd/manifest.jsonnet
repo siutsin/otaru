@@ -25,8 +25,8 @@ local application = [
   { wave: '10', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot' },
   { wave: '10', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: { valueFiles: ['value/dev.yaml'] } },
   { wave: '10', name: 'yaade-volume', namespace: 'yaade' },
-  //{ wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
-  //{ wave: '11', name: 'yaade', namespace: 'yaade' },
+  { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+  { wave: '11', name: 'yaade', namespace: 'yaade' },
 ];
 
 local baseline = [
@@ -58,7 +58,7 @@ local connectivity = [
 local monitoring = [
   { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
-  { wave: '10', name: 'monitoring-volume', namespace: 'monitoring' },
+//  { wave: '10', name: 'monitoring-volume', namespace: 'monitoring' },
   //{ wave: '11', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
 
