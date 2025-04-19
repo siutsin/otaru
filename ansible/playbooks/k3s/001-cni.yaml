@@ -24,7 +24,7 @@
 
     - name: Apply cilium Helm template
       # https://github.com/cilium/cilium/issues/33239#issuecomment-2177949109
-      shell: "helm template ../../../helm-charts/cilium -n kube-system --api-versions='gateway.networking.k8s.io/v1/GatewayClass' | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/cilium -n kube-system --api-versions='gateway.networking.k8s.io/v1/GatewayClass' --set cilium.operator.replicas=1 | kubectl create -f - 2>/dev/null || true"
 
     - name: Wait for cilium-operator to rollout
       shell: "kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m"
