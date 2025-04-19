@@ -4,4 +4,4 @@ longhorn-volume-lib:
     yaade:
       size: "1Gi"
       sizeBytes: "1073741824"
-      fromBackup: ""
+      fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-413b007c893f40df&volume=yaade-vol"
