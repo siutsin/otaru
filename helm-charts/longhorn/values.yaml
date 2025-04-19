@@ -10,10 +10,11 @@ longhorn:
     defaultDataLocality: disabled # change to best-effort once added more drives
   defaultSettings:
     replicaAutoBalance: best-effort
-    backupTarget: s3://github-otaru-media-storage@eu-west-1/
-    backupTargetCredentialSecret: b2-secret
     snapshotMaxCount: 250
     autoCleanupSnapshotWhenDeleteBackup: true
+  defaultBackupStore:
+    backupTarget: s3://github-otaru-media-storage@eu-west-1/
+    backupTargetCredentialSecret: b2-secret
 
 encryption:
   secretName: longhorn-crypto
