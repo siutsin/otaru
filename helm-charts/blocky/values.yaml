@@ -54,6 +54,10 @@ configYaml:
         - https://badmojr.gitlab.io/1hosts/Pro/domains.txt
         - https://big.oisd.nl/domainswild
         - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt
+    allowlists:
+      ads:
+        - |
+          graph.facebook.com
     clientGroupsBlock:
       default:
         - ads
