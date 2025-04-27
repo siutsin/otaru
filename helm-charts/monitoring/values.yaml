@@ -17,8 +17,6 @@ httpRoutes:
 
 prometheus:
   server:
-    persistentVolume:
-      existingClaim: prometheus-pvc
     retentionSize: 7.5GB
     retention: 1d
     nodeSelector:
@@ -40,11 +38,6 @@ grafana:
         - name: Loki
           type: loki
           url: http://monitoring-loki.monitoring.svc.cluster.local:3100
-  #          # https://github.com/grafana/loki/issues/11893#issuecomment-2326070697
-  #          jsonData:
-  #            httpHeaderName1: 'Accept'
-  #          secureJsonData:
-  #            httpHeaderValue1: '*/*'
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -58,56 +51,68 @@ grafana:
     panels:
       disable_sanitize_html: true
 
-# It appears that the loki chart with v3 is not working as expected. Using loki-stack with v2 instead.
-loki-stack:
-  loki:
-    image:
-      tag: 2.9.10
-    persistence:
-      enabled: true
-      existingClaim: loki-pvc
+loki:
+  # Single Replica mode
+  deploymentMode: SingleBinary
+  singleBinary:
+    replicas: 1
     nodeSelector:
       volume: "true"
-    config:
-      limits_config:
-        split_queries_by_interval: 24h
-        max_query_parallelism: 100
-      query_scheduler:
-        max_outstanding_requests_per_tenant: 4096
-      frontend:
-        max_outstanding_per_tenant: 4096
-  promtail:
-    config:
-      clients:
-        - url: http://monitoring-loki:3100/loki/api/v1/push
+  minio:
+    enabled: true
+    nodeSelector:
+      volume: "true"
+  chunksCache:
+    enabled: false
 
-#loki:
-#  deploymentMode: SingleBinary
-#  loki:
-#    commonConfig:
-#      replication_factor: 1
-#    storage:
-#      type: filesystem
-#    schemaConfig:
-#      configs:
-#        - from: 2024-09-21
-#          object_store: filesystem
-#          store: tsdb
-#          schema: v13
-#          index:
-#            prefix: index_
-#            period: 24h
-#  singleBinary:
-#    replicas: 1
-#    persistence:
-#      storageClass: longhorn-crypto-global
-#  backend:
-#    replicas: 0
-#  read:
-#    replicas: 0
-#  write:
-#    replicas: 0
-#  chunksCache:
-#    allocatedMemory: 2048M
-#  resultsCache:
-#    allocatedMemory: 512M
+  loki:
+    commonConfig:
+      replication_factor: 1
+    auth_enabled: false
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    pattern_ingester:
+      enabled: true
+    limits_config:
+      allow_structured_metadata: true
+      volume_enabled: true
+    rulerConfig:
+      enable_api: true
+
+  # Zero-out replica counts of other deployment modes
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomCompactor:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
+
+promtail:
+  config:
+    clients:
+      - url: http://monitoring-loki:3100/loki/api/v1/push
