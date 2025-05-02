@@ -8,6 +8,9 @@ cilium:
     enabled: true
     type: wireguard
     nodeEncryption: true
+    strictMode:
+      enabled: true
+      allowRemoteNodeIdentities: true
   externalIPs:
     enabled: true
   gatewayAPI:
