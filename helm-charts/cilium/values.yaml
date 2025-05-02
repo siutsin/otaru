@@ -10,6 +10,7 @@ cilium:
     nodeEncryption: true
     strictMode:
       enabled: true
+      cidr: 10.42.0.0/16
       allowRemoteNodeIdentities: true
   externalIPs:
     enabled: true
