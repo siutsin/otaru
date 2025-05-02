@@ -45,7 +45,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 | Category     | Name                                                                                                | Description                                                                                                             |
 |--------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| Application  | [Blocky](https://0xerr0r.github.io/blocky/latest/)                                                  | Stateless Ad and tracker-blocking DNS server                                                                            |
 | Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                                      |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                                         |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                                  |

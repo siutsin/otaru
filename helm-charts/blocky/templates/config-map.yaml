@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Values.name }}-configmap
-  namespace: {{ .Values.namespace }}
-  annotations:
-    reloader.stakater.com/auto: "true"
-data:
-  config.yml: | {{ toYaml .Values.configYaml | nindent 4 }}
