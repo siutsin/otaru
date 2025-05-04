@@ -12,16 +12,16 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
     ],
     annotations+: std.mergePatch(
       (if 'wave' in config then {
-        'argocd.argoproj.io/sync-wave': config.wave,
-      } else {}),
+         'argocd.argoproj.io/sync-wave': config.wave,
+       } else {}),
       (if 'serverSideDiff' in config then {
-        'argocd.argoproj.io/compare-options': 'ServerSideDiff=' + config.serverSideDiff,
-      } else {})
+         'argocd.argoproj.io/compare-options': 'ServerSideDiff=' + config.serverSideDiff,
+       } else {})
     ),
   },
   spec: {
     project: defaultProject,
-    source: {
+    source: if 'source' in config then config.source else {
       repoURL: 'https://github.com/siutsin/otaru.git',
       path: std.get(config, 'path', 'helm-charts/' + config.name),
       targetRevision: revision,
