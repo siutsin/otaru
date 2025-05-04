@@ -5,7 +5,7 @@ local revision = 'add-cnpg';
 local _ignoreDifferences = {
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
-  }
+  },
 };
 
 local _grafanaDashboards = [
@@ -54,6 +54,23 @@ local connectivity = [
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
+local database = [
+  // https://github.com/cloudnative-pg/charts/issues/344
+  // Apply the chart directly to generate webhook and TLS certs
+  {
+    local s = self,
+    wave: '10',
+    name: 'cloudnative-pg',
+    namespace: 'cnpg-system',
+    source: {
+      repoURL: 'https://cloudnative-pg.io/charts/',
+      chart: s.name,
+      targetRevision: '0.23.2',
+      helm: { releaseName: s.name },
+    },
+  },
+];
+
 local monitoring = [
   { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
@@ -78,5 +95,5 @@ local storage = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + cicd + connectivity + monitoring + scheduling + security + storage
+  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + storage
 ]
