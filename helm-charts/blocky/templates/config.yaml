@@ -1,0 +1,27 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ .Values.name }}-config
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      metadata:
+        annotations:
+          reloader.stakater.com/auto: "true"
+      data:
+        config.yml: |
+          {{ `{{ .configYaml }}` }}
+  data:
+    - secretKey: configYaml
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: blocky
+        metadataPolicy: None
+        property: config.yml
