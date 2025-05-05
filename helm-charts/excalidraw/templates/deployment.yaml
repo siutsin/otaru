@@ -23,9 +23,6 @@ spec:
                 - ALL
               add:
                 - NET_BIND_SERVICE
-                - CHOWN
-                - SETGID
-                - SETUID
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
@@ -41,11 +38,11 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 100Mi
-              ephemeral-storage: 100Mi
+              memory: 300Mi
+              ephemeral-storage: 500Mi
             limits:
-              memory: 100Mi
-              ephemeral-storage: 100Mi
+              memory: 300Mi
+              ephemeral-storage: 500Mi
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
