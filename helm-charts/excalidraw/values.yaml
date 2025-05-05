@@ -1,0 +1,11 @@
+name: excalidraw
+namespace: excalidraw
+
+deployment:
+  image:
+    repository: docker.io/excalidraw/excalidraw
+    tag: latest@sha256:e1c0fdf988f817905314b6e77d2fa6f36996b2c7f1fc29186d494ecc66cc9437
+
+service:
+  port: 80
+  targetPort: 80
