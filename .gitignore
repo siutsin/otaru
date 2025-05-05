@@ -1,3 +1,6 @@
+# blocky
+helm-charts/blocky/**/config.yml
+
 # etcd certs
 certs/*
 !certs/.gitkeep
