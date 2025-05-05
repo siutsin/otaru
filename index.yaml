@@ -144,6 +144,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/descheduler-0.1.0/descheduler-0.1.0.tgz
     version: 0.1.0
+  excalidraw:
+  - apiVersion: v2
+    created: "2025-05-05T14:27:02.987774427Z"
+    description: A Helm chart for Kubernetes
+    digest: 242c012a14094ef95aca4055b5993d95f06d9de603c1984c2190abda4656414f
+    name: excalidraw
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/excalidraw-0.1.0/excalidraw-0.1.0.tgz
+    version: 0.1.0
   external-secrets:
   - apiVersion: v2
     created: "2024-10-04T23:15:02.648088412Z"
@@ -434,4 +444,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-02T21:33:58.525961663Z"
+generated: "2025-05-05T14:27:04.973316661Z"
