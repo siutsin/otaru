@@ -1,0 +1,28 @@
+name: blocky
+namespace: blocky
+ip: 192.168.1.51
+
+app:
+  timezone: Europe/London
+
+deployment:
+  image:
+    repository: ghcr.io/0xerr0r/blocky
+    tag: v0.25
+  probeExec:
+    command:
+      - /app/blocky
+      - healthcheck
+  ports:
+    http: 4000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 300Mi
+    limits:
+      memory: 300Mi
+
+hpa:
+  autoscaling:
+    min: 2
+    max: 2

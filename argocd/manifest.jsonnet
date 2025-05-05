@@ -18,6 +18,7 @@ local _grafanaDashboards = [
 ];
 
 local application = [
+  { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant' },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
