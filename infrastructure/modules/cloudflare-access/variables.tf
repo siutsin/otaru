@@ -1,8 +1,3 @@
-variable "zone" {
-  type      = string
-  sensitive = true
-}
-
 variable "zone_id" {
   type      = string
   sensitive = true
@@ -31,6 +26,11 @@ variable "session_duration" {
 variable "auto_redirect_to_identity" {
   type    = bool
   default = false
+}
+
+variable "account_id" {
+  type      = string
+  sensitive = true
 }
 
 variable "ip_list" {
