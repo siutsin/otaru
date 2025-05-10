@@ -6,9 +6,9 @@ cloudflare-tunnel-remote:
     secretName: cloudflare-tunnel
 
   image:
-    tag: 2024.9.1
+    tag: latest
 
-  replicaCount: 3
+  replicaCount: 0
 
   affinity:
     nodeAffinity:
