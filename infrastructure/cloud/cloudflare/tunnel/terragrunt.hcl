@@ -3,6 +3,7 @@ include {
 }
 
 locals {
+  zone_id       = get_env("CLOUDFLARE_ZONE_ID")
   account_id    = get_env("CLOUDFLARE_ACCOUNT_ID")
   name          = get_env("CLOUDFLARE_ZONE_SUBDOMAIN")
   tunnel_secret = get_env("CLOUDFLARE_TUNNEL_SECRET")
@@ -13,6 +14,7 @@ terraform {
 }
 
 inputs = {
+  zone_id           = local.zone_id
   account_id        = local.account_id
   name              = local.name
   config_src        = "cloudflare"
