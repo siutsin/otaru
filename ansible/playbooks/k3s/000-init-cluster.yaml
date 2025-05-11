@@ -32,6 +32,7 @@
       # All API server arguments need to be passed using the `kube-apiserver-arg` flag
       # https://docs.k3s.io/cli/server#customized-flags-for-kubernetes-processes
       # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
+      # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
         curl -sfL https://get.k3s.io | sh -s - \
           --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
@@ -52,6 +53,8 @@
           --anonymous-auth=true \
           --kube-apiserver-arg \
           --service-account-issuer=https://oidc.siutsin.com \
+          --kube-apiserver-arg \
+          --api-audiences=oidc.siutsin.com \
           --kube-apiserver-arg \
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
