@@ -1,0 +1,7 @@
+name: amazon-eks-pod-identity-webhook
+namespace: default
+
+amazon-eks-pod-identity-webhook:
+  config:
+    defaultAwsRegion: eu-west-1
+    tokenAudience: oidc.siutsin.com
