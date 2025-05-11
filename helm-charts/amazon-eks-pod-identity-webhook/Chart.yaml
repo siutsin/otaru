@@ -7,3 +7,4 @@ dependencies:
   - name: amazon-eks-pod-identity-webhook
     version: 2.5.1
     repository: https://jkroepke.github.io/helm-charts/
+    alias: pod-identity-webhook
