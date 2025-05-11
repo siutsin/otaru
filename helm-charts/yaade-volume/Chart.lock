@@ -1,6 +1,6 @@
 dependencies:
 - name: longhorn-volume-lib
-  repository: file://../longhorn-volume-lib
+  repository: https://siutsin.github.io/otaru
   version: 0.2.0
-digest: sha256:aaa34bf93692fee01818b2a2226f63c07f301a98f3060bc596d5085d4a7dd8a8
-generated: "2024-10-25T13:27:45.556341+01:00"
+digest: sha256:b8539486a50330242c63638c99a24fc3ea047f2d6b1a2bb9d34eacaa01415101
+generated: "2025-05-20T20:40:15.372637+01:00"

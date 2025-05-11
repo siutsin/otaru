@@ -5,6 +5,9 @@ secret:
   remoteRef:
     key: jung2bot
 
+irsa:
+  awsAccountId: ~
+
 app:
   image:
     repository: ghcr.io/siutsin/telegram-jung2-bot

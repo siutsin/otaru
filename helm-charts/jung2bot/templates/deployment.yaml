@@ -36,7 +36,7 @@ spec:
                     operator: NotIn
                     values:
                       - "true"
-      automountServiceAccountToken: false
+      serviceAccountName: {{ .Values.name }}
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
@@ -84,14 +84,4 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: EVENT_QUEUE_URL
-                  name: jung2bot-secrets
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_ACCESS_KEY_ID
-                  name: jung2bot-secrets
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_SECRET_ACCESS_KEY
                   name: jung2bot-secrets
