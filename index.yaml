@@ -392,6 +392,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/monitoring-volume-0.1.0/monitoring-volume-0.1.0.tgz
     version: 0.1.0
+  oidc-provider:
+  - apiVersion: v2
+    created: "2025-05-11T03:19:16.21219995Z"
+    description: A Helm chart for Kubernetes
+    digest: 99caca2356d28fb75cf63020b29670158bf9db5c28dda409885090355d736713
+    name: oidc-provider
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/oidc-provider-0.1.0/oidc-provider-0.1.0.tgz
+    version: 0.1.0
   onepassword-connect:
   - apiVersion: v2
     created: "2024-10-04T23:15:05.858000438Z"
@@ -444,4 +454,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-05T14:27:04.973316661Z"
+generated: "2025-05-11T03:19:16.212219897Z"
