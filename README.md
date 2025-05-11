@@ -20,6 +20,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
   * [IaaS, PaaS, and SaaS](#iaas-paas-and-saas)
   * [Bootstrap Cluster](#bootstrap-cluster)
   * [Oopsy](#oopsy)
+  * [System and Application Health](#system-and-application-health)
   * [Repository Configuration](#repository-configuration)
 <!-- TOC -->
 
@@ -73,6 +74,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                                 |
 | Security     | [Falco](https://github.com/falcosecurity/falco)                                                     | Cloud-native runtime security tool to detect and alert on abnormal behavior and potential security threats in real-time |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                                            |
+| Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                                              |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                        |
 
 ## IaaS, PaaS, and SaaS
