@@ -28,7 +28,27 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
   config = {
     ingress = [
       {
-        service = var.catch_all_service
+        hostname = "oidc.${var.zone}"
+        service  = var.kubernetes_service
+        path     = "/.well-known/openid-configuration"
+        origin_request = {
+          ca_pool = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        }
+      },
+      {
+        hostname = "oidc.${var.zone}"
+        service  = var.kubernetes_service
+        path     = "/openid/v1/jwks"
+        origin_request = {
+          ca_pool = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        }
+      },
+      {
+        hostname = "${var.name}.${var.zone}"
+        service  = var.gateway_service
+      },
+      {
+        service = "http_status:404"
       }
     ]
   }
