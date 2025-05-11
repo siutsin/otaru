@@ -11,6 +11,8 @@ spec:
     repoURL: https://github.com/siutsin/otaru.git
     path: argocd
     targetRevision: {{ .Values.targetRevision }}
+{{/*    plugin:*/}}
+{{/*      name: jsonnet-with-secret*/}}
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
