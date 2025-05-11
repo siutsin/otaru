@@ -27,6 +27,11 @@
       when: "'master' in group_names"
 
     - name: Install k3s on the first master node
+      # Enable anonymous authentication
+      # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
+      # All API server arguments need to be passed using the `kube-apiserver-arg` flag
+      # https://docs.k3s.io/cli/server#customized-flags-for-kubernetes-processes
+      # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
       shell: |
         curl -sfL https://get.k3s.io | sh -s - \
           --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
@@ -42,7 +47,13 @@
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
           --tls-san $(hostname -I | awk '{print $1}') \
-          --write-kubeconfig-mode=644
+          --write-kubeconfig-mode=644 \
+          --kube-apiserver-arg \
+          --anonymous-auth=true \
+          --kube-apiserver-arg \
+          --service-account-issuer=https://oidc.siutsin.com \
+          --kube-apiserver-arg \
+          --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       register: first_master_setup
 

@@ -88,6 +88,7 @@ local scheduling = [
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
   { wave: '10', name: 'falco', namespace: 'falco' },
+  { wave: '10', name: 'oidc-provider', namespace: 'default' },
 ];
 
 local storage = [
