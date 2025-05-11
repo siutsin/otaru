@@ -43,14 +43,12 @@
           --write-kubeconfig-mode=644 \
           --kube-apiserver-arg \
           --anonymous-auth=true \
-      vars:
-        k3s_server_flags: >-
-          --kube-apiserver-arg --service-account-issuer=https://oidc.siutsin.com
-          --kube-apiserver-arg --api-audiences=oidc.siutsin.com
-          --kube-apiserver-arg --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
-      shell: |
-        curl -sfL https://get.k3s.io | sh -s - \
-          --token {{ master_token.stdout }} {{ k3s_server_flags }}
+          --kube-apiserver-arg \
+          --service-account-issuer=https://oidc.siutsin.com \
+          --kube-apiserver-arg \
+          --api-audiences=oidc.siutsin.com \
+          --kube-apiserver-arg \
+          --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       retries: 5
       delay: 10
       when: "'master' in group_names"
