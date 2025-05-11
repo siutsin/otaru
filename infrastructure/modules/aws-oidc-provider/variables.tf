@@ -11,5 +11,10 @@ variable "client_id_list" {
 }
 
 variable "thumbprint_list" {
-  type = list(string)
+  type        = list(string)
+  description = "List of SHA-1 thumbprints for the OIDC provider's TLS certificate (each must be 40 characters and hexadecimal)"
+  validation {
+    condition     = alltrue([for thumbprint in var.thumbprint_list : length(thumbprint) == 40])
+    error_message = "Each thumbprint in thumbprint_list must be exactly 40 characters long."
+  }
 }
