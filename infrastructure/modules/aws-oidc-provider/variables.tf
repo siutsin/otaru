@@ -8,6 +8,10 @@ variable "oidc_url" {
 
 variable "client_id_list" {
   type = list(string)
+  validation {
+    condition     = length(var.client_id_list) > 0
+    error_message = "The client_id_list must contain at least one client ID."
+  }
 }
 
 variable "thumbprint_list" {
