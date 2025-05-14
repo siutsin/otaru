@@ -36,6 +36,7 @@ jobs:
           helm repo add external-secrets-operator https://charts.external-secrets.io
           helm repo add falcosecurity https://falcosecurity.github.io/charts
           helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add jkroepke https://jkroepke.github.io/helm-charts
           helm repo add kedacore https://kedacore.github.io/charts
           helm repo add longhorn https://charts.longhorn.io
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
