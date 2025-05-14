@@ -1,11 +1,11 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.3+k3s1-blue)
-[![CodeQL](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/github-code-scanning/codeql)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.4+k3s1-blue)
+[![CodeQL Advanced](https://github.com/siutsin/otaru/actions/workflows/codeql.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/codeql.yml)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
-[![Dependabot Updates](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/dependabot/dependabot-updates)
 [![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
 [![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
+[![Release Charts](https://github.com/siutsin/otaru/actions/workflows/release.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/release.yml)
 [![tfsec](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml)
 
 > Over-Engineering at Its Finest.
