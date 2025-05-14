@@ -10,6 +10,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/adguard-0.1.0/adguard-0.1.0.tgz
     version: 0.1.0
+  amazon-eks-pod-identity-webhook:
+  - apiVersion: v2
+    created: "2025-05-14T21:56:03.448513824Z"
+    dependencies:
+    - alias: pod-identity-webhook
+      name: amazon-eks-pod-identity-webhook
+      repository: https://jkroepke.github.io/helm-charts/
+      version: 2.5.1
+    description: A Helm chart for Kubernetes
+    digest: 68811055bcee2057820db2c1547208498f88346a31794a655a833836ee33a22f
+    name: amazon-eks-pod-identity-webhook
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/amazon-eks-pod-identity-webhook-0.1.0/amazon-eks-pod-identity-webhook-0.1.0.tgz
+    version: 0.1.0
   argocd:
   - apiVersion: v2
     created: "2024-10-04T23:15:00.57297165Z"
@@ -454,4 +469,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-11T03:19:16.212219897Z"
+generated: "2025-05-14T21:56:03.448531246Z"
