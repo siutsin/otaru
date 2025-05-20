@@ -63,7 +63,7 @@ spec:
         spec:
           containers:
             - name: scale-up-database
-              image: curlimages/curl:latest
+              image: curlimages/curl
               command: [ "curl" ]
               args:
                 - "-v"

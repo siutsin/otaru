@@ -1,3 +1,5 @@
+namespace: argocd
+
 argo-cd:
   global:
     affinity:
@@ -17,7 +19,69 @@ argo-cd:
       server.insecure: true
       server.basehref: /argocd/
       server.rootpath: /argocd
+    cmp:
+      create: true
+      plugins:
+        jsonnet-with-secret:
+          discover:
+            fileName: "manifest.jsonnet"
+          generate:
+            command: [ "sh", "-c" ]
+            args: [ "jsonnet --yaml-stream manifest.jsonnet --ext-str AWS_ACCOUNT_ID > /tmp/rendered.yaml && cat /tmp/rendered.yaml" ]
   dex:
     enabled: false
   notifications:
     enabled: false
+  repoServer:
+    containerSecurityContext:
+      runAsUser: 999
+    rbac:
+      - apiGroups: [ "" ]
+        resources: [ "secrets" ]
+        verbs: [ "get" ]
+        resourceNames: [ "argocd-jsonnet-secret" ]
+    initContainers:
+      - name: wait-for-secret
+        image: bitnami/kubectl
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Waiting for secret argocd-jsonnet-secret..."
+            until kubectl get secret argocd-jsonnet-secret -n argocd; do
+              echo "Secret not found, retrying in 5 seconds..."
+              sleep 5
+            done
+            echo "Secret argocd-jsonnet-secret found!"
+        securityContext:
+          runAsUser: 1000
+    extraContainers:
+      - name: jsonnet-with-secret
+        env:
+          - name: AWS_ACCOUNT_ID
+            valueFrom:
+              secretKeyRef:
+                name: argocd-jsonnet-secret
+                key: AWS_ACCOUNT_ID
+        command:
+          - /var/run/argocd/argocd-cmp-server
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+        image: bitnami/jsonnet
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+            subPath: jsonnet-with-secret.yaml
+            name: argocd-cmp-cm
+          - mountPath: /tmp
+            name: cmp-tmp
+    volumes:
+      - name: argocd-cmp-cm
+        configMap:
+          name: argocd-cmp-cm
+      - name: cmp-tmp
+        emptyDir: { }

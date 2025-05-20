@@ -21,10 +21,10 @@ inputs = {
     dynamodb = {
       actions = ["dynamodb:*"]
       resources = [
-        "arn:aws:dynamodb:*:*:table/${local.name}-chatIds",
-        "arn:aws:dynamodb:*:*:table/${local.name}-messages",
-        "arn:aws:dynamodb:*:*:table/${local.name}-chatIds/index/*",
-        "arn:aws:dynamodb:*:*:table/${local.name}-messages/index/*",
+        "arn:aws:dynamodb:*:*:table/${local.name}-prod-chatIds",
+        "arn:aws:dynamodb:*:*:table/${local.name}-prod-messages",
+        "arn:aws:dynamodb:*:*:table/${local.name}-prod-chatIds/index/*",
+        "arn:aws:dynamodb:*:*:table/${local.name}-prod-messages/index/*",
       ]
     }
     dynamodb-generic = {
@@ -34,7 +34,7 @@ inputs = {
     sqs = {
       actions = ["sqs:*"]
       resources = [
-        "arn:aws:sqs:*:*:${local.name}-event-queue",
+        "arn:aws:sqs:*:*:${local.name}-prod-event-queue",
       ]
     }
     sqs-generic = {
