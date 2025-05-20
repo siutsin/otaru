@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - applications/healthcheck/**
 
 env:
   REGISTRY: ghcr.io

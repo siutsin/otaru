@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - applications/kubernetes-service-patcher/**
 
 env:
   REGISTRY: ghcr.io
