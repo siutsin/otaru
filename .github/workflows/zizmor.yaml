@@ -18,12 +18,12 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@0e0f4bfefaa11c95736e9c6840fa4f385a4d191f
+        uses: astral-sh/setup-uv@v6
 
       - name: Run zizmor
         run: uvx zizmor --format=sarif . > results.sarif
@@ -31,7 +31,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@396fd27c308b7ab96df64e7e4cb9a7c6e22f4ebc
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
           category: zizmor
