@@ -4,23 +4,25 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
+permissions: { }
+
 jobs:
   clean-ghcr:
     name: Delete untagged container images
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2
 
       - name: Login to GitHub Container Registry with PAT_TOKEN
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
 
       - name: Delete all containers from repository without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v6
+        uses: Chizkiyahu/delete-untagged-ghcr-action@4a33ce3cf2456d2aef98a1b6c60a12dad56cffd9
         with:
           token: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
           repository_owner: ${{ github.repository_owner }}
