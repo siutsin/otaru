@@ -2,13 +2,14 @@
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
     'config:recommended',
+    'helpers:pinGitHubActionDigests',
   ],
   automerge: true,
   major: {
     automerge: false,
   },
   minimumReleaseAge: '3 days',
-  rebaseWhen: "behind-base-branch",
+  rebaseWhen: 'behind-base-branch',
   packageRules: [
     {
       matchDepNames: [
