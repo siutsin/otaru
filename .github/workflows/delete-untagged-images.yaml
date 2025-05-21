@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
 
       - name: Delete all containers from repository without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@4a33ce3cf2456d2aef98a1b6c60a12dad56cffd9
+        uses: Chizkiyahu/delete-untagged-ghcr-action@9af8de73949674b3e7507c018e2ee9c32ddb0f89
         with:
           token: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
           repository_owner: ${{ github.repository_owner }}
