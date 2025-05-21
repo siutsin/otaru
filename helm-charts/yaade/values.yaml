@@ -4,7 +4,7 @@ namespace: yaade
 deployment:
   image:
     repository: esperotech/yaade
-    tag: latest
+    tag: latest@sha256:24d2d692d948bb09c69d55171cdd9d1bfd9dff041d485fb170430365903226b9
 
 service:
   port: 9339

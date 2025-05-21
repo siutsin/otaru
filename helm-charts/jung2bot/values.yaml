@@ -11,7 +11,7 @@ irsa:
 app:
   image:
     repository: ghcr.io/siutsin/telegram-jung2-bot
-    tag: jung2bot-5.2.1
+    tag: jung2bot-5.2.1@sha256:a75c29f70aa9b1c961386989c223b777b8c85502c50a9ac333349786102ed94d
   env:
     awsRegion: eu-west-1
     chatIdTable: jung2bot-prod-chatIds
@@ -27,7 +27,7 @@ app:
 cron:
   image:
     repository: ghcr.io/siutsin/telegram-jung2-bot-cron
-    tag: cron-1.1.1
+    tag: cron-1.1.1@sha256:b309fcbd4bf83452fb35d155b4bae264edb47bfbbce74b6cd7dc6032868122d0
   offWork:
     env:
       cronInterval: 15
