@@ -4,7 +4,7 @@ namespace: jsoncrack
 deployment:
   image:
     repository: ghcr.io/siutsin/jsoncrack.com
-    tag: v3.2.0-3
+    tag: v3.2.0-3@sha256:412f786a430807568c45b030467ff310c912693e8f4a94cf4e8f8db15cc428b3
   ports:
     http: 8080
   resources:

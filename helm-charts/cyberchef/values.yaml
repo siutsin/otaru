@@ -4,7 +4,7 @@ namespace: cyberchef
 deployment:
   image:
     repository: ghcr.io/siutsin/cyberchef
-    tag: v10.19.4-arm64
+    tag: v10.19.4-arm64@sha256:fddd251cb78b046168d6c4867ab6b27d39096e8e11be415c82bc5d3563b9ff2b
 
 service:
   port: 8080
