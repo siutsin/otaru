@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e600775e527acba2317260cadb64b7e19efd5362
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry with PAT_TOKEN
-        uses: docker/login-action@6d4b68b490aef8836e8fb5e50ee7b3bdfa5894f0
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
 
       - name: Delete all containers from repository without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@9af8de73949674b3e7507c018e2ee9c32ddb0f89
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v6
         with:
           token: ${{ secrets.GH_DELETE_UNTAGGED_IMAGES_TOKEN }}
           repository_owner: ${{ github.repository_owner }}

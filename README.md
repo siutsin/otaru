@@ -6,7 +6,6 @@
 [![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
 [![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
 [![Release Charts](https://github.com/siutsin/otaru/actions/workflows/release.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/release.yml)
-[![tfsec](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/tfsec.yml)
 
 > Over-Engineering at Its Finest.
 
