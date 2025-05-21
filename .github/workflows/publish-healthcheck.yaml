@@ -48,7 +48,7 @@ jobs:
           cache: false
 
       - name: Build and push
-        uses: docker/build-push-action@1dc73863535b631f98b2378be8619f83b136f4a0
+        uses: docker/build-push-action@0788c444d8b4d67580213712e34a148cae3a6c4e
         with:
           context: applications/healthcheck
           platforms: linux/amd64,linux/arm64
