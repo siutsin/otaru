@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: ghcr.io/siutsin/otaru-kubernetes-service-patcher
-  newTag: latest@sha256:7a2fd889759bb0a3ba06cf70fb983669bdce5996a12ce13d5c2d53250f4b0db7
+  newTag: latest@sha256:a42d53d20e4209730c7af255bc59b4e94584d299ec38abf7c321a7a1df51a0a1
