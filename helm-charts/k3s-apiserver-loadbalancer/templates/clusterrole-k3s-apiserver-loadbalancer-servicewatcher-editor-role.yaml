@@ -1,0 +1,27 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: k3s-apiserver-loadbalancer
+  name: k3s-apiserver-loadbalancer-servicewatcher-editor-role
+rules:
+  - apiGroups:
+      - core.siutsin.com
+    resources:
+      - servicewatchers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.siutsin.com
+    resources:
+      - servicewatchers/status
+    verbs:
+      - get

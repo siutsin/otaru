@@ -38,16 +38,16 @@
     - name: Wait for coredns to rollout
       shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"
 
-    # Deploy kubernetes-service-patcher to watch and update the Kubernetes service to LoadBalancer type
+    # Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
 
     - name: Update dependency
-      shell: "bash ../../../helm-charts/kubernetes-service-patcher/hack/create-manifest.sh"
+      shell: "bash ../../../helm-charts/k3s-apiserver-loadbalancer/hack/create-manifest.sh"
 
-    - name: Apply kubernetes-service-patcher Helm template
-      shell: "helm template ../../../helm-charts/kubernetes-service-patcher -n default | kubectl create -f - 2>/dev/null || true"
+    - name: Apply k3s-apiserver-loadbalancer Helm template
+      shell: "helm template ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl create -f - 2>/dev/null || true"
 
-    - name: Wait for kubernetes-service-patcher to rollout
-      shell: "kubectl rollout status deploy/patcher-controller-manager -n default --timeout=15m"
+    - name: Wait for k3s-apiserver-loadbalancer to rollout
+      shell: "kubectl rollout status deploy/k3s-apiserver-loadbalancer-controller-manager -n k3s-apiserver-loadbalancer-system --timeout=15m"
 
     # Assign dedicated virtual IP to Kubernetes api-server service
 

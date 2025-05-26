@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: k3s-apiserver-loadbalancer
+    control-plane: controller-manager
+  name: k3s-apiserver-loadbalancer-controller-manager-metrics-service
+  namespace: k3s-apiserver-loadbalancer-system
+spec:
+  ports:
+    - name: https
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+  selector:
+    app.kubernetes.io/name: k3s-apiserver-loadbalancer
+    control-plane: controller-manager

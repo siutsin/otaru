@@ -1,0 +1,17 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: k3s-apiserver-loadbalancer
+  name: k3s-apiserver-loadbalancer-leader-election-rolebinding
+  namespace: k3s-apiserver-loadbalancer-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: k3s-apiserver-loadbalancer-leader-election-role
+subjects:
+  - kind: ServiceAccount
+    name: k3s-apiserver-loadbalancer-controller-manager
+    namespace: k3s-apiserver-loadbalancer-system

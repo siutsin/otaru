@@ -3,8 +3,6 @@
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.4+k3s1-blue)
 [![CodeQL Advanced](https://github.com/siutsin/otaru/actions/workflows/codeql.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/codeql.yml)
 [![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
-[![Publish Healthcheck](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-healthcheck.yaml)
-[![Publish Kubernetes Service Patcher](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/publish-kubernetes-service-patcher.yaml)
 [![Release Charts](https://github.com/siutsin/otaru/actions/workflows/release.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/release.yml)
 
 > Over-Engineering at Its Finest.
@@ -50,8 +48,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [Excalidraw](https://github.com/excalidraw/excalidraw)                                              | Virtual whiteboard for sketching hand-drawn like diagrams                                                               |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                                         |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                                  |
-| Application  | [Kubernetes Service Patcher](helm-charts/kubernetes-service-patcher)                                | An operator to update the `kubernetes` service type to `LoadBalancer`                                                   |
 | Application  | [Yaade](https://github.com/EsperoTech/yaade)                                                        | Open-source, self-hosted, and collaborative API development environment                                                 |
+| Application  | [k3s-apiserver-loadbalancer](https://github.com/siutsin/k3s-apiserver-loadbalancer)                 | An operator to update the `kubernetes` service type to `LoadBalancer`                                                   |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                                      |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                                             |
 | CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | Terraform Pull Request Automation                                                                                       |
