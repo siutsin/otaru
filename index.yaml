@@ -292,6 +292,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/jung2bot-0.1.0/jung2bot-0.1.0.tgz
     version: 0.1.0
+  k3s-apiserver-loadbalancer:
+  - apiVersion: v2
+    appVersion: v1.1.0
+    created: "2025-05-27T01:20:31.767000348Z"
+    description: A Helm chart for Kubernetes
+    digest: d56499a6241cc38c249c1c4771019032ae7aed158b385de0dff05c6598467ad6
+    name: k3s-apiserver-loadbalancer
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/k3s-apiserver-loadbalancer-1.0.0/k3s-apiserver-loadbalancer-1.0.0.tgz
+    version: 1.0.0
   keda:
   - apiVersion: v2
     created: "2024-10-04T23:15:04.368825636Z"
@@ -469,4 +480,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-14T21:56:03.448531246Z"
+generated: "2025-05-27T01:20:32.269439318Z"
