@@ -14,7 +14,7 @@ To enable external access to the API server, the `kubernetes` service needs to b
 
 ### Resolution
 
-A custom operator, `kubernetes-service-patcher`, was created to monitor and update the service type to `LoadBalancer` whenever a change is detected in the `kubernetes` service.
+A custom operator, `k3s-apiserver-loadbalancer`, was created to monitor and update the service type to `LoadBalancer` whenever a change is detected in the `kubernetes` service.
 
 ---
 

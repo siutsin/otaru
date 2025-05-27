@@ -18,8 +18,8 @@ kubectl rollout status ds/cilium -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m
 kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m
 
-# Deploy kubernetes-service-patcher to watch and update the Kubernetes service to LoadBalancer type
-helm upgrade --install kubernetes-service-patcher helm-charts/kubernetes-service-patcher \
+# Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
+helm upgrade --install k3s-apiserver-loadbalancer helm-charts/k3s-apiserver-loadbalancer \
   -n default
 
 # Assign dedicated virtual IP to Kubernetes api-server service
