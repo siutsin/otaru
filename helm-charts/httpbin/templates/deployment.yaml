@@ -13,7 +13,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
-        app.kubernetes.io/version: {{ .Values.app.image.tag }}
     spec:
       affinity:
         podAntiAffinity:
