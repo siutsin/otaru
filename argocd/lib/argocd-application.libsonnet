@@ -41,7 +41,15 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
         'CreateNamespace=true',
       ] + std.get(config, 'syncOptions', []),
     },
-    [if 'ignoreDifferences' in config then 'ignoreDifferences']: config.ignoreDifferences,
+    ignoreDifferences: [
+      {
+        group: 'apiextensions.k8s.io',
+        kind: 'CustomResourceDefinition',
+        jsonPointers: [
+          '/spec/preserveUnknownFields',
+        ],
+      },
+    ] + (if 'ignoreDifferences' in config then config.ignoreDifferences else []),
   },
 };
 {
