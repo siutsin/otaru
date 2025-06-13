@@ -17,7 +17,9 @@ httpRoutes:
 
 prometheus:
   server:
-    retentionSize: 7.5GB
+    persistentVolume:
+      size: 16Gi
+    retentionSize: 10GB
     retention: 1d
     nodeSelector:
       volume: "true"
