@@ -22,5 +22,5 @@ data:
     scene: !include scenes.yaml
 
     resources:
-      - url: /local/mini-graph-card-bundle.js?v=0.12.1
+      - url: /config/www/community/mini-graph-card/mini-graph-card-bundle.js
         type: module
