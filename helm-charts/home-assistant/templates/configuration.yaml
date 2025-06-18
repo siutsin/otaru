@@ -20,3 +20,7 @@ data:
     automation: !include automations.yaml
     script: !include scripts.yaml
     scene: !include scenes.yaml
+
+    resources:
+      - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js?v=0.13.0
+        type: module
