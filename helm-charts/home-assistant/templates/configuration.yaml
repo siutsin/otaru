@@ -20,7 +20,3 @@ data:
     automation: !include automations.yaml
     script: !include scripts.yaml
     scene: !include scenes.yaml
-
-    resources:
-      - url: /config/www/community/mini-graph-card/mini-graph-card-bundle.js
-        type: module
