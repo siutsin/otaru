@@ -1,0 +1,49 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ .Values.name }}-heartbeats
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+  data:
+    - secretKey: {{ .Values.name }}-target-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: heartbeats
+        metadataPolicy: None
+        property: {{ .Values.name }}-target-endpoint
+    - secretKey: {{ .Values.name }}-healthy-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: heartbeats
+        metadataPolicy: None
+        property: {{ .Values.name }}-healthy-endpoint
+    - secretKey: {{ .Values.name }}-unhealthy-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: heartbeats
+        metadataPolicy: None
+        property: {{ .Values.name }}-unhealthy-endpoint
+---
+apiVersion: monitoring.siutsin.com/v1alpha1
+kind: Heartbeat
+metadata:
+  name: {{ .Values.name }}-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  endpointsSecret:
+    name: {{ .Values.name }}-heartbeat
+    targetEndpointKey: {{ .Values.name }}-target-endpoint
+    healthyEndpointKey: {{ .Values.name }}-healthy-endpoint
+    unhealthyEndpointKey: {{ .Values.name }}-unhealthy-endpoint
+  expectedStatusCodeRanges:
+    - min: 200
+      max: 200
+  interval: 5m

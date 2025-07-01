@@ -1,0 +1,143 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: heartbeats.monitoring.siutsin.com
+spec:
+  group: monitoring.siutsin.com
+  names:
+    kind: Heartbeat
+    listKind: HeartbeatList
+    plural: heartbeats
+    singular: heartbeat
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: Heartbeat is the Schema for the heartbeats API.
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: HeartbeatSpec defines the desired state of Heartbeat.
+              properties:
+                endpointsSecret:
+                  description: EndpointsSecret is the reference to the secret containing all endpoint URLs
+                  properties:
+                    healthyEndpointKey:
+                      description: HealthyEndpointKey is the key in the secret that contains the healthy endpoint URL
+                      type: string
+                    healthyEndpointMethod:
+                      default: GET
+                      description: HealthyEndpointMethod is the HTTP method to use when reporting to the healthy endpoint
+                      enum:
+                        - GET
+                        - POST
+                        - PUT
+                        - PATCH
+                      type: string
+                    name:
+                      description: Name of the secret
+                      type: string
+                    namespace:
+                      description: Namespace of the secret. If empty, defaults to the same namespace as the Heartbeat resource
+                      type: string
+                    targetEndpointKey:
+                      description: TargetEndpointKey is the key in the secret that contains the target endpoint URL
+                      type: string
+                    unhealthyEndpointKey:
+                      description: UnhealthyEndpointKey is the key in the secret that contains the unhealthy endpoint URL
+                      type: string
+                    unhealthyEndpointMethod:
+                      default: GET
+                      description: UnhealthyEndpointMethod is the HTTP method to use when reporting to the unhealthy endpoint
+                      enum:
+                        - GET
+                        - POST
+                        - PUT
+                        - PATCH
+                      type: string
+                  required:
+                    - healthyEndpointKey
+                    - name
+                    - targetEndpointKey
+                    - unhealthyEndpointKey
+                  type: object
+                expectedStatusCodeRanges:
+                  description: ExpectedStatusCodeRanges defines the ranges of HTTP status codes that are considered healthy
+                  items:
+                    description: StatusCodeRange defines a range of HTTP status codes
+                    properties:
+                      max:
+                        description: Max is the maximum status code in the range (inclusive)
+                        maximum: 599
+                        minimum: 100
+                        type: integer
+                      min:
+                        description: Min is the minimum status code in the range (inclusive)
+                        maximum: 599
+                        minimum: 100
+                        type: integer
+                    required:
+                      - max
+                      - min
+                    type: object
+                  minItems: 1
+                  type: array
+                interval:
+                  default: 60s
+                  description: Interval is the time between health checks
+                  pattern: ^([0-9]+(s|m|h))$
+                  type: string
+              required:
+                - endpointsSecret
+                - expectedStatusCodeRanges
+                - interval
+              type: object
+            status:
+              description: HeartbeatStatus defines the observed state of Heartbeat.
+              properties:
+                healthy:
+                  description: Healthy indicates whether the endpoint is healthy
+                  type: boolean
+                lastChecked:
+                  description: LastChecked is the timestamp of the last health check
+                  format: date-time
+                  type: string
+                lastStatus:
+                  description: LastStatus contains the last HTTP status code received from the endpoint
+                  type: integer
+                message:
+                  description: Message contains a human-readable message about the endpoint status
+                  type: string
+                reportStatus:
+                  description: ReportStatus indicates if the last report (to healthy/unhealthy endpoint) was successful
+                  type: string
+              required:
+                - healthy
+                - lastStatus
+                - message
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}

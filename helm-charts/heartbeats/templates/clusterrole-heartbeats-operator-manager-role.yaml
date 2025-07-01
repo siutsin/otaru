@@ -1,0 +1,40 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heartbeats-operator-manager-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - monitoring.siutsin.com
+    resources:
+      - heartbeats
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - monitoring.siutsin.com
+    resources:
+      - heartbeats/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - monitoring.siutsin.com
+    resources:
+      - heartbeats/status
+    verbs:
+      - get
+      - patch
+      - update
