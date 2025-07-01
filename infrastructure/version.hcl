@@ -1,5 +1,5 @@
 locals {
-  aws_version          = "~> 5.67"
+  aws_version          = "~> 6.0"
   b2_version           = "~> 0.8"
   cloudflare_version   = "~> 5.4"
   github_version       = "~> 6.6"
