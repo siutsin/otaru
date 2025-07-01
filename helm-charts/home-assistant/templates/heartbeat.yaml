@@ -10,27 +10,16 @@ spec:
   target:
     creationPolicy: Owner
   data:
-    - secretKey: {{ .Values.name }}-target-endpoint
+{{- $endpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $endpointTypes }}
+    - secretKey: {{ $.Values.name }}-{{ . }}-endpoint
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
         key: heartbeats
         metadataPolicy: None
-        property: {{ .Values.name }}-target-endpoint
-    - secretKey: {{ .Values.name }}-healthy-endpoint
-      remoteRef:
-        conversionStrategy: Default
-        decodingStrategy: None
-        key: heartbeats
-        metadataPolicy: None
-        property: {{ .Values.name }}-healthy-endpoint
-    - secretKey: {{ .Values.name }}-unhealthy-endpoint
-      remoteRef:
-        conversionStrategy: Default
-        decodingStrategy: None
-        key: heartbeats
-        metadataPolicy: None
-        property: {{ .Values.name }}-unhealthy-endpoint
+        property: {{ $.Values.name }}-{{ . }}-endpoint
+{{- end }}
 ---
 apiVersion: monitoring.siutsin.com/v1alpha1
 kind: Heartbeat
