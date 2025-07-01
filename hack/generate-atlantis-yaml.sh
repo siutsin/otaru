@@ -1,7 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 
-BASE_DIR="infrastructure"
-OUTPUT_FILE="atlantis.yaml"
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+BASE_DIR="${1:-infrastructure}"
+OUTPUT_FILE="${2:-atlantis.yaml}"
+
+# Dependency checks
+for dep in yq find; do
+  if ! command -v $dep >/dev/null 2>&1; then
+    echo -e "${RED}Error: $dep is not installed or not in PATH${NC}"
+    exit 1
+  fi
+done
+
+# Check if base directory exists
+if [ ! -d "$BASE_DIR" ]; then
+  echo -e "${RED}Error: Base directory '$BASE_DIR' does not exist${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}Generating Atlantis configuration...${NC}"
 
 cat <<EOF > "${OUTPUT_FILE}"
 # This file is generated automatically by running 'make generate-atlantis-yaml'. Do not modify manually.
@@ -29,7 +53,7 @@ workflows:
 EOF
 
 # Find all occurrences of terragrunt.hcl in the infrastructure folder, excluding .terragrunt-cache and base directory file
-find "${BASE_DIR}" -type d -name ".terragrunt-cache" -prune -o -type f -name "terragrunt.hcl" ! -path "${BASE_DIR}/terragrunt.hcl" -print | while read -r terragrunt_path; do
+find "$BASE_DIR" -type d -name ".terragrunt-cache" -prune -o -type f -name "terragrunt.hcl" ! -path "$BASE_DIR/terragrunt.hcl" -print | while read -r terragrunt_path; do
     project_dir=$(dirname "$terragrunt_path")
 
     yq eval -i "
@@ -45,4 +69,4 @@ find "${BASE_DIR}" -type d -name ".terragrunt-cache" -prune -o -type f -name "te
     " "${OUTPUT_FILE}"
 done
 
-echo "Atlantis configuration file '${OUTPUT_FILE}' generated successfully."
+echo -e "${GREEN}Atlantis configuration file '${OUTPUT_FILE}' generated successfully.${NC}"
