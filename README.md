@@ -1,9 +1,6 @@
 # otaru
 
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.4+k3s1-blue)
-[![CodeQL Advanced](https://github.com/siutsin/otaru/actions/workflows/codeql.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/codeql.yml)
-[![Delete Untagged Images](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/delete-untagged-images.yaml)
-[![Release Charts](https://github.com/siutsin/otaru/actions/workflows/release.yml/badge.svg)](https://github.com/siutsin/otaru/actions/workflows/release.yml)
 
 > Over-Engineering at Its Finest.
 
