@@ -41,8 +41,8 @@ projects:
     autoplan:
       enabled: true
     workflow: terragrunt
-  - name: infrastructure/cloud/cloudflare/dns
-    dir: infrastructure/cloud/cloudflare/dns
+  - name: infrastructure/cloud/aws/jung2bot/iam-irsa
+    dir: infrastructure/cloud/aws/jung2bot/iam-irsa
     workspace: terragrunt
     autoplan:
       enabled: true
@@ -55,6 +55,18 @@ projects:
     workflow: terragrunt
   - name: infrastructure/cloud/aws/jung2bot/sqs
     dir: infrastructure/cloud/aws/jung2bot/sqs
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: infrastructure/cloud/aws/oidc-provider
+    dir: infrastructure/cloud/aws/oidc-provider
+    workspace: terragrunt
+    autoplan:
+      enabled: true
+    workflow: terragrunt
+  - name: infrastructure/cloud/aws/jung2bot-dev/iam-irsa
+    dir: infrastructure/cloud/aws/jung2bot-dev/iam-irsa
     workspace: terragrunt
     autoplan:
       enabled: true
