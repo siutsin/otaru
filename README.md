@@ -150,11 +150,3 @@ make generate-atlantis-yaml
 ## System and Application Health
 
 [WebGazer](https://www.webgazer.io/s?id=493)
-
-## Repository Configuration
-
-Secrets for GitHub Actions
-
-| Key                             |
-|---------------------------------|
-| GH_DELETE_UNTAGGED_IMAGES_TOKEN |
