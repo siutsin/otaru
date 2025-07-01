@@ -76,7 +76,6 @@ local database = [
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
-  { wave: '10', name: 'healthcheck-io', namespace: 'cilium-gateway' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
   { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];

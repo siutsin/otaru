@@ -86,7 +86,6 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Connectivity | Cloudflare      | [DNS](https://developers.cloudflare.com/dns/)                                              | Authoritative DNS Service          |
 | Connectivity | Cloudflare      | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)   | Edge Connectivity                  |
 | Connectivity | Cloudflare      | [WARP](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/) | VPN to Internal Network            |
-| Monitoring   | Healthchecks.io | [Healthchecks.io](https://healthchecks.io/)                                                | Health Check - Heartbeat           |
 | Monitoring   | WebGazer        | [Uptime Monitoring](https://www.webgazer.io/)                                              | Health Check                       |
 | Security     | 1Password       | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation                 |
 | Security     | Let's Encrypt   | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority              |
