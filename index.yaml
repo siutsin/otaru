@@ -238,6 +238,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/healthcheck-io-0.1.0/healthcheck-io-0.1.0.tgz
     version: 0.1.0
+  heartbeats:
+  - apiVersion: v2
+    created: "2025-07-01T18:11:37.247692334Z"
+    description: A Helm chart for Kubernetes
+    digest: f08ce7da6963166e12e97796364c8df126dbbffb070a8d6aef5f92a754a69eac
+    name: heartbeats
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/heartbeats-1.0.0/heartbeats-1.0.0.tgz
+    version: 1.0.0
   home-assistant:
   - apiVersion: v2
     created: "2024-10-04T23:15:03.646769415Z"
@@ -480,4 +490,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-27T01:20:32.269439318Z"
+generated: "2025-07-01T18:11:38.092555349Z"
