@@ -1,49 +1,48 @@
 #!/bin/bash
 
-set -euo pipefail
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Source common library
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+source "${SCRIPT_DIR}/lib/common.sh"
 
 # Check for git
-if ! command -v git >/dev/null 2>&1; then
-    echo -e "${RED}Error: git is not installed or not in PATH${NC}"
-    exit 1
+if ! command_exists git; then
+    exit_with_error "git is not installed or not in PATH"
 fi
 
 # Check if inside a git repo
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo -e "${RED}Error: Not inside a git repository${NC}"
-    exit 1
+    exit_with_error "Not inside a git repository"
 fi
 
 # Confirmation prompt
-read -p $'\033[0;31mWARNING: This will delete ALL Git tags locally and remotely!\033[0m\nType DELETE ALL TAGS to continue: ' confirm
-if [[ "$confirm" != "DELETE ALL TAGS" ]]; then
-    echo -e "${YELLOW}Aborted by user.${NC}"
-    exit 0
-fi
+confirm_action "WARNING: This will delete ALL Git tags locally and remotely! Type DELETE ALL TAGS to continue: " "DELETE ALL TAGS"
 
 git fetch --tags
 
 # Get tag list
 TAGS=$(git tag -l)
 if [ -z "$TAGS" ]; then
-    echo -e "${YELLOW}No tags found to delete.${NC}"
+    log_warning "No tags found to delete."
     exit 0
 fi
 
 # Delete all remote tags
-echo -e "${YELLOW}Deleting all remote tags...${NC}"
+log_info "Deleting all remote tags..."
+FAILED_TAGS=""
 for tag in $TAGS; do
-  git push origin --delete refs/tags/$tag || true
+  if ! git push origin --delete refs/tags/$tag; then
+    FAILED_TAGS="$FAILED_TAGS $tag"
+  fi
 done
 
+if [ -n "$FAILED_TAGS" ]; then
+  log_error "Failed to delete the following remote tags:$FAILED_TAGS"
+else
+  log_success "All remote tags deleted successfully."
+fi
+
 # Delete all local tags
-echo -e "${YELLOW}Deleting all local tags...${NC}"
+log_info "Deleting all local tags..."
 echo "$TAGS" | xargs -r git tag -d
 
-echo -e "${GREEN}All tags have been deleted locally and remotely.${NC}"
+log_success "All tags have been deleted locally and remotely."

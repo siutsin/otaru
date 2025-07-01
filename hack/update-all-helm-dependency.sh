@@ -1,45 +1,41 @@
 #!/bin/bash
 
-set -euo pipefail
-
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Source common library
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+source "${SCRIPT_DIR}/lib/common.sh"
 
 # Configuration
 CHARTS_DIR="${1:-./helm-charts}"
 JOBS="${2:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
+PARALLEL="${3:-false}"
 
 # Check if helm is installed
-if ! command -v helm >/dev/null 2>&1; then
-    echo -e "${RED}Error: Helm is not installed or not in PATH${NC}"
-    exit 1
+if ! command_exists helm; then
+    exit_with_error "Helm is not installed or not in PATH"
 fi
 
 # Check if charts directory exists
-if [ ! -d "$CHARTS_DIR" ]; then
-    echo -e "${RED}Error: Charts directory '$CHARTS_DIR' does not exist${NC}"
-    exit 1
+if ! directory_exists "$CHARTS_DIR"; then
+    exit_with_error "Charts directory '$CHARTS_DIR' does not exist"
 fi
 
-echo -e "${GREEN}Updating Helm dependencies...${NC}"
-echo -e "${YELLOW}Charts directory: $CHARTS_DIR${NC}"
-echo -e "${YELLOW}Parallel jobs: $JOBS${NC}"
+log_info "Updating Helm dependencies..."
+log_info "Charts directory: $CHARTS_DIR"
+log_info "Parallel jobs: $JOBS"
+log_info "Parallel mode: $PARALLEL"
 echo ""
 
 # Find all Chart.yaml files
 chart_files=$(find "$CHARTS_DIR" -name 'Chart.yaml' 2>/dev/null)
 
 if [ -z "$chart_files" ]; then
-    echo -e "${YELLOW}No Chart.yaml files found in $CHARTS_DIR${NC}"
+    log_warning "No Chart.yaml files found in $CHARTS_DIR"
     exit 0
 fi
 
 # Count total charts
 total_charts=$(echo "$chart_files" | wc -l)
-echo -e "${GREEN}Found $total_charts chart(s) to update${NC}"
+log_success "Found $total_charts chart(s) to update"
 echo ""
 
 # Initialize counters
@@ -47,31 +43,51 @@ success_count=0
 failure_count=0
 current_count=0
 
-# Process charts sequentially for now (safer approach)
-while IFS= read -r chart; do
-    chart_dir=$(dirname "$chart")
-    chart_name=$(basename "$chart_dir")
+# Function to update a single chart
+update_chart() {
+    local chart="$1"
+    local chart_dir=$(dirname "$chart")
+    local chart_name=$(basename "$chart_dir")
     
     # Update counter
     ((current_count++))
     echo -e "${YELLOW}[$current_count/$total_charts] Processing: $chart_name${NC}"
     
-    if helm dependency update "$chart_dir" > /dev/null 2>&1; then
+    # Capture helm output for error reporting
+    helm_output=$(helm dependency update "$chart_dir" 2>&1)
+    if [ $? -eq 0 ]; then
         echo -e "${GREEN}Success: $chart_name${NC}"
         ((success_count++))
     else
         echo -e "${RED}Failure: $chart_name${NC}"
+        echo -e "${YELLOW}Helm output:${NC}\n$helm_output"
         ((failure_count++))
     fi
-done <<< "$chart_files"
+}
+
+# Process charts
+if [ "$PARALLEL" = "true" ]; then
+    log_info "Processing charts in parallel mode..."
+    # Export function for parallel execution
+    export -f update_chart
+    export total_charts current_count success_count failure_count
+    export GREEN YELLOW RED NC
+    
+    echo "$chart_files" | xargs -P "$JOBS" -I {} bash -c 'update_chart "{}"'
+else
+    log_info "Processing charts sequentially..."
+    while IFS= read -r chart; do
+        update_chart "$chart"
+    done <<< "$chart_files"
+fi
 
 echo ""
-echo -e "${GREEN}=== Summary ===${NC}"
-echo -e "${GREEN}Total charts processed: $total_charts${NC}"
-echo -e "${GREEN}Successful updates: $success_count${NC}"
+log_success "=== Summary ==="
+log_success "Total charts processed: $total_charts"
+log_success "Successful updates: $success_count"
 if [ $failure_count -gt 0 ]; then
-    echo -e "${RED}Failed updates: $failure_count${NC}"
+    log_error "Failed updates: $failure_count"
     exit 1
 else
-    echo -e "${GREEN}All charts updated successfully!${NC}"
+    log_success "All charts updated successfully!"
 fi

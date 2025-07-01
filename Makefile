@@ -22,37 +22,38 @@ help: ## Show this help message
 	@echo "$(GREEN)Usage:$(NC) make <target>"
 	@echo ""
 
+# Ansible playbook pattern rule
+define ansible_playbook
+	@echo "$(GREEN)Running $(1) playbook...$(NC)"
+	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/$(1).yaml
+endef
+
 # Ansible playbook targets
 .PHONY: main
 main: ## Run main ansible playbook
-	@echo "$(GREEN)Running main playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/main.yaml
+	$(call ansible_playbook,main)
 
 .PHONY: maintenance
 maintenance: ## Run maintenance ansible playbook
-	@echo "$(GREEN)Running maintenance playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/maintenance.yaml
+	$(call ansible_playbook,maintenance)
 
 .PHONY: upgrade-cluster
 upgrade-cluster: ## Run cluster upgrade playbook
-	@echo "$(GREEN)Running cluster upgrade playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/upgrade-cluster.yaml
+	$(call ansible_playbook,upgrade-cluster)
 
 .PHONY: nuke-cluster
 nuke-cluster: ## Run cluster destruction playbook (DANGEROUS!)
 	@echo "$(RED)WARNING: This will destroy the cluster!$(NC)"
 	@read -p "Are you sure? Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/nuke-cluster.yaml
+	$(call ansible_playbook,nuke-cluster)
 
 .PHONY: build-cluster
 build-cluster: ## Run cluster build playbook
-	@echo "$(GREEN)Running cluster build playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/build-cluster.yaml
+	$(call ansible_playbook,build-cluster)
 
 .PHONY: restart-all
 restart-all: ## Run restart all services playbook
-	@echo "$(GREEN)Running restart all services playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/restart-all.yaml
+	$(call ansible_playbook,restart-all)
 
 # Infrastructure and development targets
 .PHONY: generate-atlantis-yaml
