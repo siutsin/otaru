@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 module "sqs" {
   source  = "terraform-aws-modules/sqs/aws"
-  version = "~> 4.1"
+  version = "~> 5.0"
 
   for_each = var.sqss
 
