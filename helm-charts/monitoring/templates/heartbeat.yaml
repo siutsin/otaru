@@ -75,3 +75,42 @@ spec:
     - min: 200
       max: 299
   interval: 5m
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: minio-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+  data:
+{{- $minioEndpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $minioEndpointTypes }}
+    - secretKey: minio-{{ . }}-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: heartbeats
+        metadataPolicy: None
+        property: minio-{{ . }}-endpoint
+{{- end }}
+---
+apiVersion: monitoring.siutsin.com/v1alpha1
+kind: Heartbeat
+metadata:
+  name: minio-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  endpointsSecret:
+    name: minio-heartbeat
+    targetEndpointKey: minio-target-endpoint
+    healthyEndpointKey: minio-healthy-endpoint
+    unhealthyEndpointKey: minio-unhealthy-endpoint
+  expectedStatusCodeRanges:
+    - min: 200
+      max: 299
+  interval: 5m
