@@ -8,6 +8,7 @@ terraform {
 
 inputs = {
   buckets = {
-    "github-otaru-media-storage" = {}
+    "github-otaru-media-storage"         = {}
+    "github-otaru-cloudnative-pg-backup" = {}
   }
 }
