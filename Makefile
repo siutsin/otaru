@@ -37,7 +37,6 @@ help: ## Show this help message
 	@echo "$(RED)Note:$(NC) Targets marked as DANGEROUS require explicit confirmation."
 	@echo ""
 
-# Ansible playbook pattern rule
 define ansible_playbook
 	@echo "$(GREEN)Running $(1) playbook...$(NC)"
 	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/$(1).yaml
@@ -109,9 +108,9 @@ clean-all: clean-terragrunt-cache ## Clean all temporary files and caches
 validate-helm-charts: ## Validate all Helm charts
 	@echo "$(GREEN)Validating Helm charts...$(NC)"
 	@for chart in helm-charts/*/; do \
-		if [ -f "$$chart/Chart.yaml" ]; then \
-			helm lint "$$chart" --quiet || exit 1; \
-		fi; \
+	    if [ -f "$$chart/Chart.yaml" ]; then \
+	        helm lint "$$chart" --quiet || exit 1; \
+	    fi; \
 	done
 	@echo "$(GREEN)All Helm charts validated successfully!$(NC)"
 
@@ -133,7 +132,7 @@ check-markdown: ## Check Markdown files with markdownlint
 lint-terraform: ## Lint and format Terraform files with tofu fmt
 	@echo "$(GREEN)Linting Terraform files...$(NC)"
 	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
-	@find $(INFRASTRUCTURE_DIR) -name "*.tf" -type f -exec tofu fmt {} \; > /dev/null
+	@tofu fmt -recursive $(INFRASTRUCTURE_DIR) > /dev/null
 	@echo "$(GREEN)Terraform linting passed!$(NC)"
 
 .PHONY: lint-terragrunt
@@ -143,8 +142,20 @@ lint-terragrunt: ## Lint and format Terragrunt files with terragrunt hcl format
 	@find $(INFRASTRUCTURE_DIR) -name "*.hcl" -type f -exec terragrunt hcl format --file={} \; > /dev/null
 	@echo "$(GREEN)Terragrunt linting passed!$(NC)"
 
+.PHONY: lint-zizmor
+lint-zizmor: ## Run zizmor audit on workflows
+	@echo "$(GREEN)Running zizmor audit...$(NC)"
+	@zizmor --no-config . > /dev/null 2>&1 || zizmor --no-config .
+
+.PHONY: lint-editorconfig
+lint-editorconfig: ## Check .editorconfig compliance
+	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
+	@command -v editorconfig-checker >/dev/null 2>&1 || { echo "$(YELLOW)Installing editorconfig-checker...$(NC)"; npm install -g editorconfig-checker; }
+	@editorconfig-checker || { echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; exit 1; }
+	@echo "$(GREEN)EditorConfig compliance check passed!$(NC)"
+
 .PHONY: test
-test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt ## Run all validation and quality checks
+test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt lint-zizmor ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
