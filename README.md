@@ -115,7 +115,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 4. **Bootstrap Cluster**
 
    ```shell
-   make
+   make setup-cluster
    ```
 
 ## Oopsy
