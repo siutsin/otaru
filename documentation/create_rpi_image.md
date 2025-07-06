@@ -14,8 +14,12 @@ Raspberry Pi provides [Raspberry Pi Imager](https://www.raspberrypi.com/software
 5. Click `NEXT`.
 6. For OS Customisation, follow the screenshots.
 
-   ![general](../assets/rpi-image-general.png)
+    ![general](../assets/rpi-image-general.png)
 
-   ![services](../assets/rpi-image-service.png)
+    ![services](../assets/rpi-image-service.png)
 
 7. `hostname`, `username`, and the `public-key` are critical for accessing the system via SSH.
+
+  ```shell
+  sudo dd if=2023-10-10-raspios-bookworm-arm64-lite.img of=/dev/sdX bs=4M status=progress conv=fsync
+  ```

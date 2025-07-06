@@ -15,3 +15,6 @@ indent_size = 4
 
 [Makefile]
 indent_style = tab
+
+[*.md]
+max_line_length = off # handled by markdownlint

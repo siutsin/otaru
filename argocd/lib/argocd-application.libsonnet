@@ -12,11 +12,11 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
     ],
     annotations+: std.mergePatch(
       (if 'wave' in config then {
-         'argocd.argoproj.io/sync-wave': config.wave,
-       } else {}),
+        'argocd.argoproj.io/sync-wave': config.wave,
+      } else {}),
       (if 'serverSideDiff' in config then {
-         'argocd.argoproj.io/compare-options': 'ServerSideDiff=' + config.serverSideDiff,
-       } else {})
+        'argocd.argoproj.io/compare-options': 'ServerSideDiff=' + config.serverSideDiff,
+      } else {})
     ),
   },
   spec: {

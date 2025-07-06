@@ -21,16 +21,24 @@ help: ## Show this help message
 	@echo "$(GREEN)Available targets:$(NC)"
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster)" | sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -E "(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster)" | \
+		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all)" | sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -E "(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all)" | \
+		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|test)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -E "(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|test)" | \
+		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(status|install-deps|help)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -E "(status|install-deps|help)" | \
+		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Usage:$(NC) make <target>"
 	@echo ""
@@ -108,9 +116,9 @@ clean-all: clean-terragrunt-cache ## Clean all temporary files and caches
 validate-helm-charts: ## Validate all Helm charts
 	@echo "$(GREEN)Validating Helm charts...$(NC)"
 	@for chart in helm-charts/*/; do \
-	    if [ -f "$$chart/Chart.yaml" ]; then \
-	        helm lint "$$chart" --quiet || exit 1; \
-	    fi; \
+		if [ -f "$$chart/Chart.yaml" ]; then \
+			helm lint "$$chart" --quiet || exit 1; \
+		fi; \
 	done
 	@echo "$(GREEN)All Helm charts validated successfully!$(NC)"
 
@@ -149,13 +157,21 @@ lint-zizmor: ## Run zizmor audit on workflows
 
 .PHONY: lint-editorconfig
 lint-editorconfig: ## Check .editorconfig compliance
+	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
+	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@command -v editorconfig-checker >/dev/null 2>&1 || { echo "$(YELLOW)Installing editorconfig-checker...$(NC)"; npm install -g editorconfig-checker; }
-	@editorconfig-checker || { echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; exit 1; }
+	@command -v editorconfig-checker >/dev/null 2>&1 || { \
+		echo "$(YELLOW)Installing editorconfig-checker...$(NC)"; \
+		npm install -g editorconfig-checker; \
+	}
+	@editorconfig-checker -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+		echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
+		exit 1; \
+	}
 	@echo "$(GREEN)EditorConfig compliance check passed!$(NC)"
 
 .PHONY: test
-test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt lint-zizmor ## Run all validation and quality checks
+test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt lint-zizmor lint-editorconfig ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets

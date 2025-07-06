@@ -110,7 +110,7 @@ This error occurs when Cilium tries but fails to delete a backup iptables rule t
 
 ```shell
 Chain OLD_CILIUM_POST_nat (0 references)
- pkts bytes target     prot opt in     out     source               destination
+  pkts bytes target     prot opt in     out     source               destination
     0     0 MASQUERADE  0    --  *      !cilium_+  10.42.0.0/24        !10.42.0.0/24         /* cilium masquerade non-cluster */
     0     0 ACCEPT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            mark match 0xa00/0xe00 /* exclude proxy return traffic from masquerade */
     0     0 SNAT       0    --  *      cilium_host !10.42.0.0/24        !10.42.0.0/24         /* cilium host->cluster masquerade */ to:10.42.0.167

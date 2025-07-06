@@ -4,71 +4,75 @@
 
   tasks:
 
-    # Set local-path not to be the default storage class
+  # Set local-path not to be the default storage class
 
-    - name: Create local-path storage class
-      shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
+  - name: Create local-path storage class
+    shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
 
-    # Create namespaces
+  # Create namespaces
 
-    - name: Create external-secrets namespace
-      shell: "kubectl create namespace external-secrets || true"
+  - name: Create external-secrets namespace
+    shell: "kubectl create namespace external-secrets || true"
 
-    - name: Create onepassword namespace
-      shell: "kubectl create namespace onepassword || true"
+  - name: Create onepassword namespace
+    shell: "kubectl create namespace onepassword || true"
 
-    # 1Password Connect
+  # 1Password Connect
 
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/onepassword-connect"
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/onepassword-connect"
 
-    - name: Create Secret for `onepassword-connect`
-      shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '\n' < ../../../token)\" 2>/dev/null || true"
+  - name: Create Secret for `onepassword-connect`
+    shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '
 
-    - name: Initialise 1Password Secret Operator
-      shell: "helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl create -f - 2>/dev/null || true"
+      ' < ../../../token)\" 2>/dev/null || true"
 
-    # Argo CD
+  - name: Initialise 1Password Secret Operator
+    shell: |
+      helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword \
+        --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl create -f - 2>/dev/null || true
 
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/argocd"
+  # Argo CD
 
-    - name: Create namespace
-      shell: "kubectl create namespace argocd || true"
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/argocd"
 
-    - name: Initialise Argo CD
-      shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
+  - name: Create namespace
+    shell: "kubectl create namespace argocd || true"
 
-    # Wait for Argo CD and 1Password Connect to be ready
+  - name: Initialise Argo CD
+    shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
 
-    - name: Wait for 1Password Connect to be ready
-      shell: |
-        kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
-        kubectl delete pod onepassword-connect-health-check -n onepassword
+  # Wait for Argo CD and 1Password Connect to be ready
 
-    - name: Wait for Argo CD to be ready
-      shell: |
-        kubectl rollout status deploy/argocd-server -n argocd --timeout=15m
-        kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m
-        kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
-        kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
-        kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
+  - name: Wait for 1Password Connect to be ready
+    shell: |
+      kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
+      kubectl delete pod onepassword-connect-health-check -n onepassword
 
-    # External Secrets Operator
+  - name: Wait for Argo CD to be ready
+    shell: |
+      kubectl rollout status deploy/argocd-server -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
+      kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
 
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/external-secrets"
+  # External Secrets Operator
 
-    - name: Initialise External Secrets Operator
-      shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/external-secrets"
 
-    - name: Wait for External Secrets to be ready
-      shell: |
-        kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m
-        kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m
-        kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m
+  - name: Initialise External Secrets Operator
+    shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"
 
-    # Bootstrap
+  - name: Wait for External Secrets to be ready
+    shell: |
+      kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m
+      kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m
+      kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m
 
-    - name: Bootstrap Cluster
-      shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
+  # Bootstrap
+
+  - name: Bootstrap Cluster
+    shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
