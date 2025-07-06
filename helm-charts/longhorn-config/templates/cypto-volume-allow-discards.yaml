@@ -18,7 +18,21 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: longhorn-setup-cypto-discard
-          command: ["sh", "-c", "apk add cryptsetup device-mapper && while true; do echo updating now; for LONGHORN_VOLUME in `ls /dev/longhorn/`; do cryptsetup --key-file=/etc/luks/longhorn-crypto/CRYPTO_KEY_VALUE --allow-discards --persistent refresh $LONGHORN_VOLUME; done; echo done; dmsetup table; sleep 1h; done"]
+          command:
+            - sh
+            - -c
+            - |
+              apk add cryptsetup device-mapper && \
+              while true; do \
+                echo updating now; \
+                for LONGHORN_VOLUME in $(ls /dev/longhorn/); do \
+                  cryptsetup --key-file=/etc/luks/longhorn-crypto/CRYPTO_KEY_VALUE \
+                    --allow-discards --persistent refresh $LONGHORN_VOLUME; \
+                done; \
+                echo done; \
+                dmsetup table; \
+                sleep 1h; \
+              done
           image: public.ecr.aws/docker/library/alpine:3
           # do not specify resource limits for memory because cryptsetup is memory mapping the stuff
           volumeMounts:

@@ -35,7 +35,10 @@ FIRST_MASTER_IP=$(multipass info $FIRST_MASTER_NODE --format json | jq -r ".info
 NODE_TOKEN=$(multipass exec $FIRST_MASTER_NODE -- sudo cat /var/lib/rancher/k3s/server/node-token)
 
 # Launch the remaining master nodes
-sed "s/{{FIRST_MASTER_IP}}/${FIRST_MASTER_IP}/g; s/{{NODE_TOKEN}}/${NODE_TOKEN}/g; s/{{ETCD_IP}}/${ETCD_IP}/g" "$SCRIPT_DIR/init_other_master_template.yaml" > "$SCRIPT_DIR/init_master.yaml"
+sed "s/{{FIRST_MASTER_IP}}/${FIRST_MASTER_IP}/g; \
+    s/{{NODE_TOKEN}}/${NODE_TOKEN}/g; \
+    s/{{ETCD_IP}}/${ETCD_IP}/g" \
+    "$SCRIPT_DIR/init_other_master_template.yaml" > "$SCRIPT_DIR/init_master.yaml"
 for i in $(seq 1 $((NUM_MASTER_NODES - 1))); do
   MASTER_NODE=$(printf "master%02d" "$i")
   multipass launch --name "$MASTER_NODE" --network en0 --memory $NODE_MEMORY --disk $NODE_DISK --cloud-init "$SCRIPT_DIR/init_master.yaml" &
@@ -45,7 +48,14 @@ done
 sed "s/{{FIRST_MASTER_IP}}/${FIRST_MASTER_IP}/g; s/{{NODE_TOKEN}}/${NODE_TOKEN}/g" "$SCRIPT_DIR/init_worker_template.yaml" > "$SCRIPT_DIR/init_worker.yaml"
 for i in $(seq 0 $((NUM_WORKER_NODES - 1))); do
   WORKER_NODE=$(printf "worker%02d" "$i")
-  multipass launch --verbose --name "$WORKER_NODE" --network en0 --memory $NODE_MEMORY --disk $NODE_DISK --cloud-init "$SCRIPT_DIR/init_worker.yaml" &
+  multipass launch \
+    --verbose \
+    --name "$WORKER_NODE" \
+    --network en0 \
+    --memory $NODE_MEMORY \
+    --disk $NODE_DISK \
+    --cloud-init "$SCRIPT_DIR/init_worker.yaml" \
+    &
 done
 
 # Ensure all nodes are launched and clean up
