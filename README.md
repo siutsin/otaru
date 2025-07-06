@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.4+k3s1-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.32.6+k3s1-blue)
 
 > Over-Engineering at Its Finest.
 
