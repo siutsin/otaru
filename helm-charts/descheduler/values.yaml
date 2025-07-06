@@ -1,5 +1,5 @@
 descheduler:
-  successfulJobsHistoryLimit: "1"
+  kind: Deployment
   resources:
     limits:
       memory: 256Mi
