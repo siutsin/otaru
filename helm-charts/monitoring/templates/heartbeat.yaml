@@ -10,8 +10,8 @@ spec:
   target:
     creationPolicy: Owner
   data:
-{{- $endpointTypes := list "target" "healthy" "unhealthy" }}
-{{- range $endpointTypes }}
+{{- $lokiEndpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $lokiEndpointTypes }}
     - secretKey: loki-{{ . }}-endpoint
       remoteRef:
         conversionStrategy: Default
@@ -32,6 +32,45 @@ spec:
     targetEndpointKey: loki-target-endpoint
     healthyEndpointKey: loki-healthy-endpoint
     unhealthyEndpointKey: loki-unhealthy-endpoint
+  expectedStatusCodeRanges:
+    - min: 200
+      max: 299
+  interval: 5m
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: prometheus-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+  data:
+{{- $prometheusEndpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $prometheusEndpointTypes }}
+    - secretKey: prometheus-{{ . }}-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        key: heartbeats
+        metadataPolicy: None
+        property: prometheus-{{ . }}-endpoint
+{{- end }}
+---
+apiVersion: monitoring.siutsin.com/v1alpha1
+kind: Heartbeat
+metadata:
+  name: prometheus-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  endpointsSecret:
+    name: prometheus-heartbeat
+    targetEndpointKey: prometheus-target-endpoint
+    healthyEndpointKey: prometheus-healthy-endpoint
+    unhealthyEndpointKey: prometheus-unhealthy-endpoint
   expectedStatusCodeRanges:
     - min: 200
       max: 299
