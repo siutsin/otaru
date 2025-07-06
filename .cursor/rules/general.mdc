@@ -25,6 +25,7 @@ alwaysApply: true
 - To test the project, run `make test` to execute all validation and quality checks.
 - Always run tests after making changes to ensure nothing is broken.
 - Fix linting errors automatically when possible.
+- **Always fix warnings and errors instead of hiding or suppressing them.** Address the root cause rather than masking the issue.
 
 ## Communication and Presentation
 
@@ -38,3 +39,11 @@ alwaysApply: true
 - Apply consistent formatting across all files.
 - Use appropriate tools for each file type (e.g., yq for YAML, helm for charts).
 - Follow the project's established patterns and conventions.
+
+## Quality and Validation
+
+- When encountering warnings or errors during validation (e.g., `make validate-helm-charts`), investigate and fix the root cause.
+- Do not use output filtering or suppression techniques to hide warnings/errors unless they are known, documented, and harmless limitations.
+- For Helm charts: fix coalesce warnings, missing values.yaml files, and other linting issues rather than suppressing them.
+- For YAML/JSON: fix syntax errors and validation issues rather than ignoring them.
+- For Markdown: fix linting violations rather than disabling rules.

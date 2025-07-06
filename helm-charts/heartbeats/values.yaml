@@ -1,0 +1,11 @@
+# Default values for heartbeats
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration
+global:
+  # Add any global configurations here
+  {}
+
+# Chart-specific configurations
+# Add any chart-specific configurations here 

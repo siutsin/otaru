@@ -2,8 +2,9 @@ apiVersion: v2
 name: reloader
 description: A Helm chart for Kubernetes
 type: application
-version: 0.1.0
+version: 0.1.1
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
-  - name: reloader
-    version: 2.1.4
-    repository: https://stakater.github.io/stakater-charts
+- name: reloader
+  version: 2.1.4
+  repository: https://stakater.github.io/stakater-charts

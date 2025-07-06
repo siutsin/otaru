@@ -110,8 +110,7 @@ validate-helm-charts: ## Validate all Helm charts
 	@echo "$(GREEN)Validating Helm charts...$(NC)"
 	@for chart in helm-charts/*/; do \
 		if [ -f "$$chart/Chart.yaml" ]; then \
-			echo "Validating $$(basename $$chart)..."; \
-			helm lint "$$chart" || exit 1; \
+			helm lint "$$chart" --quiet || exit 1; \
 		fi; \
 	done
 	@echo "$(GREEN)All Helm charts validated successfully!$(NC)"
