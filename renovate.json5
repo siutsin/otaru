@@ -18,5 +18,12 @@
         automerge: true,
       }
     },
+    {
+      matchPackageNames: [
+        'autero1/action-terragrunt',
+        'vegardit/gha-setup-yq'
+      ],
+      abandonmentThreshold: null,
+    },
   ],
 }
