@@ -1,0 +1,40 @@
+---
+description: General rules for the project.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# General Rules
+
+## Code Style and Documentation
+
+- Write comments and documentation in British English and datetime format.
+- Use clear, descriptive variable and function names.
+- Include docstrings for all functions and classes.
+
+## Markdown and Documentation
+
+- All Markdown files should be checked against markdownlint rules.
+- Use proper heading hierarchy (H1 → H2 → H3).
+- Include alt text for images and descriptive link text.
+- Markdown tables should use IntelliJ style format (aligned columns with proper spacing).
+
+## Testing and Validation
+
+- To test the project, run `make test` to execute all validation and quality checks.
+- Always run tests after making changes to ensure nothing is broken.
+- Fix linting errors automatically when possible.
+
+## Communication and Presentation
+
+- Do not use emoji in code, comments, or documentation.
+- Use professional language in all communications.
+- Provide clear, concise explanations for complex changes.
+
+## Automation
+
+- Auto-fix and run tests without asking for confirmation when safe to do so.
+- Apply consistent formatting across all files.
+- Use appropriate tools for each file type (e.g., yq for YAML, helm for charts).
+- Follow the project's established patterns and conventions.

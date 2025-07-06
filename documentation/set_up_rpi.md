@@ -2,13 +2,13 @@
 
 ## Update and Install Packages
 
-```
+```bash
 sudo apt update && sudo apt upgrade -y && sudo apt install open-iscsi cryptsetup vim -y && sudo apt autoremove -y
 ```
 
 ## Install Python Library
 
-```
+```bash
 sudo apt update && sudo apt install python3-pip -y && sudo pip install RPi.GPIO && sudo apt install python3-smbus -y && sudo apt autoremove -y
 ```
 
@@ -22,7 +22,7 @@ sudo vim /boot/cmdline.txt
 
 ## Load dm_crypt Kernel Module
 
-```
+```bash
 sudo modprobe dm_crypt && lsmod | grep dm_crypt
 ```
 
@@ -36,17 +36,16 @@ sudo raspi-config nonint do_i2c 0 # Enable I2C
 
 ## Install WiringPi
 
-Check for the latest version
-at [https://github.com/WiringPi/WiringPi/releases](https://github.com/WiringPi/WiringPi/releases).
+Check for the latest version at [https://github.com/WiringPi/WiringPi/releases](https://github.com/WiringPi/WiringPi/releases).
 
-```
+```bash
 cd /tmp
 wget https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61-1-arm64.deb && sudo dpkg -i wiringpi-2.61-1-arm64.deb && gpio -v
 ```
 
 ## Install bcm2835
 
-```
+```bash
 cd /tmp
 wget -qO- https://www.airspayce.com/mikem/bcm2835/bcm2835-1.73.tar.gz | tar xvz
 cd bcm2835-1.73 && sudo ./configure && sudo make && sudo make check && sudo make install && cd /tmp
@@ -54,7 +53,7 @@ cd bcm2835-1.73 && sudo ./configure && sudo make && sudo make check && sudo make
 
 ## Display Info on OLED Display
 
-```
+```bash
 cd /tmp
 git clone https://github.com/siutsin/Waveshare_PoE_HAT-B.git && bash Waveshare_PoE_HAT-B/setup.sh
 ```
@@ -63,13 +62,13 @@ git clone https://github.com/siutsin/Waveshare_PoE_HAT-B.git && bash Waveshare_P
 
 Obtain the router's IP address. Take the address after "default via".
 
-```
+```bash
 ip r
 ```
 
 Add the following lines to `/etc/dhcpcd.conf`.
 
-```
+```bash
 interface wlan0
 static ip_address=192.168.1.150/24
 static routers=192.168.1.254
@@ -88,7 +87,7 @@ Install master node
 * Enable secrets encryption
 * chmod for the kubeconfig
 
-```
+```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--bind-address 192.168.1.150" sh -s - --disable traefik --disable=servicelb --secrets-encryption --write-kubeconfig-mode=644
 ```
 
@@ -96,23 +95,24 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--bind-address 192.168.1.150" s
 
 Retrieve the `node-token`.
 
-```
+```bash
 sudo cat /var/lib/rancher/k3s/server/node-token
 ```
 
 Install `k3s-agent`.
 
-```
+```bash
 curl -sfL https://get.k3s.io | K3S_TOKEN=<node-token> K3S_URL="https://192.168.1.150:6443" sh -
 ```
 
 ## Accessing the Cluster from Outside with kubectl
 
-Copy `/etc/rancher/k3s/k3s.yaml` on your machine located outside the cluster as `~/.kube/config`. Then replace the value of the server field with the IP or name of your K3s server. kubectl can now manage your K3s cluster.
+Copy `/etc/rancher/k3s/k3s.yaml` on your machine located outside the cluster as `~/.kube/config`. Then replace the value of the server field with the IP or name of your K3s server.
+kubectl can now manage your K3s cluster.
 
 ## (Optional) Mount Volume for Longhorn
 
-```
+```bash
 # Create a mounting point
 sudo mkdir /media/storage
 
@@ -142,4 +142,6 @@ sudo mount -a
 df -h /media/storage/
 ```
 
-[Add disk](https://longhorn.io/docs/latest/volumes-and-nodes/multidisk/) in Longhorn.
+[Add disk][longhorn-multidisk] in Longhorn.
+
+[longhorn-multidisk]: https://longhorn.io/docs/latest/volumes-and-nodes/multidisk/
