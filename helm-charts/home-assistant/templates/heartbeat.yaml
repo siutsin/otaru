@@ -34,5 +34,5 @@ spec:
     unhealthyEndpointKey: {{ .Values.name }}-unhealthy-endpoint
   expectedStatusCodeRanges:
     - min: 200
-      max: 200
+      max: 299
   interval: 5m
