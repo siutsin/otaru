@@ -7,6 +7,9 @@ HACK_DIR := hack
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
 RED := \033[0;31m
+BLUE := \033[0;34m
+CYAN := \033[0;36m
+MAGENTA := \033[0;35m
 NC := \033[0m # No Color
 
 # Default target
@@ -17,9 +20,21 @@ NC := \033[0m # No Color
 help: ## Show this help message
 	@echo "$(GREEN)Available targets:$(NC)"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
+	@echo "$(BLUE)Cluster Management:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster)" | sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all)" | sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(GREEN)Validation & Quality:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(validate-helm-charts|check-yaml|check-markdown|test)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(CYAN)Utilities:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(status|install-deps|help)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Usage:$(NC) make <target>"
+	@echo ""
+	@echo "$(RED)Note:$(NC) Targets marked as DANGEROUS require explicit confirmation."
 	@echo ""
 
 # Ansible playbook pattern rule
@@ -29,9 +44,9 @@ define ansible_playbook
 endef
 
 # Ansible playbook targets
-.PHONY: main
-main: ## Run main ansible playbook
-	$(call ansible_playbook,main)
+.PHONY: setup-cluster
+setup-cluster: ## Run complete cluster setup playbook (etcd + rpi + k3s)
+	$(call ansible_playbook,setup-cluster)
 
 .PHONY: maintenance
 maintenance: ## Run maintenance ansible playbook
@@ -107,6 +122,17 @@ check-yaml: ## Check YAML syntax in key files
 	@yq eval '.' ansible/inventory.yaml > /dev/null
 	@yq eval '.' atlantis.yaml > /dev/null
 	@echo "$(GREEN)YAML syntax check passed!$(NC)"
+
+.PHONY: check-markdown
+check-markdown: ## Check Markdown files with markdownlint
+	@echo "$(GREEN)Checking Markdown files...$(NC)"
+	@command -v markdownlint >/dev/null 2>&1 || { echo "$(YELLOW)Installing markdownlint-cli...$(NC)"; npm install -g markdownlint-cli; }
+	@markdownlint "**/*.md" --ignore node_modules/
+	@echo "$(GREEN)Markdown linting passed!$(NC)"
+
+.PHONY: test
+test: check-yaml check-markdown validate-helm-charts ## Run all validation and quality checks
+	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
 .PHONY: status

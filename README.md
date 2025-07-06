@@ -86,32 +86,37 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 ## Bootstrap Cluster
 
 1. **Install Tooling**
-    ```shell
-    brew install ansible cilium go-jsonnet helm kubectl terraform terragrunt && ansible-galaxy collection install -r ansible/requirements.yaml
-    ```
+
+   ```shell
+   brew install ansible cilium go-jsonnet helm kubectl terraform terragrunt && ansible-galaxy collection install -r ansible/requirements.yaml
+   ```
+
 2. **Add SSH Keys to `known_hosts`**
-    ```shell
-    for i in {60..63}; do ssh-keygen -R "192.168.1.$i"; done && for i in {60..63}; do ssh-keyscan "192.168.1.$i" >> ~/.ssh/known_hosts; done
-    ```
+
+   ```shell
+   for i in {60..63}; do ssh-keygen -R "192.168.1.$i"; done && for i in {60..63}; do ssh-keyscan "192.168.1.$i" >> ~/.ssh/known_hosts; done
+   ```
+
 3. **Set Up 1Password Credentials**
 
    Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json` and
    save the access token to the file `token`.
 
-    ```shell
-    ❯ tree $(pwd) -L 1
-    /path/to/project/otaru
-    ├── 1password-credentials.json
-    ├── 1password-credentials.json.sample
-    ├── ...
-    ├── token
-    └── token.sample
-    ```
+   ```shell
+   ❯ tree $(pwd) -L 1
+   /path/to/project/otaru
+   ├── 1password-credentials.json
+   ├── 1password-credentials.json.sample
+   ├── ...
+   ├── token
+   └── token.sample
+   ```
 
 4. **Bootstrap Cluster**
-    ```shell
-    make
-    ```
+
+   ```shell
+   make
+   ```
 
 ## Oopsy
 
