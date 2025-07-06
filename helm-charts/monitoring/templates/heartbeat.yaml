@@ -1,7 +1,7 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: {{ .Values.name }}-heartbeat
+  name: loki-heartbeat
   namespace: {{ .Values.namespace }}
 spec:
   secretStoreRef:
@@ -12,26 +12,26 @@ spec:
   data:
 {{- $endpointTypes := list "target" "healthy" "unhealthy" }}
 {{- range $endpointTypes }}
-    - secretKey: {{ $.Values.name }}-{{ . }}-endpoint
+    - secretKey: loki-{{ . }}-endpoint
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
         key: heartbeats
         metadataPolicy: None
-        property: {{ $.Values.name }}-{{ . }}-endpoint
+        property: loki-{{ . }}-endpoint
 {{- end }}
 ---
 apiVersion: monitoring.siutsin.com/v1alpha1
 kind: Heartbeat
 metadata:
-  name: {{ .Values.name }}-heartbeat
+  name: loki-heartbeat
   namespace: {{ .Values.namespace }}
 spec:
   endpointsSecret:
-    name: {{ .Values.name }}-heartbeat
-    targetEndpointKey: {{ .Values.name }}-target-endpoint
-    healthyEndpointKey: {{ .Values.name }}-healthy-endpoint
-    unhealthyEndpointKey: {{ .Values.name }}-unhealthy-endpoint
+    name: loki-heartbeat
+    targetEndpointKey: loki-target-endpoint
+    healthyEndpointKey: loki-healthy-endpoint
+    unhealthyEndpointKey: loki-unhealthy-endpoint
   expectedStatusCodeRanges:
     - min: 200
       max: 299
