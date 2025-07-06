@@ -28,7 +28,7 @@ inputs = {
       ]
     }
     dynamodb-generic = {
-      actions = ["dynamodb:List*", "dynamodb:Describe*"]
+      actions   = ["dynamodb:List*", "dynamodb:Describe*"]
       resources = ["*"]
     }
     sqs = {
@@ -38,7 +38,7 @@ inputs = {
       ]
     }
     sqs-generic = {
-      actions = ["sqs:List*", "sqs:Describe*"]
+      actions   = ["sqs:List*", "sqs:Describe*"]
       resources = ["*"]
     }
   }

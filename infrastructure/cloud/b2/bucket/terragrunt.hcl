@@ -5,3 +5,9 @@ include {
 terraform {
   source = "${get_parent_terragrunt_dir()}//modules/b2-bucket"
 }
+
+inputs = {
+  buckets = {
+    "github-otaru-media-storage" = {}
+  }
+}

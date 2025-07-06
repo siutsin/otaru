@@ -27,7 +27,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all)" | sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(validate-helm-charts|check-yaml|check-markdown|test)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|test)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "(status|install-deps|help)" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
@@ -129,8 +129,22 @@ check-markdown: ## Check Markdown files with markdownlint
 	@markdownlint "**/*.md" --ignore node_modules/
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
+.PHONY: lint-terraform
+lint-terraform: ## Lint and format Terraform files with tofu fmt
+	@echo "$(GREEN)Linting Terraform files...$(NC)"
+	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
+	@find $(INFRASTRUCTURE_DIR) -name "*.tf" -type f -exec tofu fmt {} \; > /dev/null
+	@echo "$(GREEN)Terraform linting passed!$(NC)"
+
+.PHONY: lint-terragrunt
+lint-terragrunt: ## Lint and format Terragrunt files with terragrunt hcl format
+	@echo "$(GREEN)Linting Terragrunt files...$(NC)"
+	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
+	@find $(INFRASTRUCTURE_DIR) -name "*.hcl" -type f -exec terragrunt hcl format --file={} \; > /dev/null
+	@echo "$(GREEN)Terragrunt linting passed!$(NC)"
+
 .PHONY: test
-test: check-yaml check-markdown validate-helm-charts ## Run all validation and quality checks
+test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
@@ -148,4 +162,6 @@ install-deps: ## Install development dependencies
 	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
 	@command -v yq >/dev/null 2>&1 || { echo "$(RED)yq is required but not installed.$(NC)"; exit 1; }
 	@command -v ansible-playbook >/dev/null 2>&1 || { echo "$(RED)Ansible is required but not installed.$(NC)"; exit 1; }
+	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
+	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
 	@echo "$(GREEN)All dependencies are installed!$(NC)"

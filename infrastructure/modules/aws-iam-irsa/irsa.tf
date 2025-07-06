@@ -1,6 +1,6 @@
 locals {
   oidc_provider_without_https = replace(var.oidc_provider, "https://", "")
-  identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_provider_without_https}"]
+  identifiers                 = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_provider_without_https}"]
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "assume_role" {
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     principals {
-      type = "Federated"
+      type        = "Federated"
       identifiers = local.identifiers
     }
 
