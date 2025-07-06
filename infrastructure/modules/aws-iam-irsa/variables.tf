@@ -12,7 +12,7 @@ variable "service_account" {
 
 variable "role_policies" {
   type = map(object({
-    actions = list(string)
+    actions   = list(string)
     resources = list(string)
   }))
 }

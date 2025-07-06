@@ -37,5 +37,5 @@ variable "kubernetes_service" {
 }
 
 variable "gateway_service" {
-  type    = string
+  type = string
 }

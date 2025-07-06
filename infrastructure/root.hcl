@@ -25,6 +25,9 @@ locals {
   unifi_version  = local.version_vars.unifi_version
 }
 
+# Configure Terragrunt to use OpenTofu instead of Terraform
+terraform_binary = "tofu"
+
 generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite"

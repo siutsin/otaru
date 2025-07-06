@@ -1,0 +1,53 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.1.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@fe28f4b64ed68f4ce3a57696dc35cdf57990a322 # 1.0.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.0.0
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@592200bd4b9bbf4772ace78f887668b1aee8f716 # v1
+        with:
+          tofu_version: '1.8.1'
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
+        with:
+          terragrunt-version: latest
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Update Helm dependencies
+        run: make update-helm-deps
+
+      - name: Run tests
+        run: make test
