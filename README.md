@@ -6,6 +6,10 @@
 
 Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
+## Service Health
+
+[WebGazer](https://www.webgazer.io/s?id=493)
+
 ## Architecture
 
 ![Architecture](assets/otaru-architecture.png)
@@ -146,7 +150,3 @@ Generate atlantis.yaml.
 ```shell
 make generate-atlantis-yaml
 ```
-
-## System and Application Health
-
-[WebGazer](https://www.webgazer.io/s?id=493)
