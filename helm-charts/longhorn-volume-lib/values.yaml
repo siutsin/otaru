@@ -1,8 +1,14 @@
+# Namespace where the PersistentVolumeClaims will be created
 namespace: ""
-#  vol-name:
-#    size: "2Gi"
-#    sizeBytes: "2147483648"
-#    fromBackup: "s3://bucket@region/?backup=backup-id&volume=vol-name"
-#    enableBackup: true (optional)
-#    enableTrim: true (optional)
-volumes: [ ]
+
+# Volume definitions
+# Each key in the volumes map represents a volume name
+# The value contains the volume configuration
+volumes: {}
+  # Example volume configuration:
+  # example-volume:
+  #   size: "2Gi"
+  #   sizeBytes: "2147483648"
+  #   fromBackup: "s3://bucket@region/?backup=backup-id&volume=vol-name"
+  #   enableBackup: true  # optional, defaults to true
+  #   enableTrim: true    # optional, defaults to true
