@@ -12,6 +12,7 @@ alwaysApply: true
 - Write comments and documentation in British English and datetime format.
 - Use clear, descriptive variable and function names.
 - Include docstrings for all functions and classes.
+- **Always follow .editorconfig settings when generating code.**
 
 ## Markdown and Documentation
 
