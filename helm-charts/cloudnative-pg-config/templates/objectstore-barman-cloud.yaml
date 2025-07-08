@@ -1,7 +1,7 @@
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
-  name: {{ .Values.name }}
+  name: b2-backup
   namespace: {{ .Values.namespace }}
 spec:
   configuration:
