@@ -260,6 +260,18 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/cloudflare-tunnel-0.1.0/cloudflare-tunnel-0.1.0.tgz
     version: 0.1.0
+  cloudnative-pg-config:
+  - apiVersion: v2
+    created: "2025-07-08T19:56:28.345053493Z"
+    description: A Helm chart for CloudNativePG ObjectStore configuration with B2
+      backup storage
+    digest: 69265b043e4fa21d4755565dc0d97ebadbc67834f7f060df830fe8da6de28618
+    icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
+    name: cloudnative-pg-config
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cloudnative-pg-config-0.1.1/cloudnative-pg-config-0.1.1.tgz
+    version: 0.1.1
   cyberchef:
   - apiVersion: v2
     created: "2025-07-06T15:50:33.694787859Z"
@@ -844,6 +856,18 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/onepassword-connect-0.1.0/onepassword-connect-0.1.0.tgz
     version: 0.1.0
+  plugin-barman-cloud:
+  - apiVersion: v2
+    appVersion: v0.5.0
+    created: "2025-07-08T19:56:28.959560202Z"
+    description: A Helm chart for Kubernetes
+    digest: 284f5243af0accf44f65f0a0797a1e84f64820e28709b76d829e63edb76a3a37
+    icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
+    name: plugin-barman-cloud
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/plugin-barman-cloud-1.0.0/plugin-barman-cloud-1.0.0.tgz
+    version: 1.0.0
   reloader:
   - apiVersion: v2
     created: "2025-07-06T15:50:36.057319303Z"
@@ -920,4 +944,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-06T15:50:36.228157878Z"
+generated: "2025-07-08T19:56:29.111341423Z"
