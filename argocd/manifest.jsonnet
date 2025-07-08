@@ -62,7 +62,7 @@ local database = [
   // Apply the chart directly to generate webhook and TLS certs
   {
     local s = self,
-    wave: '10',
+    wave: '03',
     name: 'cloudnative-pg',
     namespace: 'cnpg-system',
     source: {
@@ -72,6 +72,18 @@ local database = [
       helm: { releaseName: s.name },
     },
   },
+  // https://github.com/cloudnative-pg/plugin-barman-cloud/issues/351
+  // Helm chart is not available, using direct manifest from release
+  {
+    wave: '04',
+    name: 'barman-cloud-plugin',
+    namespace: 'cnpg-system',
+    source: {
+      repoURL: 'https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.5.0/',
+      targetRevision: 'manifest.yaml',
+    },
+  },
+  { wave: '05', name: 'cloudnative-pg-config', namespace: 'cnpg-system' },
 ];
 
 local monitoring = [
