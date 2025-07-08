@@ -83,7 +83,6 @@ local database = [
       targetRevision: 'manifest.yaml',
     },
   },
-  { wave: '05', name: 'cloudnative-pg-config', namespace: 'cnpg-system' },
 ];
 
 local monitoring = [
