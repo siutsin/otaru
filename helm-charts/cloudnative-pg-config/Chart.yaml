@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cloudnative-pg-config
+description: A Helm chart for CloudNativePG ObjectStore configuration with B2 backup storage
+type: application
+version: 0.1.1
+icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
