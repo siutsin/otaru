@@ -72,17 +72,7 @@ local database = [
       helm: { releaseName: s.name },
     },
   },
-  // https://github.com/cloudnative-pg/plugin-barman-cloud/issues/351
-  // Helm chart is not available, using direct manifest from release
-  {
-    wave: '04',
-    name: 'barman-cloud-plugin',
-    namespace: 'cnpg-system',
-    source: {
-      repoURL: 'https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.5.0/',
-      targetRevision: 'manifest.yaml',
-    },
-  },
+  { wave: '04', name: 'plugin-barman-cloud', namespace: 'cnpg-system' },
 ];
 
 local monitoring = [
