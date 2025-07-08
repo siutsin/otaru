@@ -73,6 +73,7 @@ local database = [
     },
   },
   { wave: '04', name: 'plugin-barman-cloud', namespace: 'cnpg-system' },
+  { wave: '05', name: 'cloudnative-pg-config', namespace: 'cnpg-system' },
 ];
 
 local monitoring = [

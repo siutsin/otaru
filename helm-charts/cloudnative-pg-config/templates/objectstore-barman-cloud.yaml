@@ -1,0 +1,18 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  configuration:
+    destinationPath: "s3://{{ .Values.backup.b2.bucket }}/cnpg-backups/"
+    endpointURL: {{ .Values.backup.b2.endpoint }}
+    s3Credentials:
+      accessKeyId:
+        name: {{ .Values.name }}
+        key: "AWS_ACCESS_KEY_ID"
+      secretAccessKey:
+        name: {{ .Values.name }}
+        key: "AWS_SECRET_ACCESS_KEY"
+      inheritFromIAMRole: false
+  retentionPolicy: "{{ .Values.backup.retentionPolicy | default "30d" }}" 
