@@ -1,0 +1,21 @@
+# This template creates a ScheduledBackup resource for each cluster if scheduledBackup is enabled.
+# If clusters.<name>.scheduledBackup is undefined, it falls back to defaults.scheduledBackup.
+# The resource is only created if enabled is true in the selected block.
+{{- range $clusterName, $clusterConfig := .Values.clusters }}
+{{- $scheduledBackup := $clusterConfig.scheduledBackup | default $.Values.defaults.scheduledBackup }}
+{{- if and $scheduledBackup $scheduledBackup.enabled }}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: {{ $clusterName }}-scheduled-backup
+  namespace: {{ $.Values.namespace }}
+spec:
+  cluster:
+    name: {{ $clusterName }}
+  schedule: {{ $scheduledBackup.schedule | default "0 2 * * *" }}
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+{{- end }}
+{{- end }}

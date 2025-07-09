@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cloudnative-pg-plugin-barman-cloud
+description: A Helm chart for deploying the Barman Cloud plugin for CloudNativePG
+version: 0.1.0
+icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
+type: application
