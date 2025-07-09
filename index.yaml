@@ -260,6 +260,18 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/cloudflare-tunnel-0.1.0/cloudflare-tunnel-0.1.0.tgz
     version: 0.1.0
+  cloudnative-pg-clusters:
+  - apiVersion: v2
+    created: "2025-07-09T00:16:58.868208266Z"
+    description: A Helm chart for managing multiple CloudNativePG clusters with B2
+      backup storage
+    digest: 58c4b00c650363d09181375fcf0e5c67c124d65b66ca9dde5e8fd1dfde43aec3
+    icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
+    name: cloudnative-pg-clusters
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cloudnative-pg-clusters-0.1.1/cloudnative-pg-clusters-0.1.1.tgz
+    version: 0.1.1
   cloudnative-pg-config:
   - apiVersion: v2
     created: "2025-07-08T19:56:28.345053493Z"
@@ -272,6 +284,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/cloudnative-pg-config-0.1.1/cloudnative-pg-config-0.1.1.tgz
     version: 0.1.1
+  cloudnative-pg-plugin-barman-cloud:
+  - apiVersion: v2
+    created: "2025-07-09T00:16:59.006981829Z"
+    description: A Helm chart for deploying the Barman Cloud plugin for CloudNativePG
+    digest: a712cadd264dc033590634eaafc8f7d02b494c24201e7b12bf4a0bbb074bbbde
+    icon: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/images/logo.png
+    name: cloudnative-pg-plugin-barman-cloud
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/cloudnative-pg-plugin-barman-cloud-0.1.0/cloudnative-pg-plugin-barman-cloud-0.1.0.tgz
+    version: 0.1.0
   cyberchef:
   - apiVersion: v2
     created: "2025-07-06T15:50:33.694787859Z"
@@ -944,4 +967,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-08T19:56:29.111341423Z"
+generated: "2025-07-09T00:16:59.007091425Z"
