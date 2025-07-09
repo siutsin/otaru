@@ -9,10 +9,9 @@ spec:
     endpointURL: {{ .Values.backup.b2.endpoint }}
     s3Credentials:
       accessKeyId:
-        name: {{ .Values.name }}
+        name: b2-backup-credentials
         key: "AWS_ACCESS_KEY_ID"
       secretAccessKey:
-        name: {{ .Values.name }}
+        name: b2-backup-credentials
         key: "AWS_SECRET_ACCESS_KEY"
-      inheritFromIAMRole: false
-  retentionPolicy: "{{ .Values.backup.retentionPolicy | default "30d" }}" 
+      inheritFromIAMRole: false 

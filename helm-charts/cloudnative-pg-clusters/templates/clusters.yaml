@@ -1,0 +1,40 @@
+{{- range $clusterName, $clusterConfig := .Values.clusters }}
+---
+# Cluster: {{ $clusterName }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ $clusterName }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  # Number of PostgreSQL instances
+  instances: {{ $clusterConfig.instances | default $.Values.defaults.cluster.instances | default 1 }}
+
+  # Storage configuration
+  {{- if $clusterConfig.storage }}
+  storage: {{ toYaml $clusterConfig.storage | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.storage }}
+  storage: {{ toYaml $.Values.defaults.cluster.storage | nindent 4 }}
+  {{- end }}
+
+  # Plugin configuration for backup and WAL archiving
+  {{- if $clusterConfig.plugins }}
+  plugins: {{ toYaml $clusterConfig.plugins | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.plugins }}
+  plugins: {{ toYaml $.Values.defaults.cluster.plugins | nindent 4 }}
+  {{- end }}
+
+  # Backup configuration
+  {{- if $clusterConfig.backup }}
+  backup: {{ toYaml $clusterConfig.backup | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.backup }}
+  backup: {{ toYaml $.Values.defaults.cluster.backup | nindent 4 }}
+  {{- end }}
+
+  # Bootstrap configuration for initial database setup (optional)
+  {{- if $clusterConfig.bootstrap }}
+  bootstrap: {{ toYaml $clusterConfig.bootstrap | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.bootstrap }}
+  bootstrap: {{ toYaml $.Values.defaults.cluster.bootstrap | nindent 4 }}
+  {{- end }}
+{{- end }} 
