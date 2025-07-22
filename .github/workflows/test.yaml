@@ -42,6 +42,7 @@ jobs:
         uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
         with:
           terragrunt-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install zizmor
         run: pip install zizmor
