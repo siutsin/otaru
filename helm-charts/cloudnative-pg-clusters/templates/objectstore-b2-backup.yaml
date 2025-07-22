@@ -14,4 +14,7 @@ spec:
       secretAccessKey:
         name: b2-backup-credentials
         key: "AWS_SECRET_ACCESS_KEY"
-      inheritFromIAMRole: false 
+      inheritFromIAMRole: false
+  retentionPolicy: {{ .Values.defaults.objectStore.retentionPolicy | quote }}
+  instanceSidecarConfiguration:
+    retentionPolicyIntervalSeconds: {{ .Values.defaults.objectStore.instanceSidecarConfiguration.retentionPolicyIntervalSeconds }}
