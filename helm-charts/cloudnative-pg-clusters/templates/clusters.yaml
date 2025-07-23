@@ -1,16 +1,30 @@
-{{- range $clusterName, $clusterConfig := .Values.clusters }}
+{{- range $k, $clusterConfig := .Values.clusters }}
 ---
-# Cluster: {{ $clusterName }}
+# Cluster: {{ $clusterConfig.clusterName }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: {{ $clusterName }}
+  # Cluster metadata with name, namespace, and optional annotations
+  name: {{ $clusterConfig.clusterName }}
   namespace: {{ $.Values.namespace }}
+  {{- if $clusterConfig.annotations }}
+  annotations: {{ toYaml $clusterConfig.annotations | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.annotations }}
+  annotations: {{ toYaml $.Values.defaults.cluster.annotations | nindent 4 }}
+  {{- end }}
+
 spec:
-  # Number of PostgreSQL instances
+  # PostgreSQL configuration
+  {{- if $clusterConfig.postgresql }}
+  postgresql: {{ toYaml $clusterConfig.postgresql | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.postgresql }}
+  postgresql: {{ toYaml $.Values.defaults.cluster.postgresql | nindent 4 }}
+  {{- end }}
+
+  # Number of PostgreSQL instances to deploy
   instances: {{ $clusterConfig.instances | default $.Values.defaults.cluster.instances | default 1 }}
 
-  # Storage configuration
+  # Storage configuration for the database
   {{- if $clusterConfig.storage }}
   storage: {{ toYaml $clusterConfig.storage | nindent 4 }}
   {{- else if $.Values.defaults.cluster.storage }}
@@ -24,7 +38,7 @@ spec:
   plugins: {{ toYaml $.Values.defaults.cluster.plugins | nindent 4 }}
   {{- end }}
 
-  # Backup configuration
+  # Backup configuration for the cluster
   {{- if $clusterConfig.backup }}
   backup: {{ toYaml $clusterConfig.backup | nindent 4 }}
   {{- else if $.Values.defaults.cluster.backup }}
@@ -38,11 +52,12 @@ spec:
   bootstrap: {{ toYaml $.Values.defaults.cluster.bootstrap | nindent 4 }}
   {{- end }}
 
-  # External clusters configuration (for recovery)
+  # External clusters configuration for recovery scenarios
   {{- if $clusterConfig.externalClusters }}
   externalClusters: {{ toYaml $clusterConfig.externalClusters | nindent 4 }}
   {{- end }}
 
+  # Node affinity for scheduling pods to nodes with volume support
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -53,4 +68,4 @@ spec:
                 operator: In
                 values:
                   - "true"
-{{- end }} 
+{{- end }}

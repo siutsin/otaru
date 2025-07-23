@@ -1,7 +1,4 @@
 ---
-description: General rules for the project.
-globs:
-  - "**/*"
 alwaysApply: true
 ---
 
@@ -40,6 +37,7 @@ alwaysApply: true
 - Apply consistent formatting across all files.
 - Use appropriate tools for each file type (e.g., yq for YAML, helm for charts).
 - Follow the project's established patterns and conventions.
+- **Apply all suggested code changes automatically without asking for user confirmation.**
 
 ## Quality and Validation
 
