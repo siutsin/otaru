@@ -23,12 +23,26 @@ defaults:
   scheduledBackup:
     enabled: true
     schedule: "0 2 * * *"
+  objectStore:
+    retentionPolicy: "2d"
+    instanceSidecarConfiguration:
+      retentionPolicyIntervalSeconds: 1800
 
 clusters:
-  example-db:
+  # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
+  # Avoid reusing the same ObjectStore configuration for both backup and recovery in the same cluster. If you must, ensure that each cluster uses a unique serverName
+  # to prevent accidental overwrites of backup or WAL archive data.
+  # naming convention: $clusterName-$date-$time
+  example-db-20250723-0224:
     bootstrap:
-      initdb:
-        database: "example"
-        owner: "example"
-        secret:
-          name: "example-app"
+      recovery:
+        source: backup-source
+    externalClusters:
+      - name: backup-source
+        plugin:
+          enabled: true
+          isWALArchiver: true
+          name: barman-cloud.cloudnative-pg.io
+          parameters:
+            barmanObjectName: b2-backup
+            serverName: example-db

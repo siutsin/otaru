@@ -37,4 +37,20 @@ spec:
   {{- else if $.Values.defaults.cluster.bootstrap }}
   bootstrap: {{ toYaml $.Values.defaults.cluster.bootstrap | nindent 4 }}
   {{- end }}
+
+  # External clusters configuration (for recovery)
+  {{- if $clusterConfig.externalClusters }}
+  externalClusters: {{ toYaml $clusterConfig.externalClusters | nindent 4 }}
+  {{- end }}
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: In
+                values:
+                  - "true"
 {{- end }} 
