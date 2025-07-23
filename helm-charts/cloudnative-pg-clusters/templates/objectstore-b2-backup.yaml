@@ -16,7 +16,7 @@ spec:
         key: "AWS_SECRET_ACCESS_KEY"
       inheritFromIAMRole: false
     wal:
-      maxParallel: 8
+      maxParallel: {{ .Values.defaults.objectStore.wal.maxParallel }}
   retentionPolicy: {{ .Values.defaults.objectStore.retentionPolicy | quote }}
   instanceSidecarConfiguration:
     retentionPolicyIntervalSeconds: {{ .Values.defaults.objectStore.instanceSidecarConfiguration.retentionPolicyIntervalSeconds }}

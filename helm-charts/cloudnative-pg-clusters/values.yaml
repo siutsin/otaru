@@ -35,6 +35,8 @@ defaults:
     schedule: "0 2 * * *"
   objectStore:
     retentionPolicy: 2d
+    wal:
+      maxParallel: 8
     instanceSidecarConfiguration:
       retentionPolicyIntervalSeconds: 1800
 
