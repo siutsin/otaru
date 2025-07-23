@@ -1,0 +1,60 @@
+{{- range $k, $clusterConfig := .Values.clusters }}
+{{- if $clusterConfig.test.enabled | default $.Values.defaults.cluster.test.enabled | default false }}
+---
+# Test deployment for cluster: {{ $clusterConfig.clusterName }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $clusterConfig.clusterName }}-test
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $clusterConfig.clusterName }}-test
+    cluster: {{ $clusterConfig.clusterName }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ $clusterConfig.test.replicas | default $.Values.defaults.cluster.test.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ $clusterConfig.clusterName }}-test
+  template:
+    metadata:
+      labels:
+        app: {{ $clusterConfig.clusterName }}-test
+        cluster: {{ $clusterConfig.clusterName }}
+    spec:
+      containers:
+        - image: {{ $clusterConfig.test.image | default $.Values.defaults.cluster.test.image | default "postgres:17-alpine" }}
+          name: {{ $clusterConfig.clusterName }}-test
+          command: [ "/bin/sh" ]
+          args:
+            - -c
+            - |
+              while true; do
+                echo "Testing connection to {{ $clusterConfig.clusterName }}..."
+                psql "$DATABASE_URL" -c "{{ $clusterConfig.test.query | default $.Values.defaults.cluster.test.query | default "SELECT 1 as test_connection;" }}"
+                echo "Test completed at $(date)"
+                sleep {{ $clusterConfig.test.interval | default $.Values.defaults.cluster.test.interval | default 30 }}
+              done
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $clusterConfig.clusterName }}
+                  key: uri
+        {{- if $clusterConfig.test.resources }}
+          resources: {{ toYaml $clusterConfig.test.resources | nindent 10 }}
+        {{- else if $.Values.defaults.cluster.test.resources }}
+          resources: {{ toYaml $.Values.defaults.cluster.test.resources | nindent 10 }}
+        {{- end }}
+          volumeMounts:
+            - name: secret-volume-root-ca
+              mountPath: /etc/secrets/ca
+              readOnly: true
+      volumes:
+        - name: secret-volume-root-ca
+          secret:
+            secretName: {{ $clusterConfig.clusterName }}-ca
+            defaultMode: 0600
+{{- end }}
+{{- end }}

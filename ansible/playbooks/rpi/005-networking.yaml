@@ -23,12 +23,12 @@
           [Unit]
           Description=Enable promiscuous mode for eth0 and wlan0
           After=network.target
-          
+
           [Service]
           Type=oneshot
           ExecStart=/sbin/ifconfig eth0 promisc
           ExecStart=/sbin/ifconfig wlan0 promisc
-          
+
           [Install]
           WantedBy=multi-user.target
         owner: root

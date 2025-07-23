@@ -3,28 +3,40 @@ namespace: cnpg-system
 
 backup:
   b2:
-    bucket: "github-otaru-cloudnative-pg-backup"
-    endpoint: "https://s3.eu-central-003.backblazeb2.com"
+    bucket: github-otaru-cloudnative-pg-backup
+    endpoint: https://s3.eu-central-003.backblazeb2.com
 
 defaults:
   cluster:
+    annotations:
+      cnpg.io/skipEmptyWalArchiveCheck: enabled
     instances: 2
     storage:
-      size: "1Gi"
-      storageClass: "longhorn-crypto-global"
-    plugins:
-    - enabled: true
-      name: "barman-cloud.cloudnative-pg.io"
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: "b2-backup"
+      size: 1Gi
+      storageClass: longhorn-crypto-global
     backup:
-      retentionPolicy: "2d"
+      target: primary
+      retentionPolicy: 2d
+    plugins:
+      - enabled: true
+        name: barman-cloud.cloudnative-pg.io
+        isWALArchiver: true
+        parameters:
+          barmanObjectName: b2-backup
+    postgresql:
+      # Default pg_hba configuration for certificate-only authentication
+      pg_hba:
+        - hostssl all all 0.0.0.0/0 cert
+        - hostssl all all ::0/0 cert
+    test:
+      enabled: false
   scheduledBackup:
     enabled: true
     schedule: "0 2 * * *"
   objectStore:
-    retentionPolicy: "2d"
+    retentionPolicy: 2d
+    wal:
+      maxParallel: 8
     instanceSidecarConfiguration:
       retentionPolicyIntervalSeconds: 1800
 
@@ -32,17 +44,28 @@ clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
   # Avoid reusing the same ObjectStore configuration for both backup and recovery in the same cluster. If you must, ensure that each cluster uses a unique serverName
   # to prevent accidental overwrites of backup or WAL archive data.
-  # naming convention: $clusterName-$date-$time
-  example-db-20250723-0224:
+  example-db:
+    # naming convention: $clusterName-$date-$time
+    clusterName: &clusterName example-db-20250724-0023
+    postgresql:
+      # Use password authentication
+      pg_hba:
+        - hostssl all all 0.0.0.0/0 scram-sha-256
+        - hostssl all all ::0/0 scram-sha-256
+    test:
+      enabled: true
+      query: SELECT * FROM users;
     bootstrap:
       recovery:
-        source: backup-source
+        source: &source backup-source
+        secret:
+          name: *clusterName
     externalClusters:
-      - name: backup-source
+      - name: *source
         plugin:
           enabled: true
           isWALArchiver: true
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: example-db
+            serverName: example-db-20250723-2256 # cluster name to restore from

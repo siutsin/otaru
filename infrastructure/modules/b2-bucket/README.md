@@ -7,7 +7,6 @@ Terraform module for creating Backblaze B2 buckets with support for multiple buc
 ```hcl
 module "b2_buckets" {
   source = "../../modules/b2-bucket"
-  
   buckets = {
     "backup-storage" = {
       bucket_type = "allPrivate"

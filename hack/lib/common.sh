@@ -50,11 +50,11 @@ exit_with_error() {
 confirm_action() {
     local message="$1"
     local confirm_text="${2:-yes}"
-    
+
     echo -e "${RED}WARNING: $message${NC}"
     read -p "Type '$confirm_text' to continue: " confirm
     if [[ "$confirm" != "$confirm_text" ]]; then
         log_warning "Action cancelled by user."
         exit 0
     fi
-} 
+}
