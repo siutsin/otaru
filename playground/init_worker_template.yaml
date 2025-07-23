@@ -17,7 +17,7 @@ runcmd:
   - sysctl -p /etc/sysctl.d/99-custom.conf
 
   - |
-    # wait until enp0s2 interface is ready 
+    # wait until enp0s2 interface is ready
     while true; do
         ip_address=$(ifconfig enp0s2 | grep 'inet ' | awk '{print $2}')
         [ -n "$ip_address" ] && break

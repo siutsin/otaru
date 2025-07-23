@@ -5,7 +5,7 @@
 # Global configuration
 global:
   # Add any global configurations here
-  {}
+  { }
 
 # Chart-specific configurations
-# Add any chart-specific configurations here 
+# Add any chart-specific configurations here

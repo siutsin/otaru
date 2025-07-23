@@ -32,7 +32,7 @@ defaults:
       enabled: false
   scheduledBackup:
     enabled: true
-    schedule: "39 0 * * *"
+    schedule: "15 23 * * *"
   objectStore:
     retentionPolicy: 2d
     instanceSidecarConfiguration:
