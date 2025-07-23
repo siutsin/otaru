@@ -32,7 +32,7 @@ defaults:
       enabled: false
   scheduledBackup:
     enabled: true
-    schedule: "15 23 * * *"
+    schedule: "0 2 * * *"
   objectStore:
     retentionPolicy: 2d
     instanceSidecarConfiguration:
@@ -44,7 +44,7 @@ clusters:
   # to prevent accidental overwrites of backup or WAL archive data.
   example-db:
     # naming convention: $clusterName-$date-$time
-    clusterName: &clusterName example-db-20250723-2256
+    clusterName: &clusterName example-db-20250724-0023
     postgresql:
       # Use password authentication
       pg_hba:
@@ -54,20 +54,16 @@ clusters:
       enabled: true
       query: SELECT * FROM users;
     bootstrap:
-      initdb:
+      recovery:
+        source: &source backup-source
         secret:
           name: *clusterName
-    # bootstrap:
-    #   recovery:
-    #     source: &source backup-source
-    #     secret:
-    #       name: example-db-20250723-1616-app # naming convention: $clusterName-$database
-    # externalClusters:
-    #   - name: *source
-    #     plugin:
-    #       enabled: true
-    #       isWALArchiver: true
-    #       name: barman-cloud.cloudnative-pg.io
-    #       parameters:
-    #         barmanObjectName: b2-backup
-    #         serverName: example-db-20250723-0516
+    externalClusters:
+      - name: *source
+        plugin:
+          enabled: true
+          isWALArchiver: true
+          name: barman-cloud.cloudnative-pg.io
+          parameters:
+            barmanObjectName: b2-backup
+            serverName: example-db-20250723-2256 # cluster name to restore from
