@@ -15,7 +15,7 @@ metadata:
 spec:
   cluster:
     name: {{ $clusterConfig.clusterName }}
-  schedule: {{ $scheduledBackup.schedule | default "0 2 * * *" | quote }}
+  schedule: {{ $scheduledBackup.schedule | default "0 0 2 * * *" | quote }}
   method: plugin
   pluginConfiguration:
     name: barman-cloud.cloudnative-pg.io
