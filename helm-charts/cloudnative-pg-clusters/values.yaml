@@ -11,7 +11,7 @@ defaults:
     annotations:
       cnpg.io/skipEmptyWalArchiveCheck: enabled
     instances: 2
-    storage:
+    storage: &storage
       size: 1Gi
       storageClass: longhorn-crypto-global
     backup:
@@ -23,9 +23,13 @@ defaults:
         isWALArchiver: true
         parameters:
           barmanObjectName: b2-backup
-    postgresql:
-      # Default pg_hba configuration for certificate-only authentication
-      pg_hba:
+    postgresql: &postgresql
+      parameters:
+        checkpoint_timeout: "15min"     # Longer interval to reduce WAL generation
+        max_slot_wal_keep_size: "512MB" # Cap WAL for inactive slots
+        max_wal_size: "4GB"             # Increase to reduce checkpoint frequency
+        wal_keep_size: "512MB"          # Limit WAL retention for replicas
+      pg_hba: # Default pg_hba configuration for certificate-only authentication
         - hostssl all all 0.0.0.0/0 cert
         - hostssl all all ::0/0 cert
     test:
@@ -47,10 +51,12 @@ clusters:
   example-db:
     # naming convention: $clusterName-$date-$time
     clusterName: &clusterName example-db-20250724-0023
-    instances: 1
+    storage:
+      <<: *storage
+      size: 5Gi
     postgresql:
-      # Use password authentication
-      pg_hba:
+      <<: *postgresql
+      pg_hba: # Use password authentication
         - hostssl all all 0.0.0.0/0 scram-sha-256
         - hostssl all all ::0/0 scram-sha-256
     test:
