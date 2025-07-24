@@ -47,6 +47,7 @@ clusters:
   example-db:
     # naming convention: $clusterName-$date-$time
     clusterName: &clusterName example-db-20250724-0023
+    instances: 1
     postgresql:
       # Use password authentication
       pg_hba:
