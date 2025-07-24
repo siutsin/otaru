@@ -69,4 +69,4 @@ clusters:
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: example-db-20250723-2256 # cluster name to restore from
+            serverName: *clusterName # cluster name to restore from
