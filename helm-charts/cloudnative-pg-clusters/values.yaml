@@ -15,7 +15,6 @@ defaults:
       size: 1Gi
       storageClass: longhorn-crypto-global
     backup:
-      target: primary
       retentionPolicy: 2d
     plugins:
       - enabled: true
