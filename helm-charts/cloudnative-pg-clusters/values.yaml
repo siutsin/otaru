@@ -29,8 +29,6 @@ defaults:
       pg_hba: # Default pg_hba configuration for certificate-only authentication
         - hostssl all all 0.0.0.0/0 cert
         - hostssl all all ::0/0 cert
-    test: &test
-      enabled: true
   scheduledBackup:
     enabled: true
     schedule: "0 0 2 * * *"
@@ -54,7 +52,7 @@ clusters:
         - hostssl all all 0.0.0.0/0 scram-sha-256
         - hostssl all all ::0/0 scram-sha-256
     test:
-      <<: *test
+      enabled: true
       query: SELECT * FROM users;
     bootstrap:
       recovery:
@@ -70,3 +68,19 @@ clusters:
           parameters:
             barmanObjectName: b2-backup
             serverName: *exampleDBClusterName # cluster name to restore from
+
+  teslamate:
+    clusterName: &teslamateClusterName teslamate-20250724-2346
+    postgresql:
+      <<: *postgresql
+      pg_hba: # Use password authentication
+        - hostssl all all 0.0.0.0/0 scram-sha-256
+        - hostssl all all ::0/0 scram-sha-256
+    test:
+      enabled: true
+    bootstrap:
+      initdb:
+        database: teslamate
+        owner: teslamate
+        secret:
+          name: *teslamateClusterName

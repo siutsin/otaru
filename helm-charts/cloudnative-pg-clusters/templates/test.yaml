@@ -1,5 +1,5 @@
 {{- range $k, $clusterConfig := .Values.clusters }}
-{{- if $clusterConfig.test.enabled | default $.Values.defaults.cluster.test.enabled | default false }}
+{{- if ($clusterConfig.test | default dict).enabled | default false }}
 ---
 # Test deployment for cluster: {{ $clusterConfig.clusterName }}
 apiVersion: apps/v1
@@ -13,7 +13,7 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
 spec:
-  replicas: {{ $clusterConfig.test.replicas | default $.Values.defaults.cluster.test.replicas | default 1 }}
+  replicas: {{ $clusterConfig.test.replicas | default 1 }}
   selector:
     matchLabels:
       app: {{ $clusterConfig.clusterName }}-test
@@ -23,8 +23,9 @@ spec:
         app: {{ $clusterConfig.clusterName }}-test
         cluster: {{ $clusterConfig.clusterName }}
     spec:
+      automountServiceAccountToken: false
       containers:
-        - image: {{ $clusterConfig.test.image | default $.Values.defaults.cluster.test.image | default "postgres:17-alpine" }}
+        - image: {{ $clusterConfig.test.image | default "postgres:17-alpine" }}
           name: {{ $clusterConfig.clusterName }}-test
           command: [ "/bin/sh" ]
           args:
@@ -32,9 +33,9 @@ spec:
             - |
               while true; do
                 echo "Testing connection to {{ $clusterConfig.clusterName }}..."
-                psql "$DATABASE_URL" -c "{{ $clusterConfig.test.query | default $.Values.defaults.cluster.test.query | default "SELECT 1 as test_connection;" }}"
+                psql "$DATABASE_URL" -c "{{ $clusterConfig.test.query | default "SELECT 1 as test_connection;" }}"
                 echo "Test completed at $(date)"
-                sleep {{ $clusterConfig.test.interval | default $.Values.defaults.cluster.test.interval | default 30 }}
+                sleep {{ $clusterConfig.test.interval | default 30 }}
               done
           env:
             - name: DATABASE_URL
@@ -44,8 +45,15 @@ spec:
                   key: uri
         {{- if $clusterConfig.test.resources }}
           resources: {{ toYaml $clusterConfig.test.resources | nindent 10 }}
-        {{- else if $.Values.defaults.cluster.test.resources }}
-          resources: {{ toYaml $.Values.defaults.cluster.test.resources | nindent 10 }}
+        {{- else }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+              ephemeral-storage: 100Mi
+            limits:
+              memory: 100Mi
+              ephemeral-storage: 100Mi
         {{- end }}
           volumeMounts:
             - name: secret-volume-root-ca
