@@ -162,6 +162,20 @@ For more details, refer to the related GitHub issue: [Longhorn GitHub issue][lon
 3. Manually delete the volume.
 4. Restart the Longhorn components to regenerate the webhook configuration by running `kubectl rollout restart deploy,ds -n longhorn-system`.
 
+---
+
+## Barman Cloud WAL Archiving Failure: `exit status 4`
+
+This error is probably due to running out of disk space.
+
+To recover, forcefully delete the affected PersistentVolumeClaim (PVC) and the corresponding pod.
+Replace `example-db-20250724-0023-2` with the actual pod/PVC name as appropriate:
+
+```shell
+kubectl delete pvc example-db-20250724-0023-2 -n cnpg-system
+kubectl delete pod example-db-20250724-0023-2 -n cnpg-system
+```
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
