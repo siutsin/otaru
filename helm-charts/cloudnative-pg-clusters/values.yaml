@@ -46,6 +46,7 @@ clusters:
   example-db:
     # naming convention: $clusterName-$date-$time
     clusterName: &exampleDBClusterName example-db-20250724-0023
+    namespace: cnpg-system
     postgresql:
       <<: *postgresql
       pg_hba: # Use password authentication
@@ -71,6 +72,7 @@ clusters:
 
   teslamate:
     clusterName: &teslamateClusterName teslamate-20250724-2346
+    namespace: teslamate
     postgresql:
       <<: *postgresql
       pg_hba: # Use password authentication

@@ -6,7 +6,7 @@ kind: Cluster
 metadata:
   # Cluster metadata with name, namespace, and optional annotations
   name: {{ $clusterConfig.clusterName }}
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $clusterConfig.namespace }}
   {{- if $clusterConfig.annotations }}
   annotations: {{ toYaml $clusterConfig.annotations | nindent 4 }}
   {{- else if $.Values.defaults.cluster.annotations }}

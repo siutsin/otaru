@@ -6,7 +6,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $clusterConfig.clusterName }}-test
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $clusterConfig.namespace }}
   labels:
     app: {{ $clusterConfig.clusterName }}-test
     cluster: {{ $clusterConfig.clusterName }}
@@ -42,7 +42,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $clusterConfig.clusterName }}
-                  key: uri
+                  key: DATABASE_URL
         {{- if $clusterConfig.test.resources }}
           resources: {{ toYaml $clusterConfig.test.resources | nindent 10 }}
         {{- else }}

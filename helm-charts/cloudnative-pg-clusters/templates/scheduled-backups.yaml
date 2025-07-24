@@ -11,7 +11,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: {{ $clusterConfig.clusterName }}-scheduled-backup
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $clusterConfig.namespace }}
 spec:
   cluster:
     name: {{ $clusterConfig.clusterName }}
