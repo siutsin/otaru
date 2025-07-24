@@ -8,11 +8,9 @@ backup:
 
 defaults:
   cluster:
-    annotations:
-      cnpg.io/skipEmptyWalArchiveCheck: enabled
     instances: 2
-    storage: &storage
-      size: 1Gi
+    storage:
+      size: 5Gi
       storageClass: longhorn-crypto-global
     backup:
       retentionPolicy: 2d
@@ -31,8 +29,8 @@ defaults:
       pg_hba: # Default pg_hba configuration for certificate-only authentication
         - hostssl all all 0.0.0.0/0 cert
         - hostssl all all ::0/0 cert
-    test:
-      enabled: false
+    test: &test
+      enabled: true
   scheduledBackup:
     enabled: true
     schedule: "0 0 2 * * *"
@@ -49,23 +47,20 @@ clusters:
   # to prevent accidental overwrites of backup or WAL archive data.
   example-db:
     # naming convention: $clusterName-$date-$time
-    clusterName: &clusterName example-db-20250724-0023
-    storage:
-      <<: *storage
-      size: 5Gi
+    clusterName: &exampleDBClusterName example-db-20250724-0023
     postgresql:
       <<: *postgresql
       pg_hba: # Use password authentication
         - hostssl all all 0.0.0.0/0 scram-sha-256
         - hostssl all all ::0/0 scram-sha-256
     test:
-      enabled: true
+      <<: *test
       query: SELECT * FROM users;
     bootstrap:
       recovery:
         source: &source backup-source
         secret:
-          name: *clusterName
+          name: *exampleDBClusterName
     externalClusters:
       - name: *source
         plugin:
@@ -74,4 +69,4 @@ clusters:
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: *clusterName # cluster name to restore from
+            serverName: *exampleDBClusterName # cluster name to restore from
