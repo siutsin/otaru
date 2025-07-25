@@ -3,7 +3,6 @@ namespace: teslamate
 
 deployment:
   image:
-    repository: docker.io
     image: teslamate/teslamate
     tag: 2.1.0
   env:
