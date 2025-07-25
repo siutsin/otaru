@@ -13,6 +13,7 @@ defaults:
       size: 5Gi
       storageClass: longhorn-crypto-global
     backup:
+      target: primary
       retentionPolicy: 2d
     plugins:
       - enabled: true
@@ -43,43 +44,53 @@ clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
   # Avoid reusing the same ObjectStore configuration for both backup and recovery in the same cluster. If you must, ensure that each cluster uses a unique serverName
   # to prevent accidental overwrites of backup or WAL archive data.
-  example-db:
-    # naming convention: $clusterName-$date-$time
-    clusterName: &exampleDBClusterName example-db-20250724-0023
-    namespace: cnpg-system
-    postgresql:
-      <<: *postgresql
-      pg_hba: # Use password authentication
-        - hostssl all all 0.0.0.0/0 scram-sha-256
-        - hostssl all all ::0/0 scram-sha-256
-    test:
-      enabled: true
-      query: SELECT * FROM users;
-    bootstrap:
-      recovery:
-        source: &source backup-source
-        secret:
-          name: *exampleDBClusterName
-    externalClusters:
-      - name: *source
-        plugin:
-          enabled: true
-          isWALArchiver: true
-          name: barman-cloud.cloudnative-pg.io
-          parameters:
-            barmanObjectName: b2-backup
-            serverName: *exampleDBClusterName # cluster name to restore from
+#  example-db:
+#    # naming convention: $clusterName-$date-$time
+#    clusterName: &exampleDBClusterName example-db-20250724-0023
+#    namespace: cnpg-system
+#    postgresql:
+#      <<: *postgresql
+#      pg_hba: # Use password authentication
+#        - hostssl all all 0.0.0.0/0 scram-sha-256
+#        - hostssl all all ::0/0 scram-sha-256
+#    test:
+#      enabled: true
+#      query: SELECT * FROM users;
+#    bootstrap:
+#      recovery:
+#        source: &source backup-source
+#        secret:
+#          name: *exampleDBClusterName
+#    externalClusters:
+#      - name: *source
+#        plugin:
+#          enabled: true
+#          isWALArchiver: true
+#          name: barman-cloud.cloudnative-pg.io
+#          parameters:
+#            barmanObjectName: b2-backup
+#            serverName: *exampleDBClusterName # cluster name to restore from
 
   teslamate:
-    clusterName: &teslamateClusterName teslamate-20250724-2346
+    clusterName: &teslamateClusterName teslamate-20250725-0345
     namespace: teslamate
     postgresql:
       <<: *postgresql
       pg_hba: # Use password authentication
         - hostssl all all 0.0.0.0/0 scram-sha-256
         - hostssl all all ::0/0 scram-sha-256
+    enableSuperuserAccess: true
+    managed:
+      roles:
+        - name: teslamate
+          ensure: present
+          superuser: true
+          login: true
+          connectionLimit: -1
+          inherit: true
     test:
       enabled: true
+      query: SELECT name FROM cars;
     bootstrap:
       initdb:
         database: teslamate

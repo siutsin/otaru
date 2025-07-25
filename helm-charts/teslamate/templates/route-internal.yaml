@@ -1,0 +1,49 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-internal
+  namespace: {{ .Values.namespace }}
+spec:
+  hostnames:
+    - {{ printf "%s.internal.siutsin.com" .Values.name }}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: ingress
+      namespace: cilium-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: teslamate
+          port: 4000
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-grafana-internal
+  namespace: {{ .Values.namespace }}
+spec:
+  hostnames:
+    - {{ printf "%s-%s.internal.siutsin.com" .Values.name "grafana" }}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: ingress
+      namespace: cilium-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: teslamate-grafana
+          port: 80
+          weight: 1

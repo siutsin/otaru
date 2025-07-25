@@ -45,6 +45,16 @@ spec:
   backup: {{ toYaml $.Values.defaults.cluster.backup | nindent 4 }}
   {{- end }}
 
+  # Enable superuser access for the postgres role
+  {{- if hasKey $clusterConfig "enableSuperuserAccess" }}
+  enableSuperuserAccess: {{ $clusterConfig.enableSuperuserAccess }}
+  {{- end }}
+
+  # Managed resources like roles
+  {{- if $clusterConfig.managed }}
+  managed: {{ toYaml $clusterConfig.managed | nindent 4 }}
+  {{- end }}
+
   # Bootstrap configuration for initial database setup (optional)
   {{- if $clusterConfig.bootstrap }}
   bootstrap: {{ toYaml $clusterConfig.bootstrap | nindent 4 }}

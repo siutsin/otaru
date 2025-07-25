@@ -1,0 +1,27 @@
+name: teslamate
+namespace: teslamate
+
+teslamate:
+  image:
+    repository: teslamate/teslamate
+    tag: 2.1.0
+
+  timeZone: Europe/London
+
+  envFromSecrets:
+    - name: teslamate
+    - name: &databaseSecretName teslamate-20250725-0345
+
+  grafana:
+    image:
+      repository: teslamate/grafana
+      tag: 2.1.0
+    envFromSecret: *databaseSecretName
+    persistence:
+      enabled: true
+      size: 1Gi
+    initChownData:
+      image:
+        registry: public.ecr.aws
+        repository: docker/library/busybox
+        tag: 1.37.0

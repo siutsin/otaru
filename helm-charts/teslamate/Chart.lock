@@ -1,0 +1,6 @@
+dependencies:
+- name: teslamate
+  repository: https://dkoshkin.github.io/teslamate-helm-chart
+  version: 0.4.0
+digest: sha256:8b2832acf948709574c323ada07cc2e3717373b9ef5a8c8c70dbc627d897707f
+generated: "2025-07-24T23:42:03.867747+01:00"
