@@ -17,7 +17,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: teslamate
-          image: "{{ .Values.deployment.image.repository }}/{{ .Values.deployment.image.image }}:{{ .Values.deployment.image.tag }}"
+          image: "{{ .Values.deployment.image.image }}:{{ .Values.deployment.image.tag }}"
           env: {{ toYaml .Values.deployment.env | nindent 12 }}
           envFrom: {{ toYaml .Values.deployment.envFrom | nindent 12 }}
           ports:
