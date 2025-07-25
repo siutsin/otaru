@@ -5,6 +5,6 @@ type: application
 version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
-- name: teslamate
-  version: 0.4.0
-  repository: https://dkoshkin.github.io/teslamate-helm-chart
+- name: grafana
+  version: 9.2.10
+  repository: https://grafana.github.io/helm-charts

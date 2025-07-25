@@ -1,27 +1,34 @@
 name: teslamate
 namespace: teslamate
 
-teslamate:
+deployment:
   image:
-    repository: teslamate/teslamate
+    repository: docker.io
+    image: teslamate/teslamate
     tag: 2.1.0
+  env:
+    - name: DISABLE_MQTT
+      value: "true"
+    - name: TZ
+      value: Europe/London
+    - name: LOCALE
+      value: en
+  envFrom:
+    - secretRef:
+        name: teslamate
+    - secretRef:
+        name: &databaseSecretName teslamate-20250725-0345
 
-  timeZone: Europe/London
+service:
+  containerPort: 4000
+  port: 4000
 
-  envFromSecrets:
-    - name: teslamate
-    - name: &databaseSecretName teslamate-20250725-0345
-
-  grafana:
-    image:
-      repository: teslamate/grafana
-      tag: 2.1.0
-    envFromSecret: *databaseSecretName
-    persistence:
-      enabled: true
-      size: 1Gi
-    initChownData:
-      image:
-        registry: public.ecr.aws
-        repository: docker/library/busybox
-        tag: 1.37.0
+grafana:
+  annotations:
+    reloader.stakater.com/auto: "true"
+  image:
+    repository: teslamate/grafana
+    tag: 2.1.0
+  envFromSecret: *databaseSecretName
+  admin:
+    existingSecret: teslamate-grafana
