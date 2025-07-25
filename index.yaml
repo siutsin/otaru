@@ -919,6 +919,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
+  teslamate:
+  - apiVersion: v2
+    created: "2025-07-25T06:31:13.887500171Z"
+    dependencies:
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 9.2.10
+    description: A Helm chart for Kubernetes
+    digest: e7fc4d44b48520fee6410eab43e9b5e47c91af7ecfc259cc194210f2bdb290f5
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: teslamate
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/teslamate-0.1.1/teslamate-0.1.1.tgz
+    version: 0.1.1
   yaade:
   - apiVersion: v2
     created: "2025-07-06T15:50:36.14091301Z"
@@ -967,4 +982,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-09T00:16:59.007091425Z"
+generated: "2025-07-25T06:31:13.88760555Z"
