@@ -1,12 +1,14 @@
+{{- range $k, $clusterConfig := .Values.clusters }}
+---
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
   name: b2-backup
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $clusterConfig.namespace }}
 spec:
   configuration:
-    destinationPath: "s3://{{ .Values.backup.b2.bucket }}/cnpg-backups/"
-    endpointURL: {{ .Values.backup.b2.endpoint }}
+    destinationPath: "s3://{{ $.Values.backup.b2.bucket }}/cnpg-backups/"
+    endpointURL: {{ $.Values.backup.b2.endpoint }}
     s3Credentials:
       accessKeyId:
         name: b2-backup-credentials
@@ -16,7 +18,8 @@ spec:
         key: "AWS_SECRET_ACCESS_KEY"
       inheritFromIAMRole: false
     wal:
-      maxParallel: {{ .Values.defaults.objectStore.wal.maxParallel }}
-  retentionPolicy: {{ .Values.defaults.objectStore.retentionPolicy | quote }}
+      maxParallel: {{ $.Values.defaults.objectStore.wal.maxParallel }}
+  retentionPolicy: {{ $.Values.defaults.objectStore.retentionPolicy | quote }}
   instanceSidecarConfiguration:
-    retentionPolicyIntervalSeconds: {{ .Values.defaults.objectStore.instanceSidecarConfiguration.retentionPolicyIntervalSeconds }}
+    retentionPolicyIntervalSeconds: {{ $.Values.defaults.objectStore.instanceSidecarConfiguration.retentionPolicyIntervalSeconds }}
+{{- end }}

@@ -6,7 +6,7 @@ kind: Cluster
 metadata:
   # Cluster metadata with name, namespace, and optional annotations
   name: {{ $clusterConfig.clusterName }}
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $clusterConfig.namespace }}
   {{- if $clusterConfig.annotations }}
   annotations: {{ toYaml $clusterConfig.annotations | nindent 4 }}
   {{- else if $.Values.defaults.cluster.annotations }}
@@ -43,6 +43,16 @@ spec:
   backup: {{ toYaml $clusterConfig.backup | nindent 4 }}
   {{- else if $.Values.defaults.cluster.backup }}
   backup: {{ toYaml $.Values.defaults.cluster.backup | nindent 4 }}
+  {{- end }}
+
+  # Enable superuser access for the postgres role
+  {{- if hasKey $clusterConfig "enableSuperuserAccess" }}
+  enableSuperuserAccess: {{ $clusterConfig.enableSuperuserAccess }}
+  {{- end }}
+
+  # Managed resources like roles
+  {{- if $clusterConfig.managed }}
+  managed: {{ toYaml $clusterConfig.managed | nindent 4 }}
   {{- end }}
 
   # Bootstrap configuration for initial database setup (optional)
