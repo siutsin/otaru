@@ -23,7 +23,7 @@ defaults:
     plugins:
     - enabled: true
       name: "barman-cloud.cloudnative-pg.io"
-      isWALArchiver: true
+      isWALArchiver: false  # Disabled to reduce costs
       parameters:
         barmanObjectName: "b2-backup"
     backup:
@@ -73,6 +73,18 @@ clusters:
 ```bash
 helm install cloudnative-pg-clusters ./helm-charts/cloudnative-pg-clusters/
 ```
+
+## WAL Configuration
+
+This chart is configured to minimise WAL (Write-Ahead Logging) costs:
+
+- **WAL Archiving**: Disabled (`isWALArchiver: false`) to reduce storage costs
+- **WAL Level**: Set to `minimal` to reduce logging overhead
+- **WAL Retention**: Reduced to 256MB for both `max_slot_wal_keep_size` and `wal_keep_size`
+- **Checkpoint Timeout**: Increased to 30 minutes to reduce checkpoint frequency
+- **Max WAL Size**: Reduced to 2GB to minimise storage usage
+
+These settings prioritise cost reduction over advanced recovery capabilities. For production environments requiring point-in-time recovery, consider re-enabling WAL archiving.
 
 ## Generated Resources
 
