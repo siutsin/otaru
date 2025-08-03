@@ -18,15 +18,16 @@ defaults:
     plugins:
       - enabled: true
         name: barman-cloud.cloudnative-pg.io
-        isWALArchiver: true
+        isWALArchiver: false
         parameters:
           barmanObjectName: b2-backup
     postgresql: &postgresql
       parameters:
-        checkpoint_timeout: "15min"     # Longer interval to reduce WAL generation
-        max_slot_wal_keep_size: "512MB" # Cap WAL for inactive slots
-        max_wal_size: "4GB"             # Increase to reduce checkpoint frequency
-        wal_keep_size: "512MB"          # Limit WAL retention for replicas
+        checkpoint_timeout: "30min"     # Longer interval to reduce WAL generation
+        max_slot_wal_keep_size: "256MB" # Reduce WAL for inactive slots
+        max_wal_size: "2GB"             # Reduce WAL size to minimise storage
+        wal_keep_size: "256MB"          # Reduce WAL retention for replicas
+        wal_level: "minimal"            # Minimal WAL logging to reduce costs
       pg_hba: # Default pg_hba configuration for certificate-only authentication
         - hostssl all all 0.0.0.0/0 cert
         - hostssl all all ::0/0 cert
