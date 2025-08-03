@@ -8,7 +8,7 @@ cloudflare-tunnel-remote:
   image:
     tag: latest
 
-  replicaCount: 3
+  replicaCount: 2
 
   affinity:
     nodeAffinity:
