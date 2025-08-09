@@ -54,21 +54,18 @@ grafana:
       disable_sanitize_html: true
 
 loki:
-  # Single Replica mode
   deploymentMode: SingleBinary
   singleBinary:
     replicas: 1
     nodeSelector:
       volume: "true"
   minio:
-    enabled: true
-    nodeSelector:
-      volume: "true"
-    persistence:
-      size: 20Gi
+    enabled: false
   chunksCache:
     enabled: false
-
+  memberlist:
+    service:
+      publishNotReadyAddresses: true
   loki:
     commonConfig:
       replication_factor: 1
@@ -77,7 +74,7 @@ loki:
       configs:
         - from: "2024-04-01"
           store: tsdb
-          object_store: s3
+          object_store: filesystem
           schema: v13
           index:
             prefix: loki_index_
@@ -85,7 +82,8 @@ loki:
     compactor:
       working_directory: /var/loki/compactor
       retention_enabled: true
-      delete_request_store: s3
+      retention_delete_delay: 1h
+      delete_request_store: filesystem
     pattern_ingester:
       enabled: true
     limits_config:
@@ -94,6 +92,8 @@ loki:
       volume_enabled: true
     rulerConfig:
       enable_api: true
+    storage:
+      type: filesystem
 
   # Zero-out replica counts of other deployment modes
   backend:
@@ -115,8 +115,6 @@ loki:
   compactor:
     replicas: 0
   indexGateway:
-    replicas: 0
-  bloomCompactor:
     replicas: 0
   bloomGateway:
     replicas: 0
