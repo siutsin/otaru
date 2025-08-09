@@ -85,6 +85,7 @@ loki:
     compactor:
       working_directory: /var/loki/compactor
       retention_enabled: true
+      delete_request_store: s3
     pattern_ingester:
       enabled: true
     limits_config:
