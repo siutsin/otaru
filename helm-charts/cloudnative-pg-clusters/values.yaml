@@ -27,7 +27,7 @@ defaults:
         max_slot_wal_keep_size: "256MB" # Reduce WAL for inactive slots
         max_wal_size: "2GB"             # Reduce WAL size to minimise storage
         wal_keep_size: "256MB"          # Reduce WAL retention for replicas
-        wal_level: "minimal"            # Minimal WAL logging to reduce costs
+        wal_level: "replica"            # Replica WAL level required for HA/replication
       pg_hba: # Default pg_hba configuration for certificate-only authentication
         - hostssl all all 0.0.0.0/0 cert
         - hostssl all all ::0/0 cert
