@@ -4,7 +4,7 @@ namespace: teslamate
 deployment:
   image:
     repository: teslamate/teslamate
-    tag: 2.1.0@sha256:e580b5e806e07baa204823d5cf7873a733e9dbebcf3993dbe5df029fefdec38c
+    tag: 2.1.1@sha256:5b03b1a76a043799e3aeaf234d0a02761ee85cf5a662c5ade028218ecf9f0ccc
   env:
     - name: DISABLE_MQTT
       value: "true"
