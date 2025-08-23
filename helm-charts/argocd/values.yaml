@@ -68,7 +68,7 @@ argo-cd:
         securityContext:
           runAsNonRoot: true
           runAsUser: 999
-        image: bitnami/jsonnet@sha256:35b8e5bc02eaf34ce9201b2a7ccfe428b7dd032e140281c16cf52fd4a97ef65a
+        image: bitnami/jsonnet@sha256:ce43f99fb2487974a3053d2d2e5a1986341e688bbd8197db0216bb9a17410f00
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
