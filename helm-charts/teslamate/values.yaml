@@ -27,7 +27,7 @@ grafana:
     reloader.stakater.com/auto: "true"
   image:
     repository: teslamate/grafana
-    tag: 2.1.0@sha256:be905652c87c973b8060f2ed87d3e9e6c4d3cb11b438a2d479fe32e6bf349541
+    tag: 2.1.1@sha256:61f5c2aaa91f78a4364a5a1ef282b2685642bd7c86848993134b59be402a5f80
   envFromSecret: *databaseSecretName
   admin:
     existingSecret: teslamate-grafana
