@@ -10,6 +10,6 @@ dependencies:
   version: 6.17.0
 - name: grafana
   repository: https://grafana.github.io/helm-charts
-  version: 9.3.5
-digest: sha256:2381157fe8420601f9a2236326670f0c8e6b4df1487e5bb313b816b8c9455135
-generated: "2025-08-29T06:13:41.944264901Z"
+  version: 9.3.6
+digest: sha256:e6f4e1acf8be14f541d8374a1857710910a230ab70e76365c2e0e7169781b27e
+generated: "2025-08-31T13:42:33.020668832Z"
