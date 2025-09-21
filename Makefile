@@ -47,7 +47,7 @@ help: ## Show this help message
 
 define ansible_playbook
 	@echo "$(GREEN)Running $(1) playbook...$(NC)"
-	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/$(1).yaml
+	ansible-playbook -v -i $(ANSIBLE_INVENTORY) ansible/playbooks/$(1).yaml
 endef
 
 # Ansible playbook targets
