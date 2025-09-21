@@ -34,7 +34,7 @@ all:
       children:
         node00: { }
         node01: { }
-        node02: { }
+#        node02: { }
         node03: { }
     worker:
       children: { }
@@ -42,7 +42,7 @@ all:
       children:
         node00: { }
         node01: { }
-        node02: { }
+#        node02: { }
     pineberry_pi_hatdrive:
       children:
         node03: { }
