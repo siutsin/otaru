@@ -8,7 +8,7 @@ backup:
 
 defaults:
   cluster:
-    instances: 2
+    instances: 1
     storage:
       size: 5Gi
       storageClass: longhorn-crypto-global
