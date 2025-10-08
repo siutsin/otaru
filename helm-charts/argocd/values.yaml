@@ -42,7 +42,7 @@ argo-cd:
         resourceNames: [ "argocd-jsonnet-secret" ]
     initContainers:
       - name: wait-for-secret
-        image: bitnami/kubectl@sha256:6bff1d2b66e2e1c557e823a417a11a2a57b6098f1c9f5a70f798cb35b706c07c
+        image: bitnami/kubectl@sha256:9b94c79d89083ca243312d42354043c2482232da33b4f754aab962f393fdb97e
         command:
           - /bin/sh
           - -c
