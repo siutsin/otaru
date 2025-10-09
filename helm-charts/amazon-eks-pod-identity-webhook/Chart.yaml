@@ -6,6 +6,6 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: amazon-eks-pod-identity-webhook
-  version: 2.5.2
+  version: 2.5.3
   repository: https://jkroepke.github.io/helm-charts/
   alias: pod-identity-webhook
