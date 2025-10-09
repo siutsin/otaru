@@ -2,13 +2,25 @@ local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
 local revision = 'HEAD';
 
+local longhornCrds = [
+  'volumes.longhorn.io',
+  'backingimages.longhorn.io',
+  'backuptargets.longhorn.io',
+  'engineimages.longhorn.io',
+  'nodes.longhorn.io',
+];
+local longhornSyncOptions = ['ServerSideApply=true', 'SkipDryRunOnMissingResource=true'];
+
 local _ignoreDifferences = {
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
   },
   storage: {
     longhorn: [
-      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] },
+      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] }
+    ] + [
+      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', name: crd, jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] }
+      for crd in longhornCrds
     ],
   },
 };
@@ -102,7 +114,7 @@ local security = [
 ];
 
 local storage = [
-  { wave: '04', name: 'longhorn', namespace: 'longhorn-system', ignoreDifferences: _ignoreDifferences.storage.longhorn },
+  { wave: '04', name: 'longhorn', namespace: 'longhorn-system', ignoreDifferences: _ignoreDifferences.storage.longhorn, syncOptions: longhornSyncOptions },
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
