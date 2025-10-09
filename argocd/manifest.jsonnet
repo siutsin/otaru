@@ -6,6 +6,11 @@ local _ignoreDifferences = {
   scheduling: {
     reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
   },
+  storage: {
+    longhorn: [
+      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] },
+    ],
+  },
 };
 
 local _grafanaDashboards = [
@@ -97,7 +102,7 @@ local security = [
 ];
 
 local storage = [
-  { wave: '04', name: 'longhorn', namespace: 'longhorn-system' },
+  { wave: '04', name: 'longhorn', namespace: 'longhorn-system', ignoreDifferences: _ignoreDifferences.storage.longhorn },
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
