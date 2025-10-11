@@ -9,7 +9,7 @@ local longhornCrds = [
   'engineimages.longhorn.io',
   'nodes.longhorn.io',
 ];
-local longhornSyncOptions = ['ServerSideApply=true', 'SkipDryRunOnMissingResource=true', 'Prune=false'];
+local longhornSyncOptions = ['ServerSideApply=true', 'SkipDryRunOnMissingResource=true'];
 
 local _ignoreDifferences = {
   scheduling: {
@@ -17,26 +17,9 @@ local _ignoreDifferences = {
   },
   storage: {
     longhorn: [
-      {
-        group: 'apiextensions.k8s.io',
-        kind: 'CustomResourceDefinition',
-        jsonPointers: [
-          '/spec/conversion/strategy',
-          '/spec/conversion/webhookClientConfig',
-          '/spec/conversion/webhook'
-        ]
-      }
+      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] }
     ] + [
-      {
-        group: 'apiextensions.k8s.io',
-        kind: 'CustomResourceDefinition',
-        name: crd,
-        jsonPointers: [
-          '/spec/conversion/strategy',
-          '/spec/conversion/webhookClientConfig',
-          '/spec/conversion/webhook'
-        ]
-      }
+      { group: 'apiextensions.k8s.io', kind: 'CustomResourceDefinition', name: crd, jsonPointers: ['/spec/conversion/strategy', '/spec/conversion/webhookClientConfig'] }
       for crd in longhornCrds
     ],
   },
