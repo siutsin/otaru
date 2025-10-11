@@ -21,7 +21,8 @@
     {
       matchPackageNames: [
         'autero1/action-terragrunt',
-        'vegardit/gha-setup-yq'
+        'vegardit/gha-setup-yq',
+        'cloudflare-tunnel-remote'
       ],
       abandonmentThreshold: null,
     },
