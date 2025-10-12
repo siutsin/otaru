@@ -421,6 +421,17 @@ entries:
     version: 0.1.0
   gateway-api:
   - apiVersion: v2
+    appVersion: 1.4.0
+    created: "2025-10-12T00:58:31.695727635Z"
+    description: A Helm chart for Kubernetes
+    digest: d2daaef99e2da825bc6dc3323ad2201703768567f5eef29b9374aea00fd80f2b
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: gateway-api
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/gateway-api-1.4.0/gateway-api-1.4.0.tgz
+    version: 1.4.0
+  - apiVersion: v2
     appVersion: 1.2.0
     created: "2025-07-06T15:50:34.246829891Z"
     description: A Helm chart for Kubernetes
@@ -982,4 +993,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-25T06:31:13.88760555Z"
+generated: "2025-10-12T00:58:33.452251041Z"
