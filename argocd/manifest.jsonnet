@@ -103,5 +103,5 @@ local storage = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + storage
+  for appConfig in application + baseline + bootstrap + cicd + connectivity + monitoring + scheduling + security + storage
 ]
