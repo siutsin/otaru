@@ -4,4 +4,4 @@ longhorn-volume-lib:
     home-assistant-config:
       size: "10Gi"
       sizeBytes: "10737418240"
-      fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-b47df86d9a2049a4&volume=home-assistant-config-vol"
+      fromBackup: "s3://github-otaru-media-storage@eu-west-1/?backup=backup-a135bf30f81b4b7a&volume=home-assistant-config-vol"

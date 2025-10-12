@@ -6,6 +6,10 @@
     - name: Restart longhorn daemonsets
       command: kubectl rollout restart daemonsets -n longhorn-system
       changed_when: false
+      register: ds_restart_result
+      retries: 3
+      delay: 5
+      until: ds_restart_result.rc == 0
 
     - name: Wait for all longhorn daemonsets to complete rollout
       command: kubectl rollout status daemonset -n longhorn-system --timeout=5m
@@ -18,6 +22,10 @@
     - name: Restart all longhorn deployments
       command: kubectl rollout restart deployments -n longhorn-system
       changed_when: false
+      register: deploy_restart_result
+      retries: 3
+      delay: 5
+      until: deploy_restart_result.rc == 0
 
     - name: Wait for all longhorn deployments to complete rollout
       command: kubectl rollout status deployment -n longhorn-system --timeout=5m
