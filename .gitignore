@@ -18,6 +18,9 @@ accounts.sh
 token
 http-client.private.env.json
 
+# argocd
+argocd-secret
+
 # Created by https://www.toptal.com/developers/gitignore/api/terraform,terragrunt,intellij,helm,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=terraform,terragrunt,intellij,helm,macos
 

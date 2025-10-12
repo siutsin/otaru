@@ -26,8 +26,8 @@ argo-cd:
           discover:
             fileName: "manifest.jsonnet"
           generate:
-            command: [ "sh", "-c" ]
-            args: [ "jsonnet --yaml-stream manifest.jsonnet --ext-str AWS_ACCOUNT_ID > /tmp/rendered.yaml && cat /tmp/rendered.yaml" ]
+            command: [ "jsonnet" ]
+            args: [ "--yaml-stream", "manifest.jsonnet", "--ext-str", "AWS_ACCOUNT_ID" ]
   dex:
     enabled: false
   notifications:
