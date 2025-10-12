@@ -40,6 +40,9 @@
   - name: Create namespace
     shell: "kubectl create namespace argocd || true"
 
+  - name: Create argocd-jsonnet-secret
+    shell: "kubectl create secret generic argocd-jsonnet-secret -n argocd --from-literal=AWS_ACCOUNT_ID=\"$(tr -d '\n' < ../../../argocd-secret)\" 2>/dev/null || true"
+
   - name: Initialise Argo CD
     shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
 
