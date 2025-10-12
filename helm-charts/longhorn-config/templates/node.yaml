@@ -24,19 +24,19 @@ spec:
       evictionRequested: true
   name: raspberrypi-01
 ---
-apiVersion: longhorn.io/v1beta2
-kind: Node
-metadata:
-  name: raspberrypi-02
-  namespace: {{ .Values.namespace }}
-spec:
-  allowScheduling: true
-  disks:
-    default-disk-a6c00bbc1be864c4:
-      allowScheduling: false
-      evictionRequested: true
-  name: raspberrypi-02
----
+{{/*apiVersion: longhorn.io/v1beta2*/}}
+{{/*kind: Node*/}}
+{{/*metadata:*/}}
+{{/*  name: raspberrypi-02*/}}
+{{/*  namespace: {{ .Values.namespace }}*/}}
+{{/*spec:*/}}
+{{/*  allowScheduling: true*/}}
+{{/*  disks:*/}}
+{{/*    default-disk-a6c00bbc1be864c4:*/}}
+{{/*      allowScheduling: false*/}}
+{{/*      evictionRequested: true*/}}
+{{/*  name: raspberrypi-02*/}}
+{{/*---*/}}
 apiVersion: longhorn.io/v1beta2
 kind: Node
 metadata:
