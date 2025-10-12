@@ -89,12 +89,6 @@ clusters:
           login: true
           connectionLimit: -1
           inherit: true
-        - name: app
-          ensure: present
-          superuser: true
-          login: true
-          connectionLimit: -1
-          inherit: true
     test:
       enabled: true
       query: SELECT name FROM cars;
