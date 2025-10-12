@@ -42,7 +42,7 @@ argo-cd:
         resourceNames: [ "argocd-jsonnet-secret" ]
     initContainers:
       - name: wait-for-secret
-        image: bitnami/kubectl@sha256:9b94c79d89083ca243312d42354043c2482232da33b4f754aab962f393fdb97e
+        image: alpine/kubectl:1.34.1
         command:
           - /bin/sh
           - -c
@@ -68,7 +68,7 @@ argo-cd:
         securityContext:
           runAsNonRoot: true
           runAsUser: 999
-        image: bitnami/jsonnet@sha256:ce43f99fb2487974a3053d2d2e5a1986341e688bbd8197db0216bb9a17410f00
+        image: ghcr.io/siutsin/images/go-jsonnet:202510120038
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
