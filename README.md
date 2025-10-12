@@ -101,16 +101,19 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     for i in {60..63}; do ssh-keygen -R "192.168.1.$i"; done && for i in {60..63}; do ssh-keyscan "192.168.1.$i" >> ~/.ssh/known_hosts; done
     ```
 
-3. **Set Up 1Password Credentials**
+3. **Set Up Service Credentials**
 
     Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json` and
-    save the access token to the file `token`.
+    save the access token to the file `token`. Additionally, save your AWS Account ID to the file `argocd-secret`.
 
     ```shell
     ❯ tree $(pwd) -L 1
     /path/to/project/otaru
     ├── 1password-credentials.json
     ├── 1password-credentials.json.sample
+    ├── ...
+    ├── argocd-secret
+    ├── argocd-secret.sample
     ├── ...
     ├── token
     └── token.sample
