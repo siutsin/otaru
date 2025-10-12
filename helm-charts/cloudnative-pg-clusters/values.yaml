@@ -73,7 +73,7 @@ clusters:
 #            serverName: *exampleDBClusterName # cluster name to restore from
 
   teslamate:
-    clusterName: &teslamateClusterName teslamate-20250725-0345
+    clusterName: &teslamateClusterName teslamate-20251012-0336
     namespace: teslamate
     postgresql:
       <<: *postgresql
@@ -93,8 +93,16 @@ clusters:
       enabled: true
       query: SELECT name FROM cars;
     bootstrap:
-      initdb:
-        database: teslamate
-        owner: teslamate
+      recovery:
+        source: &source backup-source
         secret:
           name: *teslamateClusterName
+    externalClusters:
+      - name: *source
+        plugin:
+          enabled: true
+          isWALArchiver: true
+          name: barman-cloud.cloudnative-pg.io
+          parameters:
+            barmanObjectName: b2-backup
+            serverName: *teslamateClusterName
