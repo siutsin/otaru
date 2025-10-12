@@ -105,4 +105,4 @@ clusters:
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: *teslamateClusterName
+            serverName: teslamate-20250725-0345
