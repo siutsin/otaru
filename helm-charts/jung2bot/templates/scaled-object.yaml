@@ -12,12 +12,12 @@ spec:
   maxReplicaCount: {{ .Values.app.autoscaling.max }}
   triggers:
     - type: cpu
+      metricType: Utilization
       metadata:
-        type: Utilization
         value: "75"
     - type: memory
+      metricType: Utilization
       metadata:
-        type: Utilization
         value: "75"
     - type: cron
       metadata:

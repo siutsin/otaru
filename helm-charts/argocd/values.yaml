@@ -32,7 +32,16 @@ argo-cd:
     enabled: false
   notifications:
     enabled: false
+  controller:
+    replicas: 3
+  server:
+    autoscaling:
+      enabled: true
+      minReplicas: 2
   repoServer:
+    autoscaling:
+      enabled: true
+      minReplicas: 3
     containerSecurityContext:
       runAsUser: 999
     rbac:

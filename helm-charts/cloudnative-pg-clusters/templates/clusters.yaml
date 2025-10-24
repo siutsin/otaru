@@ -12,6 +12,11 @@ metadata:
   {{- else if $.Values.defaults.cluster.annotations }}
   annotations: {{ toYaml $.Values.defaults.cluster.annotations | nindent 4 }}
   {{- end }}
+  {{- if $clusterConfig.labels }}
+  labels: {{ toYaml $clusterConfig.labels | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.labels }}
+  labels: {{ toYaml $.Values.defaults.cluster.labels | nindent 4 }}
+  {{- end }}
 
 spec:
   # PostgreSQL configuration

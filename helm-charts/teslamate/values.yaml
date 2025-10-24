@@ -16,7 +16,7 @@ deployment:
     - secretRef:
         name: teslamate
     - secretRef:
-        name: &databaseSecretName teslamate-20251012-0336
+        name: &databaseSecretName teslamate-20251024-0015
 
 service:
   containerPort: 4000
