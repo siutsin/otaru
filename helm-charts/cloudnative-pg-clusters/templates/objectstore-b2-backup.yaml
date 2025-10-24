@@ -1,4 +1,5 @@
 {{- range $k, $clusterConfig := .Values.clusters }}
+{{- if $.Values.backup.enabled }}
 ---
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
@@ -17,9 +18,6 @@ spec:
         name: b2-backup-credentials
         key: "AWS_SECRET_ACCESS_KEY"
       inheritFromIAMRole: false
-    wal:
-      maxParallel: {{ $.Values.defaults.objectStore.wal.maxParallel }}
   retentionPolicy: {{ $.Values.defaults.objectStore.retentionPolicy | quote }}
-  instanceSidecarConfiguration:
-    retentionPolicyIntervalSeconds: {{ $.Values.defaults.objectStore.instanceSidecarConfiguration.retentionPolicyIntervalSeconds }}
+{{- end }}
 {{- end }}
