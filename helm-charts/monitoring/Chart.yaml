@@ -6,7 +6,7 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: prometheus
-  version: 27.42.2
+  version: 27.44.0
   repository: https://prometheus-community.github.io/helm-charts
 - name: loki
   version: 6.46.0
