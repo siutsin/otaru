@@ -5,7 +5,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 CRD_PATH="$SCRIPT_DIR/../templates"
-MANIFEST_URL="https://github.com/siutsin/heartbeats/raw/refs/heads/master/dist/install.yaml"
+
+LATEST_TAG=$(curl -sL "https://api.github.com/repos/siutsin/heartbeats/releases/latest" | jq -r '.tag_name')
+
+if [ -z "${LATEST_TAG}" ] || [ "${LATEST_TAG}" = "null" ]; then
+  echo "Error: Failed to get latest release tag" >&2
+  exit 1
+fi
+
+echo "Using latest release: ${LATEST_TAG}"
+
+MANIFEST_URL="https://github.com/siutsin/heartbeats/releases/download/${LATEST_TAG}/install.yaml"
 
 pushd "${CRD_PATH}" >/dev/null
 
