@@ -33,7 +33,7 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
-  schedule: "35 1 * * *"
+  schedule: "45 1 * * *"
   ttlSecondsAfterFinished: 600
   backoffLimit: 4
   concurrencyPolicy: Forbid
@@ -45,6 +45,6 @@ backup:
     postgresVersion: "17"
   b2:
     bucket: github-otaru-cloudnative-pg-backup
-    endpoint: https://s3.eu-central-003.backblazeb2.com
+    endpoint: s3.eu-central-003.backblazeb2.com
     region: eu-central-003
     path: pg_dump/teslamate/
