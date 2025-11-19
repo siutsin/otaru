@@ -31,3 +31,20 @@ grafana:
   envFromSecret: *databaseSecretName
   admin:
     existingSecret: teslamate-grafana
+
+backup:
+  schedule: "35 1 * * *"
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 4
+  concurrencyPolicy: Forbid
+  image:
+    repository: ghcr.io/siutsin/postgres-backup
+    tag: v1.0.3-202511190108
+  database:
+    secretName: teslamate-20251024-0015
+    postgresVersion: "17"
+  b2:
+    bucket: github-otaru-cloudnative-pg-backup
+    endpoint: https://s3.eu-central-003.backblazeb2.com
+    region: eu-central-003
+    path: pg_dump/teslamate/

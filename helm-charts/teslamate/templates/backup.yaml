@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.name }}-backup
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: {{ .Values.backup.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: {{ .Values.backup.ttlSecondsAfterFinished }}
+      backoffLimit: {{ .Values.backup.backoffLimit }}
+      template:
+        spec:
+          containers:
+            - name: {{ .Values.name }}-backup
+              image: {{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Values.name }}-backup
+              env:
+                - name: DESTINATION_KIND
+                  value: s3
+                - name: DESTINATION_PATH
+                  value: {{ .Values.backup.b2.path }}
+                - name: S3_ENDPOINT
+                  value: {{ .Values.backup.b2.endpoint }}
+                - name: S3_REGION
+                  value: {{ .Values.backup.b2.region }}
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_NAME
+                - name: POSTGRES_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_HOST
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_PASS
+                - name: POSTGRES_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_PORT
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_USER
+                - name: POSTGRES_VERSION
+                  value: {{ .Values.backup.database.postgresVersion | quote }}
+          restartPolicy: OnFailure
