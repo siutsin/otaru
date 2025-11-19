@@ -22,7 +22,7 @@ spec:
                 - name: DESTINATION_KIND
                   value: s3
                 - name: DESTINATION_PATH
-                  value: {{ .Values.backup.b2.path }}
+                  value: "{{ .Values.backup.b2.bucket }}/{{ .Values.backup.b2.path }}"
                 - name: S3_ENDPOINT
                   value: {{ .Values.backup.b2.endpoint }}
                 - name: S3_REGION
