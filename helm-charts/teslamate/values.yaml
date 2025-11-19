@@ -33,7 +33,7 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
-  schedule: "55 1 * * *"
+  schedule: "0 2 * * *"
   ttlSecondsAfterFinished: 600
   backoffLimit: 4
   concurrencyPolicy: Forbid
