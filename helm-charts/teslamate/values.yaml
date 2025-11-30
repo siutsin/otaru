@@ -34,6 +34,9 @@ grafana:
 
 backup:
   schedule: "0 2 * * *"
+  verify:
+    schedule: "0 14 * * *"
+    verificationQuery: "SELECT count(*) FROM positions;"
   ttlSecondsAfterFinished: 600
   backoffLimit: 4
   concurrencyPolicy: Forbid
