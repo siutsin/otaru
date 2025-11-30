@@ -22,7 +22,7 @@ spec:
                 - name: WEBGAZER_HEARTBEAT_URL
                   valueFrom:
                     secretKeyRef:
-                      name: {{ .Values.name }}-backup
+                      name: {{ .Values.name }}-heartbeat
                       key: backup-heartbeat
                 - name: S3_STORAGE_CLASS
                   value: STANDARD
