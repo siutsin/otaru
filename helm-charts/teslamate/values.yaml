@@ -33,11 +33,11 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
-  schedule: "0 2 * * *"
+  schedule: "0 9 * * *"
   verify:
-    schedule: "0 14 * * *"
+    schedule: "0 10 * * *"
     verificationQuery: "SELECT count(*) FROM positions;"
-  ttlSecondsAfterFinished: 600
+  ttlSecondsAfterFinished: 21600 # 6 hours
   backoffLimit: 4
   concurrencyPolicy: Forbid
   image:
