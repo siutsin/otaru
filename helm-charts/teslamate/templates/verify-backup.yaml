@@ -71,9 +71,9 @@ spec:
                   fi
 
                   if [ -n "$VERIFY_HEARTBEAT_URL" ]; then
-                    echo "Sending heartbeat..."
-                    curl -m 10 --retry 5 $VERIFY_HEARTBEAT_URL
-                    echo "Heartbeat sent."
+                    echo "Sending heartbeat to $VERIFY_HEARTBEAT_URL..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "$VERIFY_HEARTBEAT_URL")
+                    echo "Response body: $RESPONSE"
                   fi
 
                   pkill -TERM postgres || true
