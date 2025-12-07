@@ -77,6 +77,7 @@ spec:
                     name: {{ .Values.name }}-backup
                 - secretRef:
                     name: {{ .Values.name }}-heartbeat
+              env:
                 - name: PGHOST
                   value: localhost
                 - name: PGUSER
