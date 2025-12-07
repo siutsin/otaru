@@ -38,7 +38,15 @@ spec:
                   echo "Found: ${LATEST_BACKUP}"
 
                   echo "Restoring from ${S3_URI}/${LATEST_BACKUP}..."
-                  aws --endpoint-url https://${ENDPOINT} s3 cp ${S3_URI}/${LATEST_BACKUP} - | gunzip | psql -d "$PGDATABASE"
+                  TEMP_DIR=$(mktemp -d)
+                  DOWNLOAD_PATH="${TEMP_DIR}/${LATEST_BACKUP}"
+                  aws --endpoint-url https://${ENDPOINT} s3 cp "${S3_URI}/${LATEST_BACKUP}" "${DOWNLOAD_PATH}"
+
+                  gunzip "$DOWNLOAD_PATH"
+                  SQL_FILE="${DOWNLOAD_PATH%.gz}"
+
+                  psql -d "$PGDATABASE" -f "$SQL_FILE"
+                  rm -rf "$TEMP_DIR"
 
                   psql -c "{{ .Values.backup.verify.verificationQuery }}"
 
