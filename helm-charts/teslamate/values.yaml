@@ -33,11 +33,11 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
-  schedule: "0 * * * *"
+  schedule: "*/10 * * * *"
   verify:
-    schedule: "30 * * * *"
+    schedule: "5-55/10 * * * *"
     verificationQuery: "SELECT count(*) FROM positions;"
-  ttlSecondsAfterFinished: 3600 # 1 hour
+  ttlSecondsAfterFinished: 600 # 10 minutes
   backoffLimit: 4
   concurrencyPolicy: Forbid
   image:
@@ -46,8 +46,4 @@ backup:
   database:
     secretName: teslamate-20251024-0015
     postgresVersion: "17"
-  b2:
-    bucket: github-otaru-cloudnative-pg-backup
-    endpoint: s3.eu-central-003.backblazeb2.com
-    region: eu-central-003
-    path: pg_dump/teslamate
+

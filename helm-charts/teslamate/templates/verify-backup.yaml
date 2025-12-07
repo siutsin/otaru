@@ -19,41 +19,34 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  set -e
+                  set -e -o pipefail
 
                   apk add --no-cache aws-cli curl
-
-                  export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
-                  export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
-                  export AWS_DEFAULT_REGION=$S3_REGION
 
                   until pg_isready; do
                     sleep 2
                   done
 
-                  S3_URI="s3://${DESTINATION_PATH}"
+                  S3_URI="s3://${BUCKET}/${PATH}"
 
-                  LATEST_BACKUP=$(aws --endpoint-url https://${S3_ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1 | awk '{print $4}')
+                  LATEST_BACKUP=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1 | awk '{print $4}')
                   if [ -z "$LATEST_BACKUP" ]; then
                     echo "Error: No backup found"
                     exit 1
                   fi
 
                   echo "Found: ${LATEST_BACKUP}"
-                  DOWNLOAD_PATH="/tmp/${LATEST_BACKUP}"
 
-                  aws --endpoint-url https://${S3_ENDPOINT} s3 cp ${S3_URI}/${LATEST_BACKUP} ${DOWNLOAD_PATH}
-
-                  pg_restore --clean --if-exists --no-owner --no-acl -d $PGDATABASE ${DOWNLOAD_PATH}
+                  echo "Restoring from ${S3_URI}/${LATEST_BACKUP}..."
+                  aws --endpoint-url https://${ENDPOINT} s3 cp ${S3_URI}/${LATEST_BACKUP} - | gunzip | psql -d "$PGDATABASE"
 
                   psql -c "{{ .Values.backup.verify.verificationQuery }}"
 
                   echo "Verification Successful!"
-                  rm ${DOWNLOAD_PATH}
 
                   KEEP_LAST=7
 
-                  ALL_BACKUPS=$(aws --endpoint-url https://${S3_ENDPOINT} s3 ls ${S3_URI}/ | sort)
+                  ALL_BACKUPS=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort)
                   TOTAL_COUNT=$(echo "$ALL_BACKUPS" | wc -l)
 
                   if [ "$TOTAL_COUNT" -le "$KEEP_LAST" ]; then
@@ -65,14 +58,14 @@ spec:
                     FILES_TO_DELETE=$(echo "$ALL_BACKUPS" | head -n $DELETE_COUNT | awk '{print $4}')
 
                     for FILE in $FILES_TO_DELETE; do
-                      aws --endpoint-url https://${S3_ENDPOINT} s3 rm ${S3_URI}/${FILE}
+                      aws --endpoint-url https://${ENDPOINT} s3 rm ${S3_URI}/${FILE}
                       echo "Deleted: ${FILE}"
                     done
                   fi
 
-                  if [ -n "$VERIFY_HEARTBEAT_URL" ]; then
-                    echo "Sending heartbeat to $VERIFY_HEARTBEAT_URL..."
-                    RESPONSE=$(curl -m 10 --retry 5 -sS "$VERIFY_HEARTBEAT_URL")
+                  if [ -n "$VERIFY_HEARTBEAT" ]; then
+                    echo "Sending heartbeat to $VERIFY_HEARTBEAT..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "$VERIFY_HEARTBEAT")
                     echo "Response body: $RESPONSE"
                   fi
 
@@ -82,18 +75,8 @@ spec:
               envFrom:
                 - secretRef:
                     name: {{ .Values.name }}-backup
-              env:
-                - name: S3_ENDPOINT
-                  value: {{ .Values.backup.b2.endpoint }}
-                - name: S3_REGION
-                  value: {{ .Values.backup.b2.region }}
-                - name: DESTINATION_PATH
-                  value: "{{ .Values.backup.b2.bucket }}/{{ .Values.backup.b2.path }}"
-                - name: VERIFY_HEARTBEAT_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.name }}-heartbeat
-                      key: verify-heartbeat
+                - secretRef:
+                    name: {{ .Values.name }}-heartbeat
                 - name: PGHOST
                   value: localhost
                 - name: PGUSER
