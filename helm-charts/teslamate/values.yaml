@@ -33,16 +33,13 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
-  schedule: "*/10 * * * *"
+  schedule: "0 10 * * *"
   verify:
-    schedule: "5-55/10 * * * *"
+    schedule: "0 12 * * *"
     verificationQuery: "SELECT count(*) FROM positions;"
-  ttlSecondsAfterFinished: 600 # 10 minutes
+  ttlSecondsAfterFinished: 86400 # 1 day
   backoffLimit: 4
   concurrencyPolicy: Forbid
-  image:
-    repository: ghcr.io/siutsin/postgres-backup
-    tag: v1.0.3-202511190108@sha256:4b8ec284bfc5e928c79c761175b7895a6378ae9315001dbd6bc9f6892c984740
   database:
     secretName: teslamate-20251024-0015
     postgresVersion: "17"
