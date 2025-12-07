@@ -27,7 +27,7 @@ spec:
                     sleep 2
                   done
 
-                  S3_URI="s3://${BUCKET}/${PATH}"
+                  S3_URI="s3://${BUCKET}/${S3_PATH}"
 
                   LATEST_BACKUP=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1 | awk '{print $4}')
                   if [ -z "$LATEST_BACKUP" ]; then

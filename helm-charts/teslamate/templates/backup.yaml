@@ -23,7 +23,7 @@ spec:
                   apk add --no-cache aws-cli curl
 
                   BACKUP_FILE_NAME="${PGDATABASE}-$(date +%F-%H_%M_%S).sql.gz"
-                  S3_URI="s3://${BUCKET}/${PATH}/${BACKUP_FILE_NAME}"
+                  S3_URI="s3://${BUCKET}/${S3_PATH}/${BACKUP_FILE_NAME}"
 
                   echo "Dumping cluster to ${BACKUP_FILE_NAME}..."
                   pg_dumpall --clean --if-exists | gzip > "/tmp/${BACKUP_FILE_NAME}"
