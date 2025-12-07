@@ -47,9 +47,10 @@ spec:
 
                   psql -d "$PGDATABASE" -f "$SQL_FILE"
                   rm -rf "$TEMP_DIR"
+                  echo "Restored from ${S3_URI}/${LATEST_BACKUP}..."
 
+                  echo "Verifying with query: {{ .Values.backup.verify.verificationQuery }}"
                   psql -c "{{ .Values.backup.verify.verificationQuery }}"
-
                   echo "Verification Successful!"
 
                   KEEP_LAST=7
