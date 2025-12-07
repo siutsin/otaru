@@ -14,51 +14,55 @@ spec:
         spec:
           containers:
             - name: {{ .Values.name }}-backup
-              image: {{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}
+              image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e -o pipefail
+
+                  apk add --no-cache aws-cli curl
+
+                  BACKUP_FILE_NAME="${PGDATABASE}-$(date +%F-%H_%M_%S).sql.gz"
+                  S3_URI="s3://${BUCKET}/${PATH}/${BACKUP_FILE_NAME}"
+
+                  echo "Dumping cluster to ${BACKUP_FILE_NAME}..."
+                  pg_dumpall --clean --if-exists | gzip > "/tmp/${BACKUP_FILE_NAME}"
+
+                  echo "Uploading to ${S3_URI}..."
+                  aws --endpoint-url https://${ENDPOINT} s3 cp "/tmp/${BACKUP_FILE_NAME}" "${S3_URI}"
+                  echo "Upload successful."
+
+                  if [ -n "$BACKUP_HEARTBEAT" ]; then
+                    echo "Sending heartbeat to $BACKUP_HEARTBEAT..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "$BACKUP_HEARTBEAT")
+                    echo "Response body: $RESPONSE"
+                  fi
+
+                  rm "/tmp/${BACKUP_FILE_NAME}"
               envFrom:
                 - secretRef:
                     name: {{ .Values.name }}-backup
+                - secretRef:
+                    name: {{ .Values.name }}-heartbeat
               env:
-                - name: WEBGAZER_HEARTBEAT_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.name }}-heartbeat
-                      key: backup-heartbeat
-                - name: S3_STORAGE_CLASS
-                  value: STANDARD
-                - name: DESTINATION_KIND
-                  value: s3
-                - name: DESTINATION_PATH
-                  value: "{{ .Values.backup.b2.bucket }}/{{ .Values.backup.b2.path }}"
-                - name: S3_ENDPOINT
-                  value: {{ .Values.backup.b2.endpoint }}
-                - name: S3_REGION
-                  value: {{ .Values.backup.b2.region }}
-                - name: POSTGRES_DB
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_NAME
-                - name: POSTGRES_HOST
+                - name: PGHOST
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
                       key: DATABASE_HOST
-                - name: POSTGRES_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_PASS
-                - name: POSTGRES_PORT
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_PORT
-                - name: POSTGRES_USER
+                - name: PGUSER
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
                       key: DATABASE_USER
-                - name: POSTGRES_VERSION
-                  value: {{ .Values.backup.database.postgresVersion | quote }}
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_PASS
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.database.secretName }}
+                      key: DATABASE_NAME
           restartPolicy: OnFailure

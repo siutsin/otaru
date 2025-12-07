@@ -46,6 +46,16 @@ jobs:
           terragrunt-version: latest
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install editorconfig-checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
+          tar -xzf /tmp/ec.tar.gz -C /tmp
+          BINARY=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
+          chmod +x "$BINARY"
+          sudo mv "$BINARY" /usr/local/bin/editorconfig-checker
+
       - name: Install zizmor
         run: pip install zizmor
 
