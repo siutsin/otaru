@@ -1,3 +1,6 @@
+# claude-code
+.claude
+
 # blocky
 helm-charts/blocky/**/config.yml
 

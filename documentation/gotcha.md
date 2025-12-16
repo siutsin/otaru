@@ -95,7 +95,8 @@ For more details, see the [MetalLB troubleshooting guide][metallb-troubleshootin
 
 ## Pod Unable to Reach External Networks
 
-There can be connectivity issues where pod-to-pod traffic works, but pod-to-external world traffic times out. Hubble may indicate that the traffic is forwarded, but it still times out.
+There can be connectivity issues where pod-to-pod traffic works, but pod-to-external world traffic times out.
+Hubble may indicate that the traffic is forwarded, but it still times out.
 
 ### Symptoms: External Network Connectivity
 
