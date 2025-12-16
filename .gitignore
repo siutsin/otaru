@@ -1,5 +1,5 @@
 # claude-code
-.claude
+.claude/settings.local.json
 
 # blocky
 helm-charts/blocky/**/config.yml
