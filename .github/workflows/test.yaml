@@ -28,7 +28,7 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Setup yq
-        uses: vegardit/gha-setup-yq@fe28f4b64ed68f4ce3a57696dc35cdf57990a322 # 1.0.0
+        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
 
       - name: Install Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
