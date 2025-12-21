@@ -10,6 +10,13 @@ permissions:
   contents: write
   pull-requests: write
 
+# Prevent concurrent runs to avoid race conditions when creating branches/PRs
+# Scoped per workflow and branch to allow parallel runs on different branches
+# New runs wait for current run to complete rather than cancelling it
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   update-heartbeats:
     runs-on: ubuntu-latest
@@ -87,8 +94,17 @@ jobs:
         if: steps.check_changes.outputs.changes == 'true'
         id: version
         run: |
-          DEPLOYMENT_FILE="helm-charts/heartbeats/templates/deployment-heartbeats-operator-controller-manager.yaml"
-          NEW_VERSION=$(grep 'image: ghcr.io/siutsin/heartbeats:' "$DEPLOYMENT_FILE" | sed 's/.*://' | tr -d ' ')
+          IMAGE=$(helm template heartbeats ./helm-charts/heartbeats | \
+            yq eval 'select(.kind == "Deployment" and .metadata.name == "heartbeats-operator-controller-manager") | \
+            .spec.template.spec.containers[] | select(.name == "manager") | .image' -)
+          # Validate image format before extracting version
+          if [[ -z "$IMAGE" ]] || [[ "$IMAGE" != *:* ]]; then
+            echo "Error: Invalid or empty image format: '$IMAGE'" >&2
+            exit 1
+          fi
+          # Extract version tag by removing everything up to and including the last colon
+          # e.g., "ghcr.io/siutsin/heartbeats:v0.73.0" becomes "v0.73.0"
+          NEW_VERSION="${IMAGE##*:}"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
