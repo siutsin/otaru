@@ -149,14 +149,18 @@ jobs:
 
       - name: Trigger test workflows
         if: steps.check_changes.outputs.changes == 'true' && steps.create_pr.outputs.pull-request-number != ''
+        env:
+          PR_BRANCH: ${{ steps.create_pr.outputs.pull-request-head-ref }}
         run: |
           # GITHUB_TOKEN prevents workflows from triggering other workflows by design
           # Push empty commit to PR branch to manually trigger pull_request workflows
           # This allows test workflows to run before auto-merge
+          git fetch origin
+          git checkout "$PR_BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit --allow-empty -m "trigger workflows"
-          git push
+          git push origin "$PR_BRANCH"
 
       - name: Enable auto-merge
         if: steps.check_changes.outputs.changes == 'true' && steps.create_pr.outputs.pull-request-number != ''
