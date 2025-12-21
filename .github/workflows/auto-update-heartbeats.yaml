@@ -94,14 +94,20 @@ jobs:
         if: steps.check_changes.outputs.changes == 'true'
         id: version
         run: |
-          IMAGE=$(helm template heartbeats ./helm-charts/heartbeats | \
-            yq eval 'select(.kind == "Deployment" and .metadata.name == "heartbeats-operator-controller-manager") | \
-            .spec.template.spec.containers[] | select(.name == "manager") | .image' -)
+          # Render Helm template and extract the manager container image
+          TEMPLATE=$(helm template heartbeats ./helm-charts/heartbeats)
+          IMAGE=$(echo "$TEMPLATE" | yq eval \
+            'select(.kind == "Deployment" and .metadata.name == "heartbeats-operator-controller-manager") |
+            .spec.template.spec.containers[] |
+            select(.name == "manager") |
+            .image' -)
+
           # Validate image format before extracting version
           if [[ -z "$IMAGE" ]] || [[ "$IMAGE" != *:* ]]; then
             echo "Error: Invalid or empty image format: '$IMAGE'" >&2
             exit 1
           fi
+
           # Extract version tag by removing everything up to and including the last colon
           # e.g., "ghcr.io/siutsin/heartbeats:v0.73.0" becomes "v0.73.0"
           NEW_VERSION="${IMAGE##*:}"
