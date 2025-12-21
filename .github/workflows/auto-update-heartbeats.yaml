@@ -164,4 +164,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}
         run: |
+          # Wait for status checks to register after empty commit trigger
+          sleep 10
           gh pr merge "$PR_NUMBER" --auto --squash
