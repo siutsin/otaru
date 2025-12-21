@@ -1,0 +1,134 @@
+name: Auto Update Heartbeats
+
+on:
+  schedule:
+    # Run daily at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-heartbeats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+        with:
+          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1
+        with:
+          tofu_version: '1.8.1'
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
+        with:
+          terragrunt-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install editorconfig-checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
+          tar -xzf /tmp/ec.tar.gz -C /tmp
+          BINARY=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
+          chmod +x "$BINARY"
+          sudo mv "$BINARY" /usr/local/bin/editorconfig-checker
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Update Helm dependencies
+        run: make update-helm-deps
+
+      - name: Run heartbeats upgrade
+        id: upgrade
+        run: |
+          cd helm-charts/heartbeats
+          make run
+
+      - name: Run tests
+        run: make test
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+
+      - name: Get new version
+        if: steps.check_changes.outputs.changes == 'true'
+        id: version
+        run: |
+          DEPLOYMENT_FILE="helm-charts/heartbeats/templates/deployment-heartbeats-operator-controller-manager.yaml"
+          NEW_VERSION=$(grep 'image: ghcr.io/siutsin/heartbeats:' "$DEPLOYMENT_FILE" | sed 's/.*://' | tr -d ' ')
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changes == 'true'
+        id: create_pr
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: update heartbeats operator to ${{ steps.version.outputs.new_version }}
+
+            Automated update of heartbeats operator using the manifest generation script.
+          branch: automated/heartbeats-update-${{ steps.version.outputs.new_version }}
+          delete-branch: true
+          title: 'chore: update heartbeats operator to ${{ steps.version.outputs.new_version }}'
+          body: |
+            ## Summary
+
+            Automated update of the heartbeats operator to version ${{ steps.version.outputs.new_version }}.
+
+            ## Changes
+
+            - Updated heartbeats operator image version
+            - All tests passed
+
+            ## Test Plan
+
+            - [x] All automated tests passed
+            - [x] Manifests validated successfully
+
+            This PR will be automatically merged if all checks pass.
+          labels: |
+            automated
+            dependencies
+            heartbeats
+
+      - name: Enable auto-merge
+        if: steps.check_changes.outputs.changes == 'true' && steps.create_pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}
+        run: |
+          gh pr merge "$PR_NUMBER" --auto --squash
