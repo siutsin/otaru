@@ -81,11 +81,11 @@
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace first master IP with LB_API_SERVER_IP in local kube config
-      local_action:
-        module: replace
+      replace:
         path: "~/.kube/config"
         regexp: 'server: https://{{ FIRST_MASTER_IP }}:6443'
         replace: "server: https://{{ LB_API_SERVER_IP }}:443"
+      delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true

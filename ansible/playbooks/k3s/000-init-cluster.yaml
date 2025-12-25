@@ -75,22 +75,22 @@
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace 'default' with 'raspberrypi' in local kube config
-      local_action:
-        module: replace
+      replace:
         path: "~/.kube/config"
         regexp: 'default'
         replace: 'raspberrypi'
+      delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace '127.0.0.1' with first master IP in local kube config
-      local_action:
-        module: replace
+      replace:
         path: "~/.kube/config"
         regexp: '127.0.0.1'
         replace: "{{ hostvars[groups['master'][0]]['FIRST_MASTER_IP'] }}"
+      delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true
