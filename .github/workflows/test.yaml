@@ -59,6 +59,14 @@ jobs:
       - name: Install zizmor
         run: pip install zizmor
 
+      - name: Setup Go
+        uses: actions/setup-go@v6.1.0
+        with:
+          go-version: stable
+
+      - name: Install go-jsonnet
+        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+
       - name: Update Helm dependencies
         run: make update-helm-deps
 
