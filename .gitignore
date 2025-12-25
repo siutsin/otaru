@@ -1,6 +1,9 @@
 # claude-code
 .claude/settings.local.json
 
+# vscode
+.vscode/
+
 # blocky
 helm-charts/blocky/**/config.yml
 
