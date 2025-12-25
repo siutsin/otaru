@@ -18,6 +18,10 @@ local _grafanaDashboards = [
 ];
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
+local cnpgClustersHelm = { parameters: [
+  { name: 'backup.b2.bucket', value: std.extVar('CNPG_BACKUP_BUCKET') },
+  { name: 'backup.b2.endpoint', value: std.extVar('CNPG_BACKUP_ENDPOINT') },
+] };
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
@@ -74,7 +78,7 @@ local database = [
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
-  { wave: '05', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system' },
+  { wave: '05', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: cnpgClustersHelm },
 ];
 
 local monitoring = [

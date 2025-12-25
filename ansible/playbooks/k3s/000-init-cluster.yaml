@@ -6,6 +6,7 @@
     ETCD_IP: 192.168.1.52
     CERT_SRC_DIR: ../../../certs
     CERT_DEST_DIR: /home/pi/certs/etcd
+    K3S_CHANNEL: stable
 
   tasks:
     - name: Ensure etcd certs directory exists on master nodes
@@ -34,7 +35,7 @@
       # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
-        curl -sfL https://get.k3s.io | sh -s - \
+        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
           --datastore-cafile=/home/pi/certs/etcd/ca.pem \
           --datastore-keyfile=/home/pi/certs/etcd/client-key.pem \
@@ -62,7 +63,7 @@
 
     - name: Set FIRST_MASTER_IP variable for later use
       set_fact:
-        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Copy k3s.yaml to local machine
@@ -75,22 +76,22 @@
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace 'default' with 'raspberrypi' in local kube config
-      local_action:
-        module: replace
+      replace:
         path: "~/.kube/config"
         regexp: 'default'
         replace: 'raspberrypi'
+      delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Replace '127.0.0.1' with first master IP in local kube config
-      local_action:
-        module: replace
+      replace:
         path: "~/.kube/config"
         regexp: '127.0.0.1'
         replace: "{{ hostvars[groups['master'][0]]['FIRST_MASTER_IP'] }}"
+      delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true

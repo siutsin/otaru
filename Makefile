@@ -47,7 +47,7 @@ help: ## Show this help message
 
 define ansible_playbook
 	@echo "$(GREEN)Running $(1) playbook...$(NC)"
-	ansible-playbook -v -i $(ANSIBLE_INVENTORY) ansible/playbooks/$(1).yaml
+	ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook -v -i $(ANSIBLE_INVENTORY) $(if $(CHANNEL),-e K3S_CHANNEL=$(CHANNEL),) ansible/playbooks/$(1).yaml
 endef
 
 # Ansible playbook targets
@@ -60,7 +60,7 @@ maintenance: ## Run maintenance ansible playbook
 	$(call ansible_playbook,maintenance)
 
 .PHONY: upgrade-cluster
-upgrade-cluster: ## Run cluster upgrade playbook
+upgrade-cluster: ## Run cluster upgrade playbook (e.g., make upgrade-cluster CHANNEL=latest)
 	$(call ansible_playbook,upgrade-cluster)
 
 .PHONY: nuke-cluster

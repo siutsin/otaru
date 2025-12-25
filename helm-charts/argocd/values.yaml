@@ -24,10 +24,19 @@ argo-cd:
       plugins:
         jsonnet-with-secret:
           discover:
-            fileName: "manifest.jsonnet"
+            fileName: manifest.jsonnet
           generate:
-            command: [ "jsonnet" ]
-            args: [ "--yaml-stream", "manifest.jsonnet", "--ext-str", "AWS_ACCOUNT_ID" ]
+            command:
+              - jsonnet
+            args:
+              - --yaml-stream
+              - manifest.jsonnet
+              - --ext-str
+              - AWS_ACCOUNT_ID
+              - --ext-str
+              - CNPG_BACKUP_BUCKET
+              - --ext-str
+              - CNPG_BACKUP_ENDPOINT
   dex:
     enabled: false
   notifications:
@@ -45,10 +54,14 @@ argo-cd:
     containerSecurityContext:
       runAsUser: 999
     rbac:
-      - apiGroups: [ "" ]
-        resources: [ "secrets" ]
-        verbs: [ "get" ]
-        resourceNames: [ "argocd-jsonnet-secret" ]
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - get
+        resourceNames:
+          - argocd-jsonnet-secret
     initContainers:
       - name: wait-for-secret
         image: alpine/kubectl:1.35.0@sha256:5a4914e2ac580778f4b8b2f092259be16568c24445de07e7ba4aa1e2faf91461
@@ -72,6 +85,16 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: AWS_ACCOUNT_ID
+          - name: CNPG_BACKUP_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: argocd-jsonnet-secret
+                key: CNPG_BACKUP_BUCKET
+          - name: CNPG_BACKUP_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: argocd-jsonnet-secret
+                key: CNPG_BACKUP_ENDPOINT
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:
@@ -93,4 +116,4 @@ argo-cd:
         configMap:
           name: argocd-cmp-cm
       - name: cmp-tmp
-        emptyDir: { }
+        emptyDir: {}
