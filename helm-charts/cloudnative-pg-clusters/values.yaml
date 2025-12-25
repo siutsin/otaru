@@ -4,8 +4,8 @@ namespace: cnpg-system
 backup:
   enabled: true
   b2:
-    bucket: github-otaru-cloudnative-pg-backup
-    endpoint: https://s3.eu-central-003.backblazeb2.com
+    bucket: ~
+    endpoint: ~
 
 defaults:
   cluster:
