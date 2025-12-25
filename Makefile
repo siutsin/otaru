@@ -170,8 +170,22 @@ lint-editorconfig: ## Check .editorconfig compliance
 	}
 	@echo "$(GREEN)EditorConfig compliance check passed!$(NC)"
 
+.PHONY: validate-argocd-manifest
+validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
+	@echo "$(GREEN)Validating ArgoCD manifest rendering...$(NC)"
+	@command -v jsonnet >/dev/null 2>&1 || { echo "$(RED)jsonnet is required but not installed.$(NC)"; exit 1; }
+	@cd argocd && jsonnet --yaml-stream manifest.jsonnet \
+		--ext-str AWS_ACCOUNT_ID=000000000000 \
+		--ext-str CNPG_BACKUP_BUCKET=test-bucket \
+		--ext-str CNPG_BACKUP_ENDPOINT=https://test.example.com \
+		--ext-str LONGHORN_BACKUP_TARGET=s3://test-bucket@region/ \
+		--ext-str HOME_ASSISTANT_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
+		--ext-str YAADE_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
+		> /dev/null
+	@echo "$(GREEN)ArgoCD manifest validation passed!$(NC)"
+
 .PHONY: test
-test: check-yaml check-markdown validate-helm-charts lint-terraform lint-terragrunt lint-zizmor lint-editorconfig ## Run all validation and quality checks
+test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform lint-terragrunt check-markdown lint-zizmor validate-helm-charts ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets

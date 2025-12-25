@@ -13,7 +13,7 @@ longhorn:
     snapshotMaxCount: "250"
     autoCleanupSnapshotWhenDeleteBackup: true
   defaultBackupStore:
-    backupTarget: s3://github-otaru-media-storage@eu-west-1/
+    backupTarget: ~
     backupTargetCredentialSecret: b2-secret
 
 encryption:
