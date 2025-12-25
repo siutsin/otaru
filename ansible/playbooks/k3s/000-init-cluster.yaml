@@ -6,6 +6,7 @@
     ETCD_IP: 192.168.1.52
     CERT_SRC_DIR: ../../../certs
     CERT_DEST_DIR: /home/pi/certs/etcd
+    K3S_CHANNEL: stable
 
   tasks:
     - name: Ensure etcd certs directory exists on master nodes
@@ -34,7 +35,7 @@
       # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
-        curl -sfL https://get.k3s.io | sh -s - \
+        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
           --datastore-cafile=/home/pi/certs/etcd/ca.pem \
           --datastore-keyfile=/home/pi/certs/etcd/client-key.pem \

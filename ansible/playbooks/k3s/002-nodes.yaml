@@ -5,6 +5,7 @@
   vars:
     LB_API_SERVER_IP: 192.168.1.50
     ETCD_IP: 192.168.1.52
+    K3S_CHANNEL: stable
 
   tasks:
     - name: Get node token from master
@@ -25,7 +26,7 @@
       # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
-        curl -sfL https://get.k3s.io | sh -s - \
+        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --token {{ master_token.stdout }} \
           --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
           --datastore-cafile=/home/pi/certs/etcd/ca.pem \
@@ -66,6 +67,8 @@
     - name: Install k3s on workers
       shell: |
         curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} \
+          INSTALL_K3S_SKIP_DOWNLOAD=false \
           K3S_TOKEN={{ hostvars[groups['master'][0]]['master_token']['stdout'] }} \
           K3S_URL=https://{{ LB_API_SERVER_IP }}:443 \
           sh -
