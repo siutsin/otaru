@@ -7,8 +7,8 @@ terraform {
 }
 
 locals {
-  media_storage_bucket = get_env("B2_MEDIA_STORAGE_BUCKET", "")
-  cnpg_backup_bucket   = get_env("B2_CNPG_BACKUP_BUCKET", "")
+  media_storage_bucket = get_env("B2_MEDIA_STORAGE_BUCKET")
+  cnpg_backup_bucket   = get_env("B2_CNPG_BACKUP_BUCKET")
 }
 
 inputs = {
