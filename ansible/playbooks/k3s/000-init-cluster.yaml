@@ -62,7 +62,7 @@
 
     - name: Set FIRST_MASTER_IP variable for later use
       set_fact:
-        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
     - name: Copy k3s.yaml to local machine

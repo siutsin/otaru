@@ -75,7 +75,7 @@
 
     - name: Get FIRST_MASTER_IP
       set_fact:
-        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
       retries: 5
       delay: 10
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
