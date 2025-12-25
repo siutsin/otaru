@@ -4,5 +4,4 @@ locals {
   cloudflare_version   = "~> 5.4.0"
   github_version       = "~> 6.6"
   unifi_version        = "~> 0.41"
-  uptime_robot_version = "~> 0.8"
 }
