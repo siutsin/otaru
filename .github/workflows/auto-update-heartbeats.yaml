@@ -132,7 +132,7 @@ jobs:
           commit-message: |
             chore: update heartbeats operator to ${{ steps.version.outputs.new_version }}
 
-            Automated update of heartbeats operator using the manifest generation script.
+            Created by .github/workflows/auto-update-heartbeats.yaml
           branch: automated/heartbeats-update-${{ steps.version.outputs.new_version }}
           delete-branch: true
           title: 'chore: update heartbeats operator to ${{ steps.version.outputs.new_version }}'
