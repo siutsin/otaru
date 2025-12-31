@@ -30,6 +30,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Cluster Components
 
+<!-- markdownlint-disable MD060 -->
 | Category     | Name                                                                                                | Description                                                                                                             |
 |--------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
 | Application  | [Blocky](https://0xerr0r.github.io/blocky/latest/)                                                  | Stateless DNS server                                                                                                    |
@@ -40,9 +41,9 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [TeslaMate](https://github.com/teslamate-org/teslamate/)                                            | Self-hosted data logger for Tesla                                                                                       |
 | Application  | [Yaade](https://github.com/EsperoTech/yaade)                                                        | Open-source, self-hosted, and collaborative API development environment                                                 |
 | Application  | [k3s-apiserver-loadbalancer](https://github.com/siutsin/k3s-apiserver-loadbalancer)                 | An operator to update the `kubernetes` service type to `LoadBalancer`                                                   |
-| Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                         | Telegram bot tracks and counts individual message counts in groups                                                      |
+| Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                                      |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                                             |
-| CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | Terraform Pull Request Automation                                                                                       |
+| CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | OpenTofu Pull Request Automation                                                                                        |
 | Connectivity | [Cilium Gateway](helm-charts/cilium-gateway)                                                        | Cilium Ingress Controller with Virtual IP Layer 2 announcement and TLS termination                                      |
 | Connectivity | [Cilium](https://cilium.io/)                                                                        | Cilium is a networking, observability, and security solution with an eBPF-based dataplane                               |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                                              |
@@ -68,6 +69,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Storage      | [Longhorn Config](helm-charts/longhorn-config)                                                      | Longhorn configuration and recurring jobs                                                                               |
 | Storage      | [Longhorn Volume Lib](helm-charts/longhorn-volume-lib)                                              | Reusable volume templates for Longhorn storage                                                                          |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                        |
+<!-- markdownlint-enable MD060 -->
 
 ## IaaS, PaaS, and SaaS
 
@@ -84,7 +86,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                   | Secrets Automation                           |
 | Security     | Let's Encrypt | [Let's Encrypt](https://letsencrypt.org/)                                                  | Certificate Authority                        |
 | Security     | Snyk          | [Snyk](https://app.snyk.io/)                                                               | Detects vulnerabilities                      |
-| Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                           | Terraform Remote State                       |
+| Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                           | OpenTofu Remote State                        |
 | Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                              | Volume Backup                                |
 
 ## Bootstrap Cluster
@@ -92,7 +94,16 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 1. **Install Tooling**
 
     ```shell
-    brew install ansible cilium go-jsonnet helm kubectl opentofu terragrunt && ansible-galaxy collection install -r ansible/requirements.yaml
+    brew install \
+      ansible \
+      cilium \
+      direnv \
+      go-jsonnet \
+      helm \
+      kubectl \
+      opentofu \
+      terragrunt \
+      && ansible-galaxy collection install -r ansible/requirements.yaml
     ```
 
 2. **Add SSH Keys to `known_hosts`**
@@ -105,10 +116,13 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
     Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json` and
     save the access token to the file `token`. Additionally, save your AWS Account ID to the file `argocd-secret`.
+    Copy `.envrc.sample` to `.envrc` and fill in the required environment variables for Terragrunt and OpenTofu.
 
     ```shell
     ❯ tree $(pwd) -L 1
     /path/to/project/otaru
+    ├── .envrc
+    ├── .envrc.sample
     ├── 1password-credentials.json
     ├── 1password-credentials.json.sample
     ├── ...
