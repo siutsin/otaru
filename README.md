@@ -1,14 +1,11 @@
 # otaru
 
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.2+k3s1-blue)
+[![Cluster Health](https://img.shields.io/static/v1?label=Cluster%20Health&message=WebGazer&color=brightgreen)](https://www.webgazer.io/s?id=493)
 
 > Over-Engineering at Its Finest.
 
 Bare-Metal Home Lab for Kubernetes and Technical Playground.
-
-## Service Health
-
-[WebGazer](https://www.webgazer.io/s?id=493)
 
 ## Architecture
 
