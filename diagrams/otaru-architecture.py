@@ -164,10 +164,10 @@ with Diagram(
                 cloudflared = Deployment("cloudflared")
                 cilium = icon_node("Cilium Gateway", "cilium")
 
-                # Core services
+                # Core applications
                 argocd = Argocd("ArgoCD")
                 atlantis = icon_node("Atlantis", "atlantis")
-                services = Deployment("Services")
+                applications = Deployment("Applications")
                 cert_manager = icon_node("cert-manager", "cert-manager")
                 tls_cert = Secret("TLS Cert")
 
@@ -191,19 +191,21 @@ with Diagram(
                 longhorn = icon_node("Longhorn", "longhorn")
                 pv = PV("Encrypted\nVolume")
                 pvcs = PVC("Encrypted\nPVCs")
-                service_with_volume = Deployment("Service with\nvolume")
+                application_with_volume = Deployment("Application with\nvolume")
 
                 # Database
                 cnpg = icon_node("CloudNativePG", "cloudnative-pg")
                 cnpg_db_cluster = PostgreSQL("CNPG PostgreSQL\nCluster")
-                service_with_db = Deployment("Service with\ndatabase backend")
+                application_with_db = Deployment("Application with\ndatabase backend")
 
                 # OIDC/IRSA
                 pod_identity_webhook = Helm("amazon-eks-pod-\nidentity-webhook")
                 service_account = ServiceAccount(
                     "Service Account\nwith AWS role\nannotation"
                 )
-                service_with_irsa = Deployment("Service with\nAWS IRSA\nannotation")
+                application_with_irsa = Deployment(
+                    "Application with\nAWS IRSA\nannotation"
+                )
 
             with Cluster("Nodes", graph_attr=cluster_attr):
                 etcd = ETCD("etcd\n(NUC Mini PC\nUbuntu + SSD)")
@@ -260,7 +262,12 @@ with Diagram(
     (
         cilium
         >> edge(colour=COLOUR_PUBLIC)
-        >> [services, service_with_volume, service_with_db, service_with_irsa]
+        >> [
+            applications,
+            application_with_volume,
+            application_with_db,
+            application_with_irsa,
+        ]
     )
 
     # GitOps
@@ -305,19 +312,27 @@ with Diagram(
     # External User Access
     external_user >> edge(colour=COLOUR_VPN) >> wifiman
     wifiman >> edge("VPN", colour=COLOUR_VPN) >> unifi_gateway
-    unifi_gateway >> edge("Access internal\nservices", colour=COLOUR_VPN) >> cilium
+    unifi_gateway >> edge("Access internal\napplications", colour=COLOUR_VPN) >> cilium
     unifi_gateway >> edge("Manage cluster", colour=COLOUR_VPN) >> api_server
 
     # Monitoring
-    services << edge("Scrape metrics", colour=COLOUR_MONITORING) << prometheus
-    services << edge("Collect logs", colour=COLOUR_MONITORING) << loki
-    services << edge("Runtime security\nmonitoring", colour=COLOUR_MONITORING) << falco
+    applications << edge("Scrape metrics", colour=COLOUR_MONITORING) << prometheus
+    applications << edge("Collect logs", colour=COLOUR_MONITORING) << loki
+    (
+        applications
+        << edge("Runtime security\nmonitoring", colour=COLOUR_MONITORING)
+        << falco
+    )
     prometheus << edge("Query metrics", colour=COLOUR_MONITORING) << grafana
     loki << edge("Query logs", colour=COLOUR_MONITORING) << grafana
     loki >> edge("Collect logs", colour=COLOUR_MONITORING) >> falco
     metrics_server << edge("Query metrics", colour=COLOUR_MONITORING) << api_server
     heartbeat_crd >> edge("Monitor", colour=COLOUR_MONITORING) >> heartbeats_operator
-    heartbeats_operator >> edge("Check liveness", colour=COLOUR_MONITORING) >> services
+    (
+        heartbeats_operator
+        >> edge("Check liveness", colour=COLOUR_MONITORING)
+        >> applications
+    )
     (
         heartbeats_operator
         >> edge("Heartbeat monitor", colour=COLOUR_MONITORING)
@@ -358,7 +373,9 @@ with Diagram(
         >> edge("Bind", colour=COLOUR_STORAGE)
         >> pvcs
     )
-    pvcs << edge("Mount", colour=COLOUR_STORAGE) << service_with_volume
+    pvcs << edge("Mount", colour=COLOUR_STORAGE) << application_with_volume
+    pvcs << edge("Mount", colour=COLOUR_STORAGE) << prometheus
+    pvcs << edge("Mount", colour=COLOUR_STORAGE) << loki
     longhorn >> edge("Backup volume", colour=COLOUR_STORAGE) >> backblaze_b2
     (
         secrets
@@ -370,7 +387,7 @@ with Diagram(
     cnpg >> edge("Manage", colour=COLOUR_DATABASE) >> cnpg_db_cluster
     cnpg >> edge("Backup database", colour=COLOUR_DATABASE) >> backblaze_b2
     cnpg_db_cluster >> edge("Mount", colour=COLOUR_DATABASE) >> pvcs
-    cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << service_with_db
+    cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << application_with_db
 
     # OIDC/IRSA flow
     (
@@ -385,16 +402,16 @@ with Diagram(
             "such that AWS SDK\ncan exchange JWT\nfor credentials",
             colour=COLOUR_OIDC,
         )
-        >> service_with_irsa
+        >> application_with_irsa
     )
     (
-        service_with_irsa
-        >> edge("Use service\naccount for\nJWT token", colour=COLOUR_OIDC)
+        application_with_irsa
+        >> edge("Use application\naccount for\nJWT token", colour=COLOUR_OIDC)
         >> service_account
     )
     service_account << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
     (
-        service_with_irsa
+        application_with_irsa
         >> edge(
             "Exchange AWS\naccess token with\nk3s API server\nissued JWT",
             colour=COLOUR_OIDC,
@@ -408,11 +425,11 @@ with Diagram(
     )
     (
         cloudflare
-        >> edge("Route to\nwell-known\nendpoint", colour=COLOUR_OIDC)
+        >> edge("Route to\nwell-known\nendpoint\nvia cloudflared", colour=COLOUR_OIDC)
         >> api_server
     )
     (
-        service_with_irsa
+        application_with_irsa
         >> edge("Access AWS\nservice with\naccess token", colour=COLOUR_OIDC)
         >> aws_service
     )
