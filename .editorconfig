@@ -17,3 +17,7 @@ indent_style = tab
 
 [*.md]
 max_line_length = off # handled by markdownlint
+
+[*.py]
+indent_size = 4
+max_line_length = 88

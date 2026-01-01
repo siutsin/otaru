@@ -2,6 +2,7 @@
 ANSIBLE_INVENTORY := ansible/inventory.yaml
 INFRASTRUCTURE_DIR := infrastructure
 HACK_DIR := hack
+OUTPUT_FILE ?= otaru-architecture
 
 # Colors for output
 GREEN := \033[0;32m
@@ -22,22 +23,22 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster)" | \
+		grep -E "^(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all)" | \
+		grep -E "^(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|test)" | \
+		grep -E "^(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|lint-zizmor|lint-editorconfig|validate-argocd-manifest|format-python|test):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "(status|install-deps|help)" | \
+		grep -E "^(status|install-deps|help):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Usage:$(NC) make <target>"
@@ -111,6 +112,18 @@ clean-all: clean-terragrunt-cache ## Clean all temporary files and caches
 	@find . -name "*.log" -delete 2>/dev/null || true
 	@echo "$(GREEN)Cleanup complete!$(NC)"
 
+.PHONY: poetry-install
+poetry-install:
+	@echo "$(GREEN)Ensuring poetry dependencies are installed...$(NC)"
+	@cd diagrams && poetry sync && cd ..
+
+.PHONY: generate-diagrams
+generate-diagrams: poetry-install format-python ## Generate architecture diagrams (OUTPUT_FILE=filename to override)
+	@echo "$(GREEN)Generating architecture diagrams...$(NC)"
+	@mkdir -p assets
+	@cd diagrams && poetry run python otaru-architecture.py "$(OUTPUT_FILE)" && cd ..
+	@echo "$(GREEN)Architecture diagrams generated at assets/$(OUTPUT_FILE).png$(NC)"
+
 # Validation and linting targets
 .PHONY: validate-helm-charts
 validate-helm-charts: ## Validate all Helm charts
@@ -183,6 +196,12 @@ validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
 		--ext-str YAADE_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
 		> /dev/null
 	@echo "$(GREEN)ArgoCD manifest validation passed!$(NC)"
+
+.PHONY: format-python
+format-python: poetry-install ## Format Python code with black
+	@echo "$(GREEN)Formatting Python code with black...$(NC)"
+	@cd diagrams && poetry run black . && cd ..
+	@echo "$(GREEN)Python code formatting complete!$(NC)"
 
 .PHONY: test
 test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform lint-terragrunt check-markdown lint-zizmor validate-helm-charts ## Run all validation and quality checks
