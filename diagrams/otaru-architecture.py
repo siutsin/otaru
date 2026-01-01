@@ -148,7 +148,7 @@ with Diagram(
 
         with Cluster("AWS", graph_attr=cluster_attr):
             aws_sts = IAMAWSSts("STS")
-            aws_service = Dynamodb("DynamoDB")
+            aws_resource = Dynamodb("DynamoDB")
 
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
@@ -406,7 +406,7 @@ with Diagram(
     )
     (
         application_with_irsa
-        >> edge("Use application\naccount for\nJWT token", colour=COLOUR_OIDC)
+        >> edge("Use service\naccount for\nJWT token", colour=COLOUR_OIDC)
         >> service_account
     )
     service_account << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
@@ -430,6 +430,6 @@ with Diagram(
     )
     (
         application_with_irsa
-        >> edge("Access AWS\nservice with\naccess token", colour=COLOUR_OIDC)
-        >> aws_service
+        >> edge("Access AWS\nresource with\naccess token", colour=COLOUR_OIDC)
+        >> aws_resource
     )
