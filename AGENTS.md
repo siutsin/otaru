@@ -26,7 +26,7 @@ This document provides directives for LLM agents working on this project.
 
 - Use clear, descriptive names for variables, functions, and classes
 - Avoid abbreviations unless they are widely recognised (e.g., "API", "HTTP")
-- Prefer verbosity over brevity when it improves clarity
+- Prefer verbosity to brevity when it improves clarity
 
 ### Documentation Requirements
 
@@ -52,7 +52,7 @@ This document provides directives for LLM agents working on this project.
 
 - Add alt text to all images: `![Description](path/to/image.png)`
 - Use descriptive link text: `[Documentation](url)` not `[click here](url)`
-- Check all markdown files against markdownlint rules
+- Check all Markdown files against markdownlint rules
 
 ## Testing Protocol
 
@@ -144,6 +144,30 @@ Use the appropriate tool for each file type:
 | Terragrunt           | `terragrunt`          | Terraform wrapper           |
 | Markdown             | `markdownlint`        | Linting and validation      |
 | General file editing | `Edit` tool           | Text file modifications     |
+
+## Diagram Conventions
+
+### Arrow Direction
+
+Use **action initiator** style for arrow directions - the arrow points FROM the component that initiates the action TO the target.
+
+| Action | Arrow Direction         | Example                          |
+|--------|-------------------------|----------------------------------|
+| Pull   | Initiator → Source      | `ArgoCD → GitHub` (ArgoCD pulls) |
+| Push   | Initiator → Destination | `GitHub → Cloudflare` (webhook)  |
+| Fetch  | Initiator → Source      | `Client → Server`                |
+| Send   | Initiator → Destination | `Server → Client`                |
+
+### Examples
+
+- **ArgoCD pulls from GitHub**: `argocd >> Edge(label="Pull") >> github`
+- **GitHub sends webhook**: `github >> Edge(label="Webhook") >> cloudflare`
+- **Master stores state in etcd**: `master >> Edge(label="state") >> etcd`
+
+### Rationale
+
+Action initiator style makes it clear WHO is performing the action, which aligns with how systems are typically described
+(e.g., "ArgoCD pulls from GitHub" not "GitHub is pulled by ArgoCD").
 
 ## Project Conventions
 
