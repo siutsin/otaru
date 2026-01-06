@@ -45,6 +45,7 @@ Custom icons are stored in `../assets/icons/`.
 | cilium.png           | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | cloudnative-pg.png   | [CNCF Artwork](https://github.com/cncf/artwork/blob/main/projects/cloudnativepg) | [Linux Foundation Trademark](https://github.com/cncf/artwork/blob/master/LICENSE.md) |
 | external-secrets.png | [External Secrets](https://github.com/external-secrets/external-secrets)         | [Apache 2.0](https://github.com/external-secrets/external-secrets/blob/main/LICENSE) |
+| falco.png            | [CNCF Artwork](https://github.com/cncf/artwork/blob/main/projects/falco)         | [Linux Foundation Trademark](https://github.com/cncf/artwork/blob/master/LICENSE.md) |
 | longhorn.png         | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | unifi.png            | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | webgazer.png         | [WebGazer](https://www.webgazer.io/)                                             | Nominative fair use                                                                  |

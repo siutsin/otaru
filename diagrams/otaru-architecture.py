@@ -177,7 +177,7 @@ with Diagram(
                 secrets = Secret("Secrets")
 
                 # Security
-                falco = Helm("Falco")
+                falco = icon_node("Falco", "falco")
 
                 # Monitoring
                 grafana = Grafana("Grafana")

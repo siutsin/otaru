@@ -191,6 +191,24 @@ When adding components to diagrams, follow this priority for icons:
 
 **Important**: Avoid creating unnecessary custom icon files. Reusing built-in icons is preferred over downloading new ones.
 
+#### Icon Size Requirements
+
+All custom icons in `assets/icons/` must be resized to **512x512 pixels** for consistency and to avoid unnecessarily large files.
+
+**To resize icons:**
+
+```bash
+magick icon-name.png -resize 512x512 icon-name.png
+```
+
+**Verify icon size:**
+
+```bash
+file assets/icons/icon-name.png
+```
+
+Icons larger than 512x512 should be resized immediately after downloading.
+
 ## Project Conventions
 
 ### Consistency is Key
