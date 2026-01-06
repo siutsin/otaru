@@ -182,6 +182,7 @@ with Diagram(
                 # Monitoring
                 grafana = Grafana("Grafana")
                 prometheus = Prometheus("Prometheus")
+                promtail = Grafana("Promtail")
                 loki = Loki("Loki")
                 metrics_server = Deployment("Metrics Server")
                 heartbeats_operator = Deployment("Heartbeats\nOperator")
@@ -317,7 +318,8 @@ with Diagram(
 
     # Monitoring
     applications << edge("Scrape metrics", colour=COLOUR_MONITORING) << prometheus
-    applications << edge("Collect logs", colour=COLOUR_MONITORING) << loki
+    applications << edge("Scrape logs", colour=COLOUR_MONITORING) << promtail
+    promtail >> edge("Push logs", colour=COLOUR_MONITORING) >> loki
     (
         applications
         << edge("Runtime security\nmonitoring", colour=COLOUR_MONITORING)
@@ -359,7 +361,7 @@ with Diagram(
     (
         master
         >> edge(
-            "Node-to-Node\nConnectivity via eBPF\nsecured by WireGuard",
+            "Node-to-Node\nConnectivity via\nCilium (eBPF)\nsecured by WireGuard",
             colour=COLOUR_NODE,
         )
         >> worker
@@ -425,7 +427,10 @@ with Diagram(
     )
     (
         cloudflare
-        >> edge("Route to\nwell-known\nendpoint\nvia cloudflared", colour=COLOUR_OIDC)
+        >> edge(
+            "Route to\nwell-known\nendpoint\nvia cloudflared\nand Cilium Gateway",
+            colour=COLOUR_OIDC,
+        )
         >> api_server
     )
     (

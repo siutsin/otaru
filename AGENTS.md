@@ -169,6 +169,28 @@ Use **action initiator** style for arrow directions - the arrow points FROM the 
 Action initiator style makes it clear WHO is performing the action, which aligns with how systems are typically described
 (e.g., "ArgoCD pulls from GitHub" not "GitHub is pulled by ArgoCD").
 
+### Icon Selection
+
+When adding components to diagrams, follow this priority for icons:
+
+#### 1. Prefer built-in icons from the diagrams library
+
+- Check if the component has a built-in icon (e.g., `from diagrams.onprem.monitoring import Grafana`)
+- Reuse similar built-in icons when appropriate (e.g., use `Grafana` icon for Promtail)
+
+#### 2. Refer to diagrams/README.md for custom icon sources
+
+- Check the Custom Icons table to see where existing icons come from
+- Common sources include Dashboard Icons (Apache 2.0), CNCF Artwork, and official project repositories
+
+#### 3. Search the internet as a last resort
+
+- Look for official logos from project websites or repositories
+- Ensure proper licensing before using
+- Document the source and licence in diagrams/README.md
+
+**Important**: Avoid creating unnecessary custom icon files. Reusing built-in icons is preferred over downloading new ones.
+
 ## Project Conventions
 
 ### Consistency is Key
