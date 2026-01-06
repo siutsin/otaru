@@ -73,7 +73,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 <!-- markdownlint-disable MD060 -->
 | Category     | Name          | Service                                                                                  | Description                                  |
 |--------------|---------------|------------------------------------------------------------------------------------------|----------------------------------------------|
-| CI/CD        | Github        | [Actions](https://github.com/features/actions)                                           | Run Terragrunt                               |
+| CI/CD        | GitHub        | [Actions](https://github.com/features/actions)                                           | Run Terragrunt                               |
 | CI/CD        | Sourcery      | [AI Code Reviews](https://docs.sourcery.ai/)                                             | Instant feedback for Pull Requests           |
 | Connectivity | Cloudflare    | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)              | Edge Access Control                          |
 | Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS Service                    |
