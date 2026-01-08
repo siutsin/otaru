@@ -31,7 +31,7 @@ atlantis:
     TERRAGRUNT_TFPATH: /usr/local/bin/tofu
   initConfig:
     enabled: true
-    image: quay.io/curl/curl:latest@sha256:f6710cb71617689b9e3522bde531a1a59f3d39e848be4cb450c9f87c5d15c3a5
+    image: quay.io/curl/curl:latest@sha256:2e9a89e96d173b9c0f8c2be21e6fbd93d86e50eb6040bb7e790b162189982138
     script: |
       #!/bin/sh
       set -eoux pipefail
