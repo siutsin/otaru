@@ -6,5 +6,5 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: grafana
-  version: 10.5.5
+  version: 10.5.6
   repository: https://grafana.github.io/helm-charts
