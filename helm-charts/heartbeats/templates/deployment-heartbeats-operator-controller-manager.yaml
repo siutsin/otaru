@@ -29,7 +29,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/heartbeats:v0.103.0
+          image: ghcr.io/siutsin/heartbeats:v0.104.0
           livenessProbe:
             httpGet:
               path: /healthz
