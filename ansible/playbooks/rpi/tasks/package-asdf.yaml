@@ -5,6 +5,9 @@
   register: latest_asdf_tag
   changed_when: false
   when: "'master' in group_names"
+  retries: 3
+  delay: 10
+  until: latest_asdf_tag.rc == 0 and latest_asdf_tag.stdout != ''
 
 - name: Clone or update asdf to the latest tag
   git:
@@ -15,6 +18,10 @@
   become: true
   become_user: pi
   when: "'master' in group_names"
+  register: asdf_clone_result
+  retries: 3
+  delay: 10
+  until: asdf_clone_result is success
 
 - name: Ensure asdf is sourced in .bashrc with completion after initialization
   blockinfile:
@@ -36,3 +43,7 @@
   become_user: pi
   changed_when: false
   when: "'master' in group_names"
+  register: asdf_install_result
+  retries: 3
+  delay: 10
+  until: asdf_install_result.rc == 0

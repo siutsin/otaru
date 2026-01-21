@@ -8,9 +8,17 @@
 
     - name: Update dependency
       shell: "bash ../../../helm-charts/gateway-api/hack/download-crds.sh"
+      register: gateway_api_dep_result
+      retries: 3
+      delay: 10
+      until: gateway_api_dep_result.rc == 0
 
     - name: Apply gateway-api Helm template
       shell: "helm template ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl create -f - 2>/dev/null || true"
+      register: gateway_api_result
+      retries: 5
+      delay: 10
+      until: gateway_api_result.rc == 0
 
     # Apply Cilium with the first master node's API server address
 
@@ -21,6 +29,10 @@
 
     - name: Update dependency
       shell: "helm dep update ../../../helm-charts/cilium"
+      register: cilium_dep_result
+      retries: 3
+      delay: 10
+      until: cilium_dep_result.rc == 0
 
     - name: Apply cilium Helm template
       # https://github.com/cilium/cilium/issues/33239#issuecomment-2177949109
@@ -28,31 +40,67 @@
         helm template ../../../helm-charts/cilium -n kube-system \
           --api-versions='gateway.networking.k8s.io/v1/GatewayClass' \
           --set cilium.operator.replicas=1 | kubectl create -f - 2>/dev/null || true
+      register: cilium_result
+      retries: 5
+      delay: 10
+      until: cilium_result.rc == 0
 
     - name: Wait for cilium-operator to rollout
       shell: "kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m"
+      register: cilium_operator_result
+      retries: 5
+      delay: 10
+      until: cilium_operator_result.rc == 0
 
     - name: Wait for cilium-envoy to rollout
       shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
+      register: cilium_envoy_result
+      retries: 5
+      delay: 10
+      until: cilium_envoy_result.rc == 0
 
     - name: Wait for cilium to rollout
       shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
+      register: cilium_ds_result
+      retries: 5
+      delay: 10
+      until: cilium_ds_result.rc == 0
 
     - name: Wait for coredns to rollout
       shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"
+      register: coredns_result
+      retries: 5
+      delay: 10
+      until: coredns_result.rc == 0
 
     # Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
 
     - name: Update dependency
       shell: "bash ../../../helm-charts/k3s-apiserver-loadbalancer/hack/create-manifest.sh"
+      register: k3s_lb_dep_result
+      retries: 3
+      delay: 10
+      until: k3s_lb_dep_result.rc == 0
 
     - name: Apply k3s-apiserver-loadbalancer Helm template
       shell: "helm template ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl create -f - 2>/dev/null || true"
+      register: k3s_lb_result
+      retries: 5
+      delay: 10
+      until: k3s_lb_result.rc == 0
 
     - name: Wait for k3s-apiserver-loadbalancer to rollout
       shell: "kubectl rollout status deploy/k3s-apiserver-loadbalancer-controller-manager -n k3s-apiserver-loadbalancer-system --timeout=15m"
+      register: k3s_lb_rollout_result
+      retries: 5
+      delay: 10
+      until: k3s_lb_rollout_result.rc == 0
 
     # Assign dedicated virtual IP to Kubernetes api-server service
 
     - name: Apply gateway-api-kubernetes Helm template
       shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl create -f - 2>/dev/null || true"
+      register: gateway_api_k8s_result
+      retries: 5
+      delay: 10
+      until: gateway_api_k8s_result.rc == 0

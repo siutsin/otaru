@@ -149,6 +149,9 @@
       curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/^v//'
     register: etcd_version
     changed_when: false
+    retries: 3
+    delay: 10
+    until: etcd_version.rc == 0 and etcd_version.stdout != ''
 
   - name: Compare installed and latest version
     debug:
@@ -166,6 +169,10 @@
       dest: /tmp/etcd.tar.gz
     when: installed_version.stdout != etcd_version.stdout
     notify: *restartEtcd
+    register: etcd_download_result
+    retries: 3
+    delay: 10
+    until: etcd_download_result is success
 
   - name: Extract etcd binaries to /tmp if new version is available
     unarchive:
@@ -175,6 +182,10 @@
       creates: /tmp/etcd-v{{ etcd_version.stdout }}-linux-amd64
     when: installed_version.stdout != etcd_version.stdout
     notify: *restartEtcd
+    register: etcd_extract_result
+    retries: 3
+    delay: 10
+    until: etcd_extract_result is success
 
   - name: Move etcd binaries to /usr/local/bin if new version is available
     shell: |

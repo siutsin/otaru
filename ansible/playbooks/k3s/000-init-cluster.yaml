@@ -60,6 +60,9 @@
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       register: first_master_setup
+      retries: 3
+      delay: 10
+      until: first_master_setup.rc == 0
 
     - name: Set FIRST_MASTER_IP variable for later use
       set_fact:
