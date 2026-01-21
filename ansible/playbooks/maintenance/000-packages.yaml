@@ -1,4 +1,15 @@
 ---
+# First play: Update packages on all nodes in parallel
+- hosts: raspberrypi
+  become: true
+
+  tasks:
+    - include_tasks: ../rpi/tasks/package-apt.yaml
+    - include_tasks: ../rpi/tasks/package-asdf.yaml
+    - include_tasks: ../rpi/tasks/package-snap.yaml
+    - include_tasks: ../rpi/tasks/package-binary.yaml
+
+# Second play: Reboot nodes one by one
 - hosts: raspberrypi
   become: true
   serial: 1
@@ -17,11 +28,6 @@
       retries: 5
       delay: 30
       until: drain_result.rc == 0
-
-    - include_tasks: ../rpi/tasks/package-apt.yaml
-    - include_tasks: ../rpi/tasks/package-asdf.yaml
-    - include_tasks: ../rpi/tasks/package-snap.yaml
-    - include_tasks: ../rpi/tasks/package-binary.yaml
 
     - name: Reboot the system
       reboot:
