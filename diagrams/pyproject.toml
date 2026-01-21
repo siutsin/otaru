@@ -16,5 +16,5 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-    "black (>=25.0.0,<26.0.0)"
+    "black (>=26.1.0,<26.2.0)"
 ]
