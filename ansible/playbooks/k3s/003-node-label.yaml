@@ -6,3 +6,7 @@
       command: kubectl label nodes {{ inventory_hostname | replace('.local','') }} volume=true
       delegate_to: raspberrypi-00.local
       become: yes
+      register: label_result
+      retries: 5
+      delay: 10
+      until: label_result.rc == 0

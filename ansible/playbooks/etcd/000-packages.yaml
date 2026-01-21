@@ -7,6 +7,10 @@
       apt:
         update_cache: yes
         upgrade: yes
+      register: apt_update_result
+      retries: 3
+      delay: 5
+      until: apt_update_result is success
 
     - name: Install apt packages
       apt:
@@ -17,6 +21,10 @@
           - net-tools
           - ufw
         state: present
+      register: apt_install_result
+      retries: 3
+      delay: 5
+      until: apt_install_result is success
 
     - name: Clean up unused packages
       apt:

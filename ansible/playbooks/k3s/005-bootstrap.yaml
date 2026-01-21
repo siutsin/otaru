@@ -8,43 +8,83 @@
 
   - name: Create local-path storage class
     shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
+    register: local_path_result
+    retries: 5
+    delay: 10
+    until: local_path_result.rc == 0
 
   # Create namespaces
 
   - name: Create external-secrets namespace
     shell: "kubectl create namespace external-secrets || true"
+    register: external_secrets_ns_result
+    retries: 5
+    delay: 10
+    until: external_secrets_ns_result.rc == 0
 
   - name: Create onepassword namespace
     shell: "kubectl create namespace onepassword || true"
+    register: onepassword_ns_result
+    retries: 5
+    delay: 10
+    until: onepassword_ns_result.rc == 0
 
   # 1Password Connect
 
   - name: Update dependency
     shell: "helm dep update ../../../helm-charts/onepassword-connect"
+    register: onepassword_dep_result
+    retries: 3
+    delay: 10
+    until: onepassword_dep_result.rc == 0
 
   - name: Create Secret for `onepassword-connect`
     shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '
 
       ' < ../../../token)\" 2>/dev/null || true"
+    register: onepassword_secret_result
+    retries: 5
+    delay: 10
+    until: onepassword_secret_result.rc == 0
 
   - name: Initialise 1Password Secret Operator
     shell: |
       helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword \
         --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl create -f - 2>/dev/null || true
+    register: onepassword_init_result
+    retries: 5
+    delay: 10
+    until: onepassword_init_result.rc == 0
 
   # Argo CD
 
   - name: Update dependency
     shell: "helm dep update ../../../helm-charts/argocd"
+    register: argocd_dep_result
+    retries: 3
+    delay: 10
+    until: argocd_dep_result.rc == 0
 
   - name: Create namespace
     shell: "kubectl create namespace argocd || true"
+    register: argocd_ns_result
+    retries: 5
+    delay: 10
+    until: argocd_ns_result.rc == 0
 
   - name: Create argocd-jsonnet-secret
     shell: "kubectl create secret generic argocd-jsonnet-secret -n argocd --from-literal=AWS_ACCOUNT_ID=\"$(tr -d '\n' < ../../../argocd-secret)\" 2>/dev/null || true"
+    register: argocd_secret_result
+    retries: 5
+    delay: 10
+    until: argocd_secret_result.rc == 0
 
   - name: Initialise Argo CD
     shell: "helm template argocd ../../../helm-charts/argocd -n argocd | kubectl create -f - 2>/dev/null || true"
+    register: argocd_init_result
+    retries: 5
+    delay: 10
+    until: argocd_init_result.rc == 0
 
   # Wait for Argo CD and 1Password Connect to be ready
 
@@ -52,6 +92,10 @@
     shell: |
       kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
       kubectl delete pod onepassword-connect-health-check -n onepassword
+    register: onepassword_ready_result
+    retries: 5
+    delay: 10
+    until: onepassword_ready_result.rc == 0
 
   - name: Wait for Argo CD to be ready
     shell: |
@@ -60,22 +104,42 @@
       kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
       kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
       kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
+    register: argocd_ready_result
+    retries: 5
+    delay: 10
+    until: argocd_ready_result.rc == 0
 
   # External Secrets Operator
 
   - name: Update dependency
     shell: "helm dep update ../../../helm-charts/external-secrets"
+    register: external_secrets_dep_result
+    retries: 3
+    delay: 10
+    until: external_secrets_dep_result.rc == 0
 
   - name: Initialise External Secrets Operator
     shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets | kubectl create -f - 2>/dev/null || true"
+    register: external_secrets_init_result
+    retries: 5
+    delay: 10
+    until: external_secrets_init_result.rc == 0
 
   - name: Wait for External Secrets to be ready
     shell: |
       kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m
       kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m
       kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m
+    register: external_secrets_ready_result
+    retries: 5
+    delay: 10
+    until: external_secrets_ready_result.rc == 0
 
   # Bootstrap
 
   - name: Bootstrap Cluster
     shell: "helm template ../../../helm-charts/argocd-bootstrap -n argocd | kubectl create -f - 2>/dev/null || true"
+    register: bootstrap_result
+    retries: 5
+    delay: 10
+    until: bootstrap_result.rc == 0

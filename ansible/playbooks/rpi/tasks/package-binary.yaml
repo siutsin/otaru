@@ -17,6 +17,9 @@
   register: latest_version
   changed_when: false
   when: "'master' in group_names"
+  retries: 3
+  delay: 10
+  until: latest_version.rc == 0 and latest_version.stdout != ''
 
 - name: Install stern if the version is different or not installed
   shell: |
@@ -26,3 +29,7 @@
     mv /tmp/stern /usr/local/bin/stern
     chmod +x /usr/local/bin/stern
   when: "'master' in group_names and (installed_version.stdout == 'not installed' or installed_version.stdout != latest_version.stdout)"
+  register: stern_install_result
+  retries: 3
+  delay: 10
+  until: stern_install_result.rc == 0
