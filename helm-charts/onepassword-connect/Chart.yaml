@@ -6,5 +6,5 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: connect
-  version: 2.2.1
+  version: 2.3.0
   repository: https://1password.github.io/connect-helm-charts
