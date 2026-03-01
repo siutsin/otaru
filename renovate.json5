@@ -8,6 +8,7 @@
     automerge: false,
   },
   minimumReleaseAge: '3 days',
+  abandonmentThreshold: '2 years',
   rebaseWhen: 'behind-base-branch',
   packageRules: [
     {
