@@ -1,6 +1,6 @@
 dependencies:
 - name: falco
   repository: https://falcosecurity.github.io/charts
-  version: 8.0.0
-digest: sha256:5d1dcdbc2bcc9889f6c53c59bcf110c764be5daafddb4fd132cb7f6740e7aace
-generated: "2026-02-07T05:07:42.445643564Z"
+  version: 8.0.1
+digest: sha256:900bada3adebb53f50e0f4bcaba5b47f8702043b5082f931101b3a22242654d9
+generated: "2026-03-02T18:32:27.87489133Z"
