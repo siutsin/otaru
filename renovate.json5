@@ -8,7 +8,6 @@
     automerge: false,
   },
   minimumReleaseAge: '3 days',
-  abandonmentThreshold: '2 years',
   rebaseWhen: 'behind-base-branch',
   packageRules: [
     {
@@ -22,8 +21,9 @@
     {
       matchPackageNames: [
         'autero1/action-terragrunt',
+        'cloudflare-tunnel-remote',
+        'helm/chart-releaser-action',
         'vegardit/gha-setup-yq',
-        'cloudflare-tunnel-remote'
       ],
       abandonmentThreshold: null,
     },
