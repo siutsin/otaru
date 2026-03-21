@@ -173,11 +173,11 @@ lint-editorconfig: ## Check .editorconfig compliance
 	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@command -v editorconfig-checker >/dev/null 2>&1 || { \
+	@command -v ec >/dev/null 2>&1 || { \
 		echo "$(YELLOW)Installing editorconfig-checker...$(NC)"; \
 		npm install -g editorconfig-checker; \
 	}
-	@editorconfig-checker -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+	@ec -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 		echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 		exit 1; \
 	}
