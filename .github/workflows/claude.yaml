@@ -42,11 +42,15 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
           prompt: |
+            If the PR title or description is empty or generic, update them.
+            Use conventional commit style for the title, under 72 characters.
+
             Review the PR changes with focus on:
             1. Code quality, readability, and best practices
             2. Security vulnerabilities
             3. Potential bugs or edge cases
             4. Configuration correctness (Helm, Terraform, YAML)
 
-            Use inline comments for specific issues.
-            Use a top-level comment for general observations.
+            Skip auto-generated files (CRDs, dashboard JSON, lock files).
+            Keep output short and concise. Use bullet points where possible.
+            Only comment on issues worth fixing. Skip praise and nitpicks.
