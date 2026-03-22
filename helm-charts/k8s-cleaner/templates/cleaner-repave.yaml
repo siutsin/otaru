@@ -1,0 +1,84 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: repave
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "0 */6 * * *"
+  action: Transform
+  transform: |
+    function transform()
+      hs = {}
+      local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
+      if obj.spec.template.metadata == nil then
+        obj.spec.template.metadata = {}
+      end
+      if obj.spec.template.metadata.annotations == nil then
+        obj.spec.template.metadata.annotations = {}
+      end
+      obj.spec.template.metadata.annotations["kubectl.kubernetes.io/restartedAt"] = now
+      hs.resource = obj
+      return hs
+    end
+  resourcePolicySet:
+    resourceSelectors:
+      - kind: Deployment
+        group: apps
+        version: v1
+      - kind: StatefulSet
+        group: apps
+        version: v1
+      - kind: DaemonSet
+        group: apps
+        version: v1
+    aggregatedSelection: |
+      function convertTimestamp(ts)
+        local y, mon, d, h, mi, s = ts:match(
+          "(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)Z"
+        )
+        return os.time({
+          year = tonumber(y),
+          month = tonumber(mon),
+          day = tonumber(d),
+          hour = tonumber(h),
+          min = tonumber(mi),
+          sec = tonumber(s),
+        })
+      end
+
+      function evaluate()
+        local hs = {}
+        local maxAge = {{ .Values.repave.maxAgeSeconds }}
+        local now = os.time()
+        local stale = {}
+
+        for _, resource in ipairs(resources) do
+          local lastRestart = nil
+          if resource.spec.template.metadata ~= nil
+            and resource.spec.template.metadata.annotations ~= nil
+            and resource.spec.template.metadata.annotations["kubectl.kubernetes.io/restartedAt"] ~= nil
+          then
+            lastRestart = convertTimestamp(
+              resource.spec.template.metadata.annotations["kubectl.kubernetes.io/restartedAt"]
+            )
+          end
+
+          local age
+          if lastRestart ~= nil then
+            age = os.difftime(now, lastRestart)
+          else
+            age = os.difftime(now, convertTimestamp(resource.metadata.creationTimestamp))
+          end
+
+          if age > maxAge then
+            table.insert(stale, {resource = resource})
+          end
+        end
+
+        if #stale > 0 then
+          hs.resources = stale
+        end
+        return hs
+      end
