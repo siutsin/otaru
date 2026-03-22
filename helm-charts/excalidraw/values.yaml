@@ -3,8 +3,8 @@ namespace: excalidraw
 
 deployment:
   image:
-    repository: ghcr.io/siutsin/excalidraw
-    tag: v0.18.0-arm64@sha256:9af438a18ff85896f3ce0950d599cbc0d0064ac964ed125e946d33ea90c1dedb
+    repository: docker.io/excalidraw/excalidraw
+    tag: latest@sha256:3c2513e830bb6e195147c05b34ecf8393d0ba2b1cc86e93b407a5777d6135c6c
 
 service:
   port: 80
