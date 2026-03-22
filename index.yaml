@@ -653,6 +653,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/k3s-apiserver-loadbalancer-1.0.0/k3s-apiserver-loadbalancer-1.0.0.tgz
     version: 1.0.0
+  k8s-cleaner:
+  - apiVersion: v2
+    created: "2026-03-22T01:25:33.875926362Z"
+    dependencies:
+    - name: k8s-cleaner
+      repository: oci://ghcr.io/gianlucam76/charts
+      version: 0.19.1
+    description: A Helm chart for Kubernetes
+    digest: 0b1e472d37563aedc8970bbb308fa188ac04d2340a1f7cf08233a24b0f2e432d
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: k8s-cleaner
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/k8s-cleaner-0.1.1/k8s-cleaner-0.1.1.tgz
+    version: 0.1.1
   keda:
   - apiVersion: v2
     created: "2025-07-06T15:50:35.222369927Z"
@@ -1004,4 +1019,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-25T23:53:41.250564277Z"
+generated: "2026-03-22T01:25:34.657857914Z"
