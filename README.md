@@ -9,11 +9,11 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ## Architecture
 
-![Architecture](assets/otaru-architecture.png)
+![Otaru cluster architecture diagram](assets/otaru-architecture.png)
 
 ## Hardware
 
-![rack](assets/rack.jpeg)
+![Raspberry Pi rack setup](assets/rack.jpeg)
 
 | Device                              | Description                                                                                                                 | /dev/mmcblk0                | /dev/nvme0n1                                    |
 |-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------|
@@ -51,9 +51,11 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Database     | [CloudNativePG Clusters](helm-charts/cloudnative-pg-clusters)                                       | Multi-cluster PostgreSQL management with B2 backup integration                                                          |
 | Database     | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg)                                   | A Kubernetes operator that manages PostgreSQL clusters                                                                  |
 | Monitoring   | [Grafana](https://github.com/grafana/grafana)                                                       | Grafana LGTM Stack. Visualisation dashboards                                                                            |
+| Monitoring   | [Heartbeats](helm-charts/heartbeats)                                                                | Kubernetes operator for heartbeat monitoring                                                                            |
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines                  |
 | Monitoring   | [Monitoring Stack](helm-charts/monitoring)                                                          | Complete monitoring stack with Grafana, Prometheus, and Loki                                                            |
 | Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                                        |
+| Scheduling   | [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)                                           | Automated failed pod cleanup and periodic workload repaving                                                             |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                                 |
 | Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                                                           |
 | Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                                                                  |
