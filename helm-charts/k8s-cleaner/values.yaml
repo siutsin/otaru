@@ -1,7 +1,17 @@
 namespace: k8s-cleaner
 
+excludeNamespaces: &excludeNamespaces
+  - cilium
+  - cilium-gateway
+  - kube-system
+  - longhorn-system
+
 repave:
   maxAgeSeconds: 259200
+  excludeNamespaces: *excludeNamespaces
+
+failedPods:
+  excludeNamespaces: *excludeNamespaces
 
 k8s-cleaner:
   affinity:
