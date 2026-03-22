@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  schedule: "0 */6 * * *"
+  schedule: "40 1/6 * * *"
   action: Transform
   transform: |
     function transform()
@@ -27,12 +27,15 @@ spec:
       - kind: Deployment
         group: apps
         version: v1
+        namespaceSelector: "kubernetes.io/metadata.name notin ({{ join "," .Values.repave.excludeNamespaces }})"
       - kind: StatefulSet
         group: apps
         version: v1
+        namespaceSelector: "kubernetes.io/metadata.name notin ({{ join "," .Values.repave.excludeNamespaces }})"
       - kind: DaemonSet
         group: apps
         version: v1
+        namespaceSelector: "kubernetes.io/metadata.name notin ({{ join "," .Values.repave.excludeNamespaces }})"
     aggregatedSelection: |
       function convertTimestamp(ts)
         local y, mon, d, h, mi, s = ts:match(

@@ -12,6 +12,7 @@ spec:
       - kind: Pod
         group: ""
         version: v1
+        namespaceSelector: "kubernetes.io/metadata.name notin ({{ join "," .Values.failedPods.excludeNamespaces }})"
         evaluate: |
           function evaluate()
             hs = {}
