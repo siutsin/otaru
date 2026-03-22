@@ -1,0 +1,26 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: failed-pods
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "*/5 * * * *"
+  resourcePolicySet:
+    resourceSelectors:
+      - kind: Pod
+        group: ""
+        version: v1
+        evaluate: |
+          function evaluate()
+            hs = {}
+            hs.matching = false
+
+            if obj.status.phase == "Failed" then
+              hs.matching = true
+            end
+
+            return hs
+          end
+  action: Delete

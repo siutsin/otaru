@@ -93,6 +93,7 @@ local monitoring = [
 
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
+  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner' },
   { wave: '02', name: 'keda', namespace: 'keda' },
   { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.reloader },
 ];

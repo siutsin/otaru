@@ -1,0 +1,16 @@
+namespace: k8s-cleaner
+
+repave:
+  maxAgeSeconds: 259200
+
+k8s-cleaner:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: NotIn
+                values:
+                  - "true"
