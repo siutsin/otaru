@@ -121,7 +121,7 @@ argo-cd:
         securityContext:
           runAsNonRoot: true
           runAsUser: 999
-        image: ghcr.io/siutsin/images/go-jsonnet:202510120038@sha256:8c7f8ae59fdc0bae8a5bc12aec06c687c3c6f4a0410eeded05cc87b7fcc0d076
+        image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0-rc1-202603220524@sha256:5261f61f4f94b17cfb92ddcf7518c36a909366657a8cfff16a91d7b277a19de8
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
