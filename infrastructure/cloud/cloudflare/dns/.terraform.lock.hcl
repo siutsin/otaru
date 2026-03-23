@@ -2,15 +2,17 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/backblaze/b2" {
-  version     = "0.12.1"
+  version     = "0.8.12"
   constraints = "~> 0.8"
   hashes = [
-    "h1:xMvfLhQ9+9YFpvyP8oLSwqBVS4LudCSJlqNVbN0CSPA=",
-    "zh:4c7a3832f94bb2e46af0ce557bfee4227d4c94c7d626a243fdc58a48268b66ba",
-    "zh:58279e49cb9d350b00670c16a7c15ee6f4c2b7b935f25240f490599da6ca674e",
-    "zh:931bf63adae2b26ebac5794096c625aa2989fb5b39fa67f2f023efbc6e2946d5",
-    "zh:b7290453def715d49723d70f7e3047651229f45f57ab56975261e6867378c150",
-    "zh:c675c7be91214dc02193c0cb649022923648fbf768358738091dfa68d92e4ea5",
+    "h1:+zf4b76chIrJbVcbzoenR8X+uFFnGhUjPUACpnBIYcs=",
+    "h1:BEkDopTPomebKDT/yhSQ2zp0zQUF9p6REQ/uKVXMiHM=",
+    "h1:DKZehZTdHC0fJzAA74yMzUaHm1PisNaNaBQjAOSS9kk=",
+    "h1:rA+Y9HyJGPV7kU52+9vKRM90RiGjdwj9Tas5ZImfsw0=",
+    "zh:bc9d25d21adeafba8edde8d6ffb6150cd5c86c207412c8941347966be3363de5",
+    "zh:c538eaea1b15379635b9d8a2cb862248813022bb0de5481741f18fcc77a10a1b",
+    "zh:cc2767797ad27b9a3b4ad97b6a2f3eeea9f50a6000bbcfa9b44189945dae30b3",
+    "zh:d83b5f0e632ea56570a0737c1896f049367201cc67f5de83baa24272ccdd56a4",
   ]
 }
 
