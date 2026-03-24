@@ -6,9 +6,16 @@ cloudflare-tunnel-remote:
     secretName: cloudflare-tunnel
 
   image:
-    tag: latest
+    tag: "2026.3.0"
 
   replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      memory: 128Mi
 
   affinity:
     nodeAffinity:
