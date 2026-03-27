@@ -2,9 +2,18 @@ local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
 local revision = 'HEAD';
 
+local divisorJqPath = '.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor';
+local resourceFieldRefDivisor(name) = [{
+  group: 'apps',
+  kind: 'Deployment',
+  name: name,
+  jqPathExpressions: [divisorJqPath],
+}];
+
 local _ignoreDifferences = {
   scheduling: {
-    reloader: [{ group: 'apps', kind: 'Deployment', name: 'reloader-reloader', jqPathExpressions: ['.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor'] }],
+    'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner'),
+    reloader: resourceFieldRefDivisor('reloader-reloader'),
   },
 };
 
@@ -93,7 +102,7 @@ local monitoring = [
 
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
-  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner' },
+  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling['k8s-cleaner'] },
   { wave: '02', name: 'keda', namespace: 'keda' },
   { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.reloader },
 ];
