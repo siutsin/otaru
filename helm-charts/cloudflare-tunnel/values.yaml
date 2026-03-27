@@ -1,29 +1,26 @@
 name: cloudflare-tunnel
 namespace: cloudflare-tunnel
 
-cloudflare-tunnel-remote:
-  cloudflare:
-    secretName: cloudflare-tunnel
+image:
+  repository: cloudflare/cloudflared
+  tag: "2026.3.0"
 
-  image:
-    tag: "2026.3.0"
+replicaCount: 2
 
-  replicaCount: 2
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 128Mi
 
-  resources:
-    requests:
-      cpu: 10m
-      memory: 128Mi
-    limits:
-      memory: 128Mi
-
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: volume
+              operator: NotIn
+              values:
+                - "true"

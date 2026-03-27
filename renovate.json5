@@ -21,7 +21,6 @@
     {
       matchPackageNames: [
         'autero1/action-terragrunt',
-        'cloudflare-tunnel-remote',
         'helm/chart-releaser-action',
         'vegardit/gha-setup-yq',
       ],
