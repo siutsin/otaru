@@ -13,13 +13,38 @@ on:
     types: [submitted]
 
 jobs:
+  check-files:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      should-review: ${{ steps.check.outputs.should-review }}
+    steps:
+      - name: Check if only claude.yaml changed
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.url }}
+        run: |
+          FILES=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
+          if echo "$FILES" | grep -qvx '.github/workflows/claude.yaml'; then
+            echo "should-review=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should-review=false" >> "$GITHUB_OUTPUT"
+          fi
+
   claude:
+    needs: check-files
     if: |
-      (github.event_name == 'pull_request' && github.actor != 'renovate[bot]' && github.actor != 'otaru-ci[bot]') ||
+      always() &&
+      ((github.event_name == 'pull_request' && needs.check-files.outputs.should-review == 'true') ||
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') ||
+        contains(github.event.issue.title, '@claude'))))
     runs-on: ubuntu-latest
     environment: automation
     permissions:
@@ -57,3 +82,17 @@ jobs:
             Skip auto-generated files (CRDs, dashboard JSON, lock files).
             Keep output short and concise. Use bullet points where possible.
             Only comment on issues worth fixing. Skip praise and nitpicks.
+
+  claude-status:
+    if: always()
+    needs: claude
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check claude result
+        env:
+          CLAUDE_RESULT: ${{ needs.claude.result }}
+        run: |
+          if [ "$CLAUDE_RESULT" = "failure" ] || [ "$CLAUDE_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
