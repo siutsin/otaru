@@ -14,7 +14,9 @@ spec:
         pod: cloudflared
     spec:
       serviceAccountName: {{ .Values.name }}
-      automountServiceAccountToken: false
+      # Required: OIDC ingress rules need the CA cert at
+      # /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 60
       containers:
         - name: cloudflared
