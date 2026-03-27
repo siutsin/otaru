@@ -2,6 +2,7 @@ name: cloudflare-tunnel
 namespace: cloudflare-tunnel
 
 image:
+  repository: cloudflare/cloudflared
   tag: "2026.3.0"
 
 replicaCount: 2
