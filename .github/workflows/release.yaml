@@ -46,7 +46,6 @@ jobs:
           helm repo add onepassword-connect https://1password.github.io/connect-helm-charts
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add siutsin https://siutsin.github.io/otaru
-          helm repo add siutsin-cloudflare https://siutsin.github.io/cloudflare-helm-charts
           helm repo add stakater https://stakater.github.io/stakater-charts
 
       - name: Run chart-releaser
