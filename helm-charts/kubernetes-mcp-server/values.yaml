@@ -1,4 +1,8 @@
+name: k8s-mcp
 namespace: kubernetes-mcp-server
+
+service:
+  port: 8080
 
 kubernetes-mcp-server:
   ingress:
