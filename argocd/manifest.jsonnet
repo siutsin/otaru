@@ -10,9 +10,15 @@ local resourceFieldRefDivisor(name) = [{
   jqPathExpressions: [divisorJqPath],
 }];
 
+local cleanerExcludeDeleted = [{
+  group: 'apps.projectsveltos.io',
+  kind: 'Cleaner',
+  jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
+}];
+
 local _ignoreDifferences = {
   scheduling: {
-    'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner'),
+    'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner') + cleanerExcludeDeleted,
     reloader: resourceFieldRefDivisor('reloader-reloader'),
   },
 };
