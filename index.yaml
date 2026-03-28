@@ -706,6 +706,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/keda-0.1.0/keda-0.1.0.tgz
     version: 0.1.0
+  kubernetes-mcp-server:
+  - apiVersion: v2
+    created: "2026-03-28T23:06:08.424904599Z"
+    dependencies:
+    - name: kubernetes-mcp-server
+      repository: oci://ghcr.io/containers/charts
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 70e36c6ed4340212131c07a2d3e56f79bbe4bc7c9fe3e21cab8fc4e661ffef9a
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: kubernetes-mcp-server
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/kubernetes-mcp-server-0.1.1/kubernetes-mcp-server-0.1.1.tgz
+    version: 0.1.1
   kubernetes-service-patcher:
   - apiVersion: v2
     created: "2024-10-04T23:15:04.548614962Z"
@@ -1029,4 +1044,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-27T02:18:25.409053128Z"
+generated: "2026-03-28T23:06:08.574124266Z"
