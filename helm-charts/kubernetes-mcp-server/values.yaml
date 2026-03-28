@@ -1,0 +1,22 @@
+name: k8s-mcp
+namespace: kubernetes-mcp-server
+
+kubernetes-mcp-server:
+  ingress:
+    enabled: false
+  service:
+    port: 8080
+  fullnameOverride: kubernetes-mcp-server
+  resources:
+    limits:
+      cpu: ~
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: NotIn
+                values:
+                  - "true"
