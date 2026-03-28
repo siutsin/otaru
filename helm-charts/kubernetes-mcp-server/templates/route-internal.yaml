@@ -19,6 +19,6 @@ spec:
       backendRefs:
         - group: ""
           kind: Service
-          name: kubernetes-mcp-server
+          name: {{ index .Values "kubernetes-mcp-server" "fullnameOverride" }}
           port: {{ index .Values "kubernetes-mcp-server" "service" "port" }}
           weight: 1

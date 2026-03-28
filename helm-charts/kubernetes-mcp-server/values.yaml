@@ -6,6 +6,7 @@ kubernetes-mcp-server:
     enabled: false
   service:
     port: 8080
+  fullnameOverride: kubernetes-mcp-server
   resources:
     limits:
       cpu: ~
