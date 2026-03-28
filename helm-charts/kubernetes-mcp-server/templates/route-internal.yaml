@@ -20,5 +20,5 @@ spec:
         - group: ""
           kind: Service
           name: kubernetes-mcp-server
-          port: {{ .Values.service.port }}
+          port: {{ index .Values "kubernetes-mcp-server" "service" "port" }}
           weight: 1
