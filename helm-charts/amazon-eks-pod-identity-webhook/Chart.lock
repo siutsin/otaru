@@ -1,6 +1,6 @@
 dependencies:
 - name: amazon-eks-pod-identity-webhook
   repository: https://jkroepke.github.io/helm-charts/
-  version: 2.6.1
-digest: sha256:7c4d55d39c6c46062fcfa1aa53c8ab2f585a8e450dcad1d987b1f3a81ae5e6a6
-generated: "2026-03-21T18:20:33.601106991Z"
+  version: 2.6.2
+digest: sha256:c437f261f03d5fd0dfbbd324489e54a967aef0bb329086fc982ed014c8cbbc01
+generated: "2026-04-03T04:33:51.641620546Z"
