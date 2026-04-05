@@ -6,11 +6,12 @@
     rpi_local_vault_file: "{{ lookup('env', 'HOME') }}/dotfiles/password/ansible_vault.yaml"
     rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
     rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
-    rpi_eth0_address: "{{ ansible_host }}/24"
+    rpi_eth0_address: "{{ ansible_host_eth | default(ansible_host, true) }}/24"
+    rpi_wifi_address: "{{ ansible_host_wifi | default('', true) }}"
     rpi_gateway: 192.168.1.1
-    rpi_wifi_dhcp4: true
+    rpi_wifi_gateway: "{{ ansible_host_wifi_gateway | default(rpi_gateway, true) }}"
     rpi_wifi_optional: true
-    rpi_wifi_configure: "{{ (rpi_wifi_ssid | default('', true) | length > 0) and (rpi_wifi_password | default('', true) | length > 0) }}"
+    rpi_wifi_configure: "{{ (rpi_wifi_ssid | default('', true) | length > 0) and (rpi_wifi_password | default('', true) | length > 0) and (rpi_wifi_address | length > 0) }}"
 
   pre_tasks:
     - name: Check if local Ansible vault file exists
@@ -88,16 +89,20 @@
     - name: Configure wlan0 netplan settings using yq
       command: |
         /snap/bin/yq -i '
-          (.network.wifis.wlan0.dhcp4) = env(RPI_WIFI_DHCP4) == "true" |
+          (.network.wifis.wlan0.dhcp4) = false |
           (.network.wifis.wlan0.optional) = env(RPI_WIFI_OPTIONAL) == "true" |
+          (.network.wifis.wlan0.addresses) = [env(RPI_WIFI_ADDRESS) + "/24"] |
+          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 600}] |
+          (.network.wifis.wlan0.nameservers.addresses) = [env(RPI_WIFI_GATEWAY)] |
           (.network.wifis.wlan0.access-points[env(RPI_WIFI_SSID)].password) = env(RPI_WIFI_PASSWORD)
         ' {{ rpi_netplan_work_file }}
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
       when: rpi_wifi_configure
       environment:
-        RPI_WIFI_DHCP4: "{{ 'true' if rpi_wifi_dhcp4 else 'false' }}"
         RPI_WIFI_OPTIONAL: "{{ 'true' if rpi_wifi_optional else 'false' }}"
+        RPI_WIFI_ADDRESS: "{{ rpi_wifi_address }}"
+        RPI_WIFI_GATEWAY: "{{ rpi_wifi_gateway }}"
         RPI_WIFI_SSID: "{{ rpi_wifi_ssid | default('', true) }}"
         RPI_WIFI_PASSWORD: "{{ rpi_wifi_password | default('', true) }}"
 

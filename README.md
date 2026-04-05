@@ -113,7 +113,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 2. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    for i in {60..63}; do ssh-keygen -R "192.168.1.$i"; done && for i in {60..63}; do ssh-keyscan "192.168.1.$i" >> ~/.ssh/known_hosts; done
+    for ip in 192.168.1.{60..63} 192.168.4.{80..83}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
     ```
 
 3. **Set Up Service Credentials**
@@ -137,7 +137,31 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     └── token.sample
     ```
 
-4. **Bootstrap Cluster**
+4. **Set Up Raspberry Pi Wi-Fi Credentials**
+
+    Save the Raspberry Pi Wi-Fi credentials in `~/dotfiles/password/ansible_vault.yaml`.
+
+    ```yaml
+    rpi_wifi_ssid: <ssid>
+    rpi_wifi_password: <password>
+    ```
+
+    Raspberry Pi inventory entries use three IP variables:
+
+    - `ansible_host`: the current Ansible connection target
+    - `ansible_host_eth`: the static LAN IP for `eth0`
+    - `ansible_host_wifi`: the static Wi-Fi IP for `wlan0`
+    - `ansible_host_wifi_gateway`: the Wi-Fi gateway for the SSID network
+
+    Current network layout:
+
+    - LAN `eth0`: `192.168.1.60-63`
+    - Wi-Fi `wlan0` on SSID `kubectl`: `192.168.4.80-83`
+    - Wi-Fi gateway: `192.168.4.1`
+
+    Keep `ansible_host` on LAN during rollout. After Wi-Fi access is verified, Ansible can be moved to Wi-Fi later without changing the intended interface addresses.
+
+5. **Bootstrap Cluster**
 
     ```shell
     make setup-cluster
