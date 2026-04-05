@@ -4,4 +4,4 @@ longhorn-volume-lib:
     changedetection:
       size: "10Gi"
       sizeBytes: "10737418240"
-      fromBackup: ~
+      fromBackup: ""
