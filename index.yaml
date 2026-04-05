@@ -184,6 +184,32 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/cert-manager-0.1.0/cert-manager-0.1.0.tgz
     version: 0.1.0
+  changedetection:
+  - apiVersion: v2
+    created: "2026-04-05T23:23:04.45648472Z"
+    description: A Helm chart for Kubernetes
+    digest: 10375ce7c4ef23bb542442f92b6aeff5fbffaf8f6fcf9e3cf2bd349525ef8ee3
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: changedetection
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/changedetection-0.1.1/changedetection-0.1.1.tgz
+    version: 0.1.1
+  changedetection-volume:
+  - apiVersion: v2
+    created: "2026-04-05T23:23:04.568961626Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: https://siutsin.github.io/otaru
+      version: 0.2.1
+    description: A Helm chart for Kubernetes
+    digest: 268d5aa7d881a1fb7cc6aca7902de820074d00b07ec36efcd55d4f246e799ca1
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: changedetection-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/changedetection-volume-0.1.1/changedetection-volume-0.1.1.tgz
+    version: 0.1.1
   cilium:
   - apiVersion: v2
     created: "2025-07-06T15:50:33.375980108Z"
@@ -1044,4 +1070,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-28T23:06:08.574124266Z"
+generated: "2026-04-05T23:23:05.263297362Z"
