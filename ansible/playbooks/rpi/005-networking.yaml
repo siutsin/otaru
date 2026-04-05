@@ -2,6 +2,28 @@
 - hosts: raspberrypi
   become: true
   gather_facts: true
+  vars:
+    rpi_local_vault_file: "{{ lookup('env', 'HOME') }}/dotfiles/password/ansible_vault.yaml"
+    rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
+    rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
+    rpi_eth0_address: "{{ ansible_host }}/24"
+    rpi_gateway: 192.168.1.1
+    rpi_wifi_dhcp4: true
+    rpi_wifi_optional: true
+    rpi_wifi_configure: "{{ (rpi_wifi_ssid | default('', true) | length > 0) and (rpi_wifi_password | default('', true) | length > 0) }}"
+
+  pre_tasks:
+    - name: Check if local Ansible vault file exists
+      stat:
+        path: "{{ rpi_local_vault_file }}"
+      delegate_to: localhost
+      become: false
+      register: rpi_local_vault_stat
+
+    - name: Load Wi-Fi credentials from local Ansible vault
+      include_vars:
+        file: "{{ rpi_local_vault_file }}"
+      when: rpi_local_vault_stat.stat.exists
 
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
@@ -43,41 +65,56 @@
     # for some reason, even sudo doesn't work, so we have to copy the file to the home directory,
     # set the permissions, modify the file, and then move it back
     - name: Copy netplan config to home directory
-      command: cp /etc/netplan/50-cloud-init.yaml /home/pi/50-cloud-init.yaml
+      command: cp {{ rpi_netplan_file }} {{ rpi_netplan_work_file }}
       become: true
       changed_when: false
 
     - name: Change ownership of the copied netplan file to the user pi
-      command: chown pi:pi /home/pi/50-cloud-init.yaml
+      command: chown pi:pi {{ rpi_netplan_work_file }}
       become: true
       changed_when: false
 
-    - name: Disable wlan0, set dhcp4 to false, add addresses, and set routes for eth0 using yq
+    - name: Configure eth0 netplan settings using yq
       command: |
         /snap/bin/yq -i '
-          del(.network.wifis.wlan0) |
           (.network.ethernets.eth0.dhcp4) = false |
-          (.network.ethernets.eth0.addresses) = ["{{ ansible_host }}/24"] |
-          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "192.168.1.1", "metric": 100}] |
-          (.network.ethernets.eth0.nameservers.addresses) = ["192.168.1.1"]
-        ' /home/pi/50-cloud-init.yaml
+          (.network.ethernets.eth0.addresses) = ["{{ rpi_eth0_address }}"] |
+          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 100}] |
+          (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
+        ' {{ rpi_netplan_work_file }}
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
 
+    - name: Configure wlan0 netplan settings using yq
+      command: |
+        /snap/bin/yq -i '
+          (.network.wifis.wlan0.dhcp4) = env(RPI_WIFI_DHCP4) == "true" |
+          (.network.wifis.wlan0.optional) = env(RPI_WIFI_OPTIONAL) == "true" |
+          (.network.wifis.wlan0.access-points[env(RPI_WIFI_SSID)].password) = env(RPI_WIFI_PASSWORD)
+        ' {{ rpi_netplan_work_file }}
+      become: false  # Run this as pi, since the file is owned by pi
+      changed_when: false
+      when: rpi_wifi_configure
+      environment:
+        RPI_WIFI_DHCP4: "{{ 'true' if rpi_wifi_dhcp4 else 'false' }}"
+        RPI_WIFI_OPTIONAL: "{{ 'true' if rpi_wifi_optional else 'false' }}"
+        RPI_WIFI_SSID: "{{ rpi_wifi_ssid | default('', true) }}"
+        RPI_WIFI_PASSWORD: "{{ rpi_wifi_password | default('', true) }}"
+
     - name: Check if the modified netplan file is different from the original
-      shell: diff /home/pi/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml
+      shell: diff {{ rpi_netplan_work_file }} {{ rpi_netplan_file }}
       register: netplan_diff
       ignore_errors: true
       changed_when: netplan_diff.rc == 1
       failed_when: netplan_diff.rc not in [0, 1]
 
     - name: Change ownership of the modified netplan file back to root
-      command: chown root:root /home/pi/50-cloud-init.yaml
+      command: chown root:root {{ rpi_netplan_work_file }}
       become: true
       when: netplan_diff.stdout != ""
 
     - name: Move the modified netplan file back to /etc/netplan
-      command: mv /home/pi/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml
+      command: mv {{ rpi_netplan_work_file }} {{ rpi_netplan_file }}
       become: true
       when: netplan_diff.stdout != ""
       notify:
@@ -85,7 +122,7 @@
 
     - name: Clean up temporary netplan file if no changes
       file:
-        path: /home/pi/50-cloud-init.yaml
+        path: "{{ rpi_netplan_work_file }}"
         state: absent
       when: netplan_diff.stdout == ""
       changed_when: false
@@ -99,9 +136,10 @@
         daemon_reload: yes
 
     - name: Apply netplan configuration
-      command: timeout 10s netplan apply
-      ignore_errors: true
+      command: netplan apply
       become: true
+      async: 120
+      poll: 0
       notify: Wait for system to become reachable
 
     - name: Wait for system to become reachable
