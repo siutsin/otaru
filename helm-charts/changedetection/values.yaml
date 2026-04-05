@@ -3,7 +3,7 @@ namespace: changedetection
 
 onepassword:
   key: changedetection
-  property: config.yml
+  property: config.yaml
 
 deployment:
   image:
