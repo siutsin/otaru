@@ -1,6 +1,41 @@
 namespace: argocd
 
 argo-cd:
+  _shared:
+    controllerResources: &controllerResources
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        memory: 512Mi
+    componentResources: &componentResources
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 256Mi
+    redisResources: &redisResources
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 128Mi
+    readinessProbe: &readinessProbe
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    livenessProbe: &livenessProbe
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
+    singletonPdb: &singletonPdb
+      enabled: true
+      minAvailable: 1
+    haPdb: &haPdb
+      enabled: true
+      maxUnavailable: 1
   global:
     affinity:
       nodeAffinity:
@@ -49,10 +84,29 @@ argo-cd:
     enabled: false
   controller:
     replicas: 3
+    resources: *controllerResources
+    readinessProbe: *readinessProbe
+    pdb: *haPdb
   server:
     autoscaling:
       enabled: true
       minReplicas: 2
+    resources: *componentResources
+    readinessProbe: *readinessProbe
+    livenessProbe: *livenessProbe
+    pdb: *haPdb
+  applicationSet:
+    resources: *componentResources
+    readinessProbe:
+      <<: *readinessProbe
+      enabled: true
+    livenessProbe:
+      <<: *livenessProbe
+      enabled: true
+    pdb: *singletonPdb
+  redis:
+    resources: *redisResources
+    pdb: *singletonPdb
   repoServer:
     autoscaling:
       enabled: true
@@ -75,6 +129,7 @@ argo-cd:
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 6
+    pdb: *haPdb
     containerSecurityContext:
       runAsUser: 999
     rbac:
