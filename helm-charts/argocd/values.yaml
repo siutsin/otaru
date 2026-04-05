@@ -40,8 +40,6 @@ argo-cd:
               - --ext-str
               - LONGHORN_BACKUP_TARGET
               - --ext-str
-              - CHANGEDETECTION_VOLUME_FROM_BACKUP
-              - --ext-str
               - HOME_ASSISTANT_VOLUME_FROM_BACKUP
               - --ext-str
               - YAADE_VOLUME_FROM_BACKUP
@@ -108,11 +106,6 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: LONGHORN_BACKUP_TARGET
-          - name: CHANGEDETECTION_VOLUME_FROM_BACKUP
-            valueFrom:
-              secretKeyRef:
-                name: argocd-jsonnet-secret
-                key: CHANGEDETECTION_VOLUME_FROM_BACKUP
           - name: HOME_ASSISTANT_VOLUME_FROM_BACKUP
             valueFrom:
               secretKeyRef:
