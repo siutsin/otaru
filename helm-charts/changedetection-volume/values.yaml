@@ -1,0 +1,7 @@
+longhorn-volume-lib:
+  namespace: changedetection
+  volumes:
+    changedetection:
+      size: "10Gi"
+      sizeBytes: "10737418240"
+      fromBackup: ~

@@ -9,6 +9,7 @@
 
 # blocky
 helm-charts/blocky/**/config.yml
+helm-charts/changedetection/config.yaml
 
 # etcd certs
 certs/*

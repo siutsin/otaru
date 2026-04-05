@@ -38,12 +38,14 @@ local cnpgClustersHelm = { parameters: [
   { name: 'backup.b2.endpoint', value: std.extVar('CNPG_BACKUP_ENDPOINT') },
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
+local changedetectionVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.changedetection.fromBackup', value: std.extVar('CHANGEDETECTION_VOLUME_FROM_BACKUP') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
 local yaadeVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.yaade.fromBackup', value: std.extVar('YAADE_VOLUME_FROM_BACKUP') }] };
 
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
+  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection', helm: changedetectionVolumeHelm },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
@@ -52,6 +54,7 @@ local application = [
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'yaade-volume', namespace: 'yaade', helm: yaadeVolumeHelm },
+  { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
   { wave: '11', name: 'yaade', namespace: 'yaade' },
 ];
