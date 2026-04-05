@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.4+k3s1-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.6+k3s1-blue)
 [![Cluster Health](https://img.shields.io/static/v1?label=Cluster%20Health&message=WebGazer&color=brightgreen)](https://www.webgazer.io/s?id=493)
 
 > Over-Engineering at Its Finest.
