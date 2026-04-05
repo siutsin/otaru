@@ -1,6 +1,29 @@
 namespace: argocd
 
 argo-cd:
+  _shared:
+    controllerResources: &controllerResources
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        memory: 512Mi
+    componentResources: &componentResources
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 256Mi
+    readinessProbe: &readinessProbe
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    livenessProbe: &livenessProbe
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
   global:
     affinity:
       nodeAffinity:
@@ -49,10 +72,23 @@ argo-cd:
     enabled: false
   controller:
     replicas: 3
+    resources: *controllerResources
+    readinessProbe: *readinessProbe
   server:
     autoscaling:
       enabled: true
       minReplicas: 2
+    resources: *componentResources
+    readinessProbe: *readinessProbe
+    livenessProbe: *livenessProbe
+  applicationSet:
+    resources: *componentResources
+    readinessProbe:
+      <<: *readinessProbe
+      enabled: true
+    livenessProbe:
+      <<: *livenessProbe
+      enabled: true
   repoServer:
     autoscaling:
       enabled: true
