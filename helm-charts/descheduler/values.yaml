@@ -1,8 +1,41 @@
 descheduler:
   kind: Deployment
   resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
     limits:
       memory: 256Mi
+  deschedulerPolicy:
+    profiles:
+      - name: default
+        pluginConfig:
+          - name: DefaultEvictor
+            args:
+              podProtections:
+                defaultDisabled:
+                  - PodsWithLocalStorage
+          - name: RemovePodsHavingTooManyRestarts
+            args:
+              podRestartThreshold: 100
+              includingInitContainers: true
+          - name: LowNodeUtilization
+            args:
+              thresholds:
+                cpu: 20
+                memory: 20
+                pods: 20
+              targetThresholds:
+                cpu: 50
+                memory: 50
+                pods: 50
+        plugins:
+          balance:
+            enabled:
+              - LowNodeUtilization
+          deschedule:
+            enabled:
+              - RemovePodsHavingTooManyRestarts
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
