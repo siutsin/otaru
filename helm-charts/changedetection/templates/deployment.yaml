@@ -30,6 +30,7 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           command:
             - /bin/sh
             - -ec
