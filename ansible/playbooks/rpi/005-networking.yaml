@@ -66,12 +66,12 @@
     # for some reason, even sudo doesn't work, so we have to copy the file to the home directory,
     # set the permissions, modify the file, and then move it back
     - name: Copy netplan config to home directory
-      command: cp {{ rpi_netplan_file }} {{ rpi_netplan_work_file }}
+      command: cp "{{ rpi_netplan_file }}" "{{ rpi_netplan_work_file }}"
       become: true
       changed_when: false
 
     - name: Change ownership of the copied netplan file to the user pi
-      command: chown pi:pi {{ rpi_netplan_work_file }}
+      command: chown pi:pi "{{ rpi_netplan_work_file }}"
       become: true
       changed_when: false
 
@@ -82,7 +82,7 @@
           (.network.ethernets.eth0.addresses) = ["{{ rpi_eth0_address }}"] |
           (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 100}] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
-        ' {{ rpi_netplan_work_file }}
+        ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
 
@@ -95,7 +95,7 @@
           (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 600}] |
           (.network.wifis.wlan0.nameservers.addresses) = [env(RPI_WIFI_GATEWAY)] |
           (.network.wifis.wlan0.access-points[env(RPI_WIFI_SSID)].password) = env(RPI_WIFI_PASSWORD)
-        ' {{ rpi_netplan_work_file }}
+        ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
       when: rpi_wifi_configure
@@ -107,19 +107,19 @@
         RPI_WIFI_PASSWORD: "{{ rpi_wifi_password | default('', true) }}"
 
     - name: Check if the modified netplan file is different from the original
-      shell: diff {{ rpi_netplan_work_file }} {{ rpi_netplan_file }}
+      shell: diff "{{ rpi_netplan_work_file }}" "{{ rpi_netplan_file }}"
       register: netplan_diff
       ignore_errors: true
       changed_when: netplan_diff.rc == 1
       failed_when: netplan_diff.rc not in [0, 1]
 
     - name: Change ownership of the modified netplan file back to root
-      command: chown root:root {{ rpi_netplan_work_file }}
+      command: chown root:root "{{ rpi_netplan_work_file }}"
       become: true
       when: netplan_diff.stdout != ""
 
     - name: Move the modified netplan file back to /etc/netplan
-      command: mv {{ rpi_netplan_work_file }} {{ rpi_netplan_file }}
+      command: mv "{{ rpi_netplan_work_file }}" "{{ rpi_netplan_file }}"
       become: true
       when: netplan_diff.stdout != ""
       notify:
@@ -141,6 +141,7 @@
         daemon_reload: yes
 
     - name: Apply netplan configuration
+      # Run asynchronously because netplan may briefly disrupt the SSH session.
       command: netplan apply
       become: true
       async: 120
@@ -149,7 +150,7 @@
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ ansible_host }}"
         port: 22
         delay: 3
         timeout: 600

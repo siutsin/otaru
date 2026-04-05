@@ -146,7 +146,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     rpi_wifi_password: <password>
     ```
 
-    Raspberry Pi inventory entries use three IP variables:
+    Raspberry Pi inventory entries use four networking variables:
 
     - `ansible_host`: the current Ansible connection target
     - `ansible_host_eth`: the static LAN IP for `eth0`
