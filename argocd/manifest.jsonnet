@@ -44,6 +44,7 @@ local yaadeVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.yaad
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
+  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
@@ -52,6 +53,7 @@ local application = [
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'yaade-volume', namespace: 'yaade', helm: yaadeVolumeHelm },
+  { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
   { wave: '11', name: 'yaade', namespace: 'yaade' },
 ];

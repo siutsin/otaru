@@ -57,6 +57,24 @@ argo-cd:
     autoscaling:
       enabled: true
       minReplicas: 3
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+        ephemeral-storage: 1Gi
+      limits:
+        memory: 1Gi
+        ephemeral-storage: 4Gi
+    readinessProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
     containerSecurityContext:
       runAsUser: 999
     rbac:
@@ -83,6 +101,12 @@ argo-cd:
             echo "Secret argocd-jsonnet-secret found!"
         securityContext:
           runAsUser: 1000
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 64Mi
     extraContainers:
       - name: jsonnet-with-secret
         env:
@@ -122,6 +146,14 @@ argo-cd:
           runAsNonRoot: true
           runAsUser: 999
         image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0-rc1-202603220524@sha256:5261f61f4f94b17cfb92ddcf7518c36a909366657a8cfff16a91d7b277a19de8
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+            ephemeral-storage: 256Mi
+          limits:
+            memory: 256Mi
+            ephemeral-storage: 1Gi
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
