@@ -669,6 +669,16 @@ entries:
     version: 0.1.0
   k3s-apiserver-loadbalancer:
   - apiVersion: v2
+    created: "2026-04-06T01:52:25.115827499Z"
+    description: A Helm chart for Kubernetes
+    digest: 5770924fa12acc4abee8b2d69aae8ddfa8e699de6152578fb044b9df4c97df0a
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: k3s-apiserver-loadbalancer
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/k3s-apiserver-loadbalancer-1.0.2/k3s-apiserver-loadbalancer-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
     appVersion: v1.1.0
     created: "2025-07-06T15:50:35.120968715Z"
     description: A Helm chart for Kubernetes
@@ -1070,4 +1080,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-05T23:23:05.263297362Z"
+generated: "2026-04-06T01:52:25.319471898Z"
