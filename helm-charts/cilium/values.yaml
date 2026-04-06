@@ -10,6 +10,7 @@ cilium:
       memory: 256Mi
       ephemeral-storage: 128Mi
     limits:
+      cpu: ~
       memory: 256Mi
       ephemeral-storage: 128Mi
   encryption:
@@ -51,6 +52,7 @@ cilium:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
+        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
     affinity:

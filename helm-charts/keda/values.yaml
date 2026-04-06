@@ -6,6 +6,7 @@ keda:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
+        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
     metricServer:
@@ -14,6 +15,7 @@ keda:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
+        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
   affinity:

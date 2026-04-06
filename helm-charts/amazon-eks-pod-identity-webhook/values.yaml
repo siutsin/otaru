@@ -8,6 +8,7 @@ pod-identity-webhook:
       memory: 64Mi
       ephemeral-storage: 64Mi
     limits:
+      cpu: ~
       memory: 64Mi
       ephemeral-storage: 64Mi
   config:
