@@ -35,7 +35,11 @@ jobs:
             exit 0
           fi
           FILES=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
-          if echo "$FILES" | grep -qvx '.github/workflows/claude.yaml'; then
+          if echo "$FILES" | grep -qx '.github/workflows/claude.yaml'; then
+            echo "should-review=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if echo "$FILES" | grep -q .; then
             echo "should-review=true" >> "$GITHUB_OUTPUT"
           else
             echo "should-review=false" >> "$GITHUB_OUTPUT"
@@ -66,6 +70,57 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        with:
+          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
+        with:
+          tofu_version: '1.8.1'
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
+        with:
+          terragrunt-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install editorconfig-checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
+          tar -xzf /tmp/ec.tar.gz -C /tmp
+          BINARY=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
+          chmod +x "$BINARY"
+          sudo mv "$BINARY" /usr/local/bin/ec
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: stable
+
+      - name: Install go-jsonnet
+        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+
+      - name: Update Helm dependencies
+        run: make update-helm-deps
 
       - name: Run Claude Code
         id: claude
