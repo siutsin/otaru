@@ -4,8 +4,10 @@ descheduler:
     requests:
       cpu: 100m
       memory: 256Mi
+      ephemeral-storage: 64Mi
     limits:
       memory: 256Mi
+      ephemeral-storage: 64Mi
   deschedulerPolicy:
     profiles:
       - name: default
