@@ -16,16 +16,6 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: volume
-                    operator: In
-                    values:
-                      - "true"
       automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
