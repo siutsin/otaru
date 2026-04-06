@@ -26,7 +26,6 @@ local _ignoreDifferences = {
 local _grafanaDashboards = [
   'dashboards/blocky.yaml',
   'dashboards/container-log-dashboard.yaml',
-  'dashboards/falco.yaml',
   'dashboards/k3s-cluster-monitoring.yaml',
   'dashboards/onzack-cluster-monitoring.yaml',
   'dashboards/prometheus-stats.yaml',
@@ -39,8 +38,6 @@ local cnpgClustersHelm = { parameters: [
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
-local yaadeVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.yaade.fromBackup', value: std.extVar('YAADE_VOLUME_FROM_BACKUP') }] };
-
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
@@ -52,10 +49,8 @@ local application = [
   { wave: '10', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
-  { wave: '10', name: 'yaade-volume', namespace: 'yaade', helm: yaadeVolumeHelm },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
-  { wave: '11', name: 'yaade', namespace: 'yaade' },
 ];
 
 local baseline = [
@@ -75,7 +70,7 @@ local bootstrap = [
 ];
 
 local cicd = [
-  { wave: '10', name: 'atlantis', namespace: 'atlantis' },
+  // { wave: '10', name: 'atlantis', namespace: 'atlantis' },
 ];
 
 local connectivity = [
@@ -118,7 +113,6 @@ local scheduling = [
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
-  { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
   { wave: '10', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];

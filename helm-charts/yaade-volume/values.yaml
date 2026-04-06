@@ -1,7 +1,0 @@
-longhorn-volume-lib:
-  namespace: yaade
-  volumes:
-    yaade:
-      size: "1Gi"
-      sizeBytes: "1073741824"
-      fromBackup: ~
