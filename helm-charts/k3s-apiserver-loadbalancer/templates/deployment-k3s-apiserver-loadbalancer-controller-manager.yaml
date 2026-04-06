@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: k3s-apiserver-loadbalancer
     control-plane: controller-manager
   name: k3s-apiserver-loadbalancer-controller-manager
@@ -29,7 +28,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.1.0
+          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.223.0
           livenessProbe:
             httpGet:
               path: /healthz
@@ -37,7 +36,6 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
           name: manager
-          ports: []
           readinessProbe:
             httpGet:
               path: /readyz
@@ -56,11 +54,9 @@ spec:
             capabilities:
               drop:
                 - ALL
-          volumeMounts: []
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: k3s-apiserver-loadbalancer-controller-manager
       terminationGracePeriodSeconds: 10
-      volumes: []

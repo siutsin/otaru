@@ -9,8 +9,16 @@ atlantis:
   vcsSecretName: atlantis-github-webhook
   service:
     type: ClusterIP
-  nodeSelector:
-    volume: "true"
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: volume
+                operator: In
+                values:
+                  - "true"
   volumeClaim:
     storageClassName: longhorn-crypto-global
     dataStorage: 15Gi
