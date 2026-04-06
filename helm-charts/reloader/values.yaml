@@ -1,6 +1,14 @@
 reloader:
   reloader:
     deployment:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+          ephemeral-storage: 64Mi
+        limits:
+          memory: 64Mi
+          ephemeral-storage: 64Mi
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
