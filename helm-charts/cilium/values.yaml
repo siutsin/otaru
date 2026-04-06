@@ -4,6 +4,15 @@ routes:
     namespace: kube-system
 
 cilium:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 128Mi
+    limits:
+      cpu: ~
+      memory: 256Mi
+      ephemeral-storage: 128Mi
   encryption:
     enabled: true
     type: wireguard
@@ -37,6 +46,15 @@ cilium:
     leaseRenewDeadline: 1s
     leaseRetryPeriod: 200ms
   operator:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 128Mi
+        ephemeral-storage: 64Mi
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:

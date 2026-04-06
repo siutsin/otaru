@@ -2,6 +2,14 @@ name: atlantis
 namespace: atlantis
 
 atlantis:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 256Mi
+    limits:
+      memory: 256Mi
+      ephemeral-storage: 256Mi
   orgAllowlist: github.com/siutsin/*
   atlantisUrl: https://atlantis.internal.siutsin.com
   github:

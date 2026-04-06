@@ -1,5 +1,18 @@
+_shared:
+  resources: &resources
+    requests:
+      cpu: 50m
+      memory: 64Mi
+      ephemeral-storage: 64Mi
+    limits:
+      cpu: ~
+      memory: 64Mi
+      ephemeral-storage: 64Mi
+
 connect:
   connect:
+    connectApiResources: *resources
+    connectSyncResources: *resources
     affinity:
       nodeAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:

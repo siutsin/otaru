@@ -5,21 +5,27 @@ argo-cd:
     controllerResources: &controllerResources
       requests:
         cpu: 250m
-        memory: 512Mi
+        memory: 1Gi
+        ephemeral-storage: 256Mi
       limits:
-        memory: 512Mi
+        memory: 1Gi
+        ephemeral-storage: 256Mi
     componentResources: &componentResources
       requests:
         cpu: 100m
         memory: 256Mi
+        ephemeral-storage: 128Mi
       limits:
         memory: 256Mi
+        ephemeral-storage: 128Mi
     redisResources: &redisResources
       requests:
         cpu: 50m
         memory: 128Mi
+        ephemeral-storage: 64Mi
       limits:
         memory: 128Mi
+        ephemeral-storage: 64Mi
     readinessProbe: &readinessProbe
       initialDelaySeconds: 10
       periodSeconds: 10
@@ -110,15 +116,15 @@ argo-cd:
   repoServer:
     autoscaling:
       enabled: true
-      minReplicas: 3
+      minReplicas: 2
     resources:
       requests:
         cpu: 250m
         memory: 1Gi
-        ephemeral-storage: 1Gi
+        ephemeral-storage: 512Mi
       limits:
         memory: 1Gi
-        ephemeral-storage: 4Gi
+        ephemeral-storage: 2Gi
     readinessProbe:
       initialDelaySeconds: 10
       periodSeconds: 10
@@ -160,8 +166,10 @@ argo-cd:
           requests:
             cpu: 10m
             memory: 64Mi
+            ephemeral-storage: 64Mi
           limits:
             memory: 64Mi
+            ephemeral-storage: 64Mi
     extraContainers:
       - name: jsonnet-with-secret
         env:
@@ -203,7 +211,7 @@ argo-cd:
             ephemeral-storage: 256Mi
           limits:
             memory: 256Mi
-            ephemeral-storage: 1Gi
+            ephemeral-storage: 512Mi
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files

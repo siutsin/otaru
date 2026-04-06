@@ -8,8 +8,14 @@ kubernetes-mcp-server:
     port: 8080
   fullnameOverride: kubernetes-mcp-server
   resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
     limits:
       cpu: ~
+      memory: 128Mi
+      ephemeral-storage: 64Mi
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:

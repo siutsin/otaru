@@ -1,6 +1,17 @@
 name: monitoring
 namespace: monitoring
 
+_shared:
+  smallResources: &smallResources
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      cpu: ~
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+
 httpRoutes:
   prometheus:
     service:
@@ -17,6 +28,15 @@ httpRoutes:
 
 prometheus:
   server:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+        ephemeral-storage: 256Mi
+      limits:
+        cpu: ~
+        memory: 512Mi
+        ephemeral-storage: 256Mi
     persistentVolume:
       size: 50Gi
     retentionSize: 10GB
@@ -25,6 +45,7 @@ prometheus:
     enabled: false
 
 grafana:
+  resources: *smallResources
   admin:
     existingSecret: grafana
   datasources:
@@ -55,6 +76,15 @@ loki:
   deploymentMode: SingleBinary
   singleBinary:
     replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+      limits:
+        cpu: ~
+        memory: 256Mi
+        ephemeral-storage: 128Mi
   minio:
     enabled: false
   chunksCache:
@@ -116,6 +146,7 @@ loki:
     replicas: 0
 
 promtail:
+  resources: *smallResources
   config:
     clients:
       - url: http://monitoring-loki:3100/loki/api/v1/push

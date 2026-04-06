@@ -9,5 +9,44 @@ cert-manager:
                 operator: NotIn
                 values:
                   - "true"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      cpu: ~
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+  cainjector:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+  webhook:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+  startupapicheck:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 64Mi
+        ephemeral-storage: 64Mi
   enableCertificateOwnerRef: true
   installCRDs: true
