@@ -105,6 +105,8 @@ argo-cd:
   redis:
     resources: *redisResources
     pdb: *singletonPdb
+    secretInit:
+      enabled: false
   repoServer:
     autoscaling:
       enabled: true
