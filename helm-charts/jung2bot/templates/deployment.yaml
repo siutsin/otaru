@@ -27,9 +27,10 @@ spec:
                         - {{ .Values.name }}
                 topologyKey: kubernetes.io/hostname
         nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
                   - key: volume
                     operator: NotIn
                     values:
