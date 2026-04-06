@@ -72,15 +72,4 @@ spec:
   externalClusters: {{ toYaml $clusterConfig.externalClusters | nindent 4 }}
   {{- end }}
 
-  # Node affinity for scheduling pods to nodes with volume support
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: In
-                values:
-                  - "true"
 {{- end }}

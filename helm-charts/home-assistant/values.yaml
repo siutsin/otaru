@@ -7,13 +7,3 @@ deployment:
   image:
     repository: ghcr.io/home-assistant/home-assistant
     tag: 2025.11.2@sha256:02f582ea7d25f41761282ac0965baf89f0009efed3ad92f8d7eaba5eb6ffd9a8
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: In
-                values:
-                  - "true"

@@ -21,16 +21,6 @@ prometheus:
       size: 50Gi
     retentionSize: 10GB
     retention: 1d
-    affinity:
-      nodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-                - key: volume
-                  operator: In
-                  values:
-                    - "true"
   alertmanager:
     enabled: false
 
@@ -65,16 +55,6 @@ loki:
   deploymentMode: SingleBinary
   singleBinary:
     replicas: 1
-    affinity:
-      nodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-                - key: volume
-                  operator: In
-                  values:
-                    - "true"
   minio:
     enabled: false
   chunksCache:
