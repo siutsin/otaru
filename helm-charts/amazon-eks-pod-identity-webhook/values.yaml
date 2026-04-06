@@ -6,11 +6,8 @@ pod-identity-webhook:
     requests:
       cpu: 10m
       memory: 64Mi
-      ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 64Mi
-      ephemeral-storage: 64Mi
   config:
     defaultAwsRegion: eu-west-1
     tokenAudience: oidc.siutsin.com
