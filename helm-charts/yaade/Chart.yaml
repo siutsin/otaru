@@ -1,6 +1,0 @@
-apiVersion: v2
-name: yaade
-description: A Helm chart for Kubernetes
-type: application
-version: 0.1.1
-icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg

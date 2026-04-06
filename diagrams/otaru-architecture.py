@@ -176,9 +176,6 @@ with Diagram(
                 external_secrets = icon_node("external-secrets", "external-secrets")
                 secrets = Secret("Secrets")
 
-                # Security
-                falco = icon_node("Falco", "falco")
-
                 # Monitoring
                 grafana = Grafana("Grafana")
                 prometheus = Prometheus("Prometheus")
@@ -320,14 +317,8 @@ with Diagram(
     applications << edge("Scrape metrics", colour=COLOUR_MONITORING) << prometheus
     applications << edge("Scrape logs", colour=COLOUR_MONITORING) << promtail
     promtail >> edge("Push logs", colour=COLOUR_MONITORING) >> loki
-    (
-        applications
-        << edge("Runtime security\nmonitoring", colour=COLOUR_MONITORING)
-        << falco
-    )
     prometheus << edge("Query metrics", colour=COLOUR_MONITORING) << grafana
     loki << edge("Query logs", colour=COLOUR_MONITORING) << grafana
-    loki >> edge("Collect logs", colour=COLOUR_MONITORING) >> falco
     metrics_server << edge("Query metrics", colour=COLOUR_MONITORING) << api_server
     heartbeat_crd >> edge("Monitor", colour=COLOUR_MONITORING) >> heartbeats_operator
     (

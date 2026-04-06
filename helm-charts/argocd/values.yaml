@@ -76,8 +76,6 @@ argo-cd:
               - LONGHORN_BACKUP_TARGET
               - --ext-str
               - HOME_ASSISTANT_VOLUME_FROM_BACKUP
-              - --ext-str
-              - YAADE_VOLUME_FROM_BACKUP
   dex:
     enabled: false
   notifications:
@@ -190,11 +188,6 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: HOME_ASSISTANT_VOLUME_FROM_BACKUP
-          - name: YAADE_VOLUME_FROM_BACKUP
-            valueFrom:
-              secretKeyRef:
-                name: argocd-jsonnet-secret
-                key: YAADE_VOLUME_FROM_BACKUP
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:
