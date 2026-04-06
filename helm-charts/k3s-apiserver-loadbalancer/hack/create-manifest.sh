@@ -5,9 +5,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 CRD_PATH="$SCRIPT_DIR/../templates"
-CHART_PATH="$SCRIPT_DIR/.."
-APP_VERSION=$(yq e '.appVersion' "${CHART_PATH}/Chart.yaml")
-MANIFEST_URL="https://raw.githubusercontent.com/siutsin/k3s-apiserver-loadbalancer/${APP_VERSION}/dist/install.yaml"
+
+LATEST_TAG=$(curl -sL "https://api.github.com/repos/siutsin/k3s-apiserver-loadbalancer/releases/latest" | jq -r '.tag_name')
+
+if [ -z "${LATEST_TAG}" ] || [ "${LATEST_TAG}" = "null" ]; then
+  echo "Error: Failed to get latest release tag" >&2
+  exit 1
+fi
+
+echo "Using latest release: ${LATEST_TAG}"
+
+MANIFEST_URL="https://github.com/siutsin/k3s-apiserver-loadbalancer/releases/download/${LATEST_TAG}/install.yaml"
 
 pushd "${CRD_PATH}" >/dev/null
 
