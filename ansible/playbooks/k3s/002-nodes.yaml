@@ -75,7 +75,9 @@
       loop:
         - /var/lib/rancher/k3s/server/tls/serving-kube-apiserver.crt
         - /var/lib/rancher/k3s/server/tls/serving-kube-apiserver.key
-      when: "'master' in group_names and san_check.rc != 0"
+      when:
+        - "'master' in group_names"
+        - san_check.rc != 0
       notify: Restart k3s
 
     - name: Change ownership of k3s.yaml to pi:pi
