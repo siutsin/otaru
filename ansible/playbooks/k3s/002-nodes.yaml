@@ -55,6 +55,19 @@
       delay: 10
       when: "'master' in group_names"
 
+    - name: Check if serving cert contains required TLS SANs
+      shell: |
+        cert=/var/lib/rancher/k3s/server/tls/serving-kube-apiserver.crt
+        [ -f "$cert" ] || exit 1
+        sans=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null)
+        echo "$sans" | grep -q "{{ LB_API_SERVER_IP }}" && \
+        echo "$sans" | grep -q "{{ ansible_host_eth }}" && \
+        echo "$sans" | grep -q "{{ ansible_host_wifi }}"
+      register: san_check
+      changed_when: false
+      failed_when: false
+      when: "'master' in group_names"
+
     - name: Remove serving cert to force regeneration with updated TLS SANs
       file:
         path: "{{ item }}"
@@ -62,7 +75,7 @@
       loop:
         - /var/lib/rancher/k3s/server/tls/serving-kube-apiserver.crt
         - /var/lib/rancher/k3s/server/tls/serving-kube-apiserver.key
-      when: "'master' in group_names"
+      when: "'master' in group_names and san_check.rc != 0"
       notify: Restart k3s
 
     - name: Change ownership of k3s.yaml to pi:pi
