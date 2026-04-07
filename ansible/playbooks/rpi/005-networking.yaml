@@ -9,6 +9,7 @@
     rpi_eth0_address: "{{ ansible_host_eth | default(ansible_host, true) }}/24"
     rpi_wifi_address: "{{ ansible_host_wifi | default('', true) }}"
     rpi_gateway: 192.168.1.1
+    rpi_subnet: 192.168.1.0/24
     rpi_wifi_gateway: "{{ ansible_host_wifi_gateway | default(rpi_gateway, true) }}"
     rpi_wifi_optional: true
     rpi_wifi_configure: "{{ (rpi_wifi_ssid | default('', true) | length > 0) and (rpi_wifi_password | default('', true) | length > 0) and (rpi_wifi_address | length > 0) }}"
@@ -78,9 +79,15 @@
     - name: Configure eth0 netplan settings using yq
       command: |
         /snap/bin/yq -i '
+          del(.network.ethernets.eth0.gateway4) |
           (.network.ethernets.eth0.dhcp4) = false |
           (.network.ethernets.eth0.addresses) = ["{{ rpi_eth0_address }}"] |
-          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 600}] |
+          (.network.ethernets.eth0.routes) = [
+            {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 600},
+            {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "table": 100},
+            {"to": "{{ rpi_subnet }}", "scope": "link", "table": 100}
+          ] |
+          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host_eth | default(ansible_host, true) }}/32", "table": 100, "priority": 100}] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
@@ -89,12 +96,18 @@
     - name: Configure wlan0 netplan settings using yq
       command: |
         /snap/bin/yq -i '
+          del(.network.wifis.wlan0.gateway4) |
           (.network.wifis.wlan0.dhcp4) = false |
           (.network.wifis.wlan0.optional) = env(RPI_WIFI_OPTIONAL) == "true" |
           (.network.wifis.wlan0.addresses) = [env(RPI_WIFI_ADDRESS) + "/24"] |
-          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 100}] |
+          (.network.wifis.wlan0.routes) = [
+            {"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 100},
+            {"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "table": 200},
+            {"to": env(RPI_SUBNET), "scope": "link", "table": 200}
+          ] |
+          (.network.wifis.wlan0."routing-policy") = [{"from": env(RPI_WIFI_ADDRESS) + "/32", "table": 200, "priority": 200}] |
           (.network.wifis.wlan0.nameservers.addresses) = [env(RPI_WIFI_GATEWAY)] |
-          (.network.wifis.wlan0.access-points[env(RPI_WIFI_SSID)].password) = env(RPI_WIFI_PASSWORD)
+          (.network.wifis.wlan0.access-points) = {env(RPI_WIFI_SSID): {"password": env(RPI_WIFI_PASSWORD)}}
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
@@ -105,6 +118,7 @@
         RPI_WIFI_GATEWAY: "{{ rpi_wifi_gateway }}"
         RPI_WIFI_SSID: "{{ rpi_wifi_ssid | default('', true) }}"
         RPI_WIFI_PASSWORD: "{{ rpi_wifi_password | default('', true) }}"
+        RPI_SUBNET: "{{ rpi_subnet }}"
 
     - name: Check if the modified netplan file is different from the original
       shell: diff "{{ rpi_netplan_work_file }}" "{{ rpi_netplan_file }}"
@@ -150,7 +164,7 @@
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ ansible_host }}"
+        host: "{{ ansible_host_eth | default(ansible_host, true) }}"
         port: 22
         delay: 3
         timeout: 600
