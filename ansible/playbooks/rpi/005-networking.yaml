@@ -164,7 +164,7 @@
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ ansible_host }}"
+        host: "{{ ansible_host_eth | default(ansible_host, true) }}"
         port: 22
         delay: 3
         timeout: 600
