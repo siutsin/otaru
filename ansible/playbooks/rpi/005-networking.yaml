@@ -80,7 +80,7 @@
         /snap/bin/yq -i '
           (.network.ethernets.eth0.dhcp4) = false |
           (.network.ethernets.eth0.addresses) = ["{{ rpi_eth0_address }}"] |
-          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 100}] |
+          (.network.ethernets.eth0.routes) = [{"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 600}] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
@@ -92,7 +92,7 @@
           (.network.wifis.wlan0.dhcp4) = false |
           (.network.wifis.wlan0.optional) = env(RPI_WIFI_OPTIONAL) == "true" |
           (.network.wifis.wlan0.addresses) = [env(RPI_WIFI_ADDRESS) + "/24"] |
-          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 600}] |
+          (.network.wifis.wlan0.routes) = [{"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 100}] |
           (.network.wifis.wlan0.nameservers.addresses) = [env(RPI_WIFI_GATEWAY)] |
           (.network.wifis.wlan0.access-points[env(RPI_WIFI_SSID)].password) = env(RPI_WIFI_PASSWORD)
         ' "{{ rpi_netplan_work_file }}"

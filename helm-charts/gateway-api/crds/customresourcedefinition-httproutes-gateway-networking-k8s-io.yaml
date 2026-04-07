@@ -897,7 +897,6 @@ spec:
                                               If the list has entries, only those entries must be sent.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                         type: object
@@ -936,7 +935,6 @@ spec:
                                               request must be set to the actual number of bytes forwarded.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                           allowedResponseHeaders:
@@ -948,7 +946,6 @@ spec:
                                               except Authority or Host must be copied.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                           path:
@@ -1043,14 +1040,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -1120,14 +1112,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -1427,9 +1414,6 @@ spec:
                                         enum:
                                           - 301
                                           - 302
-                                          - 303
-                                          - 307
-                                          - 308
                                         type: integer
                                     type: object
                                   responseHeaderModifier:
@@ -1475,14 +1459,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -1552,14 +1531,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -2331,7 +2305,6 @@ spec:
                                         If the list has entries, only those entries must be sent.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                   type: object
@@ -2370,7 +2343,6 @@ spec:
                                         request must be set to the actual number of bytes forwarded.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                     allowedResponseHeaders:
@@ -2382,7 +2354,6 @@ spec:
                                         except Authority or Host must be copied.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                     path:
@@ -2477,14 +2448,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -2554,14 +2520,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -2861,9 +2822,6 @@ spec:
                                   enum:
                                     - 301
                                     - 302
-                                    - 303
-                                    - 307
-                                    - 308
                                   type: integer
                               type: object
                             responseHeaderModifier:
@@ -2909,14 +2867,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -2986,14 +2939,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -3288,14 +3236,9 @@ spec:
                                       - RegularExpression
                                     type: string
                                   value:
-                                    description: |-
-                                      Value is the value of HTTP Header to be matched.
-
-                                      Must consist of printable US-ASCII characters, optionally separated
-                                      by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                    description: Value is the value of HTTP Header to be matched.
                                     maxLength: 4096
                                     minLength: 1
-                                    pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                     type: string
                                 required:
                                   - name
@@ -4880,7 +4823,6 @@ spec:
                                               If the list has entries, only those entries must be sent.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                         type: object
@@ -4919,7 +4861,6 @@ spec:
                                               request must be set to the actual number of bytes forwarded.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                           allowedResponseHeaders:
@@ -4931,7 +4872,6 @@ spec:
                                               except Authority or Host must be copied.
                                             items:
                                               type: string
-                                            maxItems: 64
                                             type: array
                                             x-kubernetes-list-type: set
                                           path:
@@ -5026,14 +4966,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -5103,14 +5038,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -5410,9 +5340,6 @@ spec:
                                         enum:
                                           - 301
                                           - 302
-                                          - 303
-                                          - 307
-                                          - 308
                                         type: integer
                                     type: object
                                   responseHeaderModifier:
@@ -5458,14 +5385,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -5535,14 +5457,9 @@ spec:
                                               pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                               type: string
                                             value:
-                                              description: |-
-                                                Value is the value of HTTP Header to be matched.
-
-                                                Must consist of printable US-ASCII characters, optionally separated
-                                                by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                              description: Value is the value of HTTP Header to be matched.
                                               maxLength: 4096
                                               minLength: 1
-                                              pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                               type: string
                                           required:
                                             - name
@@ -6314,7 +6231,6 @@ spec:
                                         If the list has entries, only those entries must be sent.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                   type: object
@@ -6353,7 +6269,6 @@ spec:
                                         request must be set to the actual number of bytes forwarded.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                     allowedResponseHeaders:
@@ -6365,7 +6280,6 @@ spec:
                                         except Authority or Host must be copied.
                                       items:
                                         type: string
-                                      maxItems: 64
                                       type: array
                                       x-kubernetes-list-type: set
                                     path:
@@ -6460,14 +6374,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -6537,14 +6446,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -6844,9 +6748,6 @@ spec:
                                   enum:
                                     - 301
                                     - 302
-                                    - 303
-                                    - 307
-                                    - 308
                                   type: integer
                               type: object
                             responseHeaderModifier:
@@ -6892,14 +6793,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -6969,14 +6865,9 @@ spec:
                                         pattern: ^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$
                                         type: string
                                       value:
-                                        description: |-
-                                          Value is the value of HTTP Header to be matched.
-
-                                          Must consist of printable US-ASCII characters, optionally separated
-                                          by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                        description: Value is the value of HTTP Header to be matched.
                                         maxLength: 4096
                                         minLength: 1
-                                        pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                         type: string
                                     required:
                                       - name
@@ -7271,14 +7162,9 @@ spec:
                                       - RegularExpression
                                     type: string
                                   value:
-                                    description: |-
-                                      Value is the value of HTTP Header to be matched.
-
-                                      Must consist of printable US-ASCII characters, optionally separated
-                                      by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+                                    description: Value is the value of HTTP Header to be matched.
                                     maxLength: 4096
                                     minLength: 1
-                                    pattern: ^[!-~]+([\t ]?[!-~]+)*$
                                     type: string
                                 required:
                                   - name
