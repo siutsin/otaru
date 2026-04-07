@@ -15,15 +15,29 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ![Raspberry Pi rack setup](assets/rack.jpeg)
 
-| Device                              | Description                                                                                                                 | /dev/mmcblk0                | /dev/nvme0n1                                    |
-|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------|
-| Intel NUC Mini PC Core i3-3217U 8GB | etcd                                                                                                                        | -                           | -                                               |
-| Raspberry Pi 4 Model B 8GB          | raspberry-00 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
-| Raspberry Pi 4 Model B 8GB          | raspberry-01 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
-| Raspberry Pi 4 Model B 8GB          | raspberry-02 Node with [Waveshare PoE HAT (B)](https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b) | SanDisk Max Endurance 32 GB | -                                               |
-| Raspberry Pi 5 8GB                  | raspberry-03 Node with [Waveshare PoE HAT (F)](https://thepihut.com/products/poe-hat-for-raspberry-pi-5-with-cooling-fan)   | SanDisk Max Endurance 32 GB | Samsung 980 PRO NVMe™ M.2 SSD 2TB (MZ-V8P2T0BW) |
-| UniFi Switch Ultra                  | PoE Switch                                                                                                                  | -                           | -                                               |
-| GeeekPi 10" 2U Rack Mount           | Rack Mount for Raspberry Pi with PCIe to M.2 NVMe Adapters                                                                  | -                           | -                                               |
+| Device                                     | Description                                     | /dev/mmcblk0                | /dev/nvme0n1                                           |
+|--------------------------------------------|-------------------------------------------------|-----------------------------|--------------------------------------------------------|
+| [Intel NUC Mini PC Core i3-3217U 8GB][nuc] | etcd                                            | -                           | -                                                      |
+| [Raspberry Pi 4 Model B 8GB][rpi4]         | Node 00 with [Waveshare PoE HAT (B)][poe-hat-b] | SanDisk Max Endurance 32 GB | -                                                      |
+| Raspberry Pi 4 Model B 8GB                 | Node 01 with Waveshare PoE HAT (B)              | SanDisk Max Endurance 32 GB | -                                                      |
+| [Raspberry Pi 5 8GB][rpi5]                 | Node 02 with [Waveshare PoE HAT (F)][poe-hat-f] | -                           | [Crucial P3 Plus 4TB (CT4000P3PSSD8)][crucial-p3-plus] |
+| Raspberry Pi 5 8GB                         | Node 03 with Waveshare PoE HAT (F)              | SanDisk Max Endurance 32 GB | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro]   |
+| [UniFi Cloud Gateway Ultra][ucg-ultra]     | Router / Gateway                                | -                           | -                                                      |
+| [UniFi Switch Ultra][usw-ultra]            | PoE Switch                                      | -                           | -                                                      |
+| [GeeekPi DeskPi RackMate T1][rackmate-t1]  | 10 Inch 8U Server Cabinet                       | -                           | -                                                      |
+| [GeeekPi 10" 2U Rack Mount][rack-mount]    | RPi Rack Mount with NVMe Adapters               | -                           | -                                                      |
+
+[nuc]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
+[poe-hat-b]: https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b
+[poe-hat-f]: https://thepihut.com/products/poe-hat-for-raspberry-pi-5-with-cooling-fan
+[crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
+[samsung-980-pro]: https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-2tb-nvme-pcie-gen-4-mz-v8p2t0bw/
+[rackmate-t1]: https://www.amazon.co.uk/dp/B0CS6MHCY8
+[rack-mount]: https://www.amazon.co.uk/dp/B0DRGF68Z9
+[ucg-ultra]: https://uk.store.ui.com/uk/en/category/cloud-gateways-compact/products/ucg-ultra
+[rpi4]: https://thepihut.com/products/raspberry-pi-4-model-b?variant=31994565689406
+[rpi5]: https://thepihut.com/products/raspberry-pi-5?src=raspberrypi&variant=42531604955331
+[usw-ultra]: https://uk.store.ui.com/uk/en/category/switching-utility/collections/pro-ultra/products/usw-ultra
 
 ## Cluster Components
 
@@ -112,7 +126,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 2. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    for ip in 192.168.1.{60..63} 192.168.4.{80..83}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
+    for ip in 192.168.1.{60..63} 192.168.1.{80..83}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
     ```
 
 3. **Set Up Service Credentials**
@@ -155,8 +169,8 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     Current network layout:
 
     - LAN `eth0`: `192.168.1.60-63`
-    - Wi-Fi `wlan0` on SSID `kubectl`: `192.168.4.80-83`
-    - Wi-Fi gateway: `192.168.4.1`
+    - Wi-Fi `wlan0`: `192.168.1.80-83`
+    - Wi-Fi gateway: `192.168.1.1`
 
     Keep `ansible_host` on LAN during rollout. After Wi-Fi access is verified, Ansible can be moved to Wi-Fi later without changing the intended interface addresses.
 

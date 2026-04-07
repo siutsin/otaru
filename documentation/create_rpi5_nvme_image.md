@@ -103,11 +103,11 @@ wifis:
   wlan0:
     dhcp4: false
     addresses:
-      - <REPLACE: 192.168.4.XX>/24
-    gateway4: 192.168.4.1
+      - <REPLACE: 192.168.1.XX>/24
+    gateway4: 192.168.1.1
     nameservers:
       addresses:
-        - 192.168.4.1
+        - 192.168.1.1
     access-points:
       "<REPLACE: YourSSID>":
         password: "<REPLACE: your-wifi-password>"
