@@ -13,6 +13,8 @@
 - hosts: raspberrypi
   become: true
   serial: 1
+  vars:
+    k3s_kubeconfig: /etc/rancher/k3s/k3s.yaml
 
   tasks:
     - name: Get node name by removing .local from inventory_hostname
@@ -21,6 +23,8 @@
 
     - name: Cordon the node
       command: kubectl cordon {{ node_name }}
+      environment:
+        KUBECONFIG: "{{ k3s_kubeconfig }}"
 
     - name: Drain the node, ignoring PDBs
       command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
@@ -28,16 +32,21 @@
       retries: 5
       delay: 30
       until: drain_result.rc == 0
+      environment:
+        KUBECONFIG: "{{ k3s_kubeconfig }}"
 
     - name: Reboot the system
       reboot:
+        reboot_command: systemctl reboot --job-mode=replace-irreversibly
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ ansible_host | default(inventory_hostname, true) }}"
         port: 22
         delay: 10
         timeout: 600
 
     - name: Uncordon the node
       command: kubectl uncordon {{ node_name }}
+      environment:
+        KUBECONFIG: "{{ k3s_kubeconfig }}"

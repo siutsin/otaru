@@ -78,6 +78,7 @@
       delegate_to: raspberrypi-00.local
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false
 
     - name: Replace 'default' with 'raspberrypi' in local kube config
       replace:
@@ -89,6 +90,7 @@
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false
 
     - name: Replace '127.0.0.1' with first master IP in local kube config
       replace:
@@ -100,3 +102,4 @@
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false

@@ -26,11 +26,12 @@
 
     - name: Reboot the system if cmdline.txt is updated
       reboot:
+        reboot_command: systemctl reboot --job-mode=replace-irreversibly
       when: update_cmdline is changed
 
     - name: Wait for system to become reachable again
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ ansible_host | default(inventory_hostname, true) }}"
         port: 22
         delay: 10
         timeout: 600

@@ -177,6 +177,63 @@ kubectl delete pvc example-db-20250724-0023-2 -n cnpg-system
 kubectl delete pod example-db-20250724-0023-2 -n cnpg-system
 ```
 
+---
+
+## RPi5 Wi-Fi Stuck in Association Loop (status_code=16)
+
+On RPi5, wpa_supplicant logs show `CTRL-EVENT-ASSOC-REJECT bssid=<bssid> status_code=16` repeatedly and the node
+cannot associate with any AP. Rebooting the node does not resolve it. This was observed on node02 against a UniFi
+mesh network running a WPA2/WPA3 mixed-mode SSID.
+
+### Root Cause
+
+The `brcmfmac` firmware has two features that combine to cause this:
+
+1. **SWSUP** - the firmware offloads WPA authentication to itself rather than delegating to wpa_supplicant.
+    When the SSID runs WPA2/WPA3 mixed mode, the firmware's SAE implementation is incompatible with the AP,
+    causing an initial `status_code=16` rejection.
+
+2. **Firmware-assisted roaming** - the firmware follows 802.11v BSS Transition Requests at the kernel level,
+    bypassing wpa_supplicant's BSSID preference. This steers the node to an AP that then rejects it.
+
+Together, these trigger a retry storm: wpa_supplicant retries rapidly after each rejection, which hits the AP's
+internal rate-limiter. The rate-limiter then blocks all subsequent association attempts until the AP is rebooted.
+The blocking state lives on the AP, not the node, so rebooting the node does not help.
+
+This does not affect RPi4 nodes because the firmware version behaves differently.
+
+### Symptoms
+
+- wpa_supplicant logs show `CTRL-EVENT-ASSOC-REJECT bssid=<bssid> status_code=16` repeatedly.
+- Setting `bssid=` or `freq_list=` in wpa_supplicant config has no effect.
+- Other nodes on the same SSID connect successfully.
+- Rebooting the node does not resolve the issue.
+
+### Resolution
+
+Add the following to `/etc/modprobe.d/brcmfmac.conf` on the RPi5 node:
+
+```text
+# Disable firmware-assisted roaming (roamoff) and firmware-side SAE/SWSUP (feature_disable).
+# Without this, the brcmfmac firmware follows 802.11v BSS Transition Requests and handles
+# WPA authentication internally. On WPA2/WPA3 mixed-mode APs this causes status_code=16
+# rejections and a retry storm that triggers the AP rate-limiter.
+# See documentation/gotcha.md - RPi5 Wi-Fi Stuck in Association Loop.
+options brcmfmac roamoff=1 feature_disable=0x82000
+```
+
+Then reload the module:
+
+```shell
+sudo modprobe -r brcmfmac_wcc brcmfmac && sudo modprobe brcmfmac
+```
+
+If the AP rate-limiter has already been triggered, reboot the AP to clear its state before applying the fix.
+
+This fix is also applied by Home Assistant OS to all RPi nodes for the same reason. See
+[home-assistant/operating-system#4056](https://github.com/home-assistant/operating-system/pull/4056) and
+[RPi-Distro/firmware-nonfree#34](https://github.com/RPi-Distro/firmware-nonfree/issues/34).
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038

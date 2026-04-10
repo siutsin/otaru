@@ -1,0 +1,25 @@
+---
+- hosts: brcmfmac_options
+  become: true
+
+  # Apply brcmfmac module options to fix Wi-Fi association failures on RPi5.
+  # Disables firmware-assisted roaming and firmware-side SAE/SWSUP so that
+  # wpa_supplicant handles authentication in WPA2 mode.
+  # See documentation/gotcha.md - RPi5 Wi-Fi Stuck in Association Loop.
+  tasks:
+    - name: Configure brcmfmac module options
+      copy:
+        dest: /etc/modprobe.d/brcmfmac.conf
+        content: |
+          # Disable firmware-assisted roaming and firmware-side SAE/SWSUP.
+          # See documentation/gotcha.md - RPi5 Wi-Fi Stuck in Association Loop.
+          options brcmfmac roamoff=1 feature_disable=0x82000
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload brcmfmac
+
+  handlers:
+    - name: Reload brcmfmac
+      shell: modprobe -r brcmfmac_wcc brcmfmac && modprobe brcmfmac
+      changed_when: true
