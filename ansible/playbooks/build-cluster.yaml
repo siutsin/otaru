@@ -2,6 +2,5 @@
 - import_playbook: k3s/000-init-cluster.yaml
 - import_playbook: k3s/001-cni.yaml
 - import_playbook: k3s/002-nodes.yaml
-- import_playbook: k3s/003-node-label.yaml
-- import_playbook: k3s/004-fix-iptables.yaml
-- import_playbook: k3s/005-bootstrap.yaml
+- import_playbook: k3s/003-fix-iptables.yaml
+- import_playbook: k3s/004-bootstrap.yaml

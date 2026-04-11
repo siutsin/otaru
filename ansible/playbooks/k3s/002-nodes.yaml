@@ -48,7 +48,9 @@
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       retries: 5
       delay: 10
-      when: "'master' in group_names"
+      when:
+        - "'master' in group_names"
+        - inventory_hostname != groups['master'][0]
 
     - name: Check if serving cert contains required TLS SANs
       shell: |

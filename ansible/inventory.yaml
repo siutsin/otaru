@@ -30,23 +30,15 @@ all:
         node00: { }
         node01: { }
         node02: { }
-        node03: { }
-    worker:
-      children: { }
-    waveshare_poe_hat:
+    rpi5:
       children:
         node00: { }
         node01: { }
-    pineberry_pi_hatdrive:
+        node02: { }
+    worker:
       children:
         node03: { }
-    nvme_boot:
-      children:
-        node02: { }
-    brcmfmac_options:
-      children:
-        node02: { }
-    extra_storage:
+    waveshare_poe_hat:
       children:
         node03: { }
     raspberrypi:

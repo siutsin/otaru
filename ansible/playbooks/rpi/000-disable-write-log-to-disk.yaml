@@ -1,6 +1,7 @@
 ---
 - hosts: raspberrypi
   become: yes
+  gather_facts: true
 
   # Configure journald to limit log size and reduce unnecessary disk writes.
   # SD card nodes use volatile (RAM) storage to extend card lifespan.
@@ -11,7 +12,7 @@
         path: /etc/systemd/journald.conf
         regexp: '^#?Storage='
         line: 'Storage=volatile'
-      when: inventory_hostname not in groups['nvme_boot']
+      when: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='device') | first is match('^/dev/mmcblk')
       notify: &notify
         - Restart journald
         - Clear all logs in /var/log
@@ -21,7 +22,7 @@
         path: /etc/systemd/journald.conf
         regexp: '^#?Storage='
         line: 'Storage=persistent'
-      when: inventory_hostname in groups['nvme_boot']
+      when: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='device') | first is not match('^/dev/mmcblk')
       notify: *notify
 
     - name: Set journald max log size
