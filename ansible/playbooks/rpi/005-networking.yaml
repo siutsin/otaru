@@ -5,7 +5,7 @@
   vars:
     rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
     rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
-    rpi_eth0_address: "{{ ansible_host_eth | default(ansible_host, true) }}/24"
+    rpi_eth0_address: "{{ ansible_host }}/24"
     rpi_gateway: 192.168.1.1
     rpi_subnet: 192.168.1.0/24
 
@@ -61,7 +61,7 @@
             {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "table": 100},
             {"to": "{{ rpi_subnet }}", "scope": "link", "table": 100}
           ] |
-          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host_eth | default(ansible_host, true) }}/32", "table": 100, "priority": 100}] |
+          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host }}/32", "table": 100, "priority": 100}] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
@@ -111,7 +111,7 @@
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ ansible_host_eth | default(ansible_host, true) }}"
+        host: "{{ ansible_host }}"
         port: 22
         delay: 3
         timeout: 600

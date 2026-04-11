@@ -40,7 +40,7 @@
           --flannel-backend=none \
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
-          --tls-san {{ ansible_host_eth }} \
+          --tls-san {{ ansible_host }} \
           --write-kubeconfig-mode=644 \
           --kube-apiserver-arg \
           --anonymous-auth=true \
@@ -60,7 +60,7 @@
         [ -f "$cert" ] || exit 1
         sans=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null)
         echo "$sans" | grep -q "{{ LB_API_SERVER_IP }}" && \
-        echo "$sans" | grep -q "{{ ansible_host_eth }}"
+        echo "$sans" | grep -q "{{ ansible_host }}"
       register: san_check
       changed_when: false
       failed_when: false
