@@ -2,12 +2,15 @@
 
 # Source common library
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck disable=SC1091
 source "${SCRIPT_DIR}/lib/common.sh"
 
 # Configuration
 CHARTS_DIR="${1:-./helm-charts}"
 JOBS="${2:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
 PARALLEL="${3:-true}"
+MAX_RETRIES="${MAX_RETRIES:-3}"
+RETRY_DELAY_SECONDS="${RETRY_DELAY_SECONDS:-2}"
 
 # Check if helm is installed
 if ! command_exists helm; then
@@ -41,22 +44,44 @@ echo ""
 # Initialize counters
 success_count=0
 failure_count=0
-current_count=0
 
 # Function to update a single chart (works for both sequential and parallel)
 update_chart() {
     local chart="$1"
-    local chart_dir=$(dirname "$chart")
-    local chart_name=$(basename "$chart_dir")
+    local chart_dir
+    local chart_name
     local count
+    local attempt=1
+    local retry_delay="$RETRY_DELAY_SECONDS"
+    local helm_output=""
+    local helm_exit_code=0
 
-    # Capture helm output for error reporting
-    helm_output=$(helm dependency update "$chart_dir" 2>&1)
-    local helm_exit_code=$?
+    chart_dir=$(dirname "$chart")
+    chart_name=$(basename "$chart_dir")
+
+    while true; do
+        # Retry transient repository and download failures instead of failing
+        # the full run on a single connection reset.
+        helm_output=$(helm dependency update "$chart_dir" 2>&1)
+        helm_exit_code=$?
+
+        if [ $helm_exit_code -eq 0 ] || [ $attempt -ge "$MAX_RETRIES" ]; then
+            break
+        fi
+
+        echo -e "${YELLOW}Retrying ${chart_name} dependency update after attempt ${attempt}/${MAX_RETRIES}${NC}" >&2
+        sleep "$retry_delay"
+        attempt=$((attempt + 1))
+        retry_delay=$((retry_delay * 2))
+    done
 
     if [ $helm_exit_code -eq 0 ]; then
         echo "SUCCESS:$chart_name" >> /tmp/helm_update_results
-        result_msg="${GREEN}Success: $chart_name${NC}"
+        if [ $attempt -gt 1 ]; then
+            result_msg="${GREEN}Success: $chart_name${NC} ${YELLOW}(after $attempt attempts)${NC}"
+        else
+            result_msg="${GREEN}Success: $chart_name${NC}"
+        fi
     else
         echo "FAILURE:$chart_name" >> /tmp/helm_update_results
         result_msg="${RED}Failure: $chart_name${NC}\n${YELLOW}Helm output:${NC}\n$helm_output"
