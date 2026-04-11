@@ -23,7 +23,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(setup-cluster|reconcile-node-k3s|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster):" | \
+		grep -E "^(setup|maintenance|restart|nuke|upgrade):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
@@ -52,35 +52,27 @@ define ansible_playbook
 endef
 
 # Ansible playbook targets
-.PHONY: setup-cluster
-setup-cluster: ## Run complete cluster setup playbook
-	$(call ansible_playbook,setup-cluster)
-
-.PHONY: reconcile-node-k3s
-reconcile-node-k3s: ## Reconcile Raspberry Pi node and k3s playbooks
-	$(call ansible_playbook,reconcile-node-k3s)
+.PHONY: setup
+setup: ## Set up Raspberry Pi nodes and k3s cluster
+	$(call ansible_playbook,setup)
 
 .PHONY: maintenance
-maintenance: ## Run maintenance ansible playbook
+maintenance: ## Update packages, rolling reboot, and restart workloads
 	$(call ansible_playbook,maintenance)
 
-.PHONY: upgrade-cluster
-upgrade-cluster: ## Run cluster upgrade playbook (e.g., make upgrade-cluster CHANNEL=latest)
-	$(call ansible_playbook,upgrade-cluster)
+.PHONY: restart
+restart: ## Restart all workloads without updating packages
+	$(call ansible_playbook,restart)
 
-.PHONY: nuke-cluster
-nuke-cluster: ## Run cluster destruction playbook (DANGEROUS!)
+.PHONY: upgrade
+upgrade: ## Run cluster upgrade playbook (e.g., make upgrade CHANNEL=latest)
+	$(call ansible_playbook,upgrade)
+
+.PHONY: nuke
+nuke: ## Run cluster destruction playbook (DANGEROUS!)
 	@echo "$(RED)WARNING: This will destroy the cluster!$(NC)"
 	@read -p "Are you sure? Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
-	$(call ansible_playbook,nuke-cluster)
-
-.PHONY: build-cluster
-build-cluster: ## Run cluster build playbook
-	$(call ansible_playbook,build-cluster)
-
-.PHONY: restart-all
-restart-all: ## Run restart all services playbook
-	$(call ansible_playbook,restart-all)
+	$(call ansible_playbook,nuke)
 
 # Infrastructure and development targets
 .PHONY: generate-atlantis-yaml

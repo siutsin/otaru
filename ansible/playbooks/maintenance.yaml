@@ -1,6 +1,3 @@
 ---
 - import_playbook: maintenance/000-packages.yaml
-- import_playbook: maintenance/001-restart-kube-system.yaml
-- import_playbook: maintenance/002-restart-longhorn.yaml
-- import_playbook: maintenance/003-restart-other-daemonsets.yaml
-- import_playbook: maintenance/004-restart-other-workloads.yaml
+- import_playbook: restart.yaml

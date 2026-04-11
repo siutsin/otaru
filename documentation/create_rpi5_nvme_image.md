@@ -241,5 +241,5 @@ sudo resize2fs /dev/nvme0n1p2
 Run on the **host** (Mac). Add the new node to `ansible/inventory.yaml`, then run:
 
 ```shell
-make reconcile-node-k3s
+make setup
 ```
