@@ -175,6 +175,13 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     make setup-cluster
     ```
 
+    To reconcile Raspberry Pi node configuration and K3s
+    without touching etcd:
+
+    ```shell
+    make reconcile-node-k3s
+    ```
+
 ## Oopsy
 
 Update host packages and reboot the entire cluster.
@@ -199,6 +206,13 @@ Rebuild the cluster.
 
 ```shell
 make build-cluster
+```
+
+Reconcile Raspberry Pi node configuration and K3s without
+touching etcd.
+
+```shell
+make reconcile-node-k3s
 ```
 
 Restart all workloads.
