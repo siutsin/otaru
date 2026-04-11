@@ -2,31 +2,10 @@
 - hosts: raspberrypi
   become: true
   vars:
-    LB_API_SERVER_IP: 192.168.1.50
-    ETCD_IP: 192.168.1.52
-    CERT_SRC_DIR: ../../../certs
-    CERT_DEST_DIR: /home/pi/certs/etcd
+    LB_API_SERVER_IP: 192.168.10.50
     K3S_CHANNEL: stable
 
   tasks:
-    - name: Ensure etcd certs directory exists on master nodes
-      file:
-        path: "{{ CERT_DEST_DIR }}"
-        state: directory
-        owner: pi
-        group: pi
-        mode: '0755'
-      when: "'master' in group_names"
-
-    - name: Copy etcd certificates to all the master nodes
-      copy:
-        src: "{{ CERT_SRC_DIR }}/"
-        dest: "{{ CERT_DEST_DIR }}/"
-        owner: pi
-        group: pi
-        mode: '0600'
-      when: "'master' in group_names"
-
     - name: Install k3s on the first master node
       # Enable anonymous authentication
       # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
@@ -36,10 +15,7 @@
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
-          --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
-          --datastore-cafile=/home/pi/certs/etcd/ca.pem \
-          --datastore-keyfile=/home/pi/certs/etcd/client-key.pem \
-          --datastore-certfile=/home/pi/certs/etcd/client.pem \
+          --cluster-init \
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \

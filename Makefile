@@ -53,11 +53,11 @@ endef
 
 # Ansible playbook targets
 .PHONY: setup-cluster
-setup-cluster: ## Run complete cluster setup playbook (etcd + rpi + k3s)
+setup-cluster: ## Run complete cluster setup playbook
 	$(call ansible_playbook,setup-cluster)
 
 .PHONY: reconcile-node-k3s
-reconcile-node-k3s: ## Reconcile Raspberry Pi node and k3s playbooks without touching etcd
+reconcile-node-k3s: ## Reconcile Raspberry Pi node and k3s playbooks
 	$(call ansible_playbook,reconcile-node-k3s)
 
 .PHONY: maintenance

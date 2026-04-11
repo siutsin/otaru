@@ -1,8 +1,2 @@
 ---
-# etcd
-- import_playbook: etcd/000-packages.yaml
-- import_playbook: etcd/003-luks.yaml
-- import_playbook: etcd/002-firewall.yaml
-- import_playbook: etcd/001-config.yaml
-- import_playbook: etcd/004-etcd.yaml
 - import_playbook: reconcile-node-k3s.yaml

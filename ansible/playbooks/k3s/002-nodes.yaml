@@ -3,8 +3,7 @@
   become: true
   gather_facts: true
   vars:
-    LB_API_SERVER_IP: 192.168.1.50
-    ETCD_IP: 192.168.1.52
+    LB_API_SERVER_IP: 192.168.10.50
     K3S_CHANNEL: stable
 
   tasks:
@@ -28,10 +27,7 @@
       shell: |
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --token {{ master_token.stdout }} \
-          --datastore-endpoint=https://{{ ETCD_IP }}:2379 \
-          --datastore-cafile=/home/pi/certs/etcd/ca.pem \
-          --datastore-keyfile=/home/pi/certs/etcd/client-key.pem \
-          --datastore-certfile=/home/pi/certs/etcd/client.pem \
+          --server https://{{ hostvars[groups['master'][0]]['ansible_host'] }}:6443 \
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \

@@ -37,7 +37,6 @@
 - name: Install apt packages for master nodes
   apt:
     name:
-      - etcd-client
       - fzf
       - kubectx
     state: present

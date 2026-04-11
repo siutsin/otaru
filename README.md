@@ -126,7 +126,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 2. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    for ip in 192.168.1.{60..63} 192.168.1.{80..83}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
+    for ip in 192.168.10.{60..63}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
     ```
 
 3. **Set Up Service Credentials**
@@ -165,7 +165,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
     Current network layout:
 
-    - LAN `eth0`: `192.168.1.60-63`
+    - LAN `eth0`: `192.168.10.60-63`
 
     Keep `ansible_host` on LAN during rollout.
 
