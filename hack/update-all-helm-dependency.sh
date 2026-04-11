@@ -11,6 +11,10 @@ JOBS="${2:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
 PARALLEL="${3:-true}"
 MAX_RETRIES="${MAX_RETRIES:-3}"
 RETRY_DELAY_SECONDS="${RETRY_DELAY_SECONDS:-2}"
+TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/helm-update.XXXXXX")
+RESULTS_FILE="${TEMP_DIR}/results"
+COUNTER_FILE="${TEMP_DIR}/counter"
+COUNTER_LOCK_DIR="${TEMP_DIR}/counter.lock"
 
 # Check if helm is installed
 if ! command_exists helm; then
@@ -27,6 +31,12 @@ log_info "Charts directory: $CHARTS_DIR"
 log_info "Parallel jobs: $JOBS"
 log_info "Parallel mode: $PARALLEL"
 echo ""
+
+cleanup() {
+    rm -rf "$TEMP_DIR"
+}
+
+trap cleanup EXIT
 
 # Find all Chart.yaml files
 chart_files=$(find "$CHARTS_DIR" -name 'Chart.yaml' 2>/dev/null)
@@ -76,26 +86,26 @@ update_chart() {
     done
 
     if [ $helm_exit_code -eq 0 ]; then
-        echo "SUCCESS:$chart_name" >> /tmp/helm_update_results
+        echo "SUCCESS:$chart_name" >> "$RESULTS_FILE"
         if [ $attempt -gt 1 ]; then
             result_msg="${GREEN}Success: $chart_name${NC} ${YELLOW}(after $attempt attempts)${NC}"
         else
             result_msg="${GREEN}Success: $chart_name${NC}"
         fi
     else
-        echo "FAILURE:$chart_name" >> /tmp/helm_update_results
+        echo "FAILURE:$chart_name" >> "$RESULTS_FILE"
         result_msg="${RED}Failure: $chart_name${NC}\n${YELLOW}Helm output:${NC}\n$helm_output"
     fi
 
     # Pure bash lock using mkdir
-    while ! mkdir /tmp/helm_update_counter.lock 2>/dev/null; do sleep 0.05; done
-    if [ ! -f /tmp/helm_update_counter ]; then
-        echo 0 > /tmp/helm_update_counter
+    while ! mkdir "$COUNTER_LOCK_DIR" 2>/dev/null; do sleep 0.05; done
+    if [ ! -f "$COUNTER_FILE" ]; then
+        echo 0 > "$COUNTER_FILE"
     fi
-    count=$(< /tmp/helm_update_counter)
+    count=$(< "$COUNTER_FILE")
     count=$((count + 1))
-    echo "$count" > /tmp/helm_update_counter
-    rmdir /tmp/helm_update_counter.lock
+    echo "$count" > "$COUNTER_FILE"
+    rmdir "$COUNTER_LOCK_DIR"
 
     echo -e "${YELLOW}[$count/$total_charts]${NC} $result_msg"
 }
@@ -105,17 +115,17 @@ update_chart() {
 set +e
 
 # Initialize results and counter files for all modes
-rm -f /tmp/helm_update_results /tmp/helm_update_counter /tmp/helm_update_counter.lock
+rm -f "$RESULTS_FILE" "$COUNTER_FILE"
 
 if [ "$PARALLEL" = "true" ]; then
     log_info "Processing charts in parallel mode..."
     export -f update_chart
-    export PARALLEL total_charts GREEN YELLOW RED NC
+    export PARALLEL total_charts GREEN YELLOW RED NC RESULTS_FILE COUNTER_FILE COUNTER_LOCK_DIR MAX_RETRIES RETRY_DELAY_SECONDS
     echo "$chart_files" | xargs -P "$JOBS" -I {} bash -c 'update_chart "{}"'
     # Count results from the temporary file
-    if [ -f /tmp/helm_update_results ]; then
-        success_count=$(grep -c "^SUCCESS:" /tmp/helm_update_results || echo 0)
-        failure_count=$(grep -c "^FAILURE:" /tmp/helm_update_results || echo 0)
+    if [ -f "$RESULTS_FILE" ]; then
+        success_count=$(grep -c "^SUCCESS:" "$RESULTS_FILE" || echo 0)
+        failure_count=$(grep -c "^FAILURE:" "$RESULTS_FILE" || echo 0)
     fi
 else
     log_info "Processing charts sequentially..."

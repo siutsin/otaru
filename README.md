@@ -159,20 +159,16 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     rpi_wifi_password: <password>
     ```
 
-    Raspberry Pi inventory entries use four networking variables:
+    Raspberry Pi inventory entries use two networking variables:
 
     - `ansible_host`: the current Ansible connection target
     - `ansible_host_eth`: the static LAN IP for `eth0`
-    - `ansible_host_wifi`: the static Wi-Fi IP for `wlan0`
-    - `ansible_host_wifi_gateway`: the Wi-Fi gateway for the SSID network
 
     Current network layout:
 
     - LAN `eth0`: `192.168.1.60-63`
-    - Wi-Fi `wlan0`: `192.168.1.80-83`
-    - Wi-Fi gateway: `192.168.1.1`
 
-    Keep `ansible_host` on LAN during rollout. After Wi-Fi access is verified, Ansible can be moved to Wi-Fi later without changing the intended interface addresses.
+    Keep `ansible_host` on LAN during rollout.
 
 5. **Bootstrap Cluster**
 

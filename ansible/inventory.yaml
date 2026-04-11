@@ -10,32 +10,24 @@ all:
           ansible_ssh_user: pi
           ansible_host: 192.168.1.60
           ansible_host_eth: 192.168.1.60
-          ansible_host_wifi: 192.168.1.80
-          ansible_host_wifi_gateway: 192.168.1.1
     node01:
       hosts:
         raspberrypi-01.local:
           ansible_ssh_user: pi
           ansible_host: 192.168.1.61
           ansible_host_eth: 192.168.1.61
-          ansible_host_wifi: 192.168.1.81
-          ansible_host_wifi_gateway: 192.168.1.1
     node02:
       hosts:
         raspberrypi-02.local:
           ansible_ssh_user: pi
           ansible_host: 192.168.1.62
           ansible_host_eth: 192.168.1.62
-          ansible_host_wifi: 192.168.1.82
-          ansible_host_wifi_gateway: 192.168.1.1
     node03:
       hosts:
         raspberrypi-03.local:
           ansible_ssh_user: pi
           ansible_host: 192.168.1.63
           ansible_host_eth: 192.168.1.63
-          ansible_host_wifi: 192.168.1.83
-          ansible_host_wifi_gateway: 192.168.1.1
     etcd:
       hosts:
         ubuntu.local:

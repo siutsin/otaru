@@ -49,7 +49,6 @@
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
           --tls-san {{ ansible_host_eth }} \
-          --tls-san {{ ansible_host_wifi }} \
           --write-kubeconfig-mode=644 \
           --kube-apiserver-arg \
           --anonymous-auth=true \
