@@ -172,14 +172,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 5. **Bootstrap Cluster**
 
     ```shell
-    make setup-cluster
-    ```
-
-    To reconcile Raspberry Pi node configuration and K3s
-    without touching etcd:
-
-    ```shell
-    make reconcile-node-k3s
+    make setup
     ```
 
 ## Oopsy
@@ -193,32 +186,19 @@ make maintenance
 Upgrade k3s kubernetes version and restart workloads.
 
 ```shell
-make upgrade-cluster
+make upgrade
 ```
 
 Wipe everything and start from scratch.
 
 ```shell
-make nuke-cluster
+make nuke
 ```
 
-Rebuild the cluster.
+Set up Raspberry Pi nodes and K3s cluster.
 
 ```shell
-make build-cluster
-```
-
-Reconcile Raspberry Pi node configuration and K3s without
-touching etcd.
-
-```shell
-make reconcile-node-k3s
-```
-
-Restart all workloads.
-
-```shell
-make restart-all
+make setup
 ```
 
 Generate atlantis.yaml.
