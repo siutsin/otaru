@@ -48,8 +48,7 @@
           --flannel-backend=none \
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
-          --tls-san {{ ansible_host_eth }} \
-          --tls-san {{ ansible_host_wifi }} \
+          --tls-san {{ ansible_host }} \
           --write-kubeconfig-mode=644 \
           --kube-apiserver-arg \
           --anonymous-auth=true \
@@ -78,6 +77,7 @@
       delegate_to: raspberrypi-00.local
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false
 
     - name: Replace 'default' with 'raspberrypi' in local kube config
       replace:
@@ -89,6 +89,7 @@
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false
 
     - name: Replace '127.0.0.1' with first master IP in local kube config
       replace:
@@ -100,3 +101,4 @@
       become_user: simon
       run_once: true
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      changed_when: false

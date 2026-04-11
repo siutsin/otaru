@@ -23,7 +23,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(setup-cluster|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster):" | \
+		grep -E "^(setup-cluster|reconcile-node-k3s|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
@@ -55,6 +55,10 @@ endef
 .PHONY: setup-cluster
 setup-cluster: ## Run complete cluster setup playbook (etcd + rpi + k3s)
 	$(call ansible_playbook,setup-cluster)
+
+.PHONY: reconcile-node-k3s
+reconcile-node-k3s: ## Reconcile Raspberry Pi node and k3s playbooks without touching etcd
+	$(call ansible_playbook,reconcile-node-k3s)
 
 .PHONY: maintenance
 maintenance: ## Run maintenance ansible playbook

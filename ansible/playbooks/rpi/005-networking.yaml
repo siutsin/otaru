@@ -3,29 +3,11 @@
   become: true
   gather_facts: true
   vars:
-    rpi_local_vault_file: "{{ lookup('env', 'HOME') }}/dotfiles/password/ansible_vault.yaml"
     rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
     rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
-    rpi_eth0_address: "{{ ansible_host_eth | default(ansible_host, true) }}/24"
-    rpi_wifi_address: "{{ ansible_host_wifi | default('', true) }}"
+    rpi_eth0_address: "{{ ansible_host }}/24"
     rpi_gateway: 192.168.1.1
     rpi_subnet: 192.168.1.0/24
-    rpi_wifi_gateway: "{{ ansible_host_wifi_gateway | default(rpi_gateway, true) }}"
-    rpi_wifi_optional: true
-    rpi_wifi_configure: "{{ (rpi_wifi_ssid | default('', true) | length > 0) and (rpi_wifi_password | default('', true) | length > 0) and (rpi_wifi_address | length > 0) }}"
-
-  pre_tasks:
-    - name: Check if local Ansible vault file exists
-      stat:
-        path: "{{ rpi_local_vault_file }}"
-      delegate_to: localhost
-      become: false
-      register: rpi_local_vault_stat
-
-    - name: Load Wi-Fi credentials from local Ansible vault
-      include_vars:
-        file: "{{ rpi_local_vault_file }}"
-      when: rpi_local_vault_stat.stat.exists
 
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
@@ -34,32 +16,24 @@
         path: /etc/systemd/system/promisc-mode.service
       register: promisc_mode_service
 
-    - name: Check if promisc-mode service is inactive or not
-      command: systemctl show promisc-mode.service --property=ActiveState
-      register: promisc_mode_status
-      changed_when: false
-      failed_when: false
-
-    - name: Create systemd service to enable promiscuous mode for eth0 and wlan0
+    - name: Create systemd service to enable promiscuous mode for eth0
       copy:
         dest: /etc/systemd/system/promisc-mode.service
         content: |
           [Unit]
-          Description=Enable promiscuous mode for eth0 and wlan0
+          Description=Enable promiscuous mode for eth0
           After=network.target
 
           [Service]
           Type=oneshot
           ExecStart=/sbin/ifconfig eth0 promisc
-          ExecStart=/sbin/ifconfig wlan0 promisc
 
           [Install]
           WantedBy=multi-user.target
         owner: root
         group: root
         mode: '0644'
-      when: promisc_mode_status.stdout.strip() != "ActiveState=inactive"
-      changed_when: true
+      when: not promisc_mode_service.stat.exists
       notify:
         - Reload systemd and start promisc-mode service
 
@@ -83,42 +57,15 @@
           (.network.ethernets.eth0.dhcp4) = false |
           (.network.ethernets.eth0.addresses) = ["{{ rpi_eth0_address }}"] |
           (.network.ethernets.eth0.routes) = [
-            {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 600},
+            {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "metric": 100},
             {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "table": 100},
             {"to": "{{ rpi_subnet }}", "scope": "link", "table": 100}
           ] |
-          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host_eth | default(ansible_host, true) }}/32", "table": 100, "priority": 100}] |
+          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host }}/32", "table": 100, "priority": 100}] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
       changed_when: false
-
-    - name: Configure wlan0 netplan settings using yq
-      command: |
-        /snap/bin/yq -i '
-          del(.network.wifis.wlan0.gateway4) |
-          (.network.wifis.wlan0.dhcp4) = false |
-          (.network.wifis.wlan0.optional) = env(RPI_WIFI_OPTIONAL) == "true" |
-          (.network.wifis.wlan0.addresses) = [env(RPI_WIFI_ADDRESS) + "/24"] |
-          (.network.wifis.wlan0.routes) = [
-            {"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "metric": 100},
-            {"to": "0.0.0.0/0", "via": env(RPI_WIFI_GATEWAY), "table": 200},
-            {"to": env(RPI_SUBNET), "scope": "link", "table": 200}
-          ] |
-          (.network.wifis.wlan0."routing-policy") = [{"from": env(RPI_WIFI_ADDRESS) + "/32", "table": 200, "priority": 200}] |
-          (.network.wifis.wlan0.nameservers.addresses) = [env(RPI_WIFI_GATEWAY)] |
-          (.network.wifis.wlan0.access-points) = {env(RPI_WIFI_SSID): {"password": env(RPI_WIFI_PASSWORD)}}
-        ' "{{ rpi_netplan_work_file }}"
-      become: false  # Run this as pi, since the file is owned by pi
-      changed_when: false
-      when: rpi_wifi_configure
-      environment:
-        RPI_WIFI_OPTIONAL: "{{ 'true' if rpi_wifi_optional else 'false' }}"
-        RPI_WIFI_ADDRESS: "{{ rpi_wifi_address }}"
-        RPI_WIFI_GATEWAY: "{{ rpi_wifi_gateway }}"
-        RPI_WIFI_SSID: "{{ rpi_wifi_ssid | default('', true) }}"
-        RPI_WIFI_PASSWORD: "{{ rpi_wifi_password | default('', true) }}"
-        RPI_SUBNET: "{{ rpi_subnet }}"
 
     - name: Check if the modified netplan file is different from the original
       shell: diff "{{ rpi_netplan_work_file }}" "{{ rpi_netplan_file }}"
@@ -164,7 +111,7 @@
 
     - name: Wait for system to become reachable
       wait_for:
-        host: "{{ ansible_host_eth | default(ansible_host, true) }}"
+        host: "{{ ansible_host }}"
         port: 22
         delay: 3
         timeout: 600

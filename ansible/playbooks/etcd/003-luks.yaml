@@ -58,8 +58,7 @@
 
     - name: Wait for system to become reachable again
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ ansible_host | default(inventory_hostname, true) }}"
         port: 22
         delay: 10
         timeout: 600
-

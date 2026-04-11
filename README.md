@@ -159,25 +159,27 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     rpi_wifi_password: <password>
     ```
 
-    Raspberry Pi inventory entries use four networking variables:
+    Raspberry Pi inventory entries use one networking variable:
 
     - `ansible_host`: the current Ansible connection target
-    - `ansible_host_eth`: the static LAN IP for `eth0`
-    - `ansible_host_wifi`: the static Wi-Fi IP for `wlan0`
-    - `ansible_host_wifi_gateway`: the Wi-Fi gateway for the SSID network
 
     Current network layout:
 
     - LAN `eth0`: `192.168.1.60-63`
-    - Wi-Fi `wlan0`: `192.168.1.80-83`
-    - Wi-Fi gateway: `192.168.1.1`
 
-    Keep `ansible_host` on LAN during rollout. After Wi-Fi access is verified, Ansible can be moved to Wi-Fi later without changing the intended interface addresses.
+    Keep `ansible_host` on LAN during rollout.
 
 5. **Bootstrap Cluster**
 
     ```shell
     make setup-cluster
+    ```
+
+    To reconcile Raspberry Pi node configuration and K3s
+    without touching etcd:
+
+    ```shell
+    make reconcile-node-k3s
     ```
 
 ## Oopsy
@@ -204,6 +206,13 @@ Rebuild the cluster.
 
 ```shell
 make build-cluster
+```
+
+Reconcile Raspberry Pi node configuration and K3s without
+touching etcd.
+
+```shell
+make reconcile-node-k3s
 ```
 
 Restart all workloads.

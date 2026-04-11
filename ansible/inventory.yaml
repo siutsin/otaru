@@ -8,34 +8,22 @@ all:
       hosts:
         raspberrypi-00.local:
           ansible_ssh_user: pi
-          ansible_host: raspberrypi-00.local
-          ansible_host_eth: 192.168.1.60
-          ansible_host_wifi: 192.168.1.80
-          ansible_host_wifi_gateway: 192.168.1.1
+          ansible_host: 192.168.1.60
     node01:
       hosts:
         raspberrypi-01.local:
           ansible_ssh_user: pi
-          ansible_host: raspberrypi-01.local
-          ansible_host_eth: 192.168.1.61
-          ansible_host_wifi: 192.168.1.81
-          ansible_host_wifi_gateway: 192.168.1.1
+          ansible_host: 192.168.1.61
     node02:
       hosts:
         raspberrypi-02.local:
           ansible_ssh_user: pi
-          ansible_host: raspberrypi-02.local
-          ansible_host_eth: 192.168.1.62
-          ansible_host_wifi: 192.168.1.82
-          ansible_host_wifi_gateway: 192.168.1.1
+          ansible_host: 192.168.1.62
     node03:
       hosts:
         raspberrypi-03.local:
           ansible_ssh_user: pi
-          ansible_host: raspberrypi-03.local
-          ansible_host_eth: 192.168.1.63
-          ansible_host_wifi: 192.168.1.83
-          ansible_host_wifi_gateway: 192.168.1.1
+          ansible_host: 192.168.1.63
     etcd:
       hosts:
         ubuntu.local:
@@ -57,9 +45,14 @@ all:
     pineberry_pi_hatdrive:
       children:
         node03: { }
-    volume:
+    nvme_boot:
       children:
         node02: { }
+    brcmfmac_options:
+      children:
+        node02: { }
+    extra_storage:
+      children:
         node03: { }
     raspberrypi:
       children:

@@ -1,5 +1,5 @@
 ---
-- hosts: volume
+- hosts: extra_storage
   become: true
 
   tasks:

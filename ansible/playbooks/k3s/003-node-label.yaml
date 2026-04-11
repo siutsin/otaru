@@ -1,5 +1,5 @@
 ---
-- hosts: volume
+- hosts: extra_storage
 
   tasks:
     - name: Label the node as a volume node
