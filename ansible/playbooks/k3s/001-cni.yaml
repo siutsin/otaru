@@ -14,7 +14,7 @@
       until: gateway_api_dep_result.rc == 0
 
     - name: Apply gateway-api Helm template
-      shell: "helm template ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl apply -f -"
       register: gateway_api_result
       retries: 5
       delay: 10
@@ -39,7 +39,7 @@
       shell: |
         helm template ../../../helm-charts/cilium -n kube-system \
           --api-versions='gateway.networking.k8s.io/v1/GatewayClass' \
-          --set cilium.operator.replicas=1 | kubectl create -f - 2>/dev/null || true
+          --set cilium.operator.replicas=1 | kubectl apply -f -
       register: cilium_result
       retries: 5
       delay: 10
@@ -83,7 +83,7 @@
       until: k3s_lb_dep_result.rc == 0
 
     - name: Apply k3s-apiserver-loadbalancer Helm template
-      shell: "helm template ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl apply -f -"
       register: k3s_lb_result
       retries: 5
       delay: 10
@@ -99,7 +99,7 @@
     # Assign dedicated virtual IP to Kubernetes api-server service
 
     - name: Apply gateway-api-kubernetes Helm template
-      shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl apply -f -"
       register: gateway_api_k8s_result
       retries: 5
       delay: 10
