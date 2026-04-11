@@ -182,13 +182,13 @@ ethernets:
   eth0:
     dhcp4: false
     addresses:
-      - <REPLACE: 192.168.1.XX>/24
+      - <REPLACE: 192.168.10.XX>/24
     routes:
       - to: default
-        via: 192.168.1.1
+        via: 192.168.10.1
     nameservers:
       addresses:
-        - 192.168.1.1
+        - 192.168.10.1
 EOF
 ```
 

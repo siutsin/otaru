@@ -6,4 +6,4 @@ l2AnnouncementPolicy:
     - ^eth[0-9]+
 
 loadBalancerIPPool:
-  cidr: 192.168.1.50/32
+  cidr: 192.168.10.50/32

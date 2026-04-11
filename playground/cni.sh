@@ -33,7 +33,7 @@ helm upgrade --install gateway-api-routes helm-charts/gateway-api-routes \
   --set l2AnnouncementPolicy.interface=enp0s2
 
 # Configure nodes to use LB api-server IP
-LB_API_SERVER_IP="https://192.168.1.52"
+LB_API_SERVER_IP="https://192.168.10.50"
 # master nodes except the first master node
 for master_node in $(multipass list --format json | jq -r '.list[] | select(.name | test("^master[0-9]{2}$")) | select(.name != "master00") | .name'); do
     multipass exec "$master_node" -- sudo sed -i "s|'https://.*:6443'|'https://$LB_API_SERVER_IP'|" /etc/systemd/system/k3s.service

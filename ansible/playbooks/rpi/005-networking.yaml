@@ -6,8 +6,8 @@
     rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
     rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
     rpi_eth0_address: "{{ ansible_host }}/24"
-    rpi_gateway: 192.168.1.1
-    rpi_subnet: 192.168.1.0/24
+    rpi_gateway: 192.168.10.1
+    rpi_subnet: 192.168.10.0/24
 
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service

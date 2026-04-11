@@ -8,27 +8,22 @@ all:
       hosts:
         raspberrypi-00.local:
           ansible_ssh_user: pi
-          ansible_host: 192.168.1.60
+          ansible_host: 192.168.10.60
     node01:
       hosts:
         raspberrypi-01.local:
           ansible_ssh_user: pi
-          ansible_host: 192.168.1.61
+          ansible_host: 192.168.10.61
     node02:
       hosts:
         raspberrypi-02.local:
           ansible_ssh_user: pi
-          ansible_host: 192.168.1.62
+          ansible_host: 192.168.10.62
     node03:
       hosts:
         raspberrypi-03.local:
           ansible_ssh_user: pi
-          ansible_host: 192.168.1.63
-    etcd:
-      hosts:
-        ubuntu.local:
-          ansible_ssh_user: ubuntu
-          ansible_host: 192.168.1.52
+          ansible_host: 192.168.10.63
     # Groups
     master:
       children:
