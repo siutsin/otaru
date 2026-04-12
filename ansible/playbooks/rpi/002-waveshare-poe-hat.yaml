@@ -8,6 +8,12 @@
       shell: sudo raspi-config nonint do_i2c 0
       changed_when: false
 
+    - name: Ensure pi user can access the I2C device
+      user:
+        name: pi
+        groups: i2c
+        append: true
+
     - name: Install Waveshare PoE HAT Python dependencies
       apt:
         name:
