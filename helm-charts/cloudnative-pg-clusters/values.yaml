@@ -64,6 +64,7 @@ clusters:
 
   teslamate:
     clusterName: &teslamateClusterName teslamate-20251024-0015
+    backupSourceName: &teslamateBackupSourceName teslamate-backup-source
     labels:
       cnpg.io/reload: "true"
       cnpg.io/skipEmptyWalArchiveCheck: "true"
@@ -86,8 +87,13 @@ clusters:
       enabled: true
       query: SELECT name FROM cars;
     bootstrap:
-      initdb:
-        database: teslamate
-        owner: app
-        secret:
-          name: *teslamateClusterName
+      recovery:
+        source: *teslamateBackupSourceName
+    externalClusters:
+      - name: *teslamateBackupSourceName
+        plugin:
+          enabled: true
+          name: barman-cloud.cloudnative-pg.io
+          parameters:
+            barmanObjectName: b2-backup
+            serverName: *teslamateClusterName
