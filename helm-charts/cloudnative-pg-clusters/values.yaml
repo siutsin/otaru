@@ -63,8 +63,9 @@ clusters:
 #            serverName: *exampleDBClusterName # cluster name to restore from
 
   teslamate:
-    clusterName: &teslamateClusterName teslamate-20251024-0015
+    clusterName: &teslamateClusterName teslamate-20260412-0546
     backupSourceName: &teslamateBackupSourceName teslamate-backup-source
+    recoverySourceServerName: &teslamateRecoverySourceServerName teslamate-20251024-0015
     labels:
       cnpg.io/reload: "true"
       cnpg.io/skipEmptyWalArchiveCheck: "true"
@@ -96,4 +97,4 @@ clusters:
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: *teslamateClusterName
+            serverName: *teslamateRecoverySourceServerName
