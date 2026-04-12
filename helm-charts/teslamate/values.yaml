@@ -1,11 +1,11 @@
 name: teslamate
 namespace: teslamate
 database:
-  host: teslamate-20260412-0546-rw.teslamate
+  host: teslamate-20260412-0619-rw.teslamate
   name: app
   port: "5432"
-  appSecretName: &databaseAppSecretName teslamate-20260412-0546-app
-  backupSecretName: &databaseBackupSecretName teslamate-20260412-0546
+  appSecretName: &databaseAppSecretName teslamate-20260412-0619-app
+  backupSecretName: &databaseBackupSecretName teslamate-20260412-0619
 
 deployment:
   image:
@@ -23,7 +23,7 @@ deployment:
         name: teslamate
   env:
     - name: DATABASE_HOST
-      value: &databaseHost teslamate-20260412-0546-rw.teslamate
+      value: &databaseHost teslamate-20260412-0619-rw.teslamate
     - name: DATABASE_NAME
       value: &databaseName app
     - name: DATABASE_PORT
