@@ -28,7 +28,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
+		grep -E "^(atlantis|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
@@ -75,8 +75,8 @@ nuke: ## Run cluster destruction playbook (DANGEROUS!)
 	$(call ansible_playbook,nuke)
 
 # Infrastructure and development targets
-.PHONY: generate-atlantis-yaml
-generate-atlantis-yaml: ## Generate Atlantis configuration file
+.PHONY: atlantis
+atlantis: ## Generate Atlantis configuration file
 	@echo "$(GREEN)Generating Atlantis configuration...$(NC)"
 	bash $(HACK_DIR)/generate-atlantis-yaml.sh
 
