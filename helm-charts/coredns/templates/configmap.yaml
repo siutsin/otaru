@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Values.namespace }}
+  name: coredns
+  namespace: {{ .Release.Namespace }}
 data:
   Corefile: |
 {{ .Values.config.corefile | indent 4 }}

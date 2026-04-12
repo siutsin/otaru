@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Values.rbac.name }}
+  name: system:coredns
   annotations:
     rbac.authorization.kubernetes.io/autoupdate: "true"
   labels:
@@ -9,8 +9,8 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Values.rbac.name }}
+  name: system:coredns
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.name }}
-    namespace: {{ .Values.namespace }}
+    name: coredns
+    namespace: {{ .Release.Namespace }}

@@ -1,15 +1,4 @@
-name: coredns
-namespace: kube-system
-
-labels:
-  selector: kube-dns
-
-rbac:
-  name: system:coredns
-
 service:
-  enabled: true
-  name: kube-dns
   clusterIP: 10.43.0.10
 
 deployment:
