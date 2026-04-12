@@ -60,6 +60,22 @@ grafana:
             topologyKey: kubernetes.io/hostname
   annotations:
     reloader.stakater.com/auto: "true"
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: grafana
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 6
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: grafana
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 10
   image:
     repository: teslamate/grafana
     tag: 3.0.0@sha256:e02d1f036dd10771ea04db2bafc483067a9dbb874d0b5137dda5a6fe539b77dc
