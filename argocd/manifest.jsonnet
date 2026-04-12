@@ -46,7 +46,7 @@ local application = [
 //  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
-//  { wave: '10', name: 'teslamate', namespace: 'teslamate' },
+  { wave: '10', name: 'teslamate', namespace: 'teslamate' },
 //  { wave: '11', name: 'changedetection', namespace: 'changedetection' },
 //  { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
   { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
