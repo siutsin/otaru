@@ -13,7 +13,6 @@ kubernetes-mcp-server:
       memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 128Mi
       ephemeral-storage: 64Mi
   affinity:

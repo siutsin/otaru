@@ -5,7 +5,6 @@ metrics-server:
       memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 128Mi
       ephemeral-storage: 64Mi
   replicas: 2
