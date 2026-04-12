@@ -1,43 +1,8 @@
 apiVersion: longhorn.io/v1beta2
 kind: Node
 metadata:
-  name: raspberrypi-00
-  namespace: {{ .Values.namespace }}
-spec:
-  allowScheduling: true
-  disks:
-    default-disk-a6c00bbc1be864c4:
-      allowScheduling: false
-      evictionRequested: true
-  name: raspberrypi-00
----
-apiVersion: longhorn.io/v1beta2
-kind: Node
-metadata:
-  name: raspberrypi-01
-  namespace: {{ .Values.namespace }}
-spec:
-  allowScheduling: true
-  disks:
-    default-disk-a6c00bbc1be864c4:
-      allowScheduling: false
-      evictionRequested: true
-  name: raspberrypi-01
----
-apiVersion: longhorn.io/v1beta2
-kind: Node
-metadata:
   name: raspberrypi-03
   namespace: {{ .Values.namespace }}
 spec:
-  allowScheduling: true
-  disks:
-    default-disk-a6c00bbc1be864c4:
-      allowScheduling: false
-      evictionRequested: true
-    disk-1:
-      allowScheduling: true
-      diskType: filesystem
-      path: /media/storage
+  allowScheduling: false
   name: raspberrypi-03
-
