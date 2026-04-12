@@ -12,6 +12,12 @@ integrations:
 service:
   name: gateway
 
+tls:
+  secretName: tls-certificate
+
+serviceAllocation:
+  selectorLabel: gateway.envoyproxy.io/owning-gateway-name
+
 l2AnnouncementPolicy:
   interface:
     - eth0

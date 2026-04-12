@@ -2,10 +2,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tls-certificate
+  name: {{ .Values.tls.secretName }}
   namespace: {{ .Values.namespace }}
 spec:
-  secretName: tls-certificate
+  secretName: {{ .Values.tls.secretName }}
   issuerRef:
     kind: Issuer
     name: letsencrypt

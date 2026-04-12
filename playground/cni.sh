@@ -29,7 +29,8 @@ helm upgrade --install gateway-api-kubernetes helm-charts/gateway-api-kubernetes
 helm upgrade --install envoy-gateway helm-charts/envoy-gateway \
   -n gateway-api \
   --create-namespace \
-  --set bootstrap.enabled=true
+  --set bootstrap.enabled=true \
+  --set tls.secretName=envoy
 
 # Configure nodes to use LB api-server IP
 LB_API_SERVER_IP="https://192.168.10.50"

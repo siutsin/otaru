@@ -119,6 +119,7 @@
       shell: |
         helm template envoy-gateway ../../../helm-charts/envoy-gateway -n gateway-api \
           --set bootstrap.enabled=true \
+          --set tls.secretName=envoy \
           --api-versions='gateway.networking.k8s.io/v1/GatewayClass' | kubectl apply -f -
       register: envoy_gateway_result
       retries: 5
