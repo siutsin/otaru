@@ -11,6 +11,9 @@ deployment:
   image:
     repository: teslamate/teslamate
     tag: 3.0.0@sha256:6569026b73bd657455bbec05965d07fa30b6d4d70eaab0bd5b343231c0429167
+  envFrom:
+    - secretRef:
+        name: teslamate
   env:
     - name: DISABLE_MQTT
       value: "true"
@@ -18,10 +21,6 @@ deployment:
       value: Europe/London
     - name: LOCALE
       value: en
-  envFrom:
-    - secretRef:
-        name: teslamate
-  env:
     - name: DATABASE_HOST
       value: &databaseHost teslamate-20260412-0619-rw.teslamate
     - name: DATABASE_NAME
