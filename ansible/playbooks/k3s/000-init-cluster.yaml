@@ -17,6 +17,7 @@
       shell: |
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --cluster-init \
+          --disable coredns \
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \

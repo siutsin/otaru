@@ -4,6 +4,20 @@
 
   tasks:
 
+  - name: Initialise CoreDNS
+    shell: "helm template coredns ../../../helm-charts/coredns -n kube-system | kubectl apply -f -"
+    register: coredns_init_result
+    retries: 5
+    delay: 10
+    until: coredns_init_result.rc == 0
+
+  - name: Wait for CoreDNS to be ready
+    shell: "kubectl rollout status deployment/coredns -n kube-system --timeout=15m"
+    register: coredns_ready_result
+    retries: 5
+    delay: 10
+    until: coredns_ready_result.rc == 0
+
   # Set local-path not to be the default storage class
 
   - name: Create local-path storage class

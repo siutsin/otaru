@@ -35,6 +35,7 @@
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
           --token {{ hostvars['localhost']['k3s_master_token'] }} \
           --server https://{{ hostvars[groups['master'][0]]['ansible_host'] }}:6443 \
+          --disable coredns \
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \

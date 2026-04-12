@@ -50,13 +50,6 @@
       delay: 10
       until: metallb_speaker_result.rc == 0
 
-    - name: Wait for coredns to rollout
-      shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"
-      register: coredns_result
-      retries: 5
-      delay: 10
-      until: coredns_result.rc == 0
-
     # Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
 
     - name: Update dependency

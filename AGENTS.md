@@ -26,6 +26,9 @@ This executes:
 
 **Helm Charts**: fix coalesce warnings by providing default values,
 create missing values.yaml files, resolve template rendering issues.
+Set memory requests equal to memory limits unless the user explicitly asks otherwise.
+Do not set CPU limits unless the user explicitly asks for them.
+Set explicit ephemeral-storage requests and limits with suitable values for the workload.
 
 **Markdown**: fix linting violations directly, never disable markdownlint rules.
 

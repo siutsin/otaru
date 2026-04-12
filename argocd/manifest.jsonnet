@@ -90,6 +90,7 @@ local application = [
 ];
 
 local baseline = [
+  { wave: '01', name: 'coredns', namespace: 'kube-system' },
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
 ];
 
