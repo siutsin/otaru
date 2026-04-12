@@ -16,7 +16,7 @@ deployment:
     - secretRef:
         name: teslamate
     - secretRef:
-        name: &databaseSecretName teslamate-20251024-0015
+        name: &databaseSecretName teslamate-20260412-0546
 
 service:
   containerPort: 4000
@@ -41,6 +41,5 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    secretName: teslamate-20251024-0015
+    secretName: teslamate-20260412-0546
     postgresVersion: "17"
-
