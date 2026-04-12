@@ -90,6 +90,8 @@ clusters:
     bootstrap:
       recovery:
         source: *teslamateBackupSourceName
+        database: app
+        owner: app
     externalClusters:
       - name: *teslamateBackupSourceName
         plugin:

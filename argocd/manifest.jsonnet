@@ -10,6 +10,25 @@ local resourceFieldRefDivisor(name) = [{
   jqPathExpressions: [divisorJqPath],
 }];
 
+local webhookCaBundleAndFailurePolicy(name) = [{
+  group: 'admissionregistration.k8s.io',
+  kind: 'ValidatingWebhookConfiguration',
+  name: name,
+  jqPathExpressions: [
+    '.webhooks[]?.clientConfig.caBundle',
+    '.webhooks[]?.failurePolicy',
+  ],
+}];
+
+local crdConversionCABundle(name) = [{
+  group: 'apiextensions.k8s.io',
+  kind: 'CustomResourceDefinition',
+  name: name,
+  jsonPointers: [
+    '/spec/conversion/webhook/clientConfig/caBundle',
+  ],
+}];
+
 local cleanerExcludeDeleted = [{
   group: 'apps.projectsveltos.io',
   kind: 'Cleaner',
@@ -17,9 +36,26 @@ local cleanerExcludeDeleted = [{
 }];
 
 local _ignoreDifferences = {
+  bootstrap: {
+    metallb: crdConversionCABundle('bgppeers.metallb.io'),
+  },
+  database: {
+    'cloudnative-pg-clusters': [{
+      group: 'postgresql.cnpg.io',
+      kind: 'Cluster',
+      name: 'teslamate-20260412-0619',
+      jqPathExpressions: [
+        '.spec.resources',
+      ],
+    }],
+  },
   scheduling: {
     'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner') + cleanerExcludeDeleted,
     reloader: resourceFieldRefDivisor('reloader-reloader'),
+  },
+  serviceMesh: {
+    'istio-base': webhookCaBundleAndFailurePolicy('istiod-default-validator'),
+    istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
   },
 };
 
@@ -65,7 +101,7 @@ local bootstrap = [
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'gateway-api-kubernetes', namespace: 'default' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
-  { wave: '20', name: 'metallb', namespace: 'metallb-system' },
+  { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
@@ -95,7 +131,14 @@ local database = [
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
-  { wave: '06', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: cnpgClustersHelm },
+  {
+    wave: '06',
+    name: 'cloudnative-pg-clusters',
+    namespace: 'cnpg-system',
+    helm: cnpgClustersHelm,
+    syncOptions: ['RespectIgnoreDifferences=true'],
+    ignoreDifferences: _ignoreDifferences.database['cloudnative-pg-clusters'],
+  },
 ];
 
 local monitoring = [
@@ -124,9 +167,9 @@ local storage = [
 ];
 
 local serviceMesh = [
-  { wave: '03', name: 'istio-base', namespace: 'istio-system' },
+  { wave: '03', name: 'istio-base', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh['istio-base'] },
   { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
-  { wave: '04', name: 'istiod', namespace: 'istio-system' },
+  { wave: '04', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh.istiod },
   { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
 ];
 
