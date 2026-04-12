@@ -48,7 +48,25 @@ grafana:
   image:
     repository: teslamate/grafana
     tag: 3.0.0@sha256:e02d1f036dd10771ea04db2bafc483067a9dbb874d0b5137dda5a6fe539b77dc
-  envFromSecret: *databaseAppSecretName
+  database:
+    secretName: *databaseAppSecretName
+  envValueFrom:
+    DATABASE_HOST:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: host
+    DATABASE_NAME:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: dbname
+    DATABASE_USER:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: username
+    DATABASE_PASS:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: password
   admin:
     existingSecret: teslamate-grafana
 
