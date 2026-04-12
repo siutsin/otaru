@@ -1,7 +1,17 @@
+_shared:
+  preferredPodAntiAffinity: &preferredPodAntiAffinity
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+
 integrations:
   clusterSecretStore: true
 
 external-secrets:
+  affinity:
+    <<: *preferredPodAntiAffinity
   resources:
     requests:
       cpu: 50m
@@ -10,14 +20,12 @@ external-secrets:
     limits:
       memory: 128Mi
       ephemeral-storage: 64Mi
+  webhook:
+    affinity:
+      <<: *preferredPodAntiAffinity
+  certController:
+    affinity:
+      <<: *preferredPodAntiAffinity
   global:
     affinity:
-      nodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: volume
-                  operator: NotIn
-                  values:
-                    - "true"
+      <<: *preferredPodAntiAffinity

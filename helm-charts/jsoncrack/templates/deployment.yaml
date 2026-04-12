@@ -31,12 +31,11 @@ spec:
               path: /
               port: http
       affinity:
-        nodeAffinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
-              preference:
-                matchExpressions:
-                  - key: volume
-                    operator: NotIn
-                    values:
-                      - "true"
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ .Values.name }}
+                topologyKey: kubernetes.io/hostname

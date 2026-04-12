@@ -8,6 +8,15 @@ database:
   backupSecretName: &databaseBackupSecretName teslamate-20260412-0619
 
 deployment:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: teslamate
+            topologyKey: kubernetes.io/hostname
   image:
     repository: teslamate/teslamate
     tag: 3.0.0@sha256:6569026b73bd657455bbec05965d07fa30b6d4d70eaab0bd5b343231c0429167
@@ -43,6 +52,12 @@ service:
   port: 4000
 
 grafana:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
   annotations:
     reloader.stakater.com/auto: "true"
   image:

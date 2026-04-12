@@ -12,12 +12,11 @@ metrics-server:
     enabled: true
     maxUnavailable: 1
   affinity:
-    nodeAffinity:
+    podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: metrics-server
+            topologyKey: kubernetes.io/hostname

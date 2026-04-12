@@ -25,12 +25,3 @@ k8s-cleaner:
         memory: 64Mi
         ephemeral-storage: 64Mi
   affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"

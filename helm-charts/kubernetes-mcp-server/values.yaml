@@ -16,12 +16,8 @@ kubernetes-mcp-server:
       memory: 128Mi
       ephemeral-storage: 64Mi
   affinity:
-    nodeAffinity:
+    podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
