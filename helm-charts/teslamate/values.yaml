@@ -1,5 +1,11 @@
 name: teslamate
 namespace: teslamate
+database:
+  host: teslamate-20260412-0546-rw.teslamate
+  name: app
+  port: "5432"
+  appSecretName: &databaseAppSecretName teslamate-20260412-0546-app
+  backupSecretName: &databaseBackupSecretName teslamate-20260412-0546
 
 deployment:
   image:
@@ -15,8 +21,23 @@ deployment:
   envFrom:
     - secretRef:
         name: teslamate
-    - secretRef:
-        name: &databaseAppSecretName teslamate-20260412-0546-app
+  env:
+    - name: DATABASE_HOST
+      value: &databaseHost teslamate-20260412-0546-rw.teslamate
+    - name: DATABASE_NAME
+      value: &databaseName app
+    - name: DATABASE_PORT
+      value: &databasePort "5432"
+    - name: DATABASE_USER
+      valueFrom:
+        secretKeyRef:
+          name: *databaseAppSecretName
+          key: username
+    - name: DATABASE_PASS
+      valueFrom:
+        secretKeyRef:
+          name: *databaseAppSecretName
+          key: password
 
 service:
   containerPort: 4000
@@ -41,5 +62,5 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    secretName: &databaseBackupSecretName teslamate-20260412-0546
+    secretName: *databaseBackupSecretName
     postgresVersion: "17"
