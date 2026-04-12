@@ -15,7 +15,6 @@ cert-manager:
       memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 128Mi
       ephemeral-storage: 64Mi
   cainjector:
@@ -25,7 +24,6 @@ cert-manager:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
   webhook:
@@ -35,7 +33,6 @@ cert-manager:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 64Mi
         ephemeral-storage: 64Mi
   startupapicheck:
@@ -45,7 +42,6 @@ cert-manager:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 64Mi
         ephemeral-storage: 64Mi
   enableCertificateOwnerRef: true

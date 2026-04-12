@@ -96,10 +96,28 @@
       delay: 10
       until: envoy_gateway_dep_result.rc == 0
 
+    - name: Find Envoy Gateway dependency archive
+      find:
+        paths: ../../../helm-charts/envoy-gateway/charts
+        patterns: gateway-helm-*.tgz
+        file_type: file
+      register: envoy_gateway_chart_archive
+
+    - name: Apply Envoy Gateway CRDs
+      shell: |
+        chart_archive="{{ envoy_gateway_chart_archive.files | map(attribute='path') | first }}"
+        tar -tzf "$chart_archive" | \
+          grep '^gateway-helm/crds/generated/gateway\.envoyproxy\.io_.*\.yaml$' | \
+          xargs tar -xOf "$chart_archive" | \
+          kubectl apply --server-side -f -
+      register: envoy_gateway_crds_result
+      retries: 5
+      delay: 10
+      until: envoy_gateway_crds_result.rc == 0
+
     - name: Apply Envoy Gateway Helm template
       shell: |
         helm template envoy-gateway ../../../helm-charts/envoy-gateway -n gateway-api \
-          --include-crds \
           --set bootstrap.enabled=true \
           --api-versions='gateway.networking.k8s.io/v1/GatewayClass' | kubectl apply -f -
       register: envoy_gateway_result
