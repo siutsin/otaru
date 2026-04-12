@@ -16,7 +16,7 @@ deployment:
     - secretRef:
         name: teslamate
     - secretRef:
-        name: &databaseSecretName teslamate-20260412-0546
+        name: &databaseAppSecretName teslamate-20260412-0546-app
 
 service:
   containerPort: 4000
@@ -28,7 +28,7 @@ grafana:
   image:
     repository: teslamate/grafana
     tag: 3.0.0@sha256:e02d1f036dd10771ea04db2bafc483067a9dbb874d0b5137dda5a6fe539b77dc
-  envFromSecret: *databaseSecretName
+  envFromSecret: *databaseAppSecretName
   admin:
     existingSecret: teslamate-grafana
 
@@ -41,5 +41,5 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    secretName: teslamate-20260412-0546
+    secretName: &databaseBackupSecretName teslamate-20260412-0546
     postgresVersion: "17"
