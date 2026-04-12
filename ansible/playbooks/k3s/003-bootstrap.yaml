@@ -61,7 +61,7 @@
   - name: Wait for 1Password Connect to be ready
     shell: |
       kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
-      kubectl delete pod onepassword-connect-health-check -n onepassword
+      kubectl delete pod onepassword-connect-health-check -n onepassword --ignore-not-found=true --wait=false
     register: onepassword_ready_result
     retries: 5
     delay: 10
@@ -80,7 +80,7 @@
     shell: |
       helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets \
         --include-crds \
-        --set integrations.clusterSecretStore=false | kubectl apply --server-side -f -
+        --set integrations.clusterSecretStore=false | kubectl apply --server-side --force-conflicts -f -
     register: external_secrets_init_result
     retries: 5
     delay: 10
@@ -152,17 +152,56 @@
     delay: 10
     until: argocd_init_result.rc == 0
 
-  - name: Wait for Argo CD to be ready
+  # Longhorn
+
+  - name: Create longhorn namespace
+    shell: "kubectl create namespace longhorn-system || true"
+    register: longhorn_ns_result
+    retries: 5
+    delay: 10
+    until: longhorn_ns_result.rc == 0
+
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/longhorn"
+    register: longhorn_dep_result
+    retries: 3
+    delay: 10
+    until: longhorn_dep_result.rc == 0
+
+  - name: Initialise Longhorn
+    shell: |
+      backup_target="$(kubectl get secret argocd-jsonnet-secret -n argocd -o yaml | yq -r '.data.LONGHORN_BACKUP_TARGET | @base64d')"
+      helm template longhorn ../../../helm-charts/longhorn -n longhorn-system \
+        --set-string longhorn.defaultBackupStore.backupTarget="$backup_target" | \
+        yq 'select(.kind != "Job" or .metadata.name != "longhorn-uninstall")' - | \
+        kubectl apply --server-side --force-conflicts -f -
+    register: longhorn_init_result
+    retries: 5
+    delay: 10
+    until: longhorn_init_result.rc == 0
+
+  - name: Wait for Argo CD and Longhorn to be ready
     shell: |
       kubectl rollout status deploy/argocd-server -n argocd --timeout=15m
       kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m
       kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
       kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
       kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
-    register: argocd_ready_result
+      kubectl rollout status deploy/longhorn-driver-deployer -n longhorn-system --timeout=15m
+      kubectl rollout status deploy/longhorn-ui -n longhorn-system --timeout=15m
+      kubectl rollout status daemonset/longhorn-manager -n longhorn-system --timeout=15m
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app.kubernetes.io/name=longhorn
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-attacher
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-provisioner
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-resizer
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-snapshotter
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l name=longhorn-setup-cypto-discard
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l longhorn.io/component=instance-manager
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=longhorn-csi-plugin
+    register: argocd_longhorn_ready_result
     retries: 5
     delay: 10
-    until: argocd_ready_result.rc == 0
+    until: argocd_longhorn_ready_result.rc == 0
 
   # Bootstrap
 
