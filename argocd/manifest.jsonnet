@@ -40,10 +40,10 @@ local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupT
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
-//  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
+  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
-//  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
+  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
