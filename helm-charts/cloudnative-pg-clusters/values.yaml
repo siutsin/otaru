@@ -35,6 +35,7 @@ defaults:
       synchronizeReplicas:
         enabled: true
       updateInterval: 30
+    resources: {}
     smartShutdownTimeout: 180
     startDelay: 3600
     stopDelay: 1800
@@ -152,6 +153,7 @@ clusters:
       - name: *teslamateBackupSourceName
         plugin:
           enabled: true
+          isWALArchiver: false
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
