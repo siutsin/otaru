@@ -1,10 +1,11 @@
 namespace: k8s-cleaner
 
 excludeNamespaces: &excludeNamespaces
-  - cilium
-  - cilium-gateway
+  - gateway-api
+  - istio-system
   - kube-system
   - longhorn-system
+  - metallb-system
 
 repave:
   maxAgeSeconds: 259200

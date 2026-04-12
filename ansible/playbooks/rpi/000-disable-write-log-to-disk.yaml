@@ -7,12 +7,16 @@
   # SD card nodes use volatile (RAM) storage to extend card lifespan.
   # NVMe boot nodes use persistent storage but cap log size to 100M.
   tasks:
+    - name: Detect root block device
+      set_fact:
+        root_device: "{{ ansible_facts.mounts | selectattr('mount', 'equalto', '/') | map(attribute='device') | first }}"
+
     - name: Set journald to volatile storage (SD card nodes)
       lineinfile:
         path: /etc/systemd/journald.conf
         regexp: '^#?Storage='
         line: 'Storage=volatile'
-      when: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='device') | first is match('^/dev/mmcblk')
+      when: root_device is match('^/dev/mmcblk')
       notify: &notify
         - Restart journald
         - Clear all logs in /var/log
@@ -22,7 +26,7 @@
         path: /etc/systemd/journald.conf
         regexp: '^#?Storage='
         line: 'Storage=persistent'
-      when: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='device') | first is not match('^/dev/mmcblk')
+      when: root_device is not match('^/dev/mmcblk')
       notify: *notify
 
     - name: Set journald max log size

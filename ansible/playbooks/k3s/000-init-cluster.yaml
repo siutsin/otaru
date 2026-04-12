@@ -4,6 +4,7 @@
   vars:
     LB_API_SERVER_IP: 192.168.10.50
     K3S_CHANNEL: stable
+    LOCAL_KUBECONFIG_PATH: "{{ lookup('env', 'HOME') }}/.kube/config"
 
   tasks:
     - name: Install k3s on the first master node
@@ -19,9 +20,8 @@
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \
-          --disable-kube-proxy \
           --disable-network-policy \
-          --flannel-backend=none \
+          --flannel-backend=wireguard-native \
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
           --tls-san {{ ansible_host }} \
@@ -40,41 +40,43 @@
       delay: 10
       until: first_master_setup.rc == 0
 
-    - name: Set FIRST_MASTER_IP variable for later use
-      set_fact:
-        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+    - name: Read k3s kubeconfig from the first master node
+      slurp:
+        src: /etc/rancher/k3s/k3s.yaml
+      register: first_master_kubeconfig
+      delegate_to: "{{ groups['master'][0] }}"
+      run_once: true
+      changed_when: false
 
     - name: Copy k3s.yaml to local machine
-      fetch:
-        src: /etc/rancher/k3s/k3s.yaml
-        dest: ~/.kube/config
-        flat: yes
-      delegate_to: raspberrypi-00.local
+      copy:
+        content: "{{ first_master_kubeconfig.content | b64decode }}"
+        dest: "{{ LOCAL_KUBECONFIG_PATH }}"
+        mode: '0600'
+      delegate_to: localhost
+      become: yes
+      become_user: simon
       run_once: true
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       changed_when: false
 
     - name: Replace 'default' with 'raspberrypi' in local kube config
       replace:
-        path: "~/.kube/config"
+        path: "{{ LOCAL_KUBECONFIG_PATH }}"
         regexp: 'default'
         replace: 'raspberrypi'
       delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       changed_when: false
 
     - name: Replace '127.0.0.1' with first master IP in local kube config
       replace:
-        path: "~/.kube/config"
+        path: "{{ LOCAL_KUBECONFIG_PATH }}"
         regexp: '127.0.0.1'
-        replace: "{{ hostvars[groups['master'][0]]['FIRST_MASTER_IP'] }}"
+        replace: "{{ hostvars[groups['master'][0]]['ansible_host'] }}"
       delegate_to: localhost
       become: yes
       become_user: simon
       run_once: true
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
       changed_when: false

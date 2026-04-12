@@ -61,11 +61,11 @@ local baseline = [
 local bootstrap = [
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
-  { wave: '20', name: 'cilium', namespace: 'kube-system', serverSideDiff: 'true' },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'gateway-api-kubernetes', namespace: 'default' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
+  { wave: '20', name: 'metallb', namespace: 'metallb-system' },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
@@ -75,7 +75,7 @@ local cicd = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'cilium-gateway', namespace: 'cilium-gateway' },
+  { wave: '02', name: 'envoy-gateway', namespace: 'gateway-api' },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
@@ -100,6 +100,7 @@ local database = [
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
+  { wave: '05', name: 'kiali', namespace: 'istio-system' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
   { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
@@ -122,7 +123,14 @@ local storage = [
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
+local serviceMesh = [
+  { wave: '03', name: 'istio-base', namespace: 'istio-system' },
+  { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
+  { wave: '04', name: 'istiod', namespace: 'istio-system' },
+  { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
+];
+
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + storage
+  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + serviceMesh + storage
 ]

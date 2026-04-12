@@ -1,0 +1,22 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway-api" -}}
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: {{ .Values.name }}-coap
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: coap-udp
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ .Values.name }}-coap
+          port: 5683
+          weight: 1

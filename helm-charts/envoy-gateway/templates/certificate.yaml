@@ -1,3 +1,4 @@
+{{- if and (not .Values.bootstrap.enabled) .Values.integrations.certManager }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -13,3 +14,4 @@ spec:
     - "*.siutsin.com"
   privateKey:
     rotationPolicy: Always
+{{- end }}

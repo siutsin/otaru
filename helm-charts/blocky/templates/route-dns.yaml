@@ -1,0 +1,43 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway-api" -}}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ .Values.name }}-dns-tcp
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: dns-tcp
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ .Values.name }}-dns
+          port: 53
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: {{ .Values.name }}-dns-udp
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: dns-udp
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ .Values.name }}-dns
+          port: 53
+          weight: 1

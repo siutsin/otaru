@@ -8,6 +8,8 @@
     rpi_eth0_address: "{{ ansible_host }}/24"
     rpi_gateway: 192.168.10.1
     rpi_subnet: 192.168.10.0/24
+    rpi_pod_cidr: 10.42.0.0/16
+    rpi_service_cidr: 10.43.0.0/16
 
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
@@ -61,7 +63,11 @@
             {"to": "0.0.0.0/0", "via": "{{ rpi_gateway }}", "table": 100},
             {"to": "{{ rpi_subnet }}", "scope": "link", "table": 100}
           ] |
-          (.network.ethernets.eth0."routing-policy") = [{"from": "{{ ansible_host }}/32", "table": 100, "priority": 100}] |
+          (.network.ethernets.eth0."routing-policy") = [
+            {"to": "{{ rpi_pod_cidr }}", "table": 254, "priority": 50},
+            {"to": "{{ rpi_service_cidr }}", "table": 254, "priority": 51},
+            {"from": "{{ ansible_host }}/32", "table": 100, "priority": 100}
+          ] |
           (.network.ethernets.eth0.nameservers.addresses) = ["{{ rpi_gateway }}"]
         ' "{{ rpi_netplan_work_file }}"
       become: false  # Run this as pi, since the file is owned by pi
