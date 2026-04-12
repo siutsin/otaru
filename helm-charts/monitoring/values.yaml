@@ -30,10 +30,10 @@ prometheus:
     resources:
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 2Gi
         ephemeral-storage: 256Mi
       limits:
-        memory: 1Gi
+        memory: 2Gi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 50Gi
