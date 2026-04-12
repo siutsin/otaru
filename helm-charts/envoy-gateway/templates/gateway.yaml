@@ -19,7 +19,7 @@ spec:
         certificateRefs:
           - kind: Secret
             group: ""
-            name: tls-certificate
+            name: {{ .Values.tls.secretName }}
       allowedRoutes:
         namespaces:
           from: All
