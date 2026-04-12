@@ -63,7 +63,7 @@ clusters:
 #            serverName: *exampleDBClusterName # cluster name to restore from
 
   teslamate:
-    clusterName: &teslamateClusterName teslamate-20260412-0546
+    clusterName: &teslamateClusterName teslamate-20260412-0619
     backupSourceName: &teslamateBackupSourceName teslamate-backup-source
     recoverySourceServerName: &teslamateRecoverySourceServerName teslamate-20251024-0015
     labels:
