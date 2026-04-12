@@ -104,6 +104,13 @@
       delay: 10
       when: "'worker' in group_names"
 
+    - name: Ensure k3s CNI plugin path resolves istio-cni binary
+      file:
+        src: /opt/cni/bin/istio-cni
+        dest: /var/lib/rancher/k3s/data/cni/istio-cni
+        state: link
+        force: true
+
   handlers:
     - name: Restart k3s
       systemd:
