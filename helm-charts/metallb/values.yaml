@@ -8,7 +8,6 @@ metallb:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
   controller:
@@ -18,6 +17,5 @@ metallb:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
