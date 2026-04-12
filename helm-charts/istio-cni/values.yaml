@@ -2,6 +2,7 @@ namespace: kube-system
 
 istio-cni:
   profile: ambient
+  cniConfDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
   resources:
     requests:
       cpu: 50m
