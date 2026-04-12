@@ -1,4 +1,6 @@
 namespace: argocd
+integrations:
+  externalSecrets: true
 
 argo-cd:
   _shared:

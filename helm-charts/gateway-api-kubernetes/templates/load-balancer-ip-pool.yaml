@@ -1,11 +1,12 @@
-apiVersion: cilium.io/v2alpha1
-kind: CiliumLoadBalancerIPPool
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
 metadata:
   name: {{ .Values.name }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.metallbNamespace }}
 spec:
-  blocks:
-    - cidr: {{ .Values.loadBalancerIPPool.cidr }}
-  serviceSelector:
-    matchExpressions:
-      - { key: component, operator: In, values: [ apiserver ] }
+  addresses:
+    - {{ .Values.loadBalancerIPPool.cidr }}
+  serviceAllocation:
+    serviceSelectors:
+      - matchExpressions:
+          - { key: component, operator: In, values: [ apiserver ] }

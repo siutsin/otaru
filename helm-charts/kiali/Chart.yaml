@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kiali
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.1
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+dependencies:
+  - name: kiali-server
+    version: 2.x.x
+    repository: https://kiali.org/helm-charts

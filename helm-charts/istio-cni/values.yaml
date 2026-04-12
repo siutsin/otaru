@@ -1,0 +1,12 @@
+namespace: kube-system
+
+istio-cni:
+  profile: ambient
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi

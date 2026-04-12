@@ -1,3 +1,4 @@
+{{- if and (not .Values.bootstrap.enabled) .Values.integrations.certManager .Values.integrations.externalSecrets }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -17,3 +18,4 @@ spec:
             apiTokenSecretRef:
               name: cloudflare-acme-verification-secret
               key: api-token
+{{- end }}

@@ -9,27 +9,71 @@
   delay: 10
   until: latest_asdf_tag.rc == 0 and latest_asdf_tag.stdout != ''
 
-- name: Clone or update asdf to the latest tag
-  git:
-    repo: "https://github.com/asdf-vm/asdf.git"
-    dest: "/home/pi/.asdf"
-    version: "v{{ latest_asdf_tag.stdout }}"
-    update: yes
-  become: true
-  become_user: pi
+- name: Get installed asdf version
+  shell: |
+    if [ -x /usr/local/bin/asdf ]; then
+      /usr/local/bin/asdf version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1
+    else
+      echo "not installed"
+    fi
+  register: installed_asdf_version
+  changed_when: false
   when: "'master' in group_names"
-  register: asdf_clone_result
   retries: 3
   delay: 10
-  until: asdf_clone_result is success
+  until: installed_asdf_version.rc == 0
+
+- name: Get the asdf linux arm64 download URL
+  shell: |
+    curl -s "https://api.github.com/repos/asdf-vm/asdf/releases/tags/v{{ latest_asdf_tag.stdout }}" | \
+      grep browser_download_url | \
+      grep linux-arm64.tar.gz | \
+      cut -d '"' -f 4 | \
+      head -n 1
+  register: asdf_download_url
+  changed_when: false
+  when: "'master' in group_names"
+  retries: 3
+  delay: 10
+  until: asdf_download_url.rc == 0 and asdf_download_url.stdout != ''
+
+- name: Install or upgrade asdf binary
+  shell: |
+    tmpdir="$(mktemp -d)"
+    trap 'rm -rf "$tmpdir"' EXIT
+    curl -L "{{ asdf_download_url.stdout }}" -o "$tmpdir/asdf.tar.gz"
+    tar -xzf "$tmpdir/asdf.tar.gz" -C "$tmpdir"
+    install -m 0755 "$tmpdir/asdf" /usr/local/bin/asdf
+  when:
+    - "'master' in group_names"
+    - installed_asdf_version.stdout != latest_asdf_tag.stdout
+  register: asdf_install_binary_result
+  retries: 3
+  delay: 10
+  until: asdf_install_binary_result.rc == 0
+
+- name: Ensure asdf data directories exist
+  file:
+    path: "/home/pi/.asdf/{{ item }}"
+    state: directory
+    owner: pi
+    group: pi
+    mode: '0755'
+  loop:
+    - downloads
+    - installs
+    - plugins
+    - shims
+  become: true
+  when: "'master' in group_names"
 
 - name: Ensure asdf is sourced in .bashrc with completion after initialization
   blockinfile:
     path: /home/pi/.bashrc
     block: |
       # asdf initialization
-      . "$HOME/.asdf/asdf.sh"
-      . "$HOME/.asdf/completions/asdf.bash"
+      export ASDF_DATA_DIR="$HOME/.asdf"
+      export PATH="$ASDF_DATA_DIR/shims:$PATH"
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
   become_user: pi
   changed_when: false
@@ -37,9 +81,14 @@
 
 - name: Install asdf packages
   shell: |
-    /home/pi/.asdf/bin/asdf plugin add k9s
-    /home/pi/.asdf/bin/asdf install k9s latest
-    /home/pi/.asdf/bin/asdf global k9s latest
+    export ASDF_DATA_DIR="/home/pi/.asdf"
+    export PATH="$ASDF_DATA_DIR/shims:$PATH"
+    if ! /usr/local/bin/asdf plugin list | grep -qx k9s; then
+      /usr/local/bin/asdf plugin add k9s
+    fi
+    /usr/local/bin/asdf install k9s latest
+    /usr/local/bin/asdf set --home k9s latest
+    /usr/local/bin/asdf reshim
   become_user: pi
   changed_when: false
   when: "'master' in group_names"

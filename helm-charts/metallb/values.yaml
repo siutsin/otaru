@@ -1,0 +1,23 @@
+namespace: metallb-system
+
+metallb:
+  speaker:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+  controller:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        cpu: ~
+        memory: 128Mi
+        ephemeral-storage: 64Mi

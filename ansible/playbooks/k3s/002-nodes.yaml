@@ -11,10 +11,17 @@
       shell: sudo cat /var/lib/rancher/k3s/server/node-token
       register: master_token
       run_once: true
-      delegate_to: raspberrypi-00.local
+      delegate_to: "{{ groups['master'][0] }}"
       retries: 5
       delay: 10
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+      no_log: true
+
+    - name: Share node token with subsequent tasks
+      set_fact:
+        k3s_master_token: "{{ master_token.stdout }}"
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
       no_log: true
 
     - name: Install k3s on master nodes with LB_API_SERVER_IP
@@ -26,14 +33,13 @@
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
-          --token {{ master_token.stdout }} \
+          --token {{ hostvars['localhost']['k3s_master_token'] }} \
           --server https://{{ hostvars[groups['master'][0]]['ansible_host'] }}:6443 \
           --disable metrics-server \
           --disable servicelb \
           --disable traefik \
-          --disable-kube-proxy \
           --disable-network-policy \
-          --flannel-backend=none \
+          --flannel-backend=wireguard-native \
           --secrets-encryption \
           --tls-san {{ LB_API_SERVER_IP }} \
           --tls-san {{ ansible_host }} \
@@ -91,32 +97,12 @@
         curl -sfL https://get.k3s.io | \
           INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} \
           INSTALL_K3S_SKIP_DOWNLOAD=false \
-          K3S_TOKEN={{ hostvars[groups['master'][0]]['master_token']['stdout'] }} \
+          K3S_TOKEN={{ hostvars['localhost']['k3s_master_token'] }} \
           K3S_URL=https://{{ LB_API_SERVER_IP }}:443 \
           sh -
       retries: 5
       delay: 10
       when: "'worker' in group_names"
-
-    - name: Get FIRST_MASTER_IP
-      set_fact:
-        FIRST_MASTER_IP: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-      retries: 5
-      delay: 10
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
-
-    - name: Replace first master IP with LB_API_SERVER_IP in local kube config
-      replace:
-        path: "~/.kube/config"
-        regexp: 'server: https://{{ FIRST_MASTER_IP }}:6443'
-        replace: "server: https://{{ LB_API_SERVER_IP }}:443"
-      delegate_to: localhost
-      become: yes
-      become_user: simon
-      run_once: true
-      retries: 5
-      delay: 10
-      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
   handlers:
     - name: Restart k3s
