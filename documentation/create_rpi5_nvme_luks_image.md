@@ -73,6 +73,7 @@ there during the rollout.
 5. Verify normal boot:
 
 ```shell
+make unlock raspberrypi-01
 ssh pi@192.168.10.61
 findmnt /
 lsblk

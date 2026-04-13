@@ -3,6 +3,21 @@ ANSIBLE_INVENTORY := ansible/inventory.yaml
 INFRASTRUCTURE_DIR := infrastructure
 HACK_DIR := hack
 OUTPUT_FILE ?= otaru-architecture
+LUKS_UNLOCK_PORT ?= 1024
+LUKS_UNLOCK_HOST_QUERY := \
+	[(.all.children[]?.hosts? // {}) | to_entries[] | \
+	select(.key == strenv(TARGET) or .key == (strenv(TARGET) + ".local") or \
+	.value.ansible_host == strenv(TARGET)) | .value.ansible_host][0] // \
+	strenv(TARGET)
+
+ifneq (,$(filter unlock,$(MAKECMDGOALS)))
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+override LUKS_UNLOCK_TARGET := $(word 2,$(MAKECMDGOALS))
+.PHONY: $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)):
+	@:
+endif
+endif
 
 # Colors for output
 GREEN := \033[0;32m
@@ -38,7 +53,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(status|install-deps|help):" | \
+		grep -E "^(status|install-deps|unlock|help):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Usage:$(NC) make <target>"
@@ -220,3 +235,14 @@ install-deps: ## Install development dependencies
 	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
 	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
 	@echo "$(GREEN)All dependencies are installed!$(NC)"
+
+.PHONY: unlock
+unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-01)
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		echo "$(RED)Usage: make unlock <node-name>$(NC)"; \
+		exit 1; \
+	fi
+	@target="$(LUKS_UNLOCK_TARGET)"; \
+	host="$$(TARGET="$$target" yq -r '$(LUKS_UNLOCK_HOST_QUERY)' $(ANSIBLE_INVENTORY))"; \
+	echo "$(GREEN)Unlocking $$target ($$host):$(LUKS_UNLOCK_PORT)...$(NC)"; \
+	direnv exec . ./hack/luks-cryptroot-unlock.sh "$$host" "$(LUKS_UNLOCK_PORT)" --env-passfifo

@@ -6,5 +6,6 @@
 * [LUKS remote unlock and recovery](luks_remote_unlock.md)
 * [LUKS vault variables](luks_vault.md)
 * LUKS helper scripts: `hack/luks-preflight-check.sh`, `hack/luks-postflight-check.sh`, `hack/luks-cryptroot-unlock.sh`, `hack/luks-node-init.sh`
+* LUKS shortcut target: `make unlock`
 * [Gotchas and Workarounds](gotcha.md)
 * [Static IP Assignment](ip.md)

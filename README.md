@@ -202,6 +202,12 @@ Upgrade k3s kubernetes version and restart workloads.
 make upgrade
 ```
 
+Unlock a LUKS node after boot.
+
+```shell
+make unlock raspberrypi-01
+```
+
 Wipe everything and start from scratch.
 
 ```shell
