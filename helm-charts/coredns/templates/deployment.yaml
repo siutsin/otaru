@@ -26,6 +26,9 @@ spec:
       serviceAccountName: coredns
       priorityClassName: system-cluster-critical
       dnsPolicy: Default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:

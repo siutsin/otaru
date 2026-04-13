@@ -30,18 +30,24 @@
   # Create namespaces
 
   - name: Create external-secrets namespace
-    shell: "kubectl create namespace external-secrets || true"
+    command: kubectl create namespace external-secrets
     register: external_secrets_ns_result
     retries: 5
     delay: 10
     until: external_secrets_ns_result.rc == 0
+    failed_when:
+      - external_secrets_ns_result.rc != 0
+      - "'AlreadyExists' not in (external_secrets_ns_result.stderr | default(''))"
 
   - name: Create onepassword namespace
-    shell: "kubectl create namespace onepassword || true"
+    command: kubectl create namespace onepassword
     register: onepassword_ns_result
     retries: 5
     delay: 10
     until: onepassword_ns_result.rc == 0
+    failed_when:
+      - onepassword_ns_result.rc != 0
+      - "'AlreadyExists' not in (onepassword_ns_result.stderr | default(''))"
 
   # 1Password Connect
 
@@ -53,9 +59,11 @@
     until: onepassword_dep_result.rc == 0
 
   - name: Create Secret for `onepassword-connect`
-    shell: "kubectl create secret generic onepassword-connect-token -n external-secrets --from-literal=token=\"$(tr -d '
-
-      ' < ../../../token)\" 2>/dev/null || true"
+    shell: |
+      token="$(tr -d '\n' < ../../../token)"
+      kubectl create secret generic onepassword-connect-token -n external-secrets \
+        --from-literal=token="$token" \
+        --dry-run=client -o yaml | kubectl apply -f -
     register: onepassword_secret_result
     retries: 5
     delay: 10
@@ -127,11 +135,14 @@
     until: argocd_dep_result.rc == 0
 
   - name: Create namespace
-    shell: "kubectl create namespace argocd || true"
+    command: kubectl create namespace argocd
     register: argocd_ns_result
     retries: 5
     delay: 10
     until: argocd_ns_result.rc == 0
+    failed_when:
+      - argocd_ns_result.rc != 0
+      - "'AlreadyExists' not in (argocd_ns_result.stderr | default(''))"
 
   - name: Remove bootstrap placeholder argocd-jsonnet-secret
     shell: "kubectl delete secret argocd-jsonnet-secret -n argocd --ignore-not-found=true"
@@ -169,11 +180,14 @@
   # Longhorn
 
   - name: Create longhorn namespace
-    shell: "kubectl create namespace longhorn-system || true"
+    command: kubectl create namespace longhorn-system
     register: longhorn_ns_result
     retries: 5
     delay: 10
     until: longhorn_ns_result.rc == 0
+    failed_when:
+      - longhorn_ns_result.rc != 0
+      - "'AlreadyExists' not in (longhorn_ns_result.stderr | default(''))"
 
   - name: Update dependency
     shell: "helm dep update ../../../helm-charts/longhorn"

@@ -127,6 +127,23 @@ for mounted_target in $(findmnt -rn -S "/dev/mapper/$mapper" -o TARGET 2>/dev/nu
 done
 cryptsetup close "$mapper" 2>/dev/null || true
 
+if [[ ! -b "$disk" ]]; then
+  echo "Refusing to wipe $disk because it is not a block device." >&2
+  exit 1
+fi
+
+disk_type="$(lsblk -dn -o TYPE "$disk" 2>/dev/null || true)"
+if [[ "$disk_type" != "disk" ]]; then
+  echo "Refusing to wipe $disk because its device type is '$disk_type', not 'disk'." >&2
+  exit 1
+fi
+
+disk_removable="$(lsblk -dn -o RM "$disk" 2>/dev/null || true)"
+if [[ "$disk_removable" == "1" ]]; then
+  echo "Refusing to wipe $disk because it is marked removable on the rescue host." >&2
+  exit 1
+fi
+
 if findmnt -rn -S "$disk" >/dev/null 2>&1; then
   echo "Refusing to wipe $disk because it is mounted on the rescue host." >&2
   exit 1
@@ -138,7 +155,7 @@ if [[ "$root_source" == "$disk" || "$root_source" == "$boot" || "$root_source" =
   exit 1
 fi
 
-lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS "$disk"
+lsblk -o NAME,TYPE,RM,SIZE,MODEL,FSTYPE,MOUNTPOINTS "$disk"
 echo "About to wipe $disk on $HOSTNAME" >&2
 
 blkdiscard -f "$disk"
