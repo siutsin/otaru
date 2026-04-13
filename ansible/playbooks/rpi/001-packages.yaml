@@ -39,12 +39,6 @@
         path: /home/pi/.bash_aliases
         block: |
           # Custom Environment Variables
-          export ETCDCTL_API=3
-          export ETCDCTL_ENDPOINTS=https://192.168.1.52:2379
-          export ETCDCTL_DIAL_TIMEOUT=3s
-          export ETCDCTL_CACERT=$HOME/certs/etcd/ca.pem
-          export ETCDCTL_CERT=$HOME/certs/etcd/client.pem
-          export ETCDCTL_KEY=$HOME/certs/etcd/client-key.pem
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
           # Custom Aliases

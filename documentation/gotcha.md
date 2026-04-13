@@ -234,6 +234,62 @@ This fix is also applied by Home Assistant OS to all RPi nodes for the same reas
 [home-assistant/operating-system#4056](https://github.com/home-assistant/operating-system/pull/4056) and
 [RPi-Distro/firmware-nonfree#34](https://github.com/RPi-Distro/firmware-nonfree/issues/34).
 
+---
+
+## Raspberry Pi 5 NVMe LUKS Boot Checklist
+
+For Pi 5 NVMe encrypted-root boots, the boot partition must be treated as part of the migration, not just the root
+filesystem.
+
+### Must Do
+
+1. Ensure `/boot/firmware/config.txt` includes:
+
+    ```text
+    dtparam=pciex1
+    dtparam=pciex1_gen=3
+    ```
+
+2. After rebuilding or upgrading the encrypted root, sync the matching boot artifacts onto `/boot/firmware`:
+    `/boot/vmlinuz-*` -> `/boot/firmware/vmlinuz`, `/boot/initrd.img-*` -> `/boot/firmware/initrd.img`,
+    `/usr/lib/firmware/<kernel>/device-tree/broadcom/*.dtb` -> `/boot/firmware/`, and
+    `/usr/lib/firmware/<kernel>/device-tree/overlays/` -> `/boot/firmware/overlays/`.
+
+3. Keep the installed kernel line on the rebuilt root aligned with the node's working Ubuntu Pi kernel line before
+    booting it.
+
+4. If you add a recovery passphrase from rescue, create it without a trailing newline, for example:
+    `printf '%s' 'otaru-clean-01' > /tmp/luks-clean-pass`
+
+5. Verify the recovery passphrase in both modes before using it for initramfs boot:
+    `cryptsetup open /dev/nvme0n1p2 cryptroot-test --key-file /tmp/luks-clean-pass`
+    and
+    `printf '%s\n' 'otaru-clean-01' | cryptsetup open --test-passphrase /dev/nvme0n1p2`
+
+6. For shell-mode initramfs `dropbear`, use `cryptroot-unlock` rather than writing directly to
+    `/lib/cryptsetup/passfifo`. `cryptroot-unlock` waits for the real `askpass` process and
+    confirms whether the passphrase actually unlocked the device. Opening `cryptroot` manually with
+    `cryptsetup open` is still useful for debugging, but it does not necessarily resume boot if
+    `/lib/cryptsetup/askpass` is still waiting.
+    When feeding the passphrase remotely, do not append a trailing newline. If you store the
+    passphrase in local `.envrc`, use `direnv exec . ./hack/luks-cryptroot-unlock.sh ... --env-passfifo`
+    so the helper gets the value without reading the vault file itself.
+
+7. Do not pass the LUKS password in command arguments during rescue work. Stage it via stdin or a
+    root-only temporary file and rotate it if you ever expose it in command text.
+
+8. The one-pass rescue wrapper avoids the earlier manual rebuild failure modes:
+    mount ordering, `/boot/firmware` rsync conflicts, and `resolv.conf` symlink handling.
+
+9. If a rebuilt control-plane node fails to rejoin with
+    `etcd cluster join failed: duplicate node name found`, cleanly rejoin it:
+    uninstall `k3s` on the rebuilt node, delete the stale Kubernetes `Node` object, confirm etcd only has the healthy
+    members, then rerun the normal `k3s` join play for that node.
+
+10. After rebuilding a node in place, SSH host key verification can block the rejoin play even
+    when the node is otherwise healthy. Remove the old key for both the hostname and IP, or
+    temporarily disable host key checking for that one rejoin run.
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038

@@ -1,10 +1,11 @@
 namespace: k8s-cleaner
 
 excludeNamespaces: &excludeNamespaces
-  - cilium
-  - cilium-gateway
+  - gateway-api
+  - istio-system
   - kube-system
   - longhorn-system
+  - metallb-system
 
 repave:
   maxAgeSeconds: 259200
@@ -21,16 +22,6 @@ k8s-cleaner:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 64Mi
         ephemeral-storage: 64Mi
   affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"

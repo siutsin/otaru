@@ -7,16 +7,11 @@ reloader:
           memory: 64Mi
           ephemeral-storage: 64Mi
         limits:
-          cpu: ~
           memory: 64Mi
           ephemeral-storage: 64Mi
       affinity:
-        nodeAffinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
-              preference:
-                matchExpressions:
-                  - key: volume
-                    operator: NotIn
-                    values:
-                      - "true"
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname

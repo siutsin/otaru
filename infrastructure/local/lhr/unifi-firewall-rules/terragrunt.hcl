@@ -17,7 +17,7 @@ locals {
     }
   }
 
-  gateway_ip = "192.168.1.51"
+  gateway_ip = "192.168.10.51"
   vlans      = ["vlan01", "vlan03", "vlan04", "vlan05", "vlan06", "vlan07"]
 }
 

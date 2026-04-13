@@ -1,10 +1,28 @@
 name: teslamate
 namespace: teslamate
+database:
+  host: teslamate-20260412-0619-rw.teslamate
+  name: app
+  port: "5432"
+  appSecretName: &databaseAppSecretName teslamate-20260412-0619-app
+  backupSecretName: &databaseBackupSecretName teslamate-20260412-0619
 
 deployment:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: teslamate
+            topologyKey: kubernetes.io/hostname
   image:
     repository: teslamate/teslamate
     tag: 3.0.0@sha256:6569026b73bd657455bbec05965d07fa30b6d4d70eaab0bd5b343231c0429167
+  envFrom:
+    - secretRef:
+        name: teslamate
   env:
     - name: DISABLE_MQTT
       value: "true"
@@ -12,23 +30,74 @@ deployment:
       value: Europe/London
     - name: LOCALE
       value: en
-  envFrom:
-    - secretRef:
-        name: teslamate
-    - secretRef:
-        name: &databaseSecretName teslamate-20251024-0015
+    - name: DATABASE_HOST
+      value: &databaseHost teslamate-20260412-0619-rw.teslamate
+    - name: DATABASE_NAME
+      value: &databaseName app
+    - name: DATABASE_PORT
+      value: &databasePort "5432"
+    - name: DATABASE_USER
+      valueFrom:
+        secretKeyRef:
+          name: *databaseAppSecretName
+          key: username
+    - name: DATABASE_PASS
+      valueFrom:
+        secretKeyRef:
+          name: *databaseAppSecretName
+          key: password
 
 service:
   containerPort: 4000
   port: 4000
 
 grafana:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
   annotations:
     reloader.stakater.com/auto: "true"
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: grafana
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 6
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: grafana
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 10
   image:
     repository: teslamate/grafana
     tag: 3.0.0@sha256:e02d1f036dd10771ea04db2bafc483067a9dbb874d0b5137dda5a6fe539b77dc
-  envFromSecret: *databaseSecretName
+  database:
+    secretName: *databaseAppSecretName
+  envValueFrom:
+    DATABASE_HOST:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: host
+    DATABASE_NAME:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: dbname
+    DATABASE_USER:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: username
+    DATABASE_PASS:
+      secretKeyRef:
+        name: *databaseAppSecretName
+        key: password
   admin:
     existingSecret: teslamate-grafana
 
@@ -41,6 +110,5 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    secretName: teslamate-20251024-0015
+    secretName: *databaseBackupSecretName
     postgresVersion: "17"
-

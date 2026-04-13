@@ -1,41 +1,42 @@
-cert-manager:
-  affinity:
-    nodeAffinity:
+_shared:
+  preferredPodAntiAffinity: &preferredPodAntiAffinity
+    podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+
+cert-manager:
+  affinity:
+    <<: *preferredPodAntiAffinity
   resources:
     requests:
       cpu: 50m
       memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 128Mi
       ephemeral-storage: 64Mi
   cainjector:
+    affinity:
+      <<: *preferredPodAntiAffinity
     resources:
       requests:
         cpu: 50m
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
   webhook:
+    affinity:
+      <<: *preferredPodAntiAffinity
     resources:
       requests:
         cpu: 50m
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 64Mi
         ephemeral-storage: 64Mi
   startupapicheck:
@@ -45,7 +46,6 @@ cert-manager:
         memory: 64Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 64Mi
         ephemeral-storage: 64Mi
   enableCertificateOwnerRef: true

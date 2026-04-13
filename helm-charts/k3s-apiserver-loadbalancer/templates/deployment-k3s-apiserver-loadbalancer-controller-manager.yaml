@@ -28,7 +28,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.223.0
+          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.227.0
           livenessProbe:
             httpGet:
               path: /healthz

@@ -1,4 +1,6 @@
 namespace: argocd
+integrations:
+  externalSecrets: true
 
 argo-cd:
   _shared:
@@ -42,17 +44,6 @@ argo-cd:
     haPdb: &haPdb
       enabled: true
       maxUnavailable: 1
-  global:
-    affinity:
-      nodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: volume
-                  operator: NotIn
-                  values:
-                    - "true"
   configs:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
@@ -117,14 +108,15 @@ argo-cd:
     autoscaling:
       enabled: true
       minReplicas: 2
+      maxReplicas: 3
     resources:
       requests:
         cpu: 250m
-        memory: 1Gi
-        ephemeral-storage: 512Mi
+        memory: 256Mi
+        ephemeral-storage: 256Mi
       limits:
-        memory: 1Gi
-        ephemeral-storage: 2Gi
+        memory: 256Mi
+        ephemeral-storage: 256Mi
     readinessProbe:
       initialDelaySeconds: 10
       periodSeconds: 10
@@ -207,11 +199,11 @@ argo-cd:
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
-            ephemeral-storage: 256Mi
+            memory: 128Mi
+            ephemeral-storage: 128Mi
           limits:
-            memory: 256Mi
-            ephemeral-storage: 512Mi
+            memory: 128Mi
+            ephemeral-storage: 128Mi
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files

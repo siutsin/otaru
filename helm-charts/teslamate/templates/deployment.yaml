@@ -14,6 +14,9 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
+      {{- if .Values.deployment.affinity }}
+      affinity: {{ toYaml .Values.deployment.affinity | nindent 8 }}
+      {{- end }}
       automountServiceAccountToken: false
       containers:
         - name: teslamate

@@ -1,0 +1,85 @@
+---
+- hosts: waveshare_poe_hat
+  become: true
+
+  tasks:
+    - name: Enable I2C via raspi-config
+      # https://github.com/RPi-Distro/raspi-config/issues/206#issuecomment-1386435171
+      shell: sudo raspi-config nonint do_i2c 0
+      changed_when: false
+
+    - name: Ensure pi user can access the I2C device
+      user:
+        name: pi
+        groups: i2c
+        append: true
+
+    - name: Install Waveshare PoE HAT Python dependencies
+      apt:
+        name:
+          - python3-numpy
+          - python3-pil
+          - python3-rpi.gpio
+          - python3-smbus
+        state: present
+        update_cache: true
+
+    - name: Clone Waveshare PoE HAT repository
+      git:
+        repo: 'https://github.com/siutsin/Waveshare_PoE_HAT-B.git'
+        dest: '/tmp/Waveshare_PoE_HAT-B'
+        update: true
+      register: git_result
+      until: git_result is succeeded
+      retries: 3
+      delay: 5
+      changed_when: false
+
+    - name: Ensure PoE HAT application directory exists
+      file:
+        path: /home/pi/.poe-hat
+        state: directory
+        owner: pi
+        group: pi
+        mode: '0755'
+
+    - name: Copy Waveshare PoE HAT application files
+      copy:
+        src: /tmp/Waveshare_PoE_HAT-B/PoE_HAT_B_code/
+        dest: /home/pi/.poe-hat/
+        owner: pi
+        group: pi
+        mode: preserve
+        remote_src: true
+
+    - name: Install poe-hat systemd unit
+      copy:
+        dest: /etc/systemd/system/poe-hat.service
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Waveshare Poe Hat B
+          After=network.target
+
+          [Service]
+          Environment=systemd=true
+          User=pi
+          WorkingDirectory=/home/pi/.poe-hat
+          ExecStart=/usr/bin/python3 /home/pi/.poe-hat/main.py
+          Restart=always
+          RestartSec=30
+
+          [Install]
+          WantedBy=multi-user.target
+      register: poe_hat_unit
+
+    - name: Ensure POE-HAT service is running
+      systemd:
+        name: poe-hat.service
+        state: started
+        enabled: yes
+        daemon_reload: "{{ poe_hat_unit.changed }}"
+      register: poe_hat_service_status
+      failed_when: poe_hat_service_status.state != 'started'

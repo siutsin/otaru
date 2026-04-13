@@ -6,34 +6,34 @@ set -euxo pipefail
 helm upgrade --install gateway-api helm-charts/gateway-api \
   -n kube-system
 
-# Apply Cilium with the first master node's API server address
-helm upgrade --install cilium helm-charts/cilium \
-  -n kube-system \
-  --set cilium.k8sServiceHost="$(multipass info master00 --format json | jq -r '.info["master00"].ipv4[1]')"
+# Apply MetalLB before assigning LoadBalancer IP addresses
+helm upgrade --install metallb helm-charts/metallb \
+  -n metallb-system \
+  --create-namespace
 
 # Wait for the deployment to be successfully rolled out.
-kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m
-kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m
-kubectl rollout status ds/cilium -n kube-system --timeout=15m
-kubectl rollout status deploy/hubble-relay -n kube-system --timeout=15m
-kubectl rollout status deploy/hubble-ui -n kube-system --timeout=15m
+kubectl rollout status deployment/metallb-controller -n metallb-system --timeout=15m
+kubectl rollout status daemonset/metallb-speaker -n metallb-system --timeout=15m
 
 # Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
 helm upgrade --install k3s-apiserver-loadbalancer helm-charts/k3s-apiserver-loadbalancer \
-  -n default
+  -n k3s-apiserver-loadbalancer-system \
+  --create-namespace
 
 # Assign dedicated virtual IP to Kubernetes api-server service
 helm upgrade --install gateway-api-kubernetes helm-charts/gateway-api-kubernetes \
   -n default \
-  --set l2AnnouncementPolicy.interface=enp0s2
+  --set l2AnnouncementPolicy.interface=eth0
 
-# Apply service routes
-helm upgrade --install gateway-api-routes helm-charts/gateway-api-routes \
-  -n kube-system \
-  --set l2AnnouncementPolicy.interface=enp0s2
+# Apply Envoy Gateway
+helm upgrade --install envoy-gateway helm-charts/envoy-gateway \
+  -n gateway-api \
+  --create-namespace \
+  --set bootstrap.enabled=true \
+  --set tls.secretName=envoy
 
 # Configure nodes to use LB api-server IP
-LB_API_SERVER_IP="https://192.168.1.52"
+LB_API_SERVER_IP="https://192.168.10.50"
 # master nodes except the first master node
 for master_node in $(multipass list --format json | jq -r '.list[] | select(.name | test("^master[0-9]{2}$")) | select(.name != "master00") | .name'); do
     multipass exec "$master_node" -- sudo sed -i "s|'https://.*:6443'|'https://$LB_API_SERVER_IP'|" /etc/systemd/system/k3s.service
@@ -45,4 +45,3 @@ for worker_node in $(multipass list --format json | jq -r '.list[] | select(.nam
     multipass exec "$worker_node" -- sudo systemctl daemon-reload
     multipass exec "$worker_node" -- sudo systemctl restart k3s-agent
 done
-

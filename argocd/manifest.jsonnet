@@ -10,6 +10,25 @@ local resourceFieldRefDivisor(name) = [{
   jqPathExpressions: [divisorJqPath],
 }];
 
+local webhookCaBundleAndFailurePolicy(name) = [{
+  group: 'admissionregistration.k8s.io',
+  kind: 'ValidatingWebhookConfiguration',
+  name: name,
+  jqPathExpressions: [
+    '.webhooks[]?.clientConfig.caBundle',
+    '.webhooks[]?.failurePolicy',
+  ],
+}];
+
+local crdConversionCABundle(name) = [{
+  group: 'apiextensions.k8s.io',
+  kind: 'CustomResourceDefinition',
+  name: name,
+  jsonPointers: [
+    '/spec/conversion/webhook/clientConfig/caBundle',
+  ],
+}];
+
 local cleanerExcludeDeleted = [{
   group: 'apps.projectsveltos.io',
   kind: 'Cleaner',
@@ -17,9 +36,26 @@ local cleanerExcludeDeleted = [{
 }];
 
 local _ignoreDifferences = {
+  bootstrap: {
+    metallb: crdConversionCABundle('bgppeers.metallb.io'),
+  },
+  database: {
+    'cloudnative-pg-clusters': [{
+      group: 'postgresql.cnpg.io',
+      kind: 'Cluster',
+      name: 'teslamate-20260412-0619',
+      jqPathExpressions: [
+        '.spec.resources',
+      ],
+    }],
+  },
   scheduling: {
     'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner') + cleanerExcludeDeleted,
     reloader: resourceFieldRefDivisor('reloader-reloader'),
+  },
+  serviceMesh: {
+    'istio-base': webhookCaBundleAndFailurePolicy('istiod-default-validator'),
+    istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
   },
 };
 
@@ -40,20 +76,21 @@ local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupT
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
-  { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
+  { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
-  { wave: '10', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
-  { wave: '10', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+  { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
+  { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
 ];
 
 local baseline = [
+  { wave: '01', name: 'coredns', namespace: 'kube-system' },
   { wave: '02', name: 'argocd-config', namespace: 'argocd' },
 ];
 
@@ -61,11 +98,11 @@ local baseline = [
 local bootstrap = [
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
-  { wave: '20', name: 'cilium', namespace: 'kube-system', serverSideDiff: 'true' },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'gateway-api-kubernetes', namespace: 'default' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
+  { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
@@ -75,7 +112,7 @@ local cicd = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'cilium-gateway', namespace: 'cilium-gateway' },
+  { wave: '02', name: 'envoy-gateway', namespace: 'gateway-api', helm: { skipCrds: true } },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
@@ -95,11 +132,19 @@ local database = [
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
-  { wave: '05', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: cnpgClustersHelm },
+  {
+    wave: '06',
+    name: 'cloudnative-pg-clusters',
+    namespace: 'cnpg-system',
+    helm: cnpgClustersHelm,
+    syncOptions: ['RespectIgnoreDifferences=true'],
+    ignoreDifferences: _ignoreDifferences.database['cloudnative-pg-clusters'],
+  },
 ];
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
+  { wave: '05', name: 'kiali', namespace: 'istio-system' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
   { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
@@ -114,7 +159,7 @@ local scheduling = [
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
-  { wave: '10', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
+  { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];
 
 local storage = [
@@ -122,7 +167,14 @@ local storage = [
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
+local serviceMesh = [
+  { wave: '03', name: 'istio-base', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh['istio-base'] },
+  { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
+  { wave: '04', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh.istiod },
+  { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
+];
+
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + storage
+  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + serviceMesh + storage
 ]

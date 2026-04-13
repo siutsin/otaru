@@ -1,0 +1,14 @@
+namespace: kube-system
+
+istio-cni:
+  profile: ambient
+  cniBinDir: /var/lib/rancher/k3s/data/cni
+  cniConfDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi

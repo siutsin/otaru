@@ -5,7 +5,15 @@
 
 > Over-Engineering at Its Finest.
 
-Bare-Metal Home Lab for Kubernetes and Technical Playground.
+Bare-metal `k3s` home lab and technical playground.
+
+Current cluster shape:
+
+- Dedicated `192.168.10.0/24` VLAN for cluster nodes and service virtual IPs
+- `k3s` with embedded etcd on three Raspberry Pi 5 control-plane nodes
+- Flannel `wireguard-native` for pod networking
+- MetalLB + Envoy Gateway for service and ingress load balancing
+- Istio ambient mesh for east-west traffic and Kiali for mesh observability
 
 ## Architecture
 
@@ -15,21 +23,44 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 
 ![Raspberry Pi rack setup](assets/rack.jpeg)
 
-| Device                                     | Description                                     | /dev/mmcblk0                | /dev/nvme0n1                                           |
-|--------------------------------------------|-------------------------------------------------|-----------------------------|--------------------------------------------------------|
-| [Intel NUC Mini PC Core i3-3217U 8GB][nuc] | etcd                                            | -                           | -                                                      |
-| [Raspberry Pi 4 Model B 8GB][rpi4]         | Node 00 with [Waveshare PoE HAT (B)][poe-hat-b] | SanDisk Max Endurance 32 GB | -                                                      |
-| Raspberry Pi 4 Model B 8GB                 | Node 01 with Waveshare PoE HAT (B)              | SanDisk Max Endurance 32 GB | -                                                      |
-| [Raspberry Pi 5 8GB][rpi5]                 | Node 02 with [Waveshare PoE HAT (F)][poe-hat-f] | -                           | [Crucial P3 Plus 4TB (CT4000P3PSSD8)][crucial-p3-plus] |
-| Raspberry Pi 5 8GB                         | Node 03 with Waveshare PoE HAT (F)              | SanDisk Max Endurance 32 GB | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro]   |
-| [UniFi Cloud Gateway Ultra][ucg-ultra]     | Router / Gateway                                | -                           | -                                                      |
-| [UniFi Switch Ultra][usw-ultra]            | PoE Switch                                      | -                           | -                                                      |
-| [GeeekPi DeskPi RackMate T1][rackmate-t1]  | 10 Inch 8U Server Cabinet                       | -                           | -                                                      |
-| [GeeekPi 10" 2U Rack Mount][rack-mount]    | RPi Rack Mount with NVMe Adapters               | -                           | -                                                      |
+<!-- markdownlint-disable MD060 -->
+| Node             | Device                                    | Role           | Boot | Storage                                              |
+|------------------|-------------------------------------------|----------------|------|------------------------------------------------------|
+| `raspberrypi-00` | [Raspberry Pi 5 8GB][rpi5]                | Control plane  | NVMe | [Lexar NM620 256GB][lexar-nm620]                     |
+| `raspberrypi-01` | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro] |
+| `raspberrypi-02` | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Crucial P3 Plus 4TB][crucial-p3-plus]               |
+| `raspberrypi-03` | [Raspberry Pi 4 Model B 8GB][rpi4]        | Worker         | SD   | SanDisk Max Endurance 32 GB                          |
+| `ucg-ultra`      | [UniFi Cloud Gateway Ultra][ucg-ultra]    | Router/Gateway | -    | -                                                    |
+| `usw-ultra`      | [UniFi Switch Ultra][usw-ultra]           | PoE switch     | -    | -                                                    |
+| `rackmate-t1`    | [GeeekPi DeskPi RackMate T1][rackmate-t1] | Rack enclosure | -    | -                                                    |
+| `rack-mount`     | [GeeekPi 10" 2U Rack Mount][rack-mount]   | Pi rack mount  | -    | -                                                    |
+<!-- markdownlint-enable MD060 -->
+
+The cluster now runs embedded etcd on `raspberrypi-00`, `raspberrypi-01`, and `raspberrypi-02`.
+Longhorn uses the root filesystem on the NVMe-backed nodes directly. `raspberrypi-03` remains a worker
+and is intentionally unschedulable for Longhorn storage.
+
+## Pending Node
+
+| Node     | Device                                     | Planned role  | Boot      | Storage             |
+|----------|--------------------------------------------|---------------|-----------|---------------------|
+| `nuc-00` | [Intel NUC Mini PC Core i3-3217U 8GB][nuc] | Future worker | mSATA/LVM | 64 GB local storage |
+
+## Network Layout
+
+| IP              | Role                 |
+|-----------------|----------------------|
+| `192.168.10.1`  | VLAN gateway         |
+| `192.168.10.50` | Kubernetes API VIP   |
+| `192.168.10.51` | Internal ingress VIP |
+| `192.168.10.60` | `raspberrypi-00`     |
+| `192.168.10.61` | `raspberrypi-01`     |
+| `192.168.10.62` | `raspberrypi-02`     |
+| `192.168.10.63` | `raspberrypi-03`     |
+| `192.168.10.64` | `nuc-00`             |
 
 [nuc]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
-[poe-hat-b]: https://thepihut.com/products/power-over-ethernet-hat-for-raspberry-pi-4-3b
-[poe-hat-f]: https://thepihut.com/products/poe-hat-for-raspberry-pi-5-with-cooling-fan
+[lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
 [samsung-980-pro]: https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-2tb-nvme-pcie-gen-4-mz-v8p2t0bw/
 [rackmate-t1]: https://www.amazon.co.uk/dp/B0CS6MHCY8
@@ -56,17 +87,19 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                     |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                            |
 | CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | OpenTofu Pull Request Automation, currently disabled in Argo CD                                        |
-| Connectivity | [Cilium Gateway](helm-charts/cilium-gateway)                                                        | Cilium Ingress Controller with Virtual IP Layer 2 announcement and TLS termination                     |
-| Connectivity | [Cilium](https://cilium.io/)                                                                        | Cilium is a networking, observability, and security solution with an eBPF-based dataplane              |
+| Connectivity | [Envoy Gateway](helm-charts/envoy-gateway)                                                          | Gateway API ingress controller with TLS termination and shared MetalLB virtual IP                      |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                             |
+| Connectivity | [Flannel](https://github.com/flannel-io/flannel)                                                    | `wireguard-native` encrypted pod networking for `k3s`                                                  |
 | Connectivity | [Gateway API Kubernetes](helm-charts/gateway-api-kubernetes)                                        | Virtual IP and Layer 2 announcement for `kubernetes` service's External IP                             |
 | Connectivity | [Gateway API](https://gateway-api.sigs.k8s.io/)                                                     | Kubernetes standard CRDs for managing network traffic                                                  |
+| Connectivity | [MetalLB](helm-charts/metallb)                                                                      | Bare metal `LoadBalancer` implementation for service virtual IP allocation and L2 advertisement        |
 | Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                                           |
 | Database     | [CloudNativePG Barman Cloud Plugin](helm-charts/cloudnative-pg-plugin-barman-cloud)                 | PostgreSQL backup plugin for cloud storage providers                                                   |
 | Database     | [CloudNativePG Clusters](helm-charts/cloudnative-pg-clusters)                                       | Multi-cluster PostgreSQL management with B2 backup integration                                         |
 | Database     | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg)                                   | A Kubernetes operator that manages PostgreSQL clusters                                                 |
 | Monitoring   | [Grafana](https://github.com/grafana/grafana)                                                       | Grafana LGTM Stack. Visualisation dashboards                                                           |
 | Monitoring   | [Heartbeats](helm-charts/heartbeats)                                                                | Kubernetes operator for heartbeat monitoring                                                           |
+| Monitoring   | [Kiali](helm-charts/kiali)                                                                          | Service mesh observability UI for Istio                                                                |
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines |
 | Monitoring   | [Monitoring Stack](helm-charts/monitoring)                                                          | Complete monitoring stack with Grafana, Prometheus, and Loki                                           |
 | Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                       |
@@ -77,6 +110,7 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                |
 | Security     | [amazon-eks-pod-identity-webhook](https://github.com/aws/amazon-eks-pod-identity-webhook)           | Amazon EKS Pod Identity Webhook for IRSA in bare metal Kubernetes clusters                             |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                           |
+| Security     | [Istio](helm-charts/istio-base)                                                                     | Service mesh control plane and ambient dataplane (`istiod`, `istio-cni`, `ztunnel`)                    |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                             |
 | Security     | [zizmor](https://docs.zizmor.sh/)                                                                   | Static analysis for GitHub Actions                                                                     |
 | Storage      | [Longhorn Config](helm-charts/longhorn-config)                                                      | Longhorn configuration and recurring jobs                                                              |
@@ -113,20 +147,18 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     ```shell
     brew install \
       ansible \
-      cilium \
       direnv \
       go-jsonnet \
       helm \
       kubectl \
       opentofu \
-      terragrunt \
-      && ansible-galaxy collection install -r ansible/requirements.yaml
+      terragrunt
     ```
 
 2. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    for ip in 192.168.1.{60..63} 192.168.1.{80..83}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
+    for ip in 192.168.10.{60..63}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
     ```
 
 3. **Set Up Service Credentials**
@@ -150,36 +182,10 @@ Bare-Metal Home Lab for Kubernetes and Technical Playground.
     └── token.sample
     ```
 
-4. **Set Up Raspberry Pi Wi-Fi Credentials**
-
-    Save the Raspberry Pi Wi-Fi credentials in `~/dotfiles/password/ansible_vault.yaml`.
-
-    ```yaml
-    rpi_wifi_ssid: <ssid>
-    rpi_wifi_password: <password>
-    ```
-
-    Raspberry Pi inventory entries use one networking variable:
-
-    - `ansible_host`: the current Ansible connection target
-
-    Current network layout:
-
-    - LAN `eth0`: `192.168.1.60-63`
-
-    Keep `ansible_host` on LAN during rollout.
-
-5. **Bootstrap Cluster**
+4. **Bootstrap Cluster**
 
     ```shell
-    make setup-cluster
-    ```
-
-    To reconcile Raspberry Pi node configuration and K3s
-    without touching etcd:
-
-    ```shell
-    make reconcile-node-k3s
+    make setup
     ```
 
 ## Oopsy
@@ -193,36 +199,23 @@ make maintenance
 Upgrade k3s kubernetes version and restart workloads.
 
 ```shell
-make upgrade-cluster
+make upgrade
+```
+
+Unlock a LUKS node after boot.
+
+```shell
+make unlock raspberrypi-01
 ```
 
 Wipe everything and start from scratch.
 
 ```shell
-make nuke-cluster
+make nuke
 ```
 
-Rebuild the cluster.
+Set up Raspberry Pi nodes and K3s cluster.
 
 ```shell
-make build-cluster
-```
-
-Reconcile Raspberry Pi node configuration and K3s without
-touching etcd.
-
-```shell
-make reconcile-node-k3s
-```
-
-Restart all workloads.
-
-```shell
-make restart-all
-```
-
-Generate atlantis.yaml.
-
-```shell
-make generate-atlantis-yaml
+make setup
 ```

@@ -1,0 +1,241 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+
+  - name: Initialise CoreDNS
+    shell: "helm template coredns ../../../helm-charts/coredns -n kube-system | kubectl apply -f -"
+    register: coredns_init_result
+    retries: 5
+    delay: 10
+    until: coredns_init_result.rc == 0
+
+  - name: Wait for CoreDNS to be ready
+    shell: "kubectl rollout status deployment/coredns -n kube-system --timeout=15m"
+    register: coredns_ready_result
+    retries: 5
+    delay: 10
+    until: coredns_ready_result.rc == 0
+
+  # Set local-path not to be the default storage class
+
+  - name: Create local-path storage class
+    shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
+    register: local_path_result
+    retries: 5
+    delay: 10
+    until: local_path_result.rc == 0
+
+  # Create namespaces
+
+  - name: Create external-secrets namespace
+    command: kubectl create namespace external-secrets
+    register: external_secrets_ns_result
+    retries: 5
+    delay: 10
+    until: external_secrets_ns_result.rc == 0
+    failed_when:
+      - external_secrets_ns_result.rc != 0
+      - "'AlreadyExists' not in (external_secrets_ns_result.stderr | default(''))"
+
+  - name: Create onepassword namespace
+    command: kubectl create namespace onepassword
+    register: onepassword_ns_result
+    retries: 5
+    delay: 10
+    until: onepassword_ns_result.rc == 0
+    failed_when:
+      - onepassword_ns_result.rc != 0
+      - "'AlreadyExists' not in (onepassword_ns_result.stderr | default(''))"
+
+  # 1Password Connect
+
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/onepassword-connect"
+    register: onepassword_dep_result
+    retries: 3
+    delay: 10
+    until: onepassword_dep_result.rc == 0
+
+  - name: Create Secret for `onepassword-connect`
+    shell: |
+      token="$(tr -d '\n' < ../../../token)"
+      kubectl create secret generic onepassword-connect-token -n external-secrets \
+        --from-literal=token="$token" \
+        --dry-run=client -o yaml | kubectl apply -f -
+    register: onepassword_secret_result
+    retries: 5
+    delay: 10
+    until: onepassword_secret_result.rc == 0
+
+  - name: Initialise 1Password Secret Operator
+    shell: |
+      helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword \
+        --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl apply -f -
+    register: onepassword_init_result
+    retries: 5
+    delay: 10
+    until: onepassword_init_result.rc == 0
+
+  # Wait for 1Password Connect to be ready
+
+  - name: Wait for 1Password Connect to be ready
+    shell: |
+      kubectl rollout status deploy/onepassword-connect -n onepassword --timeout=15m
+      kubectl delete pod onepassword-connect-health-check -n onepassword --ignore-not-found=true --wait=false
+    register: onepassword_ready_result
+    retries: 5
+    delay: 10
+    until: onepassword_ready_result.rc == 0
+
+  # External Secrets Operator
+
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/external-secrets"
+    register: external_secrets_dep_result
+    retries: 3
+    delay: 10
+    until: external_secrets_dep_result.rc == 0
+
+  - name: Initialise External Secrets Operator
+    shell: |
+      helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets \
+        --include-crds \
+        --set integrations.clusterSecretStore=false | kubectl apply --server-side --force-conflicts -f -
+    register: external_secrets_init_result
+    retries: 5
+    delay: 10
+    until: external_secrets_init_result.rc == 0
+
+  - name: Wait for External Secrets to be ready
+    shell: |
+      kubectl rollout status deploy/external-secrets -n external-secrets --timeout=15m
+      kubectl rollout status deploy/external-secrets-webhook -n external-secrets --timeout=15m
+      kubectl rollout status deploy/external-secrets-cert-controller -n external-secrets --timeout=15m
+    register: external_secrets_ready_result
+    retries: 5
+    delay: 10
+    until: external_secrets_ready_result.rc == 0
+
+  - name: Apply ClusterSecretStore for 1Password Connect
+    shell: "helm template external-secrets ../../../helm-charts/external-secrets -n external-secrets --show-only templates/cluster-secret-store.yaml | kubectl apply -f -"
+    register: cluster_secret_store_result
+    retries: 5
+    delay: 10
+    until: cluster_secret_store_result.rc == 0
+
+  # Argo CD
+
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/argocd"
+    register: argocd_dep_result
+    retries: 3
+    delay: 10
+    until: argocd_dep_result.rc == 0
+
+  - name: Create namespace
+    command: kubectl create namespace argocd
+    register: argocd_ns_result
+    retries: 5
+    delay: 10
+    until: argocd_ns_result.rc == 0
+    failed_when:
+      - argocd_ns_result.rc != 0
+      - "'AlreadyExists' not in (argocd_ns_result.stderr | default(''))"
+
+  - name: Remove bootstrap placeholder argocd-jsonnet-secret
+    shell: "kubectl delete secret argocd-jsonnet-secret -n argocd --ignore-not-found=true"
+    register: argocd_secret_cleanup_result
+    retries: 5
+    delay: 10
+    until: argocd_secret_cleanup_result.rc == 0
+
+  - name: Apply argocd-jsonnet ExternalSecret
+    shell: "helm template argocd ../../../helm-charts/argocd -n argocd --show-only templates/external-secret.yaml | kubectl apply -f -"
+    register: argocd_external_secret_result
+    retries: 5
+    delay: 10
+    until: argocd_external_secret_result.rc == 0
+
+  - name: Wait for argocd-jsonnet-secret to be synced
+    shell: |
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.AWS_ACCOUNT_ID}' | grep -q .
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.CNPG_BACKUP_BUCKET}' | grep -q .
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.CNPG_BACKUP_ENDPOINT}' | grep -q .
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.LONGHORN_BACKUP_TARGET}' | grep -q .
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.HOME_ASSISTANT_VOLUME_FROM_BACKUP}' | grep -q .
+    register: argocd_secret_ready_result
+    retries: 30
+    delay: 10
+    until: argocd_secret_ready_result.rc == 0
+
+  - name: Initialise Argo CD
+    shell: "helm template argocd ../../../helm-charts/argocd -n argocd --include-crds --set integrations.externalSecrets=false | kubectl apply --server-side --force-conflicts -f -"
+    register: argocd_init_result
+    retries: 5
+    delay: 10
+    until: argocd_init_result.rc == 0
+
+  # Longhorn
+
+  - name: Create longhorn namespace
+    command: kubectl create namespace longhorn-system
+    register: longhorn_ns_result
+    retries: 5
+    delay: 10
+    until: longhorn_ns_result.rc == 0
+    failed_when:
+      - longhorn_ns_result.rc != 0
+      - "'AlreadyExists' not in (longhorn_ns_result.stderr | default(''))"
+
+  - name: Update dependency
+    shell: "helm dep update ../../../helm-charts/longhorn"
+    register: longhorn_dep_result
+    retries: 3
+    delay: 10
+    until: longhorn_dep_result.rc == 0
+
+  - name: Initialise Longhorn
+    shell: |
+      backup_target="$(kubectl get secret argocd-jsonnet-secret -n argocd -o yaml | yq -r '.data.LONGHORN_BACKUP_TARGET | @base64d')"
+      helm template longhorn ../../../helm-charts/longhorn -n longhorn-system \
+        --set-string longhorn.defaultBackupStore.backupTarget="$backup_target" | \
+        yq 'select(.kind != "Job" or .metadata.name != "longhorn-uninstall")' - | \
+        kubectl apply --server-side --force-conflicts -f -
+    register: longhorn_init_result
+    retries: 5
+    delay: 10
+    until: longhorn_init_result.rc == 0
+
+  - name: Wait for Argo CD and Longhorn to be ready
+    shell: |
+      kubectl rollout status deploy/argocd-server -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-applicationset-controller -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-redis -n argocd --timeout=15m
+      kubectl rollout status deploy/argocd-repo-server -n argocd --timeout=15m
+      kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=15m
+      kubectl rollout status deploy/longhorn-driver-deployer -n longhorn-system --timeout=15m
+      kubectl rollout status deploy/longhorn-ui -n longhorn-system --timeout=15m
+      kubectl rollout status daemonset/longhorn-manager -n longhorn-system --timeout=15m
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app.kubernetes.io/name=longhorn
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-attacher
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-provisioner
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-resizer
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-snapshotter
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l name=longhorn-setup-cypto-discard
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l longhorn.io/component=instance-manager
+      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=longhorn-csi-plugin
+    register: argocd_longhorn_ready_result
+    retries: 5
+    delay: 10
+    until: argocd_longhorn_ready_result.rc == 0
+
+  # Bootstrap
+
+  - name: Bootstrap Cluster
+    shell: "helm template argocd-bootstrap ../../../helm-charts/argocd-bootstrap -n argocd | kubectl apply -f -"
+    register: bootstrap_result
+    retries: 5
+    delay: 10
+    until: bootstrap_result.rc == 0

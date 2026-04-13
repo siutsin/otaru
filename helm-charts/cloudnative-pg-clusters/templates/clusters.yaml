@@ -19,6 +19,12 @@ metadata:
   {{- end }}
 
 spec:
+  {{- if $clusterConfig.affinity }}
+  affinity: {{ toYaml $clusterConfig.affinity | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.affinity }}
+  affinity: {{ toYaml $.Values.defaults.cluster.affinity | nindent 4 }}
+  {{- end }}
+
   # PostgreSQL configuration
   {{- if $clusterConfig.postgresql }}
   postgresql: {{ toYaml $clusterConfig.postgresql | nindent 4 }}
@@ -50,14 +56,56 @@ spec:
   backup: {{ toYaml $.Values.defaults.cluster.backup | nindent 4 }}
   {{- end }}
 
+  {{- if hasKey $clusterConfig "enablePDB" }}
+  enablePDB: {{ $clusterConfig.enablePDB }}
+  {{- else if hasKey $.Values.defaults.cluster "enablePDB" }}
+  enablePDB: {{ $.Values.defaults.cluster.enablePDB }}
+  {{- end }}
+
   # Enable superuser access for the postgres role
   {{- if hasKey $clusterConfig "enableSuperuserAccess" }}
   enableSuperuserAccess: {{ $clusterConfig.enableSuperuserAccess }}
   {{- end }}
 
+  {{- if hasKey $clusterConfig "failoverDelay" }}
+  failoverDelay: {{ $clusterConfig.failoverDelay }}
+  {{- else if hasKey $.Values.defaults.cluster "failoverDelay" }}
+  failoverDelay: {{ $.Values.defaults.cluster.failoverDelay }}
+  {{- end }}
+
+  {{- if $clusterConfig.imageName }}
+  imageName: {{ $clusterConfig.imageName }}
+  {{- else if $.Values.defaults.cluster.imageName }}
+  imageName: {{ $.Values.defaults.cluster.imageName }}
+  {{- end }}
+
+  {{- if $clusterConfig.logLevel }}
+  logLevel: {{ $clusterConfig.logLevel }}
+  {{- else if $.Values.defaults.cluster.logLevel }}
+  logLevel: {{ $.Values.defaults.cluster.logLevel }}
+  {{- end }}
+
   # Managed resources like roles
   {{- if $clusterConfig.managed }}
   managed: {{ toYaml $clusterConfig.managed | nindent 4 }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "maxSyncReplicas" }}
+  maxSyncReplicas: {{ $clusterConfig.maxSyncReplicas }}
+  {{- else if hasKey $.Values.defaults.cluster "maxSyncReplicas" }}
+  maxSyncReplicas: {{ $.Values.defaults.cluster.maxSyncReplicas }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "minSyncReplicas" }}
+  minSyncReplicas: {{ $clusterConfig.minSyncReplicas }}
+  {{- else if hasKey $.Values.defaults.cluster "minSyncReplicas" }}
+  minSyncReplicas: {{ $.Values.defaults.cluster.minSyncReplicas }}
+  {{- end }}
+
+  {{- if $clusterConfig.monitoring }}
+  monitoring: {{ toYaml $clusterConfig.monitoring | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.monitoring }}
+  monitoring: {{ toYaml $.Values.defaults.cluster.monitoring | nindent 4 }}
   {{- end }}
 
   # Bootstrap configuration for initial database setup (optional)
@@ -70,6 +118,66 @@ spec:
   # External clusters configuration for recovery scenarios
   {{- if $clusterConfig.externalClusters }}
   externalClusters: {{ toYaml $clusterConfig.externalClusters | nindent 4 }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "postgresGID" }}
+  postgresGID: {{ $clusterConfig.postgresGID }}
+  {{- else if hasKey $.Values.defaults.cluster "postgresGID" }}
+  postgresGID: {{ $.Values.defaults.cluster.postgresGID }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "postgresUID" }}
+  postgresUID: {{ $clusterConfig.postgresUID }}
+  {{- else if hasKey $.Values.defaults.cluster "postgresUID" }}
+  postgresUID: {{ $.Values.defaults.cluster.postgresUID }}
+  {{- end }}
+
+  {{- if $clusterConfig.primaryUpdateMethod }}
+  primaryUpdateMethod: {{ $clusterConfig.primaryUpdateMethod }}
+  {{- else if $.Values.defaults.cluster.primaryUpdateMethod }}
+  primaryUpdateMethod: {{ $.Values.defaults.cluster.primaryUpdateMethod }}
+  {{- end }}
+
+  {{- if $clusterConfig.primaryUpdateStrategy }}
+  primaryUpdateStrategy: {{ $clusterConfig.primaryUpdateStrategy }}
+  {{- else if $.Values.defaults.cluster.primaryUpdateStrategy }}
+  primaryUpdateStrategy: {{ $.Values.defaults.cluster.primaryUpdateStrategy }}
+  {{- end }}
+
+  {{- if $clusterConfig.replicationSlots }}
+  replicationSlots: {{ toYaml $clusterConfig.replicationSlots | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.replicationSlots }}
+  replicationSlots: {{ toYaml $.Values.defaults.cluster.replicationSlots | nindent 4 }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "resources" }}
+  resources: {{ toYaml $clusterConfig.resources | nindent 4 }}
+  {{- else if hasKey $.Values.defaults.cluster "resources" }}
+  resources: {{ toYaml $.Values.defaults.cluster.resources | nindent 4 }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "smartShutdownTimeout" }}
+  smartShutdownTimeout: {{ $clusterConfig.smartShutdownTimeout }}
+  {{- else if hasKey $.Values.defaults.cluster "smartShutdownTimeout" }}
+  smartShutdownTimeout: {{ $.Values.defaults.cluster.smartShutdownTimeout }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "startDelay" }}
+  startDelay: {{ $clusterConfig.startDelay }}
+  {{- else if hasKey $.Values.defaults.cluster "startDelay" }}
+  startDelay: {{ $.Values.defaults.cluster.startDelay }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "stopDelay" }}
+  stopDelay: {{ $clusterConfig.stopDelay }}
+  {{- else if hasKey $.Values.defaults.cluster "stopDelay" }}
+  stopDelay: {{ $.Values.defaults.cluster.stopDelay }}
+  {{- end }}
+
+  {{- if hasKey $clusterConfig "switchoverDelay" }}
+  switchoverDelay: {{ $clusterConfig.switchoverDelay }}
+  {{- else if hasKey $.Values.defaults.cluster "switchoverDelay" }}
+  switchoverDelay: {{ $.Values.defaults.cluster.switchoverDelay }}
   {{- end }}
 
 {{- end }}

@@ -1,3 +1,11 @@
+_shared:
+  preferredPodAntiAffinity: &preferredPodAntiAffinity
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+
 keda:
   resources:
     operator:
@@ -6,7 +14,6 @@ keda:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
     metricServer:
@@ -15,16 +22,16 @@ keda:
         memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
-        cpu: ~
         memory: 128Mi
         ephemeral-storage: 64Mi
+  operator:
+    affinity:
+      <<: *preferredPodAntiAffinity
+  metricsServer:
+    affinity:
+      <<: *preferredPodAntiAffinity
+  webhooks:
+    affinity:
+      <<: *preferredPodAntiAffinity
   affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-              - key: volume
-                operator: NotIn
-                values:
-                  - "true"
+    <<: *preferredPodAntiAffinity

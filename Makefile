@@ -3,6 +3,21 @@ ANSIBLE_INVENTORY := ansible/inventory.yaml
 INFRASTRUCTURE_DIR := infrastructure
 HACK_DIR := hack
 OUTPUT_FILE ?= otaru-architecture
+LUKS_UNLOCK_PORT ?= 1024
+LUKS_UNLOCK_HOST_QUERY := \
+	[(.all.children[]?.hosts? // {}) | to_entries[] | \
+	select(.key == strenv(TARGET) or .key == (strenv(TARGET) + ".local") or \
+	.value.ansible_host == strenv(TARGET)) | .value.ansible_host][0] // \
+	strenv(TARGET)
+
+ifneq (,$(filter unlock,$(MAKECMDGOALS)))
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+override LUKS_UNLOCK_TARGET := $(word 2,$(MAKECMDGOALS))
+.PHONY: $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)):
+	@:
+endif
+endif
 
 # Colors for output
 GREEN := \033[0;32m
@@ -23,12 +38,12 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(setup-cluster|reconcile-node-k3s|build-cluster|maintenance|nuke-cluster|restart-all|upgrade-cluster):" | \
+		grep -E "^(setup|maintenance|restart|nuke|upgrade):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(generate-atlantis-yaml|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
+		grep -E "^(atlantis|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
@@ -38,7 +53,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(status|install-deps|help):" | \
+		grep -E "^(status|install-deps|unlock|help):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Usage:$(NC) make <target>"
@@ -52,39 +67,31 @@ define ansible_playbook
 endef
 
 # Ansible playbook targets
-.PHONY: setup-cluster
-setup-cluster: ## Run complete cluster setup playbook (etcd + rpi + k3s)
-	$(call ansible_playbook,setup-cluster)
-
-.PHONY: reconcile-node-k3s
-reconcile-node-k3s: ## Reconcile Raspberry Pi node and k3s playbooks without touching etcd
-	$(call ansible_playbook,reconcile-node-k3s)
+.PHONY: setup
+setup: ## Set up Raspberry Pi nodes and k3s cluster
+	$(call ansible_playbook,setup)
 
 .PHONY: maintenance
-maintenance: ## Run maintenance ansible playbook
+maintenance: ## Update packages, rolling reboot, and restart workloads
 	$(call ansible_playbook,maintenance)
 
-.PHONY: upgrade-cluster
-upgrade-cluster: ## Run cluster upgrade playbook (e.g., make upgrade-cluster CHANNEL=latest)
-	$(call ansible_playbook,upgrade-cluster)
+.PHONY: restart
+restart: ## Restart all workloads without updating packages
+	$(call ansible_playbook,restart)
 
-.PHONY: nuke-cluster
-nuke-cluster: ## Run cluster destruction playbook (DANGEROUS!)
+.PHONY: upgrade
+upgrade: ## Run cluster upgrade playbook (e.g., make upgrade CHANNEL=latest)
+	$(call ansible_playbook,upgrade)
+
+.PHONY: nuke
+nuke: ## Run cluster destruction playbook (DANGEROUS!)
 	@echo "$(RED)WARNING: This will destroy the cluster!$(NC)"
 	@read -p "Are you sure? Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
-	$(call ansible_playbook,nuke-cluster)
-
-.PHONY: build-cluster
-build-cluster: ## Run cluster build playbook
-	$(call ansible_playbook,build-cluster)
-
-.PHONY: restart-all
-restart-all: ## Run restart all services playbook
-	$(call ansible_playbook,restart-all)
+	$(call ansible_playbook,nuke)
 
 # Infrastructure and development targets
-.PHONY: generate-atlantis-yaml
-generate-atlantis-yaml: ## Generate Atlantis configuration file
+.PHONY: atlantis
+atlantis: ## Generate Atlantis configuration file
 	@echo "$(GREEN)Generating Atlantis configuration...$(NC)"
 	bash $(HACK_DIR)/generate-atlantis-yaml.sh
 
@@ -228,3 +235,14 @@ install-deps: ## Install development dependencies
 	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
 	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
 	@echo "$(GREEN)All dependencies are installed!$(NC)"
+
+.PHONY: unlock
+unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-01)
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		echo "$(RED)Usage: make unlock <node-name>$(NC)"; \
+		exit 1; \
+	fi
+	@target="$(LUKS_UNLOCK_TARGET)"; \
+	host="$$(TARGET="$$target" yq -r '$(LUKS_UNLOCK_HOST_QUERY)' $(ANSIBLE_INVENTORY))"; \
+	echo "$(GREEN)Unlocking $$target ($$host):$(LUKS_UNLOCK_PORT)...$(NC)"; \
+	direnv exec . ./hack/luks-cryptroot-unlock.sh "$$host" "$(LUKS_UNLOCK_PORT)" --env-passfifo

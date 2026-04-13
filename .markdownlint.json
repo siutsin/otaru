@@ -3,5 +3,8 @@
     "line_length": 180,
     "tables": false,
     "code_blocks": false
+  },
+  "MD029": {
+    "style": "ordered"
   }
 }

@@ -7,54 +7,61 @@ all:
     node00:
       hosts:
         raspberrypi-00.local:
-          ansible_ssh_user: pi
-          ansible_host: 192.168.1.60
+          ansible_host: 192.168.10.60
     node01:
       hosts:
         raspberrypi-01.local:
-          ansible_ssh_user: pi
-          ansible_host: 192.168.1.61
+          ansible_host: 192.168.10.61
     node02:
       hosts:
         raspberrypi-02.local:
-          ansible_ssh_user: pi
-          ansible_host: 192.168.1.62
+          ansible_host: 192.168.10.62
     node03:
       hosts:
         raspberrypi-03.local:
-          ansible_ssh_user: pi
-          ansible_host: 192.168.1.63
-    etcd:
-      hosts:
-        ubuntu.local:
-          ansible_ssh_user: ubuntu
-          ansible_host: 192.168.1.52
+          ansible_host: 192.168.10.63
     # Groups
     master:
       children:
         node00: { }
         node01: { }
         node02: { }
-        node03: { }
-    worker:
-      children: { }
-    waveshare_poe_hat:
+    rpi5:
       children:
         node00: { }
         node01: { }
-    pineberry_pi_hatdrive:
+        node02: { }
+    worker:
       children:
         node03: { }
-    nvme_boot:
-      children:
-        node02: { }
-    brcmfmac_options:
-      children:
-        node02: { }
-    extra_storage:
+    waveshare_poe_hat:
       children:
         node03: { }
+    luks_root_candidates:
+      vars:
+        luks_root_disk: /dev/nvme0n1
+        luks_boot_partition: /dev/nvme0n1p1
+        luks_root_partition: /dev/nvme0n1p2
+        luks_mapper_name: cryptroot
+        luks_initramfs_iface: eth0
+        luks_initramfs_gateway: 192.168.10.1
+        luks_initramfs_netmask: 255.255.255.0
+        luks_initramfs_dns: 192.168.10.1
+        luks_dropbear_port: 1024
+        luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
+        luks_passphrase_vault_var_name: otaru_luks_password
+      children:
+        node00: { }
+        node01: { }
+        node02: { }
+    luks_root_development:
+      vars:
+        luks_enabled: true
+      children:
+        node01: { }
     raspberrypi:
+      vars:
+        ansible_ssh_user: pi
       children:
         master: { }
         worker: { }

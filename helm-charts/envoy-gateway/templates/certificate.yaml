@@ -1,0 +1,17 @@
+{{- if and (not .Values.bootstrap.enabled) .Values.integrations.certManager }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.tls.secretName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  secretName: {{ .Values.tls.secretName }}
+  issuerRef:
+    kind: Issuer
+    name: letsencrypt
+  dnsNames:
+    - "*.internal.siutsin.com"
+    - "*.siutsin.com"
+  privateKey:
+    rotationPolicy: Always
+{{- end }}

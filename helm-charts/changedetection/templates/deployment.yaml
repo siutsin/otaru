@@ -16,6 +16,15 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ .Values.name }}
+                topologyKey: kubernetes.io/hostname
       automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}

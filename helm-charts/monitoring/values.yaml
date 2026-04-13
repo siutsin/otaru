@@ -8,7 +8,6 @@ _shared:
       memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      cpu: ~
       memory: 128Mi
       ephemeral-storage: 64Mi
 
@@ -31,11 +30,10 @@ prometheus:
     resources:
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 2Gi
         ephemeral-storage: 256Mi
       limits:
-        cpu: ~
-        memory: 512Mi
+        memory: 2Gi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 50Gi
@@ -79,11 +77,10 @@ loki:
     resources:
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 1Gi
         ephemeral-storage: 128Mi
       limits:
-        cpu: ~
-        memory: 256Mi
+        memory: 1Gi
         ephemeral-storage: 128Mi
   minio:
     enabled: false

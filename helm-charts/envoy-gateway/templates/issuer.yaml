@@ -1,0 +1,21 @@
+{{- if and (not .Values.bootstrap.enabled) .Values.integrations.certManager .Values.integrations.externalSecrets }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: {{ .Values.namespace }}
+spec:
+  acme:
+    # Temporarily switch to the staging server when hitting the rate limits
+    # server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: jet_quern_0g@icloud.com
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-acme-verification-secret
+              key: api-token
+{{- end }}

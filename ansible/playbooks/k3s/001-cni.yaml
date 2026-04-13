@@ -14,64 +14,41 @@
       until: gateway_api_dep_result.rc == 0
 
     - name: Apply gateway-api Helm template
-      shell: "helm template ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template gateway-api ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl apply --server-side -f -"
       register: gateway_api_result
       retries: 5
       delay: 10
       until: gateway_api_result.rc == 0
 
-    # Apply Cilium with the first master node's API server address
+    # Apply MetalLB before configuring LoadBalancer IP allocations.
 
-    - name: Read the kubeconfig file
-      set_fact:
-        kubeconfig_content: "{{ lookup('file', '~/.kube/config') }}"
-      no_log: true
-
-    - name: Update dependency
-      shell: "helm dep update ../../../helm-charts/cilium"
-      register: cilium_dep_result
+    - name: Update MetalLB dependency
+      shell: "helm dep update ../../../helm-charts/metallb"
+      register: metallb_dep_result
       retries: 3
       delay: 10
-      until: cilium_dep_result.rc == 0
+      until: metallb_dep_result.rc == 0
 
-    - name: Apply cilium Helm template
-      # https://github.com/cilium/cilium/issues/33239#issuecomment-2177949109
-      shell: |
-        helm template ../../../helm-charts/cilium -n kube-system \
-          --api-versions='gateway.networking.k8s.io/v1/GatewayClass' \
-          --set cilium.operator.replicas=1 | kubectl create -f - 2>/dev/null || true
-      register: cilium_result
+    - name: Apply MetalLB Helm template
+      shell: "helm template metallb ../../../helm-charts/metallb -n metallb-system | kubectl apply -f -"
+      register: metallb_result
       retries: 5
       delay: 10
-      until: cilium_result.rc == 0
+      until: metallb_result.rc == 0
 
-    - name: Wait for cilium-operator to rollout
-      shell: "kubectl rollout status deploy/cilium-operator -n kube-system --timeout=15m"
-      register: cilium_operator_result
+    - name: Wait for MetalLB controller to rollout
+      shell: "kubectl rollout status deployment/metallb-controller -n metallb-system --timeout=15m"
+      register: metallb_controller_result
       retries: 5
       delay: 10
-      until: cilium_operator_result.rc == 0
+      until: metallb_controller_result.rc == 0
 
-    - name: Wait for cilium-envoy to rollout
-      shell: "kubectl rollout status ds/cilium-envoy -n kube-system --timeout=15m"
-      register: cilium_envoy_result
+    - name: Wait for MetalLB speaker to rollout
+      shell: "kubectl rollout status daemonset/metallb-speaker -n metallb-system --timeout=15m"
+      register: metallb_speaker_result
       retries: 5
       delay: 10
-      until: cilium_envoy_result.rc == 0
-
-    - name: Wait for cilium to rollout
-      shell: "kubectl rollout status ds/cilium -n kube-system --timeout=15m"
-      register: cilium_ds_result
-      retries: 5
-      delay: 10
-      until: cilium_ds_result.rc == 0
-
-    - name: Wait for coredns to rollout
-      shell: "kubectl rollout status deploy/coredns -n kube-system --timeout=15m"
-      register: coredns_result
-      retries: 5
-      delay: 10
-      until: coredns_result.rc == 0
+      until: metallb_speaker_result.rc == 0
 
     # Deploy k3s-apiserver-loadbalancer to watch and update the Kubernetes service to LoadBalancer type
 
@@ -83,7 +60,7 @@
       until: k3s_lb_dep_result.rc == 0
 
     - name: Apply k3s-apiserver-loadbalancer Helm template
-      shell: "helm template ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template k3s-apiserver-loadbalancer ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl apply -f -"
       register: k3s_lb_result
       retries: 5
       delay: 10
@@ -99,8 +76,52 @@
     # Assign dedicated virtual IP to Kubernetes api-server service
 
     - name: Apply gateway-api-kubernetes Helm template
-      shell: "helm template ../../../helm-charts/gateway-api-kubernetes -n default | kubectl create -f - 2>/dev/null || true"
+      shell: "helm template gateway-api-kubernetes ../../../helm-charts/gateway-api-kubernetes -n default | kubectl apply -f -"
       register: gateway_api_k8s_result
       retries: 5
       delay: 10
       until: gateway_api_k8s_result.rc == 0
+
+    - name: Update Envoy Gateway dependency
+      shell: "helm dep update ../../../helm-charts/envoy-gateway"
+      register: envoy_gateway_dep_result
+      retries: 3
+      delay: 10
+      until: envoy_gateway_dep_result.rc == 0
+
+    - name: Find Envoy Gateway dependency archive
+      find:
+        paths: ../../../helm-charts/envoy-gateway/charts
+        patterns: gateway-helm-*.tgz
+        file_type: file
+      register: envoy_gateway_chart_archive
+
+    - name: Apply Envoy Gateway CRDs
+      shell: |
+        chart_archive="{{ envoy_gateway_chart_archive.files | map(attribute='path') | first }}"
+        tar -tzf "$chart_archive" | \
+          grep '^gateway-helm/crds/generated/gateway\.envoyproxy\.io_.*\.yaml$' | \
+          xargs tar -xOf "$chart_archive" | \
+          kubectl apply --server-side -f -
+      register: envoy_gateway_crds_result
+      retries: 5
+      delay: 10
+      until: envoy_gateway_crds_result.rc == 0
+
+    - name: Apply Envoy Gateway Helm template
+      shell: |
+        helm template envoy-gateway ../../../helm-charts/envoy-gateway -n gateway-api \
+          --set bootstrap.enabled=true \
+          --set tls.secretName=envoy \
+          --api-versions='gateway.networking.k8s.io/v1/GatewayClass' | kubectl apply -f -
+      register: envoy_gateway_result
+      retries: 5
+      delay: 10
+      until: envoy_gateway_result.rc == 0
+
+    - name: Wait for Envoy Gateway to rollout
+      shell: "kubectl rollout status deploy/envoy-gateway -n gateway-api --timeout=15m"
+      register: envoy_gateway_rollout_result
+      retries: 5
+      delay: 10
+      until: envoy_gateway_rollout_result.rc == 0

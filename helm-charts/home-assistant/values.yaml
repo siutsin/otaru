@@ -1,9 +1,18 @@
 name: home-assistant
 namespace: home-assistant
 
-ip: 192.168.1.51
+ip: 192.168.10.51
 
 deployment:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: home-assistant
+            topologyKey: kubernetes.io/hostname
   image:
     repository: ghcr.io/home-assistant/home-assistant
     tag: 2025.11.2@sha256:02f582ea7d25f41761282ac0965baf89f0009efed3ad92f8d7eaba5eb6ffd9a8

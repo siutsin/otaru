@@ -1,0 +1,23 @@
+name: kiali
+namespace: istio-system
+
+kiali-server:
+  auth:
+    strategy: anonymous
+  login_token:
+    # Stable non-secret value to keep Helm renders deterministic for anonymous read-only Kiali.
+    signing_key: "public-anonymous-readonly-stable-signing-key"
+  deployment:
+    accessible_namespaces:
+      - "**"
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 64Mi
+  external_services:
+    istio:
+      root_namespace: istio-system
