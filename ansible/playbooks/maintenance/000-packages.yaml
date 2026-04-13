@@ -38,13 +38,49 @@
     - name: Reboot the system
       reboot:
         reboot_command: systemctl reboot --job-mode=replace-irreversibly
+      when: not (luks_enabled | default(false))
+
+    - name: Reboot the LUKS system
+      command: systemctl reboot --job-mode=replace-irreversibly
+      async: 1
+      poll: 0
+      failed_when: false
+      when: luks_enabled | default(false)
+
+    - name: Wait for initramfs dropbear on LUKS node
+      delegate_to: localhost
+      become: false
+      wait_for:
+        host: "{{ ansible_host | default(inventory_hostname, true) }}"
+        port: "{{ luks_dropbear_port }}"
+        delay: 5
+        timeout: 600
+      when: luks_enabled | default(false)
+
+    - name: Unlock LUKS node through initramfs passfifo
+      delegate_to: localhost
+      become: false
+      command:
+        argv:
+          - ./hack/luks-cryptroot-unlock.sh
+          - "{{ ansible_host | default(inventory_hostname, true) }}"
+          - "{{ luks_dropbear_port | string }}"
+          - --vault-passfifo
+      when: luks_enabled | default(false)
 
     - name: Wait for system to become reachable
+      delegate_to: localhost
+      become: false
       wait_for:
         host: "{{ ansible_host | default(inventory_hostname, true) }}"
         port: 22
         delay: 10
         timeout: 600
+
+    - name: Wait for SSH connection to recover
+      wait_for_connection:
+        delay: 5
+        timeout: 300
 
     - name: Uncordon the node
       command: kubectl uncordon {{ node_name }}
