@@ -16,6 +16,8 @@ target_gateway="${TARGET_GATEWAY:-192.168.10.1}"
 target_netmask="${TARGET_NETMASK:-255.255.255.0}"
 target_dns="${TARGET_DNS:-192.168.10.1}"
 dropbear_port="${DROPBEAR_PORT:-1024}"
+expected_disk_model_substring="${EXPECTED_DISK_MODEL_SUBSTRING:-NVMe}"
+minimum_disk_size_bytes="${MINIMUM_DISK_SIZE_BYTES:-100000000000}"
 local_pass_file=""
 remote_pass_file="/root/luks-pass"
 
@@ -73,6 +75,8 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$rescue_host" \
     TARGET_NETMASK=$(printf '%q' "$target_netmask") \
     TARGET_DNS=$(printf '%q' "$target_dns") \
     DROPBEAR_PORT=$(printf '%q' "$dropbear_port") \
+    EXPECTED_DISK_MODEL_SUBSTRING=$(printf '%q' "$expected_disk_model_substring") \
+    MINIMUM_DISK_SIZE_BYTES=$(printf '%q' "$minimum_disk_size_bytes") \
     REMOTE_PASS_FILE=$(printf '%q' "$remote_pass_file") \
     AUTHORIZED_KEYS_B64=$(printf '%q' "$authorized_keys_b64") \
     bash -s" <<'EOF'
@@ -141,6 +145,18 @@ fi
 disk_removable="$(lsblk -dn -o RM "$disk" 2>/dev/null || true)"
 if [[ "$disk_removable" == "1" ]]; then
   echo "Refusing to wipe $disk because it is marked removable on the rescue host." >&2
+  exit 1
+fi
+
+disk_model="$(lsblk -dn -o MODEL "$disk" 2>/dev/null || true)"
+if [[ -n "$expected_disk_model_substring" && "$disk_model" != *"$expected_disk_model_substring"* ]]; then
+  echo "Refusing to wipe $disk because model '$disk_model' does not contain '$expected_disk_model_substring'." >&2
+  exit 1
+fi
+
+disk_size_bytes="$(blockdev --getsize64 "$disk" 2>/dev/null || true)"
+if [[ -z "$disk_size_bytes" || "$disk_size_bytes" -lt "$minimum_disk_size_bytes" ]]; then
+  echo "Refusing to wipe $disk because size '$disk_size_bytes' is below minimum '$minimum_disk_size_bytes' bytes." >&2
   exit 1
 fi
 
