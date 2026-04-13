@@ -58,7 +58,7 @@ On `raspberrypi-01`, the full flow is now proven live:
 
 1. one-pass rescue rebuild
 2. first encrypted NVMe boot
-3. remote unlock through initramfs `dropbear`
+3. remote unlock through initramfs `dropbear` across a real reboot
 4. clean `k3s` rejoin as a control-plane/etcd node
 
 `raspberrypi-01` is intentionally left cordoned after rejoin so regular workloads do not schedule

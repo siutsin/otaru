@@ -33,6 +33,12 @@ Preferred path when initramfs is already waiting on `Please unlock disk cryptroo
 printf '%s' '<your LUKS passphrase>' | ./hack/luks-cryptroot-unlock.sh 192.168.10.61 --passfifo
 ```
 
+If you keep the passphrase in local `.envrc`, use:
+
+```shell
+direnv exec . ./hack/luks-cryptroot-unlock.sh 192.168.10.61 1024 --env-passfifo
+```
+
 This feeds the exact passphrase bytes into initramfs'
 `cryptroot-unlock` helper, which waits for the real `askpass` process and only
 returns once cryptsetup has accepted or rejected the passphrase.
@@ -72,6 +78,8 @@ provide it explicitly yourself. Do not make repo helpers read the vault file dir
 
 If the unlock succeeds, the node should continue booting and eventually expose its normal SSH
 service on port `22`.
+
+This path is now proven on `raspberrypi-01` across a full reboot.
 
 ## Verify the handoff into normal boot
 
