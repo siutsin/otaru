@@ -331,6 +331,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/cloudnative-pg-plugin-barman-cloud-0.1.0/cloudnative-pg-plugin-barman-cloud-0.1.0.tgz
     version: 0.1.0
+  coredns:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:05.525726886Z"
+    description: A Helm chart for Kubernetes
+    digest: d9ba4981928eae4a52f106059edbb5791daf868028d14993039c278b7688d86b
+    icon: https://raw.githubusercontent.com/coredns/coredns.io/master/images/logo.png
+    name: coredns
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/coredns-0.1.1/coredns-0.1.1.tgz
+    version: 0.1.1
   cyberchef:
   - apiVersion: v2
     created: "2025-07-06T15:50:33.694787859Z"
@@ -379,6 +390,22 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/descheduler-0.1.0/descheduler-0.1.0.tgz
     version: 0.1.0
+  envoy-gateway:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:06.168870181Z"
+    dependencies:
+    - alias: envoy-gateway
+      name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.3.0
+    description: A Helm chart for Kubernetes
+    digest: 5386b1fa2ee5266d9c110f5dc105cc4126264fcbd22da3de816cca39081a75e2
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: envoy-gateway
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/envoy-gateway-0.1.1/envoy-gateway-0.1.1.tgz
+    version: 0.1.1
   excalidraw:
   - apiVersion: v2
     created: "2025-07-06T15:50:33.923435631Z"
@@ -627,6 +654,52 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/httpbin-0.1.0/httpbin-0.1.0.tgz
     version: 0.1.0
+  istio-base:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:08.003972244Z"
+    dependencies:
+    - name: base
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.x
+    description: A Helm chart for Kubernetes
+    digest: 9f7408173bc06fb333370e6b20492332a5e55ce4481703355e4fe786fceccec2
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: istio-base
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/istio-base-0.1.1/istio-base-0.1.1.tgz
+    version: 0.1.1
+  istio-cni:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:08.204769699Z"
+    dependencies:
+    - alias: istio-cni
+      name: cni
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.x
+    description: A Helm chart for Kubernetes
+    digest: 937051198216f97be6926f6e84c74cc1965e897df4d0f263507c5812549afc29
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: istio-cni
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/istio-cni-0.1.1/istio-cni-0.1.1.tgz
+    version: 0.1.1
+  istiod:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:08.448181593Z"
+    dependencies:
+    - name: istiod
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.x
+    description: A Helm chart for Kubernetes
+    digest: 58f5fbc2079160c9efa64fd486e2b719a793df2ba0806315db9eb20401d6d1be
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: istiod
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/istiod-0.1.1/istiod-0.1.1.tgz
+    version: 0.1.1
   jsoncrack:
   - apiVersion: v2
     created: "2025-07-06T15:50:34.91634112Z"
@@ -742,6 +815,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/keda-0.1.0/keda-0.1.0.tgz
     version: 0.1.0
+  kiali:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:09.712783074Z"
+    dependencies:
+    - name: kiali-server
+      repository: https://kiali.org/helm-charts
+      version: 2.x.x
+    description: A Helm chart for Kubernetes
+    digest: d3e1d907d96054cb3aa6a307b96c715ae8593638c489449aa02d4560db5c8cb2
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: kiali
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/kiali-0.1.1/kiali-0.1.1.tgz
+    version: 0.1.1
   kubernetes-mcp-server:
   - apiVersion: v2
     created: "2026-03-28T23:06:08.424904599Z"
@@ -844,6 +932,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/longhorn-volume-lib-0.1.0/longhorn-volume-lib-0.1.0.tgz
     version: 0.1.0
+  metallb:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:10.513162961Z"
+    dependencies:
+    - name: metallb
+      repository: https://metallb.github.io/metallb
+      version: 0.14.9
+    description: A Helm chart for Kubernetes
+    digest: 4987209d2a633d502ab8ea6a4e10915ff4e7d91f66671d80812dfea9d2bae896
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: metallb
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/metallb-0.1.1/metallb-0.1.1.tgz
+    version: 0.1.1
   metrics-server:
   - apiVersion: v2
     created: "2025-07-06T15:50:35.622886778Z"
@@ -1080,4 +1183,19 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/yaade-volume-0.1.0/yaade-volume-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-06T01:52:25.319471898Z"
+  ztunnel:
+  - apiVersion: v2
+    created: "2026-04-13T22:53:11.872178448Z"
+    dependencies:
+    - name: ztunnel
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.x
+    description: A Helm chart for Kubernetes
+    digest: b77e7429004a62df336cbbd7378b210b25b703b258cea2af5f5a18561d0d1c3c
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: ztunnel
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
+    version: 0.1.1
+generated: "2026-04-13T22:53:11.872279126Z"
