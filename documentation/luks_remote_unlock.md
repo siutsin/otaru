@@ -30,12 +30,15 @@ host OS after boot.
 Preferred path when initramfs is already waiting on `Please unlock disk cryptroot`:
 
 ```shell
-printf '%s\n' '<your LUKS passphrase>' | ./hack/luks-cryptroot-unlock.sh 192.168.10.61 --passfifo
+printf '%s' '<your LUKS passphrase>' | ./hack/luks-cryptroot-unlock.sh 192.168.10.61 --passfifo
 ```
 
-This writes the newline-terminated passphrase into initramfs'
-`/lib/cryptsetup/passfifo`, which is the same FIFO consumed by the waiting
-`cryptroot` process.
+This feeds the exact passphrase bytes into initramfs'
+`cryptroot-unlock` helper, which waits for the real `askpass` process and only
+returns once cryptsetup has accepted or rejected the passphrase.
+
+Do not append a trailing newline here. The remote helper is now wired to match
+the working console prompt semantics exactly.
 
 To inspect the initramfs shell directly, use the helper script without a
 command:
@@ -58,7 +61,7 @@ cryptsetup open /dev/nvme0n1p2 cryptroot
 
 that opens the mapper device, but it does not necessarily resume boot if the
 original initramfs `cryptroot` process is still blocked on `askpass`. Use the
-`passfifo` path above for the normal recovery flow.
+`cryptroot-unlock` path above for the normal recovery flow.
 
 If you are using a temporary recovery passphrase added from rescue, make sure it
 was created without a trailing newline and tested with typed-passphrase

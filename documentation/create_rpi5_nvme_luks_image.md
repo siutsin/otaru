@@ -63,6 +63,9 @@ The remaining validation is:
 2. remote unlock
 3. clean rejoin while keeping the node cordoned
 
+The first encrypted NVMe boot and remote unlock are now proven on `raspberrypi-01`.
+The remaining work is the clean `k3s` rejoin while keeping the node cordoned.
+
 ## After the rebuild
 
 1. Power off the rescue system.

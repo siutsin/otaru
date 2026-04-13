@@ -266,9 +266,12 @@ filesystem.
     and
     `printf '%s\n' 'otaru-clean-01' | cryptsetup open --test-passphrase /dev/nvme0n1p2`
 
-6. For shell-mode initramfs `dropbear`, satisfy the waiting boot path by writing the passphrase into
-    `/lib/cryptsetup/passfifo`. Opening `cryptroot` manually with `cryptsetup open` is useful for debugging, but it
-    does not necessarily resume boot if `/lib/cryptsetup/askpass` is still waiting.
+6. For shell-mode initramfs `dropbear`, use `cryptroot-unlock` rather than writing directly to
+    `/lib/cryptsetup/passfifo`. `cryptroot-unlock` waits for the real `askpass` process and
+    confirms whether the passphrase actually unlocked the device. Opening `cryptroot` manually with
+    `cryptsetup open` is still useful for debugging, but it does not necessarily resume boot if
+    `/lib/cryptsetup/askpass` is still waiting.
+    When feeding the passphrase remotely, do not append a trailing newline.
 
 7. Do not pass the LUKS password in command arguments during rescue work. Stage it via stdin or a
     root-only temporary file and rotate it if you ever expose it in command text.

@@ -35,7 +35,7 @@ fi
 
 if [[ "$1" == "--passfifo" ]]; then
   shift
-  exec ssh "${ssh_args[@]}" 'cat > /lib/cryptsetup/passfifo'
+  exec ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
 fi
 
 if [[ "$1" == "--env-passfifo" ]]; then
@@ -46,7 +46,7 @@ if [[ "$1" == "--env-passfifo" ]]; then
     echo "Missing required environment variable: ${env_var}" >&2
     exit 1
   fi
-  printf '%s\n' "${passphrase}" | exec ssh "${ssh_args[@]}" 'cat > /lib/cryptsetup/passfifo'
+  printf '%s' "${passphrase}" | exec ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
 fi
 
 exec ssh "${ssh_args[@]}" "$@"
