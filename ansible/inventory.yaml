@@ -59,6 +59,9 @@ all:
         luks_enabled: true
       children:
         node01: { }
+    luks_root_current_target:
+      children:
+        node00: { }
     raspberrypi:
       vars:
         ansible_ssh_user: pi

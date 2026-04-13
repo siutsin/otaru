@@ -4,9 +4,8 @@ This is the encrypted-root variant of [create_rpi5_nvme_image.md](create_rpi5_nv
 
 Current rollout scope:
 
-- `raspberrypi-01` only during development
+- `raspberrypi-00` now
 - later `raspberrypi-02`
-- later `raspberrypi-00`
 
 Out of scope for now:
 
@@ -35,7 +34,7 @@ The wrapper:
 
 Before running the wrapper:
 
-1. `raspberrypi-01` is removed from the cluster or otherwise safe to rebuild.
+1. `raspberrypi-00` is removed from the cluster or otherwise safe to rebuild.
 2. The rescue SD is booted and reachable at `192.168.10.40`.
 3. The local vault file contains `otaru_luks_password`.
 4. Do not pass the LUKS password on the command line during rescue work.
@@ -64,8 +63,8 @@ On `raspberrypi-01`, the full flow is now proven live:
 3. remote unlock through initramfs `dropbear` across a real reboot
 4. clean `k3s` rejoin as a control-plane/etcd node
 
-`raspberrypi-01` is intentionally left cordoned after rejoin so regular workloads do not schedule
-there during the rollout.
+`raspberrypi-01` remains the proven reference node. `raspberrypi-00` is the active next migration
+target.
 
 ## After the rebuild
 
@@ -76,8 +75,8 @@ there during the rollout.
 5. Verify normal boot:
 
 ```shell
-make unlock raspberrypi-01
-ssh pi@192.168.10.61
+make unlock raspberrypi-00
+ssh pi@192.168.10.60
 findmnt /
 lsblk
 ```
@@ -92,7 +91,7 @@ Expected target shape:
 After the encrypted node is back:
 
 ```shell
-./hack/luks-postflight-check.sh raspberrypi-01
+./hack/luks-postflight-check.sh raspberrypi-00
 ```
 
 Keep the node cordoned until:
