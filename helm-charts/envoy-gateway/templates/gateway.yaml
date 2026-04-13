@@ -38,6 +38,7 @@ spec:
                   - istio-system
                   - jsoncrack
                   - jung2bot
+                  - jung2bot-dev
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring
@@ -63,6 +64,7 @@ spec:
                   - istio-system
                   - jsoncrack
                   - jung2bot
+                  - jung2bot-dev
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring

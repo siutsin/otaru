@@ -2,9 +2,9 @@
 
 This runbook covers the early-boot unlock flow for LUKS-encrypted root on SSD-backed nodes.
 
-Current development target:
+Current rollout target:
 
-- `raspberrypi-01`
+- `raspberrypi-00`
 
 Assumptions:
 
@@ -36,7 +36,7 @@ printf '%s' '<your LUKS passphrase>' | ./hack/luks-cryptroot-unlock.sh 192.168.1
 You can use the Make shortcut:
 
 ```shell
-make unlock raspberrypi-01
+make unlock raspberrypi-00
 ```
 
 If you keep the passphrase in local `.envrc`, use:
@@ -91,7 +91,8 @@ provide it explicitly yourself. Do not make repo helpers read the vault file dir
 If the unlock succeeds, the node should continue booting and eventually expose its normal SSH
 service on port `22`.
 
-This path is now proven on `raspberrypi-01` across a full reboot.
+This path is proven on `raspberrypi-01` across a full reboot and is the reference workflow for
+`raspberrypi-00`.
 
 ## Verify the handoff into normal boot
 

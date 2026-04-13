@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck disable=SC1091
 source "${SCRIPT_DIR}/lib/common.sh"
 
-NODE_NAME="${1:-raspberrypi-01}"
+NODE_NAME="${1:-raspberrypi-00}"
 
 if ! command_exists kubectl; then
   exit_with_error "kubectl is not installed or not in PATH"

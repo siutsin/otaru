@@ -237,7 +237,7 @@ install-deps: ## Install development dependencies
 	@echo "$(GREEN)All dependencies are installed!$(NC)"
 
 .PHONY: unlock
-unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-01)
+unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-00)
 	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
 		echo "$(RED)Usage: make unlock <node-name>$(NC)"; \
 		exit 1; \
