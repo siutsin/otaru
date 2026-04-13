@@ -15,12 +15,11 @@
         cmdline_decoded: "{{ slurp_cmdline['content'] | b64decode }}"
       changed_when: False
 
-    - name: Append and update /boot/firmware/cmdline.txt if text is not present
-      lineinfile:
+    - name: Append cgroup flags to /boot/firmware/cmdline.txt if text is not present
+      replace:
         path: /boot/firmware/cmdline.txt
-        backrefs: yes
-        regexp: '(.*)'
-        line: '\1 {{ append_text }}'
+        regexp: '^(.*\S)\s*$'
+        replace: '\1 {{ append_text }}'
       when: append_text not in cmdline_decoded
       register: update_cmdline
 

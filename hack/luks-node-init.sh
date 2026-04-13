@@ -240,7 +240,7 @@ cp /etc/resolv.conf "$dst_root/etc/resolv.conf"
 # Seed authorized_keys early so those trigger-driven initramfs builds already contain a valid
 # recovery key and do not emit a broken-authorized_keys warning.
 mkdir -p "$dst_root/etc/dropbear/initramfs"
-printf '%s' "$AUTHORIZED_KEYS_B64" | base64 -d > "$dst_root/etc/dropbear/initramfs/authorized_keys"
+printf '%s' "$AUTHORIZED_KEYS_B64" | base64 -d | sed '/^$/d' > "$dst_root/etc/dropbear/initramfs/authorized_keys"
 printf '\n' >> "$dst_root/etc/dropbear/initramfs/authorized_keys"
 chmod 600 "$dst_root/etc/dropbear/initramfs/authorized_keys"
 
@@ -291,9 +291,23 @@ mountpoint -q "$dst_root" || mount "/dev/mapper/$mapper" "$dst_root"
 mountpoint -q "$dst_root/boot/firmware" || mount "$boot" "$dst_root/boot/firmware"
 
 kver="$(chroot "$dst_root" /bin/sh -c 'ls -1 /lib/modules | sort -V | tail -n 1')"
+dtb_dir="$dst_root/usr/lib/firmware/$kver/device-tree/broadcom"
+
+if [[ ! -d "$dtb_dir" ]]; then
+  echo "Expected DTB directory not found: $dtb_dir" >&2
+  exit 1
+fi
+
 cp "$dst_root/boot/vmlinuz-$kver" "$dst_root/boot/firmware/vmlinuz"
 cp "$dst_root/boot/initrd.img-$kver" "$dst_root/boot/firmware/initrd.img"
-cp "$dst_root/usr/lib/firmware/$kver/device-tree/broadcom/"*.dtb "$dst_root/boot/firmware/"
+shopt -s nullglob
+dtb_files=("$dtb_dir"/*.dtb)
+shopt -u nullglob
+if [[ ${#dtb_files[@]} -eq 0 ]]; then
+  echo "Expected at least one DTB under $dtb_dir" >&2
+  exit 1
+fi
+cp "${dtb_files[@]}" "$dst_root/boot/firmware/"
 rsync -a "$dst_root/usr/lib/firmware/$kver/device-tree/overlays/" "$dst_root/boot/firmware/overlays/"
 
 lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS "$disk"

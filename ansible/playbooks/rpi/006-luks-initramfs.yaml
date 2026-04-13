@@ -38,11 +38,6 @@
         fail_msg: "Missing required LUKS variable: {{ item }}"
       loop: "{{ luks_required_vars }}"
 
-    - name: Set default optional LUKS vars
-      set_fact:
-        luks_passphrase_vault_var_name: "{{ luks_passphrase_vault_var_name | default('luks_passphrase_' ~ inventory_hostname_short | replace('-', '_')) }}"
-      changed_when: false
-
     - name: Install LUKS initramfs packages
       apt:
         name:
