@@ -54,17 +54,15 @@ session and clear it immediately afterward.
 
 ## Current status
 
-On `raspberrypi-01`, the one-pass rescue rebuild path has already been exercised live and now gets
-through the rebuild itself.
+On `raspberrypi-01`, the full flow is now proven live:
 
-The remaining validation is:
+1. one-pass rescue rebuild
+2. first encrypted NVMe boot
+3. remote unlock through initramfs `dropbear`
+4. clean `k3s` rejoin as a control-plane/etcd node
 
-1. first encrypted NVMe boot
-2. remote unlock
-3. clean rejoin while keeping the node cordoned
-
-The first encrypted NVMe boot and remote unlock are now proven on `raspberrypi-01`.
-The remaining work is the clean `k3s` rejoin while keeping the node cordoned.
+`raspberrypi-01` is intentionally left cordoned after rejoin so regular workloads do not schedule
+there during the rollout.
 
 ## After the rebuild
 
@@ -96,8 +94,9 @@ After the encrypted node is back:
 Keep the node cordoned until:
 
 - it is `Ready`
+- it is `SchedulingDisabled`
 - etcd quorum is healthy
-- Argo returns `Synced/Healthy`
+- Argo is healthy apart from any workload left pending by the cordon
 - Longhorn recovers cleanly
 
 ## Related references

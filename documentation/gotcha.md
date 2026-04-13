@@ -284,6 +284,10 @@ filesystem.
     uninstall `k3s` on the rebuilt node, delete the stale Kubernetes `Node` object, confirm etcd only has the healthy
     members, then rerun the normal `k3s` join play for that node.
 
+10. After rebuilding a node in place, SSH host key verification can block the rejoin play even
+    when the node is otherwise healthy. Remove the old key for both the hostname and IP, or
+    temporarily disable host key checking for that one rejoin run.
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038

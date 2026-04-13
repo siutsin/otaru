@@ -107,7 +107,8 @@ kubectl -n argocd get applications.argoproj.io
 Check:
 
 - the node returns `Ready`
-- Argo applications return `Synced/Healthy`
+- cordon it again immediately if you do not want regular workloads there
+- Argo applications return healthy, allowing for any workload intentionally left pending by the cordon
 - etcd quorum remains healthy
 - Longhorn recovers replicas before moving on to the next node
 
