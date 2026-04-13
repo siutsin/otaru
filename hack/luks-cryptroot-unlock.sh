@@ -49,7 +49,7 @@ if [[ "$1" == "--env-passfifo" ]]; then
     exit 1
   fi
   printf '%s' "${passphrase}" | ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
-  exit $?
+  exit 0
 fi
 
 exec ssh "${ssh_args[@]}" "$@"
