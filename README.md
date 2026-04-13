@@ -152,8 +152,7 @@ and is intentionally unschedulable for Longhorn storage.
       helm \
       kubectl \
       opentofu \
-      terragrunt \
-      && ansible-galaxy collection install -r ansible/requirements.yaml
+      terragrunt
     ```
 
 2. **Add SSH Keys to `known_hosts`**
