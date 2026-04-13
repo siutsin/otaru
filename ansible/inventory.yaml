@@ -55,6 +55,8 @@ all:
         node01: { }
         node02: { }
     luks_root_development:
+      vars:
+        luks_enabled: true
       children:
         node01: { }
     raspberrypi:

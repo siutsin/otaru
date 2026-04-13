@@ -88,4 +88,4 @@
 
   handlers:
     - name: Update initramfs
-      command: update-initramfs -u
+      command: update-initramfs -u -k all
