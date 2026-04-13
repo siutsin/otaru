@@ -38,9 +38,12 @@ jobs:
           helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
           helm repo add external-secrets-operator https://charts.external-secrets.io
           helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add istio https://istio-release.storage.googleapis.com/charts
           helm repo add jkroepke https://jkroepke.github.io/helm-charts
           helm repo add kedacore https://kedacore.github.io/charts
+          helm repo add kiali https://kiali.org/helm-charts
           helm repo add longhorn https://charts.longhorn.io
+          helm repo add metallb https://metallb.github.io/metallb
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
           helm repo add onepassword-connect https://1password.github.io/connect-helm-charts
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
