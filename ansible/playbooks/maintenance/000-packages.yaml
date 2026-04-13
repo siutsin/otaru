@@ -40,6 +40,15 @@
         reboot_command: systemctl reboot --job-mode=replace-irreversibly
       when: not (luks_enabled | default(false))
 
+    - name: Assert LUKS reboot passphrase is provided locally
+      delegate_to: localhost
+      become: false
+      assert:
+        that:
+          - lookup('ansible.builtin.env', 'OTARU_LUKS_PASSWORD') | length > 0
+        fail_msg: "Set OTARU_LUKS_PASSWORD in the controller environment before rebooting a LUKS node."
+      when: luks_enabled | default(false)
+
     - name: Reboot the LUKS system
       command: systemctl reboot --job-mode=replace-irreversibly
       async: 1
@@ -55,15 +64,6 @@
         port: "{{ luks_dropbear_port }}"
         delay: 5
         timeout: 600
-      when: luks_enabled | default(false)
-
-    - name: Assert LUKS reboot passphrase is provided locally
-      delegate_to: localhost
-      become: false
-      assert:
-        that:
-          - lookup('ansible.builtin.env', 'OTARU_LUKS_PASSWORD') | length > 0
-        fail_msg: "Set OTARU_LUKS_PASSWORD in the controller environment before rebooting a LUKS node."
       when: luks_enabled | default(false)
 
     - name: Unlock LUKS node through initramfs passfifo

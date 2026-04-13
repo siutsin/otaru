@@ -44,6 +44,7 @@ Before running the wrapper:
 ```shell
 umask 077
 printf '%s' '...' > /tmp/otaru-luks-password
+LUKS_NODE_INIT_CONFIRM=yes \
 LUKS_PASSWORD_FILE=/tmp/otaru-luks-password \
 ./hack/luks-node-init.sh
 rm -f /tmp/otaru-luks-password

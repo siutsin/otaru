@@ -35,6 +35,8 @@ fi
 
 if [[ "$1" == "--passfifo" ]]; then
   shift
+  # cryptroot-unlock reads the passphrase from stdin and coordinates with the
+  # real askpass waiter, so callers must pipe the exact passphrase bytes in.
   exec ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
 fi
 
@@ -46,7 +48,8 @@ if [[ "$1" == "--env-passfifo" ]]; then
     echo "Missing required environment variable: ${env_var}" >&2
     exit 1
   fi
-  printf '%s' "${passphrase}" | exec ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
+  printf '%s' "${passphrase}" | ssh "${ssh_args[@]}" '/usr/bin/cryptroot-unlock'
+  exit $?
 fi
 
 exec ssh "${ssh_args[@]}" "$@"

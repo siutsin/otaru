@@ -19,6 +19,14 @@ dropbear_port="${DROPBEAR_PORT:-1024}"
 local_pass_file=""
 remote_pass_file="/root/luks-pass"
 
+if [[ "${LUKS_NODE_INIT_CONFIRM:-}" != "yes" ]]; then
+  cat >&2 <<EOF
+Refusing to wipe ${target_disk} without explicit confirmation.
+Set LUKS_NODE_INIT_CONFIRM=yes to continue.
+EOF
+  exit 1
+fi
+
 cleanup() {
   set +e
   if [[ -n "${local_pass_file}" && -f "${local_pass_file}" ]]; then
@@ -93,7 +101,9 @@ cleanup() {
   umount "$src_root" 2>/dev/null || true
   umount "$dst_root" 2>/dev/null || true
   cryptsetup close "$mapper" 2>/dev/null || true
-  [[ -n "$loop_dev" ]] && losetup -d "$loop_dev" 2>/dev/null || true
+  if [[ -n "$loop_dev" ]]; then
+    losetup -d "$loop_dev"
+  fi
   rm -f "$pass_file"
   rm -rf "$work_dir"
 }
@@ -117,6 +127,20 @@ for mounted_target in $(findmnt -rn -S "/dev/mapper/$mapper" -o TARGET 2>/dev/nu
 done
 cryptsetup close "$mapper" 2>/dev/null || true
 
+if findmnt -rn -S "$disk" >/dev/null 2>&1; then
+  echo "Refusing to wipe $disk because it is mounted on the rescue host." >&2
+  exit 1
+fi
+
+root_source="$(findmnt -rn -o SOURCE / || true)"
+if [[ "$root_source" == "$disk" || "$root_source" == "$boot" || "$root_source" == "$root" ]]; then
+  echo "Refusing to wipe $disk because it backs the rescue host root filesystem." >&2
+  exit 1
+fi
+
+lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS "$disk"
+echo "About to wipe $disk on $HOSTNAME" >&2
+
 blkdiscard -f "$disk"
 sgdisk -og \
   -n 1:2048:+512M -t 1:0700 -c 1:system-boot \
@@ -126,7 +150,7 @@ partprobe "$disk"
 udevadm settle
 
 mkfs.vfat -F 32 -n system-boot "$boot"
-cryptsetup luksFormat --batch-mode --key-file "$pass_file" "$root"
+cryptsetup luksFormat --batch-mode --type luks2 --pbkdf argon2id --key-file "$pass_file" "$root"
 cryptsetup open --key-file "$pass_file" "$root" "$mapper"
 mkfs.ext4 -F -L writable "/dev/mapper/$mapper"
 
@@ -153,7 +177,7 @@ users:
     shell: /bin/bash
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh_authorized_keys:
-$(printf '%s' "$AUTHORIZED_KEYS_B64" | base64 -d | sed 's/^/      - /')
+$(printf '%s' "$AUTHORIZED_KEYS_B64" | base64 -d | sed '/^$/d; s/^/      - /')
 USERDATA
 
 cat > "$dst_root/boot/firmware/network-config" <<NETCFG
