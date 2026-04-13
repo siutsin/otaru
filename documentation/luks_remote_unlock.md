@@ -64,8 +64,8 @@ If you are using a temporary recovery passphrase added from rescue, make sure it
 was created without a trailing newline and tested with typed-passphrase
 semantics before relying on it in initramfs.
 
-Use the current vault value from `~/dotfiles/password/ansible_vault.yaml`, not a
-hardcoded literal saved in docs or shell history.
+Use the current `otaru_luks_password` value from `~/dotfiles/password/ansible_vault.yaml`, but
+provide it explicitly yourself. Do not make repo helpers read the vault file directly.
 
 If the unlock succeeds, the node should continue booting and eventually expose its normal SSH
 service on port `22`.

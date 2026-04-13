@@ -49,7 +49,7 @@ all:
         luks_initramfs_dns: 192.168.10.1
         luks_dropbear_port: 1024
         luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
-        luks_passphrase_vault_var_name: ubuntu_luks_password
+        luks_passphrase_vault_var_name: otaru_luks_password
       children:
         node00: { }
         node01: { }

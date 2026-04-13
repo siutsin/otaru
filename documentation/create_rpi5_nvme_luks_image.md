@@ -18,12 +18,11 @@ Out of scope for now:
 Use the one-pass rescue rebuild wrapper:
 
 ```shell
-./hack/luks-rpi5-rescue-rebuild.sh
+./hack/luks-node-init.sh
 ```
 
 The wrapper:
 
-- reads `ubuntu_luks_password` from `~/dotfiles/password/ansible_vault.yaml`
 - uses the rescue host at `192.168.10.40`
 - wipes `/dev/nvme0n1`
 - rebuilds the disk as `system-boot` plus LUKS `cryptroot`
@@ -38,11 +37,20 @@ Before running the wrapper:
 
 1. `raspberrypi-01` is removed from the cluster or otherwise safe to rebuild.
 2. The rescue SD is booted and reachable at `192.168.10.40`.
-3. The local vault file contains `ubuntu_luks_password`.
+3. The local vault file contains `otaru_luks_password`.
 4. Do not pass the LUKS password on the command line during rescue work.
+5. Provide the passphrase to the wrapper explicitly:
 
-If the passphrase was ever exposed in command text during debugging, rotate `ubuntu_luks_password`
-before the next real rebuild or boot attempt.
+```shell
+umask 077
+printf '%s' '...' > /tmp/otaru-luks-password
+LUKS_PASSWORD_FILE=/tmp/otaru-luks-password \
+./hack/luks-node-init.sh
+rm -f /tmp/otaru-luks-password
+```
+
+If you must use an environment variable, use `OTARU_LUKS_PASSWORD` only for the current shell
+session and clear it immediately afterward.
 
 ## Current status
 

@@ -16,7 +16,6 @@ target_gateway="${TARGET_GATEWAY:-192.168.10.1}"
 target_netmask="${TARGET_NETMASK:-255.255.255.0}"
 target_dns="${TARGET_DNS:-192.168.10.1}"
 dropbear_port="${DROPBEAR_PORT:-1024}"
-vault_file="${VAULT_FILE:-$HOME/dotfiles/password/ansible_vault.yaml}"
 local_pass_file=""
 remote_pass_file="/root/luks-pass"
 
@@ -28,21 +27,20 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! command -v yq >/dev/null 2>&1; then
-  echo "Missing required command: yq" >&2
-  exit 1
-fi
-
-luks_password="$(yq '.ubuntu_luks_password' "$vault_file")"
-if [[ -z "${luks_password}" || "${luks_password}" == "null" ]]; then
-  echo "Failed to read ubuntu_luks_password from $vault_file" >&2
-  exit 1
-fi
-
 local_pass_file="$(mktemp)"
 chmod 600 "${local_pass_file}"
-printf '%s' "${luks_password}" > "${local_pass_file}"
+if [[ -n "${LUKS_PASSWORD_FILE:-}" ]]; then
+  cp "${LUKS_PASSWORD_FILE}" "${local_pass_file}"
+elif [[ -n "${OTARU_LUKS_PASSWORD:-}" ]]; then
+  printf '%s' "${OTARU_LUKS_PASSWORD}" > "${local_pass_file}"
+else
+  echo "Set LUKS_PASSWORD_FILE or OTARU_LUKS_PASSWORD before running this script" >&2
+  exit 1
+fi
+chmod 600 "${local_pass_file}"
 
+# Capture the operator SSH keys before touching the target disk so the rebuilt node can preserve
+# both normal SSH access and initramfs recovery access without depending on the target root state.
 authorized_keys_b64="$(
   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$rescue_host" \
     "base64 -w0 /home/pi/.ssh/authorized_keys 2>/dev/null || base64 /home/pi/.ssh/authorized_keys | tr -d '\n'"
@@ -77,9 +75,10 @@ disk="${TARGET_DISK}"
 boot="${disk}p1"
 root="${disk}p2"
 mapper="cryptroot"
-src_boot="/mnt/src-boot"
-src_root="/mnt/src-root"
-dst_root="/mnt/dst-root"
+work_dir="$(mktemp -d /tmp/luks-node-init.XXXXXX)"
+src_boot="$work_dir/src-boot"
+src_root="$work_dir/src-root"
+dst_root="$work_dir/dst-root"
 loop_dev=""
 pass_file="${REMOTE_PASS_FILE}"
 
@@ -96,10 +95,27 @@ cleanup() {
   cryptsetup close "$mapper" 2>/dev/null || true
   [[ -n "$loop_dev" ]] && losetup -d "$loop_dev" 2>/dev/null || true
   rm -f "$pass_file"
+  rm -rf "$work_dir"
 }
 trap cleanup EXIT
 
 mkdir -p "$src_boot" "$src_root" "$dst_root"
+
+# Older rescue runs used fixed mount paths under /mnt. Clean those first so repeated test runs
+# start from a known state instead of inheriting stale mounts from a previous interrupted run.
+umount -R /mnt/dst-root/boot/firmware 2>/dev/null || true
+umount -R /mnt/dst-root 2>/dev/null || true
+cryptsetup close "$mapper" 2>/dev/null || true
+
+# Also unmount any active mounts for the current target devices. This makes the wrapper safe to rerun
+# during development without needing a rescue reboot between attempts.
+for mounted_target in $(findmnt -rn -S "$boot" -o TARGET 2>/dev/null); do
+  umount -R "$mounted_target" 2>/dev/null || true
+done
+for mounted_target in $(findmnt -rn -S "/dev/mapper/$mapper" -o TARGET 2>/dev/null); do
+  umount -R "$mounted_target" 2>/dev/null || true
+done
+cryptsetup close "$mapper" 2>/dev/null || true
 
 blkdiscard -f "$disk"
 sgdisk -og \
@@ -124,6 +140,8 @@ mount "$boot" "$dst_root/boot/firmware"
 rsync -aHAX --delete --exclude=/boot/firmware "$src_root/" "$dst_root/"
 rsync -aHAX --delete "$src_boot/" "$dst_root/boot/firmware/"
 
+# Write cloud-init directly onto the rebuilt boot partition so the first encrypted NVMe boot comes
+# up with the intended hostname, network, and SSH access without any manual first-boot repair.
 cat > "$dst_root/boot/firmware/user-data" <<USERDATA
 #cloud-config
 hostname: ${TARGET_HOSTNAME}
@@ -177,10 +195,10 @@ FSTAB
 rm -f "$dst_root/etc/resolv.conf"
 cp /etc/resolv.conf "$dst_root/etc/resolv.conf"
 
+# Package triggers may run update-initramfs before the script reaches its final explicit rebuild.
+# Seed authorized_keys early so those trigger-driven initramfs builds already contain a valid
+# recovery key and do not emit a broken-authorized_keys warning.
 mkdir -p "$dst_root/etc/dropbear/initramfs"
-cat > "$dst_root/etc/dropbear/initramfs/dropbear.conf" <<DROPBEARCONF
-DROPBEAR_OPTIONS="-I 180 -p ${DROPBEAR_PORT} -j -k -s"
-DROPBEARCONF
 printf '%s' "$AUTHORIZED_KEYS_B64" | base64 -d > "$dst_root/etc/dropbear/initramfs/authorized_keys"
 printf '\n' >> "$dst_root/etc/dropbear/initramfs/authorized_keys"
 chmod 600 "$dst_root/etc/dropbear/initramfs/authorized_keys"
@@ -192,7 +210,16 @@ mount --bind /run "$dst_root/run"
 
 chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update
 chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get -y full-upgrade
-chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y cryptsetup-initramfs dropbear-initramfs
+chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get \
+  -o Dpkg::Options::=--force-confdef \
+  -o Dpkg::Options::=--force-confold \
+  install -y cryptsetup-initramfs dropbear-initramfs
+
+# Write the final dropbear config after package installation so dpkg cannot prompt about replacing
+# our custom config, while still keeping the final initramfs SSH behavior deterministic.
+cat > "$dst_root/etc/dropbear/initramfs/dropbear.conf" <<DROPBEARCONF
+DROPBEAR_OPTIONS="-I 180 -p ${DROPBEAR_PORT} -j -k -s"
+DROPBEARCONF
 
 if grep -q '^DROPBEAR=' "$dst_root/etc/initramfs-tools/initramfs.conf"; then
   sed -i 's/^DROPBEAR=.*/DROPBEAR=y/' "$dst_root/etc/initramfs-tools/initramfs.conf"
@@ -215,7 +242,14 @@ MODULES
 
 chroot "$dst_root" update-initramfs -u
 
-kver="$(basename "$(find "$dst_root/lib/modules" -mindepth 1 -maxdepth 1 | sort | tail -n 1)")"
+# Reassert the target mounts before syncing the final kernel artifacts. Package triggers and cleanup
+# around update-initramfs can leave the target root no longer mounted, and the boot partition must
+# end up with the exact kernel/initrd/DTB set that matches the rebuilt root.
+mkdir -p "$dst_root/boot/firmware"
+mountpoint -q "$dst_root" || mount "/dev/mapper/$mapper" "$dst_root"
+mountpoint -q "$dst_root/boot/firmware" || mount "$boot" "$dst_root/boot/firmware"
+
+kver="$(chroot "$dst_root" /bin/sh -c 'ls -1 /lib/modules | sort | tail -n 1')"
 cp "$dst_root/boot/vmlinuz-$kver" "$dst_root/boot/firmware/vmlinuz"
 cp "$dst_root/boot/initrd.img-$kver" "$dst_root/boot/firmware/initrd.img"
 cp "$dst_root/usr/lib/firmware/$kver/device-tree/broadcom/"*.dtb "$dst_root/boot/firmware/"

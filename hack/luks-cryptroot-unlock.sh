@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'EOF'
-Usage: luks-cryptroot-unlock.sh <host-or-ip> [port] [--passfifo | --vault-passfifo [vault-file] [vault-key] | remote-command...]
+Usage: luks-cryptroot-unlock.sh <host-or-ip> [port] [--passfifo | --env-passfifo [env-var] | remote-command...]
 EOF
   exit 1
 }
@@ -38,13 +38,12 @@ if [[ "$1" == "--passfifo" ]]; then
   exec ssh "${ssh_args[@]}" 'cat > /lib/cryptsetup/passfifo'
 fi
 
-if [[ "$1" == "--vault-passfifo" ]]; then
+if [[ "$1" == "--env-passfifo" ]]; then
   shift
-  vault_file="${1:-$HOME/dotfiles/password/ansible_vault.yaml}"
-  vault_key="${2:-ubuntu_luks_password}"
-  passphrase="$(yq ".${vault_key}" "${vault_file}")"
-  if [[ -z "${passphrase}" || "${passphrase}" == "null" ]]; then
-    echo "Failed to read ${vault_key} from ${vault_file}" >&2
+  env_var="${1:-OTARU_LUKS_PASSWORD}"
+  passphrase="${!env_var:-}"
+  if [[ -z "${passphrase}" ]]; then
+    echo "Missing required environment variable: ${env_var}" >&2
     exit 1
   fi
   printf '%s\n' "${passphrase}" | exec ssh "${ssh_args[@]}" 'cat > /lib/cryptsetup/passfifo'

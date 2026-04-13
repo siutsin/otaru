@@ -1,10 +1,11 @@
 # LUKS vault variables
 
-LUKS passphrases must stay out of the repo. Use the local Ansible vault file and key below.
+LUKS passphrases must stay out of the repo. Keep the source of truth in the local vault file and
+supply the passphrase explicitly when running rebuild or unlock helpers.
 
 Current pattern:
 
-- one shared vault variable for all SSD nodes: `ubuntu_luks_password`
+- one shared vault variable for all SSD nodes: `otaru_luks_password`
 
 ## Existing local file and key
 
@@ -17,12 +18,12 @@ Use:
 Expected key:
 
 ```yaml
-ubuntu_luks_password: "replace-me"
+otaru_luks_password: "replace-me"
 ```
 
 ## Usage pattern
 
-When a future playbook or handler needs the passphrase, load it from:
+When you need the passphrase, read it yourself from:
 
 ```shell
 ~/dotfiles/password/ansible_vault.yaml
@@ -35,13 +36,12 @@ Do not commit:
 
 ## Notes
 
-- Use one shared password for now to keep the first rollout simple and aligned with the previous
-  LUKS workflow.
-- Use `ubuntu_luks_password` from `~/dotfiles/password/ansible_vault.yaml` as the source of truth.
+- Use one shared password for now to keep the first rollout simple.
+- Use `otaru_luks_password` from `~/dotfiles/password/ansible_vault.yaml` as the source of truth.
 - The current initramfs prep playbook does not need the passphrase yet.
 - The passphrase becomes necessary for the actual encrypted-root conversion and any future automated
   unlock-assisted reboot workflow.
-- The rescue rebuild wrapper reads the passphrase from the vault locally and streams it to the rescue
-  host over SSH stdin. It should not be placed in command arguments or committed files.
-- If the passphrase is ever typed or embedded in command text during debugging, rotate it before the
-  next real rebuild or boot validation.
+- Do not make repo scripts read the vault file directly.
+- Provide the passphrase explicitly to helpers through `LUKS_PASSWORD_FILE` or
+  `OTARU_LUKS_PASSWORD`.
+- Avoid command arguments for the passphrase. Prefer a root-only temp file or controller env var.
