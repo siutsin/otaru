@@ -17,14 +17,14 @@
       - luks_root_partition
       - luks_mapper_name
       - luks_initramfs_iface
-      - luks_initramfs_ip
       - luks_initramfs_gateway
       - luks_initramfs_netmask
       - luks_initramfs_dns
       - luks_dropbear_port
       - luks_unlock_authorized_keys_src
+    luks_initramfs_ip_effective: "{{ luks_initramfs_ip | default(ansible_host | default(inventory_hostname, true), true) }}"
     luks_initramfs_ip_line: >-
-      {{ luks_initramfs_ip }}::{{ luks_initramfs_gateway }}:{{ luks_initramfs_netmask }}:{{
+      {{ luks_initramfs_ip_effective }}::{{ luks_initramfs_gateway }}:{{ luks_initramfs_netmask }}:{{
       inventory_hostname_short }}:{{ luks_initramfs_iface }}:off:{{ luks_initramfs_dns }}
     luks_dropbear_options_line: >-
       -I {{ luks_dropbear_idle_timeout }} -p {{ luks_dropbear_port }} {{

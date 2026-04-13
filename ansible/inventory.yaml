@@ -7,58 +7,18 @@ all:
     node00:
       hosts:
         raspberrypi-00.local:
-          ansible_ssh_user: pi
           ansible_host: 192.168.10.60
-          luks_root_disk: /dev/nvme0n1
-          luks_boot_partition: /dev/nvme0n1p1
-          luks_root_partition: /dev/nvme0n1p2
-          luks_mapper_name: cryptroot
-          luks_initramfs_iface: eth0
-          luks_initramfs_ip: 192.168.10.60
-          luks_initramfs_gateway: 192.168.10.1
-          luks_initramfs_netmask: 255.255.255.0
-          luks_initramfs_dns: 192.168.10.1
-          luks_dropbear_port: 1024
-          luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
-          luks_passphrase_vault_var_name: ubuntu_luks_password
     node01:
       hosts:
         raspberrypi-01.local:
-          ansible_ssh_user: pi
           ansible_host: 192.168.10.61
-          luks_root_disk: /dev/nvme0n1
-          luks_boot_partition: /dev/nvme0n1p1
-          luks_root_partition: /dev/nvme0n1p2
-          luks_mapper_name: cryptroot
-          luks_initramfs_iface: eth0
-          luks_initramfs_ip: 192.168.10.61
-          luks_initramfs_gateway: 192.168.10.1
-          luks_initramfs_netmask: 255.255.255.0
-          luks_initramfs_dns: 192.168.10.1
-          luks_dropbear_port: 1024
-          luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
-          luks_passphrase_vault_var_name: ubuntu_luks_password
     node02:
       hosts:
         raspberrypi-02.local:
-          ansible_ssh_user: pi
           ansible_host: 192.168.10.62
-          luks_root_disk: /dev/nvme0n1
-          luks_boot_partition: /dev/nvme0n1p1
-          luks_root_partition: /dev/nvme0n1p2
-          luks_mapper_name: cryptroot
-          luks_initramfs_iface: eth0
-          luks_initramfs_ip: 192.168.10.62
-          luks_initramfs_gateway: 192.168.10.1
-          luks_initramfs_netmask: 255.255.255.0
-          luks_initramfs_dns: 192.168.10.1
-          luks_dropbear_port: 1024
-          luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
-          luks_passphrase_vault_var_name: ubuntu_luks_password
     node03:
       hosts:
         raspberrypi-03.local:
-          ansible_ssh_user: pi
           ansible_host: 192.168.10.63
     # Groups
     master:
@@ -78,6 +38,18 @@ all:
       children:
         node03: { }
     luks_root_candidates:
+      vars:
+        luks_root_disk: /dev/nvme0n1
+        luks_boot_partition: /dev/nvme0n1p1
+        luks_root_partition: /dev/nvme0n1p2
+        luks_mapper_name: cryptroot
+        luks_initramfs_iface: eth0
+        luks_initramfs_gateway: 192.168.10.1
+        luks_initramfs_netmask: 255.255.255.0
+        luks_initramfs_dns: 192.168.10.1
+        luks_dropbear_port: 1024
+        luks_unlock_authorized_keys_src: /home/pi/.ssh/authorized_keys
+        luks_passphrase_vault_var_name: ubuntu_luks_password
       children:
         node00: { }
         node01: { }
@@ -86,6 +58,8 @@ all:
       children:
         node01: { }
     raspberrypi:
+      vars:
+        ansible_ssh_user: pi
       children:
         master: { }
         worker: { }
