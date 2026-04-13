@@ -16,7 +16,7 @@ target_gateway="${TARGET_GATEWAY:-192.168.10.1}"
 target_netmask="${TARGET_NETMASK:-255.255.255.0}"
 target_dns="${TARGET_DNS:-192.168.10.1}"
 dropbear_port="${DROPBEAR_PORT:-1024}"
-expected_disk_model_substring="${EXPECTED_DISK_MODEL_SUBSTRING:-NVMe}"
+expected_disk_model_substring="${EXPECTED_DISK_MODEL_SUBSTRING:-}"
 minimum_disk_size_bytes="${MINIMUM_DISK_SIZE_BYTES:-100000000000}"
 local_pass_file=""
 remote_pass_file="/root/luks-pass"
@@ -25,6 +25,14 @@ if [[ "${LUKS_NODE_INIT_CONFIRM:-}" != "yes" ]]; then
   cat >&2 <<EOF
 Refusing to wipe ${target_disk} without explicit confirmation.
 Set LUKS_NODE_INIT_CONFIRM=yes to continue.
+EOF
+  exit 1
+fi
+
+if [[ -z "${expected_disk_model_substring}" ]]; then
+  cat >&2 <<EOF
+Refusing to wipe ${target_disk} without an expected disk model guard.
+Set EXPECTED_DISK_MODEL_SUBSTRING to a stable model substring for the target NVMe first.
 EOF
   exit 1
 fi

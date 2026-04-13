@@ -39,11 +39,13 @@ Before running the wrapper:
 2. The rescue SD is booted and reachable at `192.168.10.40`.
 3. The local vault file contains `otaru_luks_password`.
 4. Do not pass the LUKS password on the command line during rescue work.
-5. Provide the passphrase to the wrapper explicitly:
+5. Set `EXPECTED_DISK_MODEL_SUBSTRING` to a stable substring for the target NVMe model.
+6. Provide the passphrase to the wrapper explicitly:
 
 ```shell
 umask 077
 printf '%s' '...' > /tmp/otaru-luks-password
+export EXPECTED_DISK_MODEL_SUBSTRING='Lexar'
 LUKS_NODE_INIT_CONFIRM=yes \
 LUKS_PASSWORD_FILE=/tmp/otaru-luks-password \
 ./hack/luks-node-init.sh
