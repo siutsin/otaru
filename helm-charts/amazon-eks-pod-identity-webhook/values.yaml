@@ -1,13 +1,27 @@
 name: amazon-eks-pod-identity-webhook
 namespace: default
 
+replicaCount: 2
+
+strategy:
+  rollingUpdate:
+    maxUnavailable: 0
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
 pod-identity-webhook:
   affinity:
     podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            topologyKey: kubernetes.io/hostname
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - pod-identity-webhook
+          topologyKey: kubernetes.io/hostname
   resources:
     requests:
       cpu: 10m
@@ -17,3 +31,6 @@ pod-identity-webhook:
   config:
     defaultAwsRegion: eu-west-1
     tokenAudience: oidc.siutsin.com
+
+mutatingWebhook:
+  failurePolicy: Fail
