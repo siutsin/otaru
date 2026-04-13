@@ -264,7 +264,7 @@ dm_mod
 dm_crypt
 MODULES
 
-chroot "$dst_root" update-initramfs -u
+chroot "$dst_root" update-initramfs -u -k all
 
 # Reassert the target mounts before syncing the final kernel artifacts. Package triggers and cleanup
 # around update-initramfs can leave the target root no longer mounted, and the boot partition must
@@ -273,7 +273,7 @@ mkdir -p "$dst_root/boot/firmware"
 mountpoint -q "$dst_root" || mount "/dev/mapper/$mapper" "$dst_root"
 mountpoint -q "$dst_root/boot/firmware" || mount "$boot" "$dst_root/boot/firmware"
 
-kver="$(chroot "$dst_root" /bin/sh -c 'ls -1 /lib/modules | sort | tail -n 1')"
+kver="$(chroot "$dst_root" /bin/sh -c 'ls -1 /lib/modules | sort -V | tail -n 1')"
 cp "$dst_root/boot/vmlinuz-$kver" "$dst_root/boot/firmware/vmlinuz"
 cp "$dst_root/boot/initrd.img-$kver" "$dst_root/boot/firmware/initrd.img"
 cp "$dst_root/usr/lib/firmware/$kver/device-tree/broadcom/"*.dtb "$dst_root/boot/firmware/"

@@ -71,6 +71,10 @@
         {{ ansible_host | default(inventory_hostname, true) }}
         {{ luks_dropbear_port | string }}
         --env-passfifo
+      register: luks_unlock_result
+      retries: 3
+      delay: 10
+      until: luks_unlock_result.rc == 0
       no_log: true
       when:
         - update_cmdline is changed
