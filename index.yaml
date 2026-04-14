@@ -905,6 +905,16 @@ entries:
     version: 0.1.0
   longhorn-volume-lib:
   - apiVersion: v2
+    created: "2026-04-14T01:48:37.008193835Z"
+    description: A Helm chart for Kubernetes
+    digest: ee90433aa86bb16afd7d0a260c7a4ca74ca635811330dfaa0b5500c8dc024e51
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: longhorn-volume-lib
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/longhorn-volume-lib-0.2.2/longhorn-volume-lib-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
     created: "2025-07-06T15:50:35.531443894Z"
     description: A Helm chart for Kubernetes
     digest: 47216ae74051cff5b85429e9bfdcfc1d36853172eea46ecdb3d1b96f6788aad8
@@ -1198,4 +1208,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-04-13T22:53:11.872279126Z"
+generated: "2026-04-14T01:48:37.146190895Z"
