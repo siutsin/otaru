@@ -1,13 +1,26 @@
 name: amazon-eks-pod-identity-webhook
 namespace: default
 
-pod-identity-webhook:
+amazon-eks-pod-identity-webhook:
+  replicaCount: 2
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  mutatingWebhook:
+    failurePolicy: Fail
   affinity:
     podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            topologyKey: kubernetes.io/hostname
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - amazon-eks-pod-identity-webhook
+          topologyKey: kubernetes.io/hostname
   resources:
     requests:
       cpu: 10m
