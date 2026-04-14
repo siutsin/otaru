@@ -19,7 +19,7 @@ defaults:
     instances: 2
     storage:
       size: "1Gi"
-      storageClass: "longhorn-crypto-global"
+      storageClass: "longhorn-crypto-global-ha"
     plugins:
     - enabled: true
       name: "barman-cloud.cloudnative-pg.io"

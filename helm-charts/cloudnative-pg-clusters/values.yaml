@@ -42,7 +42,7 @@ defaults:
     storage:
       resizeInUseVolumes: true
       size: 5Gi
-      storageClass: longhorn-crypto-global
+      storageClass: longhorn-crypto-global-ha
     switchoverDelay: 3600
     backup:
       target: primary

@@ -18,7 +18,7 @@ atlantis:
   service:
     type: ClusterIP
   volumeClaim:
-    storageClassName: longhorn-crypto-global
+    storageClassName: longhorn-crypto-global-ha
     dataStorage: 15Gi
   loadEnvFromSecrets:
     - atlantis-aws
