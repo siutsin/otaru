@@ -46,7 +46,7 @@ defaults:
     switchoverDelay: 3600
     backup:
       target: primary
-      retentionPolicy: 2d
+      retentionPolicy: 1d
     plugins:
       - enabled: true
         isWALArchiver: false
@@ -85,44 +85,22 @@ defaults:
         enabled: false
   scheduledBackup:
     enabled: true
-    schedule: "0 0 2 * * *"
+    schedule: "0 0 */3 * * *"
   objectStore:
-    retentionPolicy: 2d
+    retentionPolicy: 1d
 
 clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
   # Avoid reusing the same ObjectStore configuration for both backup and recovery in the same cluster. If you must, ensure that each cluster uses a unique serverName
   # to prevent accidental overwrites of backup data.
-#  example-db:
-#    # naming convention: $clusterName-$date-$time
-#    clusterName: &exampleDBClusterName example-db-20250724-0023
-#    namespace: cnpg-system
-#    postgresql:
-#      <<: *postgresql
-#      pg_hba: # Use password authentication
-#        - hostssl all all 0.0.0.0/0 scram-sha-256
-#        - hostssl all all ::0/0 scram-sha-256
-#    test:
-#      enabled: true
-#      query: SELECT * FROM users;
-#    bootstrap:
-#      recovery:
-#        source: &source backup-source
-#        secret:
-#          name: *exampleDBClusterName
-#    externalClusters:
-#      - name: *source
-#        plugin:
-#          enabled: true
-#          name: barman-cloud.cloudnative-pg.io
-#          parameters:
-#            barmanObjectName: b2-backup
-#            serverName: *exampleDBClusterName # cluster name to restore from
 
   teslamate:
-    clusterName: &teslamateClusterName teslamate-20260412-0619
-    backupSourceName: &teslamateBackupSourceName teslamate-backup-source
-    recoverySourceServerName: &teslamateRecoverySourceServerName teslamate-20251024-0015
+    clusterName: teslamate-20260412-0619
+    affinity:
+      podAntiAffinityType: required
+    instances: 2
+    minSyncReplicas: 1
+    maxSyncReplicas: 1
     labels:
       cnpg.io/reload: "true"
       cnpg.io/skipEmptyWalArchiveCheck: "true"
@@ -146,15 +124,15 @@ clusters:
       query: SELECT name FROM cars;
     bootstrap:
       recovery:
-        source: *teslamateBackupSourceName
+        source: teslamate-backup-source
         database: app
         owner: app
     externalClusters:
-      - name: *teslamateBackupSourceName
+      - name: teslamate-backup-source
         plugin:
           enabled: true
           isWALArchiver: false
           name: barman-cloud.cloudnative-pg.io
           parameters:
             barmanObjectName: b2-backup
-            serverName: *teslamateRecoverySourceServerName
+            serverName: teslamate-20251024-0015

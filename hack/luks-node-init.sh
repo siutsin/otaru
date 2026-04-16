@@ -10,8 +10,8 @@ fi
 rescue_host="${RESCUE_HOST:-pi@192.168.10.40}"
 remote_image_path="${REMOTE_IMAGE_PATH:-/home/pi/ubuntu-24.04.4-preinstalled-server-arm64+raspi.img}"
 target_disk="${TARGET_DISK:-/dev/nvme0n1}"
-target_hostname="${TARGET_HOSTNAME:-raspberrypi-01}"
-target_ip="${TARGET_IP:-192.168.10.61}"
+target_hostname="${TARGET_HOSTNAME:-raspberrypi-00}"
+target_ip="${TARGET_IP:-192.168.10.60}"
 target_gateway="${TARGET_GATEWAY:-192.168.10.1}"
 target_netmask="${TARGET_NETMASK:-255.255.255.0}"
 target_dns="${TARGET_DNS:-192.168.10.1}"
@@ -95,6 +95,8 @@ disk="${TARGET_DISK}"
 boot="${disk}p1"
 root="${disk}p2"
 mapper="cryptroot"
+expected_disk_model_substring="${EXPECTED_DISK_MODEL_SUBSTRING:-}"
+minimum_disk_size_bytes="${MINIMUM_DISK_SIZE_BYTES:-}"
 work_dir="$(mktemp -d /tmp/luks-node-init.XXXXXX)"
 src_boot="$work_dir/src-boot"
 src_root="$work_dir/src-root"
@@ -104,6 +106,7 @@ pass_file="${REMOTE_PASS_FILE}"
 
 cleanup() {
   set +e
+  umount "$dst_root/dev/pts" 2>/dev/null || true
   umount "$dst_root/boot/firmware" 2>/dev/null || true
   umount "$dst_root/dev" 2>/dev/null || true
   umount "$dst_root/proc" 2>/dev/null || true
@@ -269,6 +272,8 @@ printf '\n' >> "$dst_root/etc/dropbear/initramfs/authorized_keys"
 chmod 600 "$dst_root/etc/dropbear/initramfs/authorized_keys"
 
 mount --bind /dev "$dst_root/dev"
+mkdir -p "$dst_root/dev/pts"
+mount -t devpts devpts "$dst_root/dev/pts"
 mount --bind /proc "$dst_root/proc"
 mount --bind /sys "$dst_root/sys"
 mount --bind /run "$dst_root/run"

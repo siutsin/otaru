@@ -1,0 +1,245 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+rules:
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - backups
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.name }}-verify-pitr
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.name }}-verify-pitr
+    namespace: {{ .Values.namespace }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: {{ .Values.backup.verifyPitr.schedule | quote }}
+  concurrencyPolicy: {{ .Values.backup.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: {{ .Values.backup.ttlSecondsAfterFinished }}
+      backoffLimit: {{ .Values.backup.backoffLimit }}
+      template:
+        spec:
+          serviceAccountName: {{ .Values.name }}-verify-pitr
+          containers:
+            - name: verify-pitr
+              image: alpine/kubectl:1.35.2@sha256:ec8f734b0a103ae63b5c008b99477f240f4109a8449c2f4947aa231e69b11745
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e -o pipefail
+
+                  apk add --no-cache curl
+
+                  VERIFY_CLUSTER="{{ .Values.name }}-verify-pitr-$(date +%s)"
+                  VERIFY_NAMESPACE="{{ .Values.namespace }}"
+                  VERIFY_SOURCE_CLUSTER="{{ trimSuffix "-app" .Values.backup.database.secretName }}"
+                  VERIFY_DATABASE="{{ .Values.database.name }}"
+                  VERIFY_OWNER="{{ .Values.database.name }}"
+                  VERIFY_TIMEOUT_SECONDS=1800
+                  VERIFY_QUERY='{{ .Values.backup.verifyPitr.verificationQuery }}'
+                  VERIFY_SOURCE_PRIMARY=$(kubectl get cluster "${VERIFY_SOURCE_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}')
+                  VERIFY_BACKUP_ID=$(
+                    kubectl get backups.postgresql.cnpg.io \
+                      -n "${VERIFY_NAMESPACE}" \
+                      -l cnpg.io/cluster="${VERIFY_SOURCE_CLUSTER}" \
+                      -o jsonpath='{range .items[*]}{.status.stoppedAt}{"|"}{.status.backupId}{"|"}{.status.phase}{"\n"}{end}' |
+                      awk -F'|' '$3=="completed"{print $1 "|" $2}' |
+                      sort |
+                      tail -n1 |
+                      cut -d'|' -f2
+                  )
+                  VERIFY_TARGET_SCAN_COUNT=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
+                  SELECT count(*)
+                  FROM information_schema.columns
+                  WHERE table_schema = 'public'
+                    AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date');
+                  SQL
+                  )
+                  VERIFY_TARGET_TIME=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
+                  WITH generated AS (
+                    SELECT 'SELECT max(max_value) FROM (' ||
+                      string_agg(
+                        format(
+                          'SELECT max(%I::timestamptz) AS max_value FROM %I.%I',
+                          column_name,
+                          table_schema,
+                          table_name
+                        ),
+                        ' UNION ALL '
+                      ) ||
+                      ') t'
+                      AS sql
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                      AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date')
+                  )
+                  SELECT sql FROM generated \gexec
+                  SQL
+                  )
+
+                  if [ -z "${VERIFY_SOURCE_PRIMARY}" ] || [ -z "${VERIFY_BACKUP_ID}" ] || [ -z "${VERIFY_TARGET_TIME}" ]; then
+                    echo "Error: failed to derive PITR inputs."
+                    echo "VERIFY_SOURCE_PRIMARY=${VERIFY_SOURCE_PRIMARY}"
+                    echo "VERIFY_BACKUP_ID=${VERIFY_BACKUP_ID}"
+                    echo "VERIFY_TARGET_TIME=${VERIFY_TARGET_TIME}"
+                    exit 1
+                  fi
+
+                  echo "Using source primary ${VERIFY_SOURCE_PRIMARY}"
+                  echo "Using backupID ${VERIFY_BACKUP_ID}"
+                  echo "Scanned ${VERIFY_TARGET_SCAN_COUNT} timestamp-like columns in public"
+                  echo "Using targetTime ${VERIFY_TARGET_TIME}"
+
+                  cleanup() {
+                    echo "Cleaning up ${VERIFY_CLUSTER}..."
+                    kubectl delete cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" --ignore-not-found=true --wait=false || true
+                  }
+
+                  trap cleanup EXIT
+
+                  cat <<EOF | kubectl apply -f -
+                  apiVersion: postgresql.cnpg.io/v1
+                  kind: Cluster
+                  metadata:
+                    name: ${VERIFY_CLUSTER}
+                    namespace: ${VERIFY_NAMESPACE}
+                  spec:
+                    instances: 1
+                    storage:
+                      size: {{ .Values.backup.verifyPitr.restore.storage.size }}
+                      storageClass: {{ .Values.backup.verifyPitr.restore.storage.storageClass }}
+                    plugins:
+                      - enabled: true
+                        isWALArchiver: false
+                        name: barman-cloud.cloudnative-pg.io
+                        parameters:
+                          barmanObjectName: b2-backup
+                    postgresql:
+                      parameters:
+                        archive_mode: "off"
+                        dynamic_shared_memory_type: posix
+                        full_page_writes: "on"
+                        wal_keep_size: 512MB
+                        wal_level: logical
+                        wal_log_hints: "on"
+                        wal_receiver_timeout: 5s
+                        wal_sender_timeout: 5s
+                      pg_hba:
+                        - hostssl all all 0.0.0.0/0 scram-sha-256
+                        - hostssl all all ::0/0 scram-sha-256
+                    bootstrap:
+                      recovery:
+                        source: verify-pitr-source
+                        database: ${VERIFY_DATABASE}
+                        owner: ${VERIFY_OWNER}
+                        recoveryTarget:
+                          backupID: "${VERIFY_BACKUP_ID}"
+                          targetTime: "${VERIFY_TARGET_TIME}"
+                    externalClusters:
+                      - name: verify-pitr-source
+                        plugin:
+                          enabled: true
+                          isWALArchiver: false
+                          name: barman-cloud.cloudnative-pg.io
+                          parameters:
+                            barmanObjectName: b2-backup
+                            serverName: ${VERIFY_SOURCE_CLUSTER}
+                  EOF
+
+                  START_TIME=$(date +%s)
+                  while true; do
+                    PHASE=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+                    READY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.readyInstances}' 2>/dev/null || true)
+                    PRIMARY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}' 2>/dev/null || true)
+
+                    if [ "${PHASE}" = "Cluster in healthy state" ] && [ "${READY}" = "1" ] && [ -n "${PRIMARY}" ]; then
+                      echo "PITR restore cluster ${VERIFY_CLUSTER} is ready."
+                      break
+                    fi
+
+                    if [ $(( $(date +%s) - START_TIME )) -ge "${VERIFY_TIMEOUT_SECONDS}" ]; then
+                      echo "Error: Timed out waiting for PITR restore cluster ${VERIFY_CLUSTER}."
+                      kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o yaml || true
+                      kubectl get pods -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" -o wide || true
+                      exit 1
+                    fi
+
+                    sleep 10
+                  done
+
+                  PRIMARY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}')
+
+                  echo "Verifying PITR with query: ${VERIFY_QUERY}"
+                  kubectl exec -n "${VERIFY_NAMESPACE}" "${PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -tAc "${VERIFY_QUERY}"
+                  echo "PITR verification successful!"
+
+                  if [ -n "${VERIFY_PITR_HEARTBEAT:-}" ]; then
+                    echo "Sending heartbeat to ${VERIFY_PITR_HEARTBEAT}..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "${VERIFY_PITR_HEARTBEAT}")
+                    echo "Response body: ${RESPONSE}"
+                  fi
+              envFrom:
+                - secretRef:
+                    name: {{ .Values.name }}-heartbeat
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                  ephemeral-storage: 128Mi
+                limits:
+                  memory: 128Mi
+                  ephemeral-storage: 128Mi
+          restartPolicy: OnFailure

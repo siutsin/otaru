@@ -1,6 +1,10 @@
 ---
 - hosts: waveshare_poe_hat
   become: true
+  gather_facts: false
+
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
 
   tasks:
     - name: Enable I2C via raspi-config

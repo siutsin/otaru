@@ -1,7 +1,7 @@
 ---
 - hosts: raspberrypi
   become: true
-  gather_facts: true
+  gather_facts: false
   vars:
     rpi_netplan_file: /etc/netplan/50-cloud-init.yaml
     rpi_netplan_work_file: /home/pi/50-cloud-init.yaml
@@ -11,14 +11,12 @@
     rpi_pod_cidr: 10.42.0.0/16
     rpi_service_cidr: 10.43.0.0/16
 
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
+
   tasks:
     # https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
-    - name: Check if promisc-mode service exists
-      stat:
-        path: /etc/systemd/system/promisc-mode.service
-      register: promisc_mode_service
-
-    - name: Create systemd service to enable promiscuous mode for eth0
+    - name: Manage systemd service to enable promiscuous mode for eth0
       copy:
         dest: /etc/systemd/system/promisc-mode.service
         content: |
@@ -35,7 +33,6 @@
         owner: root
         group: root
         mode: '0644'
-      when: not promisc_mode_service.stat.exists
       notify:
         - Reload systemd and start promisc-mode service
 

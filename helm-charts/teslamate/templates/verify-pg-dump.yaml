@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ .Values.name }}-backup-verify
+  name: {{ .Values.name }}-verify-pg-dump
   namespace: {{ .Values.namespace }}
 spec:
   schedule: {{ .Values.backup.verify.schedule | quote }}
@@ -14,7 +14,7 @@ spec:
         spec:
           shareProcessNamespace: true
           containers:
-            - name: verify-backup
+            - name: verify-pg-dump
               image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
               command: ["/bin/sh", "-c"]
               args:
@@ -22,6 +22,7 @@ spec:
                   set -e -o pipefail
 
                   apk add --no-cache aws-cli curl
+                  VERIFY_QUERY='{{ .Values.backup.verify.verificationQuery }}'
 
                   until pg_isready; do
                     sleep 2
@@ -31,11 +32,11 @@ spec:
 
                   LATEST_BACKUP=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1 | awk '{print $4}')
                   if [ -z "$LATEST_BACKUP" ]; then
-                    echo "Error: No backup found"
+                    echo "Error: No pg_dump backup found"
                     exit 1
                   fi
 
-                  echo "Found: ${LATEST_BACKUP}"
+                  echo "Found pg_dump backup: ${LATEST_BACKUP}"
 
                   echo "Restoring from ${S3_URI}/${LATEST_BACKUP}..."
                   TEMP_DIR=$(mktemp -d)
@@ -47,11 +48,11 @@ spec:
 
                   psql -d "$PGDATABASE" -f "$SQL_FILE"
                   rm -rf "$TEMP_DIR"
-                  echo "Restored from ${S3_URI}/${LATEST_BACKUP}..."
+                  echo "Restored pg_dump from ${S3_URI}/${LATEST_BACKUP}..."
 
-                  echo "Verifying with query: {{ .Values.backup.verify.verificationQuery }}"
-                  psql -c "{{ .Values.backup.verify.verificationQuery }}"
-                  echo "Verification Successful!"
+                  echo "Verifying pg_dump with query: ${VERIFY_QUERY}"
+                  psql -c "${VERIFY_QUERY}"
+                  echo "pg_dump verification successful!"
 
                   KEEP_LAST=7
 
@@ -72,9 +73,9 @@ spec:
                     done
                   fi
 
-                  if [ -n "$VERIFY_HEARTBEAT" ]; then
-                    echo "Sending heartbeat to $VERIFY_HEARTBEAT..."
-                    RESPONSE=$(curl -m 10 --retry 5 -sS "$VERIFY_HEARTBEAT")
+                  if [ -n "$VERIFY_PG_DUMP_HEARTBEAT" ]; then
+                    echo "Sending heartbeat to $VERIFY_PG_DUMP_HEARTBEAT..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "$VERIFY_PG_DUMP_HEARTBEAT")
                     echo "Response body: $RESPONSE"
                   fi
 
@@ -93,17 +94,17 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_USER
+                      key: username
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_PASS
+                      key: password
                 - name: PGDATABASE
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_NAME
+                      key: dbname
 
             - name: postgres-sidecar
               image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
@@ -112,16 +113,16 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_USER
+                      key: username
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_PASS
+                      key: password
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_NAME
+                      key: dbname
 
           restartPolicy: OnFailure

@@ -12,6 +12,7 @@
       retries: 3
       delay: 10
       until: gateway_api_dep_result.rc == 0
+      changed_when: false
 
     - name: Apply gateway-api Helm template
       shell: "helm template gateway-api ../../../helm-charts/gateway-api -n kube-system --include-crds | kubectl apply --server-side -f -"
@@ -22,12 +23,21 @@
 
     # Apply MetalLB before configuring LoadBalancer IP allocations.
 
+    - name: Ensure MetalLB Helm repository is configured locally
+      command: helm repo add metallb https://metallb.github.io/metallb --force-update
+      register: metallb_repo_result
+      retries: 3
+      delay: 10
+      until: metallb_repo_result.rc == 0
+      changed_when: false
+
     - name: Update MetalLB dependency
-      shell: "helm dep update ../../../helm-charts/metallb"
+      command: helm dependency build --skip-refresh ../../../helm-charts/metallb
       register: metallb_dep_result
       retries: 3
       delay: 10
       until: metallb_dep_result.rc == 0
+      changed_when: false
 
     - name: Apply MetalLB Helm template
       shell: "helm template metallb ../../../helm-charts/metallb -n metallb-system | kubectl apply -f -"
@@ -58,6 +68,7 @@
       retries: 3
       delay: 10
       until: k3s_lb_dep_result.rc == 0
+      changed_when: false
 
     - name: Apply k3s-apiserver-loadbalancer Helm template
       shell: "helm template k3s-apiserver-loadbalancer ../../../helm-charts/k3s-apiserver-loadbalancer -n k3s-apiserver-loadbalancer-system | kubectl apply -f -"
@@ -83,11 +94,12 @@
       until: gateway_api_k8s_result.rc == 0
 
     - name: Update Envoy Gateway dependency
-      shell: "helm dep update ../../../helm-charts/envoy-gateway"
+      command: helm dependency build --skip-refresh ../../../helm-charts/envoy-gateway
       register: envoy_gateway_dep_result
       retries: 3
       delay: 10
       until: envoy_gateway_dep_result.rc == 0
+      changed_when: false
 
     - name: Find Envoy Gateway dependency archive
       find:
@@ -102,7 +114,7 @@
         tar -tzf "$chart_archive" | \
           grep '^gateway-helm/crds/generated/gateway\.envoyproxy\.io_.*\.yaml$' | \
           xargs tar -xOf "$chart_archive" | \
-          kubectl apply --server-side -f -
+          kubectl apply --server-side --force-conflicts -f -
       register: envoy_gateway_crds_result
       retries: 5
       delay: 10

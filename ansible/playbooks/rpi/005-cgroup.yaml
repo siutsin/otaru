@@ -1,8 +1,12 @@
 ---
 - hosts: raspberrypi
   become: true
+  gather_facts: false
   vars:
     append_text: "cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1"
+
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
 
   tasks:
     - name: Get content of /boot/firmware/cmdline.txt
@@ -87,6 +91,34 @@
         port: 22
         delay: 10
         timeout: 600
+      when: update_cmdline is changed
+
+    - name: Ensure local SSH known_hosts file exists
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+        state: touch
+        mode: "0600"
+      when: update_cmdline is changed
+
+    - name: Remove stale SSH host key for rebooted node from local known_hosts
+      delegate_to: localhost
+      become: false
+      known_hosts:
+        path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+        name: "{{ ansible_host | default(inventory_hostname, true) }}"
+        state: absent
+      when: update_cmdline is changed
+
+    - name: Add current SSH host key for rebooted node to local known_hosts
+      delegate_to: localhost
+      become: false
+      known_hosts:
+        path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+        name: "{{ ansible_host | default(inventory_hostname, true) }}"
+        key: "{{ lookup('ansible.builtin.pipe', 'ssh-keyscan -H ' ~ (ansible_host | default(inventory_hostname, true)) ~ ' 2>/dev/null') }}"
+        state: present
       when: update_cmdline is changed
 
     - name: Wait for SSH connection to recover again

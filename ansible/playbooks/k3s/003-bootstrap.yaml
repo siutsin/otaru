@@ -20,43 +20,61 @@
 
   # Set local-path not to be the default storage class
 
-  - name: Create local-path storage class
-    shell: "kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite"
+  - name: Reconcile local-path storage class default annotation
+    shell: |
+      cat <<'EOF' | kubectl apply -f -
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: local-path
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "false"
+      EOF
     register: local_path_result
     retries: 5
     delay: 10
     until: local_path_result.rc == 0
+    changed_when: "'unchanged' not in local_path_result.stdout"
 
   # Create namespaces
 
-  - name: Create external-secrets namespace
-    command: kubectl create namespace external-secrets
+  - name: Reconcile external-secrets namespace
+    shell: |
+      cat <<'EOF' | kubectl apply -f -
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: external-secrets
+      EOF
     register: external_secrets_ns_result
     retries: 5
     delay: 10
     until: external_secrets_ns_result.rc == 0
-    failed_when:
-      - external_secrets_ns_result.rc != 0
-      - "'AlreadyExists' not in (external_secrets_ns_result.stderr | default(''))"
+    changed_when: "'unchanged' not in external_secrets_ns_result.stdout"
 
-  - name: Create onepassword namespace
-    command: kubectl create namespace onepassword
+  - name: Reconcile onepassword namespace
+    shell: |
+      cat <<'EOF' | kubectl apply -f -
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: onepassword
+      EOF
     register: onepassword_ns_result
     retries: 5
     delay: 10
     until: onepassword_ns_result.rc == 0
-    failed_when:
-      - onepassword_ns_result.rc != 0
-      - "'AlreadyExists' not in (onepassword_ns_result.stderr | default(''))"
+    changed_when: "'unchanged' not in onepassword_ns_result.stdout"
 
   # 1Password Connect
 
   - name: Update dependency
-    shell: "helm dep update ../../../helm-charts/onepassword-connect"
+    command: helm dependency build --skip-refresh ../../../helm-charts/onepassword-connect
     register: onepassword_dep_result
     retries: 3
     delay: 10
     until: onepassword_dep_result.rc == 0
+    changed_when: false
 
   - name: Create Secret for `onepassword-connect`
     shell: |
@@ -92,11 +110,12 @@
   # External Secrets Operator
 
   - name: Update dependency
-    shell: "helm dep update ../../../helm-charts/external-secrets"
+    command: helm dependency build --skip-refresh ../../../helm-charts/external-secrets
     register: external_secrets_dep_result
     retries: 3
     delay: 10
     until: external_secrets_dep_result.rc == 0
+    changed_when: false
 
   - name: Initialise External Secrets Operator
     shell: |
@@ -128,21 +147,26 @@
   # Argo CD
 
   - name: Update dependency
-    shell: "helm dep update ../../../helm-charts/argocd"
+    command: helm dependency build --skip-refresh ../../../helm-charts/argocd
     register: argocd_dep_result
     retries: 3
     delay: 10
     until: argocd_dep_result.rc == 0
+    changed_when: false
 
-  - name: Create namespace
-    command: kubectl create namespace argocd
+  - name: Reconcile argocd namespace
+    shell: |
+      cat <<'EOF' | kubectl apply -f -
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: argocd
+      EOF
     register: argocd_ns_result
     retries: 5
     delay: 10
     until: argocd_ns_result.rc == 0
-    failed_when:
-      - argocd_ns_result.rc != 0
-      - "'AlreadyExists' not in (argocd_ns_result.stderr | default(''))"
+    changed_when: "'unchanged' not in argocd_ns_result.stdout"
 
   - name: Remove bootstrap placeholder argocd-jsonnet-secret
     shell: "kubectl delete secret argocd-jsonnet-secret -n argocd --ignore-not-found=true"
@@ -179,22 +203,27 @@
 
   # Longhorn
 
-  - name: Create longhorn namespace
-    command: kubectl create namespace longhorn-system
+  - name: Reconcile longhorn namespace
+    shell: |
+      cat <<'EOF' | kubectl apply -f -
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: longhorn-system
+      EOF
     register: longhorn_ns_result
     retries: 5
     delay: 10
     until: longhorn_ns_result.rc == 0
-    failed_when:
-      - longhorn_ns_result.rc != 0
-      - "'AlreadyExists' not in (longhorn_ns_result.stderr | default(''))"
+    changed_when: "'unchanged' not in longhorn_ns_result.stdout"
 
   - name: Update dependency
-    shell: "helm dep update ../../../helm-charts/longhorn"
+    command: helm dependency build --skip-refresh ../../../helm-charts/longhorn
     register: longhorn_dep_result
     retries: 3
     delay: 10
     until: longhorn_dep_result.rc == 0
+    changed_when: false
 
   - name: Initialise Longhorn
     shell: |
@@ -218,7 +247,6 @@
       kubectl rollout status deploy/longhorn-driver-deployer -n longhorn-system --timeout=15m
       kubectl rollout status deploy/longhorn-ui -n longhorn-system --timeout=15m
       kubectl rollout status daemonset/longhorn-manager -n longhorn-system --timeout=15m
-      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app.kubernetes.io/name=longhorn
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-attacher
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-provisioner
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-resizer
