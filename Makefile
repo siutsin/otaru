@@ -10,9 +10,9 @@ LUKS_UNLOCK_HOST_QUERY := \
 	.value.ansible_host == strenv(TARGET)) | .value.ansible_host][0] // \
 	strenv(TARGET)
 
-ifneq (,$(filter unlock,$(MAKECMDGOALS)))
+ifneq (,$(filter unlock luks,$(MAKECMDGOALS)))
 ifneq ($(word 2,$(MAKECMDGOALS)),)
-override LUKS_UNLOCK_TARGET := $(word 2,$(MAKECMDGOALS))
+override NODE_TARGET := $(word 2,$(MAKECMDGOALS))
 .PHONY: $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)):
 	@:
@@ -38,7 +38,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(setup|maintenance|restart|nuke|upgrade):" | \
+		grep -E "^(setup|luks|maintenance|restart|nuke|upgrade):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
@@ -68,8 +68,33 @@ endef
 
 # Ansible playbook targets
 .PHONY: setup
-setup: ## Set up Raspberry Pi nodes and k3s cluster
+setup: ## Configure Raspberry Pi nodes and k3s cluster (assumes FDE state already exists)
 	$(call ansible_playbook,setup)
+
+.PHONY: luks
+luks: ## Rebuild one node into a clean encrypted-root state from rescue (usage: make luks raspberrypi-02)
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		echo "$(RED)Usage: make luks <node-name> EXPECTED_DISK_MODEL_SUBSTRING=<model> [LUKS_PASSWORD_FILE=/path]$(NC)"; \
+		exit 1; \
+	fi
+	@if [ -z "$(EXPECTED_DISK_MODEL_SUBSTRING)" ]; then \
+		echo "$(RED)Set EXPECTED_DISK_MODEL_SUBSTRING to a stable substring for the target NVMe model.$(NC)"; \
+		exit 1; \
+	fi
+	@target="$(NODE_TARGET)"; \
+	host="$$(TARGET="$$target" yq -r '$(LUKS_UNLOCK_HOST_QUERY)' $(ANSIBLE_INVENTORY))"; \
+	echo "$(RED)WARNING: This will wipe and rebuild $$target at $$host into a clean LUKS root state.$(NC)"; \
+	read -p "Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
+	@target="$(NODE_TARGET)"; \
+	host="$$(TARGET="$$target" yq -r '$(LUKS_UNLOCK_HOST_QUERY)' $(ANSIBLE_INVENTORY))"; \
+	echo "$(GREEN)Rebuilding $$target ($$host) into clean encrypted-root state...$(NC)"; \
+	ANSIBLE_CONFIG=ansible/ansible.cfg \
+	LUKS_PASSWORD_FILE="$(LUKS_PASSWORD_FILE)" \
+	OTARU_LUKS_PASSWORD="$(OTARU_LUKS_PASSWORD)" \
+	ansible-playbook -v -i $(ANSIBLE_INVENTORY) \
+		-e target_node="$$target" \
+		-e expected_disk_model_substring="$(EXPECTED_DISK_MODEL_SUBSTRING)" \
+		ansible/playbooks/luks.yaml
 
 .PHONY: maintenance
 maintenance: ## Update packages, rolling reboot, and restart workloads
@@ -237,12 +262,12 @@ install-deps: ## Install development dependencies
 	@echo "$(GREEN)All dependencies are installed!$(NC)"
 
 .PHONY: unlock
-unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-01)
+unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-00)
 	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
 		echo "$(RED)Usage: make unlock <node-name>$(NC)"; \
 		exit 1; \
 	fi
-	@target="$(LUKS_UNLOCK_TARGET)"; \
+	@target="$(NODE_TARGET)"; \
 	host="$$(TARGET="$$target" yq -r '$(LUKS_UNLOCK_HOST_QUERY)' $(ANSIBLE_INVENTORY))"; \
 	echo "$(GREEN)Unlocking $$target ($$host):$(LUKS_UNLOCK_PORT)...$(NC)"; \
 	direnv exec . ./hack/luks-cryptroot-unlock.sh "$$host" "$(LUKS_UNLOCK_PORT)" --env-passfifo

@@ -4,10 +4,10 @@
   become: true
 
   tasks:
-    - include_tasks: ../rpi/tasks/package-apt.yaml
-    - include_tasks: ../rpi/tasks/package-asdf.yaml
-    - include_tasks: ../rpi/tasks/package-snap.yaml
-    - include_tasks: ../rpi/tasks/package-binary.yaml
+    - include_tasks: ../rpi/package/apt.yaml
+    - include_tasks: ../rpi/package/asdf.yaml
+    - include_tasks: ../rpi/package/snap.yaml
+    - include_tasks: ../rpi/package/binary.yaml
 
 # Second play: Reboot nodes one by one
 - hosts: raspberrypi

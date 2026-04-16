@@ -1,10 +1,14 @@
 ---
 - hosts: raspberrypi
   become: true
+  gather_facts: false
   vars:
     LB_API_SERVER_IP: 192.168.10.50
     K3S_CHANNEL: stable
     LOCAL_KUBECONFIG_PATH: "{{ lookup('env', 'HOME') }}/.kube/config"
+
+  pre_tasks:
+    - include_tasks: ../rpi/pre_tasks/wait-for-ssh.yaml
 
   tasks:
     - name: Install k3s on the first master node

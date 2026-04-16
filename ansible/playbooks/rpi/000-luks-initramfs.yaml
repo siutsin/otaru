@@ -1,5 +1,5 @@
 ---
-- hosts: luks_root_development
+- hosts: luks_root_nodes
   become: true
 
   vars:

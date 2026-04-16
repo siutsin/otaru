@@ -1,0 +1,43 @@
+- name: Wait for SSH port to become reachable
+  delegate_to: localhost
+  become: false
+  wait_for:
+    host: "{{ ansible_host | default(inventory_hostname, true) }}"
+    port: 22
+    delay: 3
+    timeout: 600
+  changed_when: false
+
+- name: Ensure local SSH known_hosts file exists
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+    state: touch
+    mode: "0600"
+  changed_when: false
+
+- name: Remove stale SSH host key from local known_hosts
+  delegate_to: localhost
+  become: false
+  known_hosts:
+    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+    name: "{{ ansible_host | default(inventory_hostname, true) }}"
+    state: absent
+  changed_when: false
+
+- name: Add current SSH host key to local known_hosts
+  delegate_to: localhost
+  become: false
+  known_hosts:
+    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+    name: "{{ ansible_host | default(inventory_hostname, true) }}"
+    key: "{{ lookup('ansible.builtin.pipe', 'ssh-keyscan -H ' ~ (ansible_host | default(inventory_hostname, true)) ~ ' 2>/dev/null') }}"
+    state: present
+  changed_when: false
+
+- name: Wait for SSH connection to become usable
+  wait_for_connection:
+    delay: 1
+    timeout: 300
+  changed_when: false

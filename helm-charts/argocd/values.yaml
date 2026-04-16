@@ -48,6 +48,7 @@ argo-cd:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
     params:
+      reposerver.parallelism.limit: 1
       server.insecure: true
       server.basehref: /argocd/
       server.rootpath: /argocd
@@ -112,10 +113,10 @@ argo-cd:
     resources:
       requests:
         cpu: 250m
-        memory: 256Mi
+        memory: 1Gi
         ephemeral-storage: 256Mi
       limits:
-        memory: 256Mi
+        memory: 1Gi
         ephemeral-storage: 256Mi
     readinessProbe:
       initialDelaySeconds: 10

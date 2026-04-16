@@ -5,7 +5,6 @@ database:
   name: app
   port: "5432"
   appSecretName: &databaseAppSecretName teslamate-20260412-0619-app
-  backupSecretName: &databaseBackupSecretName teslamate-20260412-0619
 
 deployment:
   affinity:
@@ -106,9 +105,16 @@ backup:
   verify:
     schedule: "0 12 * * *"
     verificationQuery: "SELECT count(*) FROM positions;"
-  ttlSecondsAfterFinished: 86400 # 1 day
+  verifyPitr:
+    schedule: "0 14 * * *"
+    verificationQuery: "SELECT count(*) FROM positions;"
+    restore:
+      storage:
+        size: 5Gi
+        storageClass: longhorn-crypto-global
+  ttlSecondsAfterFinished: 600 # 10 minutes
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    secretName: *databaseBackupSecretName
+    secretName: *databaseAppSecretName
     postgresVersion: "17"

@@ -49,20 +49,20 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_HOST
+                      key: host
                 - name: PGUSER
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_USER
+                      key: username
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_PASS
+                      key: password
                 - name: PGDATABASE
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
-                      key: DATABASE_NAME
+                      key: dbname
           restartPolicy: OnFailure

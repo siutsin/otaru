@@ -1,0 +1,348 @@
+---
+- name: Resolve target inventory host
+  set_fact:
+    luks_target_inventory_host: "{{ target_node if target_node in hostvars else (target_node ~ '.local' if (target_node ~ '.local') in hostvars else '') }}"
+
+- name: Assert FDE init inputs are present
+  assert:
+    that:
+      - target_node | length > 0
+      - luks_target_inventory_host | length > 0
+      - expected_disk_model_substring | length > 0
+      - hostvars[luks_target_inventory_host].ansible_host is defined
+    fail_msg: >-
+      Set target_node to a valid inventory host and expected_disk_model_substring to a stable NVMe
+      model substring before running the LUKS init playbook.
+
+- name: Derive target node facts
+  set_fact:
+    luks_target_hostname: "{{ luks_target_inventory_host | regex_replace('\\.local$', '') }}"
+    luks_target_ip: "{{ hostvars[luks_target_inventory_host].ansible_host }}"
+    luks_target_gateway: "{{ hostvars[luks_target_inventory_host].luks_initramfs_gateway }}"
+    luks_target_netmask: "{{ hostvars[luks_target_inventory_host].luks_initramfs_netmask }}"
+    luks_target_dns: "{{ hostvars[luks_target_inventory_host].luks_initramfs_dns }}"
+    luks_target_dropbear_port: "{{ hostvars[luks_target_inventory_host].luks_dropbear_port }}"
+
+- name: Assert a LUKS password source is configured
+  assert:
+    that:
+      - luks_password_file | length > 0 or (lookup('ansible.builtin.env', 'OTARU_LUKS_PASSWORD') | length > 0)
+    fail_msg: Set LUKS_PASSWORD_FILE or OTARU_LUKS_PASSWORD before running FDE init.
+
+- name: Load LUKS password from file
+  set_fact:
+    luks_password_value: "{{ lookup('ansible.builtin.file', luks_password_file, rstrip=False) }}"
+  when: luks_password_file | length > 0
+  no_log: true
+
+- name: Load LUKS password from environment
+  set_fact:
+    luks_password_value: "{{ lookup('ansible.builtin.env', 'OTARU_LUKS_PASSWORD') }}"
+  when: luks_password_file | length == 0
+  no_log: true
+
+- name: Register rescue host for delegated tasks
+  add_host:
+    name: luks_rescue_runtime
+    ansible_host: "{{ luks_rescue_host }}"
+    ansible_user: "{{ luks_rescue_user }}"
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+- name: Prompt to insert rescue SD card and boot target
+  pause:
+    prompt: |-
+      Insert the rescue SD card into {{ luks_target_hostname }}, power it on, and wait for rescue SSH
+      on {{ luks_rescue_host }}. Press Enter when that is done.
+
+- name: Wait for rescue SSH to become reachable
+  wait_for:
+    host: "{{ luks_rescue_host }}"
+    port: 22
+    delay: 2
+    timeout: 600
+
+- name: Read rescue host authorized keys
+  slurp:
+    src: "{{ luks_rescue_authorized_keys_src }}"
+  delegate_to: luks_rescue_runtime
+  no_log: true
+  register: rescue_authorized_keys
+
+- name: Stage LUKS password on rescue host
+  copy:
+    content: "{{ luks_password_value }}"
+    dest: /root/luks-pass
+    owner: root
+    group: root
+    mode: "0600"
+  delegate_to: luks_rescue_runtime
+  become: true
+  no_log: true
+
+- name: Rebuild target disk into clean encrypted-root state on rescue host
+  shell: |
+    set -euo pipefail
+
+    img="{{ luks_remote_image_path }}"
+    disk="{{ luks_target_disk }}"
+    boot="${disk}p1"
+    root="${disk}p2"
+    mapper="cryptroot"
+    expected_disk_model_substring="{{ expected_disk_model_substring }}"
+    minimum_disk_size_bytes="{{ luks_minimum_disk_size_bytes }}"
+    ip_line="{{ luks_target_ip }}::{{ luks_target_gateway }}:{{ luks_target_netmask }}:{{ luks_target_hostname }}:eth0:off:{{ luks_target_dns }}"
+    work_dir="$(mktemp -d /tmp/luks-node-init.XXXXXX)"
+    src_boot="$work_dir/src-boot"
+    src_root="$work_dir/src-root"
+    dst_root="$work_dir/dst-root"
+    loop_dev=""
+    pass_file="/root/luks-pass"
+
+    cleanup() {
+      set +e
+      umount "$dst_root/dev/pts" 2>/dev/null || true
+      umount "$dst_root/boot/firmware" 2>/dev/null || true
+      umount "$dst_root/dev" 2>/dev/null || true
+      umount "$dst_root/proc" 2>/dev/null || true
+      umount "$dst_root/sys" 2>/dev/null || true
+      umount "$dst_root/run" 2>/dev/null || true
+      umount "$src_boot" 2>/dev/null || true
+      umount "$src_root" 2>/dev/null || true
+      umount "$dst_root" 2>/dev/null || true
+      cryptsetup close "$mapper" 2>/dev/null || true
+      if [[ -n "$loop_dev" ]]; then
+        losetup -d "$loop_dev"
+      fi
+      rm -f "$pass_file"
+      rm -rf "$work_dir"
+    }
+    trap cleanup EXIT
+
+    mkdir -p "$src_boot" "$src_root" "$dst_root"
+
+    umount -R /mnt/dst-root/boot/firmware 2>/dev/null || true
+    umount -R /mnt/dst-root 2>/dev/null || true
+    cryptsetup close "$mapper" 2>/dev/null || true
+
+    for mounted_target in $(findmnt -rn -S "$boot" -o TARGET 2>/dev/null); do
+      umount -R "$mounted_target" 2>/dev/null || true
+    done
+    for mounted_target in $(findmnt -rn -S "/dev/mapper/$mapper" -o TARGET 2>/dev/null); do
+      umount -R "$mounted_target" 2>/dev/null || true
+    done
+    cryptsetup close "$mapper" 2>/dev/null || true
+
+    if [[ ! -b "$disk" ]]; then
+      echo "Refusing to wipe $disk because it is not a block device." >&2
+      exit 1
+    fi
+
+    disk_type="$(lsblk -dn -o TYPE "$disk" 2>/dev/null || true)"
+    if [[ "$disk_type" != "disk" ]]; then
+      echo "Refusing to wipe $disk because its device type is '$disk_type', not 'disk'." >&2
+      exit 1
+    fi
+
+    disk_removable="$(lsblk -dn -o RM "$disk" 2>/dev/null || true)"
+    if [[ "$disk_removable" == "1" ]]; then
+      echo "Refusing to wipe $disk because it is marked removable on the rescue host." >&2
+      exit 1
+    fi
+
+    disk_model="$(lsblk -dn -o MODEL "$disk" 2>/dev/null || true)"
+    if [[ "$disk_model" != *"$expected_disk_model_substring"* ]]; then
+      echo "Refusing to wipe $disk because model '$disk_model' does not contain '$expected_disk_model_substring'." >&2
+      exit 1
+    fi
+
+    disk_size_bytes="$(blockdev --getsize64 "$disk" 2>/dev/null || true)"
+    if [[ -z "$disk_size_bytes" || "$disk_size_bytes" -lt "$minimum_disk_size_bytes" ]]; then
+      echo "Refusing to wipe $disk because size '$disk_size_bytes' is below minimum '$minimum_disk_size_bytes' bytes." >&2
+      exit 1
+    fi
+
+    if findmnt -rn -S "$disk" >/dev/null 2>&1; then
+      echo "Refusing to wipe $disk because it is mounted on the rescue host." >&2
+      exit 1
+    fi
+
+    root_source="$(findmnt -rn -o SOURCE / || true)"
+    if [[ "$root_source" == "$disk" || "$root_source" == "$boot" || "$root_source" == "$root" ]]; then
+      echo "Refusing to wipe $disk because it backs the rescue host root filesystem." >&2
+      exit 1
+    fi
+
+    lsblk -o NAME,TYPE,RM,SIZE,MODEL,FSTYPE,MOUNTPOINTS "$disk"
+    blkdiscard -f "$disk"
+    sgdisk -og \
+      -n 1:2048:+512M -t 1:0700 -c 1:system-boot \
+      -n 2:0:0 -t 2:8300 -c 2:writable \
+      "$disk"
+    partprobe "$disk"
+    udevadm settle
+
+    mkfs.vfat -F 32 -n system-boot "$boot"
+    cryptsetup luksFormat --batch-mode --type luks2 --pbkdf argon2id --key-file "$pass_file" "$root"
+    cryptsetup open --key-file "$pass_file" "$root" "$mapper"
+    mkfs.ext4 -F -L writable "/dev/mapper/$mapper"
+
+    loop_dev="$(losetup --show -Pf "$img")"
+    mount -o ro "${loop_dev}p1" "$src_boot"
+    mount -o ro "${loop_dev}p2" "$src_root"
+    mount "/dev/mapper/$mapper" "$dst_root"
+    mkdir -p "$dst_root/boot/firmware"
+    mount "$boot" "$dst_root/boot/firmware"
+
+    rsync -aHAX --delete --exclude=/boot/firmware "$src_root/" "$dst_root/"
+    rsync -aHAX --delete "$src_boot/" "$dst_root/boot/firmware/"
+
+    cat > "$dst_root/boot/firmware/user-data" <<USERDATA
+    #cloud-config
+    hostname: {{ luks_target_hostname }}
+    manage_etc_hosts: true
+
+    users:
+      - name: pi
+        groups: sudo
+        shell: /bin/bash
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        ssh_authorized_keys:
+{{ rescue_authorized_keys.content | b64decode | regex_replace('(?m)^', '          - ') }}
+    USERDATA
+
+    cat > "$dst_root/boot/firmware/network-config" <<NETCFG
+    version: 2
+    ethernets:
+      eth0:
+        dhcp4: false
+        addresses:
+          - {{ luks_target_ip }}/24
+        routes:
+          - to: default
+            via: {{ luks_target_gateway }}
+        nameservers:
+          addresses:
+            - {{ luks_target_dns }}
+    NETCFG
+
+    if ! grep -q '^dtparam=pciex1$' "$dst_root/boot/firmware/config.txt"; then
+      printf '\n[all]\ndtparam=pciex1\ndtparam=pciex1_gen=3\n' >> "$dst_root/boot/firmware/config.txt"
+    fi
+
+    sed -i 's#root=LABEL=writable#root=/dev/mapper/cryptroot#' "$dst_root/boot/firmware/cmdline.txt"
+    if ! grep -q 'rootdelay=10' "$dst_root/boot/firmware/cmdline.txt"; then
+      sed -i 's# rootwait# rootwait rootdelay=10#' "$dst_root/boot/firmware/cmdline.txt"
+    fi
+
+    root_uuid="$(blkid -s UUID -o value "$root")"
+    boot_uuid="$(blkid -s UUID -o value "$boot")"
+
+    cat > "$dst_root/etc/crypttab" <<CRYPTTAB
+    cryptroot UUID=${root_uuid} none luks,discard
+    CRYPTTAB
+
+    cat > "$dst_root/etc/fstab" <<FSTAB
+    /dev/mapper/cryptroot / ext4 defaults 0 1
+    UUID=${boot_uuid} /boot/firmware vfat defaults 0 1
+    FSTAB
+
+    rm -f "$dst_root/etc/resolv.conf"
+    cp /etc/resolv.conf "$dst_root/etc/resolv.conf"
+
+    mkdir -p "$dst_root/etc/dropbear/initramfs"
+    cat > "$dst_root/etc/dropbear/initramfs/authorized_keys" <<AUTHKEYS
+{{ rescue_authorized_keys.content | b64decode }}
+    AUTHKEYS
+    chmod 600 "$dst_root/etc/dropbear/initramfs/authorized_keys"
+
+    mount --bind /dev "$dst_root/dev"
+    mkdir -p "$dst_root/dev/pts"
+    mount -t devpts devpts "$dst_root/dev/pts"
+    mount --bind /proc "$dst_root/proc"
+    mount --bind /sys "$dst_root/sys"
+    mount --bind /run "$dst_root/run"
+
+    chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update
+    chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get -y full-upgrade
+    chroot "$dst_root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get \
+      -o Dpkg::Options::=--force-confdef \
+      -o Dpkg::Options::=--force-confold \
+      install -y cryptsetup-initramfs dropbear-initramfs
+
+    cat > "$dst_root/etc/dropbear/initramfs/dropbear.conf" <<DROPBEARCONF
+    DROPBEAR_OPTIONS="-I 180 -p {{ luks_target_dropbear_port }} -j -k -s"
+    DROPBEARCONF
+
+    if grep -q '^DROPBEAR=' "$dst_root/etc/initramfs-tools/initramfs.conf"; then
+      sed -i 's/^DROPBEAR=.*/DROPBEAR=y/' "$dst_root/etc/initramfs-tools/initramfs.conf"
+    else
+      echo 'DROPBEAR=y' >> "$dst_root/etc/initramfs-tools/initramfs.conf"
+    fi
+
+    if grep -q '^IP=' "$dst_root/etc/initramfs-tools/initramfs.conf"; then
+      sed -i "s#^IP=.*#IP=${ip_line}#" "$dst_root/etc/initramfs-tools/initramfs.conf"
+    else
+      echo "IP=${ip_line}" >> "$dst_root/etc/initramfs-tools/initramfs.conf"
+    fi
+
+    cat > "$dst_root/etc/initramfs-tools/modules" <<MODULES
+    nvme
+    nvme-core
+    dm_mod
+    dm_crypt
+    MODULES
+
+    chroot "$dst_root" update-initramfs -u -k all
+
+    mkdir -p "$dst_root/boot/firmware"
+    mountpoint -q "$dst_root" || mount "/dev/mapper/$mapper" "$dst_root"
+    mountpoint -q "$dst_root/boot/firmware" || mount "$boot" "$dst_root/boot/firmware"
+
+    kver="$(chroot "$dst_root" /bin/sh -c 'ls -1 /lib/modules | sort -V | tail -n 1')"
+    dtb_dir="$dst_root/usr/lib/firmware/$kver/device-tree/broadcom"
+
+    if [[ ! -d "$dtb_dir" ]]; then
+      echo "Expected DTB directory not found: $dtb_dir" >&2
+      exit 1
+    fi
+
+    cp "$dst_root/boot/vmlinuz-$kver" "$dst_root/boot/firmware/vmlinuz"
+    cp "$dst_root/boot/initrd.img-$kver" "$dst_root/boot/firmware/initrd.img"
+    shopt -s nullglob
+    dtb_files=("$dtb_dir"/*.dtb)
+    shopt -u nullglob
+    if [[ ${#dtb_files[@]} -eq 0 ]]; then
+      echo "Expected at least one DTB under $dtb_dir" >&2
+      exit 1
+    fi
+    cp "${dtb_files[@]}" "$dst_root/boot/firmware/"
+    rsync -a "$dst_root/usr/lib/firmware/$kver/device-tree/overlays/" "$dst_root/boot/firmware/overlays/"
+  args:
+    executable: /bin/bash
+  delegate_to: luks_rescue_runtime
+  become: true
+
+- name: Remove staged LUKS password from rescue host
+  file:
+    path: /root/luks-pass
+    state: absent
+  delegate_to: luks_rescue_runtime
+  become: true
+  no_log: true
+
+- name: Power off rescue host after rebuild
+  shell: nohup bash -c 'sleep 2; systemctl poweroff' >/dev/null 2>&1 &
+  args:
+    executable: /bin/bash
+  delegate_to: luks_rescue_runtime
+  become: true
+  async: 5
+  poll: 0
+  changed_when: true
+
+- name: Prompt to remove rescue SD card and boot from NVMe
+  pause:
+    prompt: |-
+      Remove the rescue SD card from {{ luks_target_hostname }}, boot from NVMe, and press Enter when
+      that is done.

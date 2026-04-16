@@ -1,12 +1,16 @@
 ---
 - hosts: raspberrypi
   become: yes
+  gather_facts: false
+
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
 
   tasks:
-    - include_tasks: tasks/package-apt.yaml
-    - include_tasks: tasks/package-asdf.yaml
-    - include_tasks: tasks/package-snap.yaml
-    - include_tasks: tasks/package-binary.yaml
+    - include_tasks: package/apt.yaml
+    - include_tasks: package/asdf.yaml
+    - include_tasks: package/snap.yaml
+    - include_tasks: package/binary.yaml
 
     - name: Load dm_crypt Kernel Module
       command: modprobe dm_crypt

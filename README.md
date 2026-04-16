@@ -158,7 +158,7 @@ and is intentionally unschedulable for Longhorn storage.
 2. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    for ip in 192.168.10.{60..63}; do ssh-keygen -R "$ip" && ssh-keyscan "$ip" >> ~/.ssh/known_hosts; done
+    KH=~/.ssh/known_hosts && touch "$KH" && for ip in 192.168.10.{60..63}; do ssh-keygen -f "$KH" -R "$ip"; ssh-keyscan "$ip" >> "$KH"; done
     ```
 
 3. **Set Up Service Credentials**

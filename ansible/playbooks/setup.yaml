@@ -1,13 +1,14 @@
 ---
+# General setup is non-destructive and assumes disk/FDE state is already correct.
+# Use ansible/playbooks/luks.yaml for encrypted-root initialisation.
+
 # rpi
-- import_playbook: rpi/000-disable-write-log-to-disk.yaml
-- import_playbook: rpi/001-packages.yaml
-- import_playbook: rpi/002-waveshare-poe-hat.yaml
-- import_playbook: rpi/003-networking.yaml
-- import_playbook: rpi/004-cgroup.yaml
-- import_playbook: rpi/005-brcmfmac-options.yaml
-# LUKS initramfs prep stays opt-in during staged rollout; run rpi/006-luks-initramfs.yaml explicitly
-# against the target LUKS node instead of wiring it into the general setup flow.
+- import_playbook: rpi/001-disable-write-log-to-disk.yaml
+- import_playbook: rpi/002-packages.yaml
+- import_playbook: rpi/003-waveshare-poe-hat.yaml
+- import_playbook: rpi/004-networking.yaml
+- import_playbook: rpi/005-cgroup.yaml
+- import_playbook: rpi/006-brcmfmac-options.yaml
 # k3s
 - import_playbook: k3s/000-init-cluster.yaml
 - import_playbook: k3s/001-cni.yaml

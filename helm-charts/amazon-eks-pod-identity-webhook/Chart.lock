@@ -3,4 +3,4 @@ dependencies:
   repository: https://jkroepke.github.io/helm-charts/
   version: 2.6.2
 digest: sha256:c437f261f03d5fd0dfbbd324489e54a967aef0bb329086fc982ed014c8cbbc01
-generated: "2026-04-03T04:33:51.641620546Z"
+generated: "2026-04-16T00:27:27.948678+01:00"

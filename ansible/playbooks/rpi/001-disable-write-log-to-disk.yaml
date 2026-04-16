@@ -1,7 +1,14 @@
 ---
 - hosts: raspberrypi
   become: yes
-  gather_facts: true
+  gather_facts: false
+
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
+
+    - name: Gather facts after SSH is ready
+      setup:
+      changed_when: false
 
   # Configure journald to limit log size and reduce unnecessary disk writes.
   # SD card nodes use volatile (RAM) storage to extend card lifespan.

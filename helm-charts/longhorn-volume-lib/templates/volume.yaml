@@ -27,7 +27,7 @@ spec:
     driver: driver.longhorn.io
     fsType: ext4
     volumeAttributes:
-      numberOfReplicas: "2"
+      numberOfReplicas: "1"
       dataLocality: disabled
       replicaAutoBalance: best-effort
       encrypted: "true"
@@ -39,7 +39,7 @@ spec:
       namespace: longhorn-system
     volumeHandle: {{ $key }}-vol
   persistentVolumeReclaimPolicy: Delete
-  storageClassName: longhorn-crypto-global-ha
+  storageClassName: longhorn-crypto-global
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -55,7 +55,7 @@ metadata:
     recurring-job-group.longhorn.io/trim: enabled
     {{- end }}
 spec:
-  storageClassName: longhorn-crypto-global-ha
+  storageClassName: longhorn-crypto-global
   accessModes:
     - ReadWriteOnce
   resources:
@@ -83,6 +83,6 @@ spec:
   encrypted: true
   frontend: blockdev
   size: {{ $value.sizeBytes | quote }}
-  numberOfReplicas: 2
+  numberOfReplicas: 1
   fromBackup: {{ $value.fromBackup | quote }}
 {{- end }}

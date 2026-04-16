@@ -27,10 +27,10 @@ defaults:
       parameters:
         barmanObjectName: "b2-backup"
     backup:
-      retentionPolicy: "2d"
+      retentionPolicy: "1d"
   scheduledBackup:
     enabled: true
-    schedule: "0 2 * * *"  # Daily at 2 AM
+    schedule: "0 0 */3 * * *"  # Every 3 hours
 ```
 
 ### Cluster Configuration
@@ -52,7 +52,7 @@ clusters:
     storage:
       size: "10Gi"
     backup:
-      retentionPolicy: "7d"
+      retentionPolicy: "1d"
     bootstrap:
       initdb:
         database: "production"

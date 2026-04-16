@@ -1,10 +1,13 @@
 ---
 - hosts: raspberrypi
   become: true
-  gather_facts: true
+  gather_facts: false
   vars:
     LB_API_SERVER_IP: 192.168.10.50
     K3S_CHANNEL: stable
+
+  pre_tasks:
+    - include_tasks: ../rpi/pre_tasks/wait-for-ssh.yaml
 
   tasks:
     - name: Get node token from master
@@ -111,6 +114,7 @@
         dest: /var/lib/rancher/k3s/data/cni/istio-cni
         state: link
         force: true
+        follow: false
 
   handlers:
     - name: Restart k3s

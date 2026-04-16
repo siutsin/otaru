@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    target_node: "{{ target_node | default('', true) }}"
+    expected_disk_model_substring: "{{ expected_disk_model_substring | default('', true) }}"
+    luks_rescue_host: "{{ luks_rescue_host | default('192.168.10.40', true) }}"
+    luks_rescue_user: "{{ luks_rescue_user | default('pi', true) }}"
+    luks_rescue_authorized_keys_src: "{{ luks_rescue_authorized_keys_src | default('/home/pi/.ssh/authorized_keys', true) }}"
+    luks_remote_image_path: "{{ luks_remote_image_path | default('/home/pi/ubuntu-24.04.4-preinstalled-server-arm64+raspi.img', true) }}"
+    luks_target_disk: "{{ luks_target_disk | default('/dev/nvme0n1', true) }}"
+    luks_minimum_disk_size_bytes: "{{ luks_minimum_disk_size_bytes | default('100000000000', true) }}"
+    luks_password_file: "{{ lookup('ansible.builtin.env', 'LUKS_PASSWORD_FILE') | default('', true) }}"
+
+  tasks:
+    - include_tasks: rpi/luks/setup.yaml

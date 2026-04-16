@@ -37,8 +37,9 @@ all:
     waveshare_poe_hat:
       children:
         node03: { }
-    luks_root_candidates:
+    luks_root_nodes:
       vars:
+        luks_enabled: true
         luks_root_disk: /dev/nvme0n1
         luks_boot_partition: /dev/nvme0n1p1
         luks_root_partition: /dev/nvme0n1p2
@@ -54,11 +55,6 @@ all:
         node00: { }
         node01: { }
         node02: { }
-    luks_root_development:
-      vars:
-        luks_enabled: true
-      children:
-        node01: { }
     raspberrypi:
       vars:
         ansible_ssh_user: pi
