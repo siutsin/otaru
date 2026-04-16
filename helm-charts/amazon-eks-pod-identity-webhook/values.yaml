@@ -13,14 +13,16 @@ pod-identity-webhook:
     failurePolicy: Fail
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - pod-identity-webhook
-          topologyKey: kubernetes.io/hostname
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - pod-identity-webhook
+            topologyKey: kubernetes.io/hostname
   resources:
     requests:
       cpu: 10m

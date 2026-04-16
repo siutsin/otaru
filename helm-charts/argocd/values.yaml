@@ -48,6 +48,7 @@ argo-cd:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
     params:
+      # Keep repo-server concurrency low; this repo's Helm renders can OOM during cold-cache bursts.
       reposerver.parallelism.limit: 1
       server.insecure: true
       server.basehref: /argocd/

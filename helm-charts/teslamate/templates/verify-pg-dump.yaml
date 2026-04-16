@@ -22,6 +22,7 @@ spec:
                   set -e -o pipefail
 
                   apk add --no-cache aws-cli curl
+                  VERIFY_QUERY='{{ .Values.backup.verify.verificationQuery }}'
 
                   until pg_isready; do
                     sleep 2
@@ -49,8 +50,8 @@ spec:
                   rm -rf "$TEMP_DIR"
                   echo "Restored pg_dump from ${S3_URI}/${LATEST_BACKUP}..."
 
-                  echo "Verifying pg_dump with query: {{ .Values.backup.verify.verificationQuery }}"
-                  psql -c "{{ .Values.backup.verify.verificationQuery }}"
+                  echo "Verifying pg_dump with query: ${VERIFY_QUERY}"
+                  psql -c "${VERIFY_QUERY}"
                   echo "pg_dump verification successful!"
 
                   KEEP_LAST=7

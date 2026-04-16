@@ -14,10 +14,14 @@ rules:
       - postgresql.cnpg.io
     resources:
       - clusters
-      - backups
     verbs:
       - create
       - delete
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - backups
+    verbs:
       - get
       - list
       - watch
@@ -94,6 +98,13 @@ spec:
                       tail -n1 |
                       cut -d'|' -f2
                   )
+                  VERIFY_TARGET_SCAN_COUNT=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
+                  SELECT count(*)
+                  FROM information_schema.columns
+                  WHERE table_schema = 'public'
+                    AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date');
+                  SQL
+                  )
                   VERIFY_TARGET_TIME=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
                   WITH generated AS (
                     SELECT 'SELECT max(max_value) FROM (' ||
@@ -126,6 +137,7 @@ spec:
 
                   echo "Using source primary ${VERIFY_SOURCE_PRIMARY}"
                   echo "Using backupID ${VERIFY_BACKUP_ID}"
+                  echo "Scanned ${VERIFY_TARGET_SCAN_COUNT} timestamp-like columns in public"
                   echo "Using targetTime ${VERIFY_TARGET_TIME}"
 
                   cleanup() {
@@ -154,8 +166,7 @@ spec:
                           barmanObjectName: b2-backup
                     postgresql:
                       parameters:
-                        archive_mode: "on"
-                        archive_timeout: 5min
+                        archive_mode: "off"
                         dynamic_shared_memory_type: posix
                         full_page_writes: "on"
                         wal_keep_size: 512MB
