@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 
-local revision = 'rpi5';
+local revision = 'HEAD';
 
 local divisorJqPath = '.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor';
 local resourceFieldRefDivisor(name) = [{
