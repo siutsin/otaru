@@ -101,14 +101,14 @@ spec:
                       tail -n1 |
                       cut -d'|' -f2
                   )
-                  VERIFY_TARGET_SCAN_COUNT=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
+                  VERIFY_TARGET_SCAN_COUNT=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
                   SELECT count(*)
                   FROM information_schema.columns
                   WHERE table_schema = 'public'
                     AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date');
                   SQL
                   )
-                  VERIFY_TARGET_TIME=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
+                  VERIFY_TARGET_TIME=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
                   WITH generated AS (
                     SELECT 'SELECT max(max_value) FROM (' ||
                       string_agg(
