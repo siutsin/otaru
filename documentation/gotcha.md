@@ -272,7 +272,7 @@ filesystem.
     `cryptsetup open` is still useful for debugging, but it does not necessarily resume boot if
     `/lib/cryptsetup/askpass` is still waiting.
     When feeding the passphrase remotely, do not append a trailing newline. If you store the
-    passphrase in local `.envrc`, use `direnv exec . ./hack/luks-cryptroot-unlock.sh ... --env-passfifo`
+    passphrase in the external direnv file, use `direnv exec . ./hack/luks-cryptroot-unlock.sh ... --env-passfifo`
     so the helper gets the value without reading the vault file itself.
 
 7. Do not pass the LUKS password in command arguments during rescue work. Stage it via stdin or a

@@ -1,6 +1,10 @@
 ---
 - hosts: localhost
   connection: local
+  vars:
+    otaru_secrets_dir: "{{ lookup('ansible.builtin.env', 'OTARU_SECRETS_DIR') | default(lookup('ansible.builtin.env', 'HOME') ~ '/dotfiles/secrets/otaru', true) }}"
+    otaru_1password_connect_token_file: "{{ lookup('ansible.builtin.env', 'OTARU_1PASSWORD_CONNECT_TOKEN_FILE') | default(otaru_secrets_dir ~ '/token', true) }}"
+    otaru_1password_credentials_file: "{{ lookup('ansible.builtin.env', 'OTARU_1PASSWORD_CREDENTIALS_FILE') | default(otaru_secrets_dir ~ '/1password-credentials.json', true) }}"
 
   tasks:
 
@@ -68,6 +72,27 @@
 
   # 1Password Connect
 
+  - name: Verify local 1Password Connect secret files exist
+    stat:
+      path: "{{ item.path }}"
+    loop:
+      - name: 1Password Connect token
+        path: "{{ otaru_1password_connect_token_file }}"
+      - name: 1Password Connect credentials
+        path: "{{ otaru_1password_credentials_file }}"
+    register: onepassword_connect_secret_files
+    changed_when: false
+
+  - name: Require local 1Password Connect secret files
+    assert:
+      that:
+        - item.stat.exists
+        - item.stat.isreg
+      fail_msg: >-
+        Missing {{ item.item.name }} file at {{ item.item.path }}. Create the local file under ~/dotfiles/secrets/otaru or set the matching
+        OTARU_1PASSWORD_*_FILE environment variable to an alternate path.
+    loop: "{{ onepassword_connect_secret_files.results }}"
+
   - name: Update dependency
     command: helm dependency build --skip-refresh ../../../helm-charts/onepassword-connect
     register: onepassword_dep_result
@@ -78,7 +103,8 @@
 
   - name: Create Secret for `onepassword-connect`
     shell: |
-      token="$(tr -d '\n' < ../../../token)"
+      token_file={{ otaru_1password_connect_token_file | quote }}
+      token="$(tr -d '[:space:]' < "$token_file")"
       kubectl create secret generic onepassword-connect-token -n external-secrets \
         --from-literal=token="$token" \
         --dry-run=client -o yaml | kubectl apply -f -
@@ -89,8 +115,9 @@
 
   - name: Initialise 1Password Secret Operator
     shell: |
+      credentials_file={{ otaru_1password_credentials_file | quote }}
       helm template onepassword-connect ../../../helm-charts/onepassword-connect -n onepassword \
-        --set-file connect.connect.credentials=../../../1password-credentials.json | kubectl apply -f -
+        --set-file connect.connect.credentials="$credentials_file" | kubectl apply -f -
     register: onepassword_init_result
     retries: 5
     delay: 10
