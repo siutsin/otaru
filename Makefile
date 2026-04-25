@@ -181,7 +181,11 @@ check-yaml: ## Check YAML syntax in key files
 .PHONY: check-markdown
 check-markdown: ## Check Markdown files with markdownlint
 	@echo "$(GREEN)Checking Markdown files...$(NC)"
-	@markdownlint_bin="$$(command -v /opt/homebrew/bin/markdownlint || command -v /usr/local/bin/markdownlint || command -v markdownlint)" && \
+	@markdownlint_bin="$$(command -v /opt/homebrew/bin/markdownlint || command -v /usr/local/bin/markdownlint || command -v markdownlint)"; \
+		if [ -z "$$markdownlint_bin" ]; then \
+			echo "$(RED)markdownlint is required but not installed. Install markdownlint-cli and re-run make check-markdown.$(NC)"; \
+			exit 1; \
+		fi; \
 		"$$markdownlint_bin" "**/*.md" --ignore node_modules/
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
@@ -210,7 +214,11 @@ lint-editorconfig: ## Check .editorconfig compliance
 	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)" && \
+	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
+		if [ -z "$$ec_bin" ]; then \
+			echo "$(RED)editorconfig-checker is required but not installed. Install editorconfig-checker and re-run make lint-editorconfig.$(NC)"; \
+			exit 1; \
+		fi; \
 		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 		echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 		exit 1; \

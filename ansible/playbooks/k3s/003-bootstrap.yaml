@@ -104,7 +104,7 @@
   - name: Create Secret for `onepassword-connect`
     shell: |
       token_file={{ otaru_1password_connect_token_file | quote }}
-      token="$(tr -d '\n' < "$token_file")"
+      token="$(tr -d '[:space:]' < "$token_file")"
       kubectl create secret generic onepassword-connect-token -n external-secrets \
         --from-literal=token="$token" \
         --dry-run=client -o yaml | kubectl apply -f -

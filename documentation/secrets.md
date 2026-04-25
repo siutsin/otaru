@@ -18,7 +18,6 @@ Create this layout:
 ├── envrc
 ├── 1password-credentials.json
 ├── token
-├── argocd-secret
 └── etcd/
     ├── ca.pem
     ├── client.pem
@@ -33,7 +32,6 @@ Example:
 export OTARU_SECRETS_DIR="${HOME}/dotfiles/secrets/otaru"
 export OTARU_1PASSWORD_CREDENTIALS_FILE="${OTARU_SECRETS_DIR}/1password-credentials.json"
 export OTARU_1PASSWORD_CONNECT_TOKEN_FILE="${OTARU_SECRETS_DIR}/token"
-export OTARU_ARGOCD_SECRET_FILE="${OTARU_SECRETS_DIR}/argocd-secret"
 export OTARU_ETCD_CA_FILE="${OTARU_SECRETS_DIR}/etcd/ca.pem"
 export OTARU_ETCD_CLIENT_CERT_FILE="${OTARU_SECRETS_DIR}/etcd/client.pem"
 export OTARU_ETCD_CLIENT_KEY_FILE="${OTARU_SECRETS_DIR}/etcd/client-key.pem"
@@ -95,21 +93,6 @@ replace-with-connect-token
 ```
 
 Keep this as a single token value.
-
-## `argocd-secret`
-
-Example:
-
-```shell
-AWS_ACCOUNT_ID=123456789012
-CNPG_BACKUP_BUCKET=s3://example-bucket
-CNPG_BACKUP_ENDPOINT=https://s3.example.com
-LONGHORN_BACKUP_TARGET=s3://example-longhorn@region/
-HOME_ASSISTANT_VOLUME_FROM_BACKUP=false
-```
-
-Add any other Argo CD bootstrap values needed by the local command you are
-running.
 
 ## `etcd/ca.pem`
 
