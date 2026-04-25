@@ -181,8 +181,8 @@ check-yaml: ## Check YAML syntax in key files
 .PHONY: check-markdown
 check-markdown: ## Check Markdown files with markdownlint
 	@echo "$(GREEN)Checking Markdown files...$(NC)"
-	@command -v markdownlint >/dev/null 2>&1 || { echo "$(YELLOW)Installing markdownlint-cli...$(NC)"; npm install -g markdownlint-cli; }
-	@markdownlint "**/*.md" --ignore node_modules/
+	@markdownlint_bin="$$(command -v /opt/homebrew/bin/markdownlint || command -v /usr/local/bin/markdownlint || command -v markdownlint)" && \
+		"$$markdownlint_bin" "**/*.md" --ignore node_modules/
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
 .PHONY: lint-terraform
@@ -202,18 +202,16 @@ lint-terragrunt: ## Lint and format Terragrunt files with terragrunt hcl format
 .PHONY: lint-zizmor
 lint-zizmor: ## Run zizmor audit on workflows
 	@echo "$(GREEN)Running zizmor audit...$(NC)"
-	@zizmor --no-config . > /dev/null 2>&1 || zizmor --no-config .
+	@env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config . > /dev/null 2>&1 || \
+		env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config .
 
 .PHONY: lint-editorconfig
 lint-editorconfig: ## Check .editorconfig compliance
 	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@command -v ec >/dev/null 2>&1 || { \
-		echo "$(YELLOW)Installing editorconfig-checker...$(NC)"; \
-		npm install -g editorconfig-checker; \
-	}
-	@ec -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)" && \
+		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 		echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 		exit 1; \
 	}

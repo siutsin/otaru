@@ -39,7 +39,7 @@ You can use the Make shortcut:
 make unlock raspberrypi-00
 ```
 
-If you keep the passphrase in local `.envrc`, use:
+If you export the passphrase from the external direnv file, use:
 
 ```shell
 direnv exec . ./hack/luks-cryptroot-unlock.sh 192.168.10.61 1024 --env-passfifo
@@ -85,7 +85,7 @@ If you are using a temporary recovery passphrase added from rescue, make sure it
 was created without a trailing newline and tested with typed-passphrase
 semantics before relying on it in initramfs.
 
-Use the current `otaru_luks_password` value from `~/dotfiles/password/ansible_vault.yaml`, but
+Use the current `otaru_luks_password` value from `~/dotfiles/secrets/ansible/ansible_vault.yaml`, but
 provide it explicitly yourself. Do not make repo helpers read the vault file directly.
 
 If the unlock succeeds, the node should continue booting and eventually expose its normal SSH

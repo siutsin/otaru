@@ -1,5 +1,4 @@
-# direnv
-.envrc
+!.envrc
 
 # claude-code
 .claude/settings.local.json
@@ -10,10 +9,6 @@
 # blocky
 helm-charts/blocky/**/config.yml
 helm-charts/changedetection/config.yaml
-
-# etcd certs
-certs/*
-!certs/.gitkeep
 
 # playground
 playground/init_master.yaml

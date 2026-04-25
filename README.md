@@ -163,24 +163,8 @@ and is intentionally unschedulable for Longhorn storage.
 
 3. **Set Up Service Credentials**
 
-    Follow the [1Password Connect Doc](https://developer.1password.com/docs/connect/get-started/#step-2-deploy-1password-connect-server) to create `1password-credentials.json` and
-    save the access token to the file `token`. Additionally, save your AWS Account ID to the file `argocd-secret`.
-    Copy `.envrc.sample` to `.envrc` and fill in the required environment variables for Terragrunt and OpenTofu.
-
-    ```shell
-    ❯ tree $(pwd) -L 1
-    /path/to/project/otaru
-    ├── .envrc
-    ├── .envrc.sample
-    ├── 1password-credentials.json
-    ├── 1password-credentials.json.sample
-    ├── ...
-    ├── argocd-secret
-    ├── argocd-secret.sample
-    ├── ...
-    ├── token
-    └── token.sample
-    ```
+    Create the local files documented in [Secrets](documentation/secrets.md)
+    before running cluster bootstrap. Keep actual credentials outside this repo.
 
 4. **Bootstrap Cluster**
 

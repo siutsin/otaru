@@ -1,18 +1,18 @@
 # LUKS vault variables
 
-LUKS passphrases must stay out of the repo. Keep the source of truth in the local vault file and
+LUKS passphrases must stay out of the repo. Keep the source of truth outside this repo and
 supply the passphrase explicitly when running rebuild or unlock helpers.
 
 Current pattern:
 
 - one shared vault variable for all SSD nodes: `otaru_luks_password`
 
-## Existing local file and key
+## Local file and key
 
 Use:
 
 ```shell
-~/dotfiles/password/ansible_vault.yaml
+~/dotfiles/secrets/ansible/ansible_vault.yaml
 ```
 
 Expected key:
@@ -26,7 +26,7 @@ otaru_luks_password: "replace-me"
 When you need the passphrase, read it yourself from:
 
 ```shell
-~/dotfiles/password/ansible_vault.yaml
+~/dotfiles/secrets/ansible/ansible_vault.yaml
 ```
 
 Do not commit:
@@ -37,7 +37,7 @@ Do not commit:
 ## Notes
 
 - Use one shared password for now to keep the first rollout simple.
-- Use `otaru_luks_password` from `~/dotfiles/password/ansible_vault.yaml` as the source of truth.
+- Use `otaru_luks_password` from `~/dotfiles/secrets/ansible/ansible_vault.yaml` as the source of truth.
 - The current initramfs prep playbook does not need the passphrase yet.
 - The passphrase becomes necessary for the actual encrypted-root conversion and any future automated
   unlock-assisted reboot workflow.
