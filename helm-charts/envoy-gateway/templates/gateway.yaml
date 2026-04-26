@@ -71,7 +71,7 @@ spec:
                   - longhorn-system
                   - monitoring
                   - teslamate
-    - name: sftpgo-tcp
+    - name: jellyfin-sftp
       protocol: TCP
       port: 2022
       allowedRoutes:
