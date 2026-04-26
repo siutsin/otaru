@@ -29,16 +29,16 @@ local crdConversionCABundle(name) = [{
   ],
 }];
 
-local crdDefaultedConversion(names) = [
+local crdDefaultedConversion(crdNames) = [
   {
     group: 'apiextensions.k8s.io',
     kind: 'CustomResourceDefinition',
-    name: name,
+    name: crdName,
     jsonPointers: [
       '/spec/conversion',
     ],
   }
-  for name in names
+  for crdName in crdNames
 ];
 
 local cleanerExcludeDeleted = [{
