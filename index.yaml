@@ -855,6 +855,32 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/kubernetes-service-patcher-0.1.0/kubernetes-service-patcher-0.1.0.tgz
     version: 0.1.0
+  kyverno:
+  - apiVersion: v2
+    created: "2026-04-26T22:49:14.173146882Z"
+    dependencies:
+    - name: kyverno
+      repository: https://kyverno.github.io/kyverno/
+      version: 3.7.1
+    description: Kyverno policy engine
+    digest: bafa16ff80fe168660c4b48de8b54b9cf89d04075a8c116fe742fc3392065c3d
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: kyverno
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/kyverno-0.1.0/kyverno-0.1.0.tgz
+    version: 0.1.0
+  kyverno-policy:
+  - apiVersion: v2
+    created: "2026-04-26T22:49:14.334972709Z"
+    description: Kyverno policies for the Otaru cluster
+    digest: 4dc7117f4d45fa468a145eb8605556ae347cabb9a3bb8df73c180c598d903e95
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: kyverno-policy
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/kyverno-policy-0.1.0/kyverno-policy-0.1.0.tgz
+    version: 0.1.0
   longhorn:
   - apiVersion: v2
     created: "2025-07-06T15:50:35.339526475Z"
@@ -1228,4 +1254,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-04-16T06:42:44.595159925Z"
+generated: "2026-04-26T22:49:15.146865323Z"
