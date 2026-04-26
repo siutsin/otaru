@@ -70,6 +70,7 @@ local _ignoreDifferences = {
     istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
   },
   security: {
+    // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
     kyverno: crdDefaultedConversion([
       'deletingpolicies.policies.kyverno.io',
       'generatingpolicies.policies.kyverno.io',
