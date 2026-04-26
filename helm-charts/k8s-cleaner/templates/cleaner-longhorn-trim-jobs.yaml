@@ -1,0 +1,33 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: longhorn-trim-jobs
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "*/5 * * * *"
+  resourcePolicySet:
+    resourceSelectors:
+      - kind: Job
+        group: batch
+        version: v1
+        namespace: {{ .Values.longhornTrimJobs.namespace }}
+        evaluate: |
+          function evaluate()
+            local result = {}
+            result.matching = false
+
+            if obj.metadata.ownerReferences == nil then
+              return result
+            end
+
+            for _, owner in ipairs(obj.metadata.ownerReferences) do
+              if owner.kind == "CronJob" and owner.name == "trim" then
+                result.matching = true
+              end
+            end
+
+            return result
+          end
+  action: Delete

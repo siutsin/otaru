@@ -14,6 +14,9 @@ repave:
 failedPods:
   excludeNamespaces: *excludeNamespaces
 
+longhornTrimJobs:
+  namespace: longhorn-system
+
 k8s-cleaner:
   deployment:
     resources:
