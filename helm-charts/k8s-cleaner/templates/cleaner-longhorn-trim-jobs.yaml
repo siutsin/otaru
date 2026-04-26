@@ -22,9 +22,23 @@ spec:
               return result
             end
 
+            if obj.status.conditions == nil then
+              return result
+            end
+
             for _, owner in ipairs(obj.metadata.ownerReferences) do
-              if owner.kind == "CronJob" and owner.name == "trim" then
-                result.matching = true
+              if owner.apiVersion == "batch/v1"
+                and owner.kind == "CronJob"
+                and owner.name == "trim"
+              then
+                for _, condition in ipairs(obj.status.conditions) do
+                  if (condition.type == "Complete" or condition.type == "Failed")
+                    and condition.status == "True"
+                  then
+                    result.matching = true
+                    return result
+                  end
+                end
               end
             end
 
