@@ -29,6 +29,18 @@ local crdConversionCABundle(name) = [{
   ],
 }];
 
+local crdDefaultedConversion(crdNames) = [
+  {
+    group: 'apiextensions.k8s.io',
+    kind: 'CustomResourceDefinition',
+    name: crdName,
+    jsonPointers: [
+      '/spec/conversion',
+    ],
+  }
+  for crdName in crdNames
+];
+
 local cleanerExcludeDeleted = [{
   group: 'apps.projectsveltos.io',
   kind: 'Cleaner',
@@ -56,6 +68,22 @@ local _ignoreDifferences = {
   serviceMesh: {
     'istio-base': webhookCaBundleAndFailurePolicy('istiod-default-validator'),
     istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
+  },
+  security: {
+    // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
+    kyverno: crdDefaultedConversion([
+      'deletingpolicies.policies.kyverno.io',
+      'generatingpolicies.policies.kyverno.io',
+      'imagevalidatingpolicies.policies.kyverno.io',
+      'mutatingpolicies.policies.kyverno.io',
+      'namespaceddeletingpolicies.policies.kyverno.io',
+      'namespacedgeneratingpolicies.policies.kyverno.io',
+      'namespacedimagevalidatingpolicies.policies.kyverno.io',
+      'namespacedmutatingpolicies.policies.kyverno.io',
+      'namespacedvalidatingpolicies.policies.kyverno.io',
+      'policyexceptions.policies.kyverno.io',
+      'validatingpolicies.policies.kyverno.io',
+    ]),
   },
 };
 
@@ -158,7 +186,7 @@ local scheduling = [
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
-  { wave: '03', name: 'kyverno', namespace: 'kyverno' },
+  { wave: '03', name: 'kyverno', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security.kyverno },
   { wave: '04', name: 'kyverno-policy', namespace: 'kyverno' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
