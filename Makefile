@@ -179,14 +179,14 @@ check-yaml: ## Check YAML syntax in key files
 	@echo "$(GREEN)YAML syntax check passed!$(NC)"
 
 .PHONY: check-markdown
-check-markdown: ## Check Markdown files with markdownlint
+check-markdown: ## Check Markdown files with markdownlint-cli2
 	@echo "$(GREEN)Checking Markdown files...$(NC)"
-	@markdownlint_bin="$$(command -v /opt/homebrew/bin/markdownlint || command -v /usr/local/bin/markdownlint || command -v markdownlint)"; \
-		if [ -z "$$markdownlint_bin" ]; then \
-			echo "$(RED)markdownlint is required but not installed. Install markdownlint-cli and re-run make check-markdown.$(NC)"; \
+	@markdownlint_cli2="$$(command -v /opt/homebrew/bin/markdownlint-cli2 || command -v /usr/local/bin/markdownlint-cli2 || command -v markdownlint-cli2)"; \
+		if [ -z "$$markdownlint_cli2" ]; then \
+			echo "$(RED)markdownlint-cli2 is required but not installed. Install markdownlint-cli2 and re-run make check-markdown.$(NC)"; \
 			exit 1; \
 		fi; \
-		"$$markdownlint_bin" "**/*.md" --ignore node_modules/
+		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**"
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
 .PHONY: lint-terraform

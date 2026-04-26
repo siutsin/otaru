@@ -18,18 +18,16 @@ from diagrams.custom import Custom
 from diagrams.generic.blank import Blank
 from diagrams.k8s.compute import Deployment
 from diagrams.k8s.controlplane import APIServer
-from diagrams.k8s.ecosystem import Helm
 from diagrams.k8s.infra import ETCD, Master, Node
 from diagrams.k8s.others import CRD
 from diagrams.k8s.podconfig import Secret
-from diagrams.k8s.rbac import ServiceAccount
 from diagrams.k8s.storage import PV, PVC
 from diagrams.onprem.certificates import LetsEncrypt
 from diagrams.onprem.client import User
 from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.gitops import Argocd
-from diagrams.onprem.logging import Loki
-from diagrams.onprem.monitoring import Grafana, Prometheus
+from diagrams.onprem.monitoring import Grafana
+from diagrams.onprem.network import Envoy, Istio
 from diagrams.onprem.vcs import Github
 from diagrams.saas.cdn import Cloudflare
 from diagrams.saas.chat import Telegram
@@ -58,6 +56,7 @@ graph_attr = {
     "margin": "0.2",
     "pad": "0.2",
     "fontsize": "28",
+    "dpi": "60",
 }
 
 node_attr = {
@@ -75,7 +74,7 @@ cluster_attr = {
 }
 
 
-def edge(label="", colour=None, minlen=None):
+def edge(label="", colour=None, minlen=None, **kwargs):
     """Create an edge with consistent font size and optional styling.
 
     The diagrams library doesn't apply global edge_attr to individual Edge objects
@@ -100,6 +99,7 @@ def edge(label="", colour=None, minlen=None):
         attrs["fontcolor"] = colour
     if minlen:
         attrs["minlen"] = minlen
+    attrs.update(kwargs)
     return Edge(label=label, **attrs)
 
 
@@ -111,6 +111,21 @@ def icon_node(label, icon_name):
         icon_name: Filename of the icon (without path or .png extension)
     """
     return Custom(label, f"../assets/icons/{icon_name}.png")
+
+
+def stack_vertically(*nodes):
+    """Force nodes onto one graph rank so they render as a vertical stack."""
+    node_ids = "; ".join(f'"{node._id}"' for node in nodes)
+    current_cluster = nodes[0]._cluster
+    current_cluster.dot.body.append(f"{{ rank=same; {node_ids}; }}")
+    for upper, lower in zip(nodes, nodes[1:]):
+        current_cluster.dot.edge(
+            upper._id,
+            lower._id,
+            style="invis",
+            weight="100",
+            constraint="false",
+        )
 
 
 def legend_row(items):
@@ -154,61 +169,80 @@ with Diagram(
         with Cluster("Home Network", graph_attr=cluster_attr):
             unifi_gateway = icon_node("UniFi Cloud\nGateway", "unifi")
             with Cluster("K3s Cluster", graph_attr=cluster_attr):
-                # Control Plane
-                apiserver_lb_operator = Deployment(
-                    "k3s-apiserver-\nloadbalancer\nOperator"
-                )
-                api_server = APIServer("K3s API\nServer")
+                with Cluster(
+                    "Cluster Platform",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    apiserver_lb_operator = Deployment(
+                        "k3s-apiserver-\nloadbalancer\nOperator"
+                    )
+                    api_server = APIServer("K3s API\nServer")
+                    pod_identity_webhook = Deployment(
+                        "amazon-eks-pod-\nidentity-webhook"
+                    )
 
-                # Networking
-                cloudflared = Deployment("cloudflared")
-                cilium = icon_node("Cilium Gateway", "cilium")
+                with Cluster(
+                    "Connectivity",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    cloudflared = Deployment("cloudflared")
+                    gateway_api = CRD("Gateway API\nCRDs")
+                    gateway_api_kubernetes = Deployment(
+                        "Gateway API\nKubernetes\nService VIP"
+                    )
+                    metallb = Deployment("MetalLB")
+                    envoy_gateway = Envoy("Envoy\nGateway")
+                    istio = Istio("Istio ambient\nmesh")
 
                 # Core applications
                 argocd = Argocd("ArgoCD")
-                atlantis = icon_node("Atlantis", "atlantis")
+                atlantis = icon_node("Atlantis\n(inactive)", "atlantis")
                 applications = Deployment("Applications")
-                cert_manager = icon_node("cert-manager", "cert-manager")
-                tls_cert = Secret("TLS Cert")
 
-                # Secret management
-                onepassword_connect = Helm("1Password\nConnect")
-                external_secrets = icon_node("external-secrets", "external-secrets")
-                secrets = Secret("Secrets")
+                with Cluster(
+                    "Certificate Management",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    cert_manager = icon_node("cert-manager", "cert-manager")
+                    tls_cert = Secret("TLS Cert")
 
-                # Monitoring
-                grafana = Grafana("Grafana")
-                prometheus = Prometheus("Prometheus")
-                promtail = Grafana("Promtail")
-                loki = Loki("Loki")
-                metrics_server = Deployment("Metrics Server")
-                heartbeats_operator = Deployment("Heartbeats\nOperator")
-                heartbeat_crd = CRD("Heartbeats")
+                with Cluster(
+                    "Secret Management",
+                    direction="TB",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    onepassword_connect = Deployment("1Password\nConnect")
+                    external_secrets = icon_node("external-secrets", "external-secrets")
+                    secrets = Secret("Secrets")
+                    stack_vertically(secrets, external_secrets, onepassword_connect)
 
-                # Storage
-                longhorn = icon_node("Longhorn", "longhorn")
-                pv = PV("Encrypted\nVolume")
-                pvcs = PVC("Encrypted\nPVCs")
-                application_with_volume = Deployment("Application with\nvolume")
+                with Cluster(
+                    "Monitoring",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    monitoring_stack = Grafana("Grafana LGTM\nStack")
+                    kiali = Istio("Kiali")
+                    heartbeats_operator = Deployment("Heartbeats\nOperator")
 
-                # Database
-                cnpg = icon_node("CloudNativePG", "cloudnative-pg")
-                cnpg_db_cluster = PostgreSQL("CNPG PostgreSQL\nCluster")
-                application_with_db = Deployment("Application with\ndatabase backend")
+                with Cluster(
+                    "Storage",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    longhorn = icon_node("Longhorn", "longhorn")
+                    pv = PV("Encrypted\nVolume")
+                    pvcs = PVC("Encrypted\nPVCs")
 
-                # OIDC/IRSA
-                pod_identity_webhook = Helm("amazon-eks-pod-\nidentity-webhook")
-                service_account = ServiceAccount(
-                    "Service Account\nwith AWS role\nannotation"
-                )
-                application_with_irsa = Deployment(
-                    "Application with\nAWS IRSA\nannotation"
-                )
+                with Cluster(
+                    "Database",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    cnpg = icon_node("CloudNativePG", "cloudnative-pg")
+                    cnpg_db_cluster = PostgreSQL("CNPG PostgreSQL\nCluster")
 
             with Cluster("Nodes", graph_attr=cluster_attr):
-                etcd = ETCD("etcd\n(NUC Mini PC\nUbuntu + SSD)")
-                master = Master("Master\n(Raspberry Pi\nwith SD Card)")
-                worker = Node("Worker\n(Raspberry Pi\nwith SD Card)")
+                embedded_etcd = ETCD("Embedded etcd\nquorum")
+                control_plane_nodes = Master("Control plane\nnodes")
+                worker_nodes = Node("Worker\nnodes")
 
         # Legend
         with Cluster(
@@ -252,21 +286,13 @@ with Diagram(
         >> edge("Cloudflare\nZero Trust\nTunnel", colour=COLOUR_PUBLIC)
         >> cloudflared
     )
+    cloudflared >> edge("Route public\ntraffic", colour=COLOUR_PUBLIC) >> envoy_gateway
     (
-        cloudflared
-        >> edge("Route public\ntraffic to\ngateway", colour=COLOUR_PUBLIC)
-        >> cilium
+        gateway_api
+        >> edge("Configure\nGateway and\nHTTPRoute", colour=COLOUR_PUBLIC)
+        >> envoy_gateway
     )
-    (
-        cilium
-        >> edge(colour=COLOUR_PUBLIC)
-        >> [
-            applications,
-            application_with_volume,
-            application_with_db,
-            application_with_irsa,
-        ]
-    )
+    (envoy_gateway >> edge(colour=COLOUR_PUBLIC) >> applications)
 
     # GitOps
     argocd >> edge("Pull when\nreceived\nwebhook event", colour=COLOUR_GITOPS) >> github
@@ -281,7 +307,7 @@ with Diagram(
     )
 
     # TLS
-    tls_cert << edge("Mount", colour=COLOUR_TLS) << cilium
+    tls_cert << edge("Mount", colour=COLOUR_TLS) << envoy_gateway
     (
         letsencrypt
         << edge("Request Certificate\nvia ACME Protocol", colour=COLOUR_TLS)
@@ -310,17 +336,21 @@ with Diagram(
     # External User Access
     external_user >> edge(colour=COLOUR_VPN) >> wifiman
     wifiman >> edge("VPN", colour=COLOUR_VPN) >> unifi_gateway
-    unifi_gateway >> edge("Access internal\napplications", colour=COLOUR_VPN) >> cilium
+    (
+        unifi_gateway
+        >> edge("Access internal\napplications", colour=COLOUR_VPN)
+        >> envoy_gateway
+    )
     unifi_gateway >> edge("Manage cluster", colour=COLOUR_VPN) >> api_server
 
     # Monitoring
-    applications << edge("Scrape metrics", colour=COLOUR_MONITORING) << prometheus
-    applications << edge("Scrape logs", colour=COLOUR_MONITORING) << promtail
-    promtail >> edge("Push logs", colour=COLOUR_MONITORING) >> loki
-    prometheus << edge("Query metrics", colour=COLOUR_MONITORING) << grafana
-    loki << edge("Query logs", colour=COLOUR_MONITORING) << grafana
-    metrics_server << edge("Query metrics", colour=COLOUR_MONITORING) << api_server
-    heartbeat_crd >> edge("Monitor", colour=COLOUR_MONITORING) >> heartbeats_operator
+    (
+        applications
+        << edge("Metrics and logs", colour=COLOUR_MONITORING)
+        << monitoring_stack
+    )
+    kiali >> edge("Visualize mesh", colour=COLOUR_MONITORING) >> istio
+    monitoring_stack >> edge("Dashboards", colour=COLOUR_MONITORING) >> webgazer
     (
         heartbeats_operator
         >> edge("Check liveness", colour=COLOUR_MONITORING)
@@ -341,21 +371,48 @@ with Diagram(
         )
         >> api_server
     )
-    api_server >> edge("Store cluster\nstate", colour=COLOUR_CONTROL_PLANE) >> etcd
+    (
+        api_server
+        >> edge("Store cluster\nstate", colour=COLOUR_CONTROL_PLANE)
+        >> embedded_etcd
+    )
 
     # Infrastructure
     (
-        etcd
-        << edge("External etcd\nfor SD card\nperformance", colour=COLOUR_CONTROL_PLANE)
-        << master
+        gateway_api_kubernetes
+        >> edge(
+            "Maintain API\nLoadBalancer VIP\n192.168.10.50",
+            colour=COLOUR_CONTROL_PLANE,
+        )
+        >> metallb
     )
     (
-        master
+        metallb
         >> edge(
-            "Node-to-Node\nConnectivity via\nCilium (eBPF)\nsecured by WireGuard",
-            colour=COLOUR_NODE,
+            "Advertise ingress VIP\n192.168.10.51",
+            colour=COLOUR_CONTROL_PLANE,
         )
-        >> worker
+        >> envoy_gateway
+    )
+    (
+        embedded_etcd
+        << edge("Embedded etcd\nmembers", colour=COLOUR_CONTROL_PLANE)
+        << control_plane_nodes
+    )
+    (
+        control_plane_nodes
+        - edge(
+            "Flannel\nWireGuard",
+            colour=COLOUR_NODE,
+            dir="both",
+            arrowtail="normal",
+        )
+        >> worker_nodes
+    )
+    (
+        istio
+        >> edge("East-west\nservice traffic\nvia ztunnel", colour=COLOUR_CONTROL_PLANE)
+        >> applications
     )
 
     # Storage
@@ -366,9 +423,7 @@ with Diagram(
         >> edge("Bind", colour=COLOUR_STORAGE)
         >> pvcs
     )
-    pvcs << edge("Mount", colour=COLOUR_STORAGE) << application_with_volume
-    pvcs << edge("Mount", colour=COLOUR_STORAGE) << prometheus
-    pvcs << edge("Mount", colour=COLOUR_STORAGE) << loki
+    pvcs << edge("Mount", colour=COLOUR_STORAGE) << applications
     longhorn >> edge("Backup volume", colour=COLOUR_STORAGE) >> backblaze_b2
     (
         secrets
@@ -380,7 +435,7 @@ with Diagram(
     cnpg >> edge("Manage", colour=COLOUR_DATABASE) >> cnpg_db_cluster
     cnpg >> edge("Backup database", colour=COLOUR_DATABASE) >> backblaze_b2
     cnpg_db_cluster >> edge("Mount", colour=COLOUR_DATABASE) >> pvcs
-    cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << application_with_db
+    cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << applications
 
     # OIDC/IRSA flow
     (
@@ -395,16 +450,11 @@ with Diagram(
             "such that AWS SDK\ncan exchange JWT\nfor credentials",
             colour=COLOUR_OIDC,
         )
-        >> application_with_irsa
+        >> applications
     )
+    applications << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
     (
-        application_with_irsa
-        >> edge("Use service\naccount for\nJWT token", colour=COLOUR_OIDC)
-        >> service_account
-    )
-    service_account << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
-    (
-        application_with_irsa
+        applications
         >> edge(
             "Exchange AWS\naccess token with\nk3s API server\nissued JWT",
             colour=COLOUR_OIDC,
@@ -419,13 +469,13 @@ with Diagram(
     (
         cloudflare
         >> edge(
-            "Route to\nwell-known\nendpoint\nvia cloudflared\nand Cilium Gateway",
+            "Route to\nwell-known\nendpoint\nvia cloudflared\nand Envoy Gateway",
             colour=COLOUR_OIDC,
         )
         >> api_server
     )
     (
-        application_with_irsa
+        applications
         >> edge("Access AWS\nresource with\naccess token", colour=COLOUR_OIDC)
         >> aws_resource
     )
