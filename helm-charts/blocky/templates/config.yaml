@@ -22,6 +22,7 @@ spec:
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
+        nullBytePolicy: Ignore
         key: blocky
         metadataPolicy: None
         property: config.yml
