@@ -22,7 +22,7 @@ spec:
               return result
             end
 
-            if obj.status.conditions == nil then
+            if obj.status == nil or obj.status.conditions == nil then
               return result
             end
 
