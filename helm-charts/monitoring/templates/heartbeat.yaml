@@ -16,6 +16,7 @@ spec:
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
+        nullBytePolicy: Ignore
         key: heartbeats
         metadataPolicy: None
         property: loki-{{ . }}-endpoint
@@ -55,6 +56,7 @@ spec:
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
+        nullBytePolicy: Ignore
         key: heartbeats
         metadataPolicy: None
         property: prometheus-{{ . }}-endpoint

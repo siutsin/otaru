@@ -16,6 +16,7 @@ spec:
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
+        nullBytePolicy: Ignore
         key: heartbeats
         metadataPolicy: None
         property: {{ $.Values.name }}-{{ . }}-endpoint

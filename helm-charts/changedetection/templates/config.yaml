@@ -22,6 +22,7 @@ spec:
       remoteRef:
         conversionStrategy: Default
         decodingStrategy: None
+        nullBytePolicy: Ignore
         key: {{ .Values.onepassword.key }}
         metadataPolicy: None
         property: {{ .Values.onepassword.property }}
