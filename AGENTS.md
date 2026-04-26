@@ -40,4 +40,4 @@ Set explicit ephemeral-storage requests and limits with suitable values for the 
 | Helm Charts | `helm`                | Validation and templating |
 | Terraform   | `tofu` or `terraform` | Infrastructure as code    |
 | Terragrunt  | `terragrunt`          | Terraform wrapper         |
-| Markdown    | `markdownlint`        | Linting and validation    |
+| Markdown    | `markdownlint-cli2`   | Linting and validation    |
