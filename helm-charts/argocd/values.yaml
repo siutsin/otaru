@@ -48,8 +48,12 @@ argo-cd:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
     params:
-      # Keep repo-server concurrency low; this repo's Helm renders can OOM during cold-cache bursts.
-      reposerver.parallelism.limit: 1
+      # Keep repo-server concurrency bounded; Helm renders can spike memory during cold-cache bursts.
+      reposerver.parallelism.limit: 2
+      # Allow cold-cache manifest generation queues to drain before controllers mark comparison as Unknown.
+      controller.repo.server.timeout.seconds: 180
+      server.repo.server.timeout.seconds: 180
+      applicationsetcontroller.repo.server.timeout.seconds: 180
       server.insecure: true
       server.basehref: /argocd/
       server.rootpath: /argocd
@@ -114,11 +118,11 @@ argo-cd:
     resources:
       requests:
         cpu: 250m
-        memory: 1Gi
-        ephemeral-storage: 256Mi
+        memory: 2Gi
+        ephemeral-storage: 512Mi
       limits:
-        memory: 1Gi
-        ephemeral-storage: 256Mi
+        memory: 2Gi
+        ephemeral-storage: 512Mi
     readinessProbe:
       initialDelaySeconds: 10
       periodSeconds: 10
@@ -201,11 +205,11 @@ argo-cd:
         resources:
           requests:
             cpu: 100m
-            memory: 128Mi
-            ephemeral-storage: 128Mi
+            memory: 256Mi
+            ephemeral-storage: 256Mi
           limits:
-            memory: 128Mi
-            ephemeral-storage: 128Mi
+            memory: 256Mi
+            ephemeral-storage: 256Mi
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
