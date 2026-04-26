@@ -158,6 +158,8 @@ local scheduling = [
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
+  { wave: '03', name: 'kyverno', namespace: 'kyverno' },
+  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];

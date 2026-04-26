@@ -1,0 +1,34 @@
+name: kyverno-policy
+namespace: kyverno
+
+clusterSecretStorePolicy:
+  enabled: true
+  storeName: onepassword-secret-store
+  allowedNamespaces:
+    argocd:
+      - argocd-secret
+    atlantis:
+      - atlantis
+    blocky:
+      - blocky
+    changedetection:
+      - changedetection
+    cloudflare-tunnel:
+      - cloudflare-tunnel-credentials
+    gateway-api:
+      - cloudflare-acme-verification-secret
+      - heartbeats
+    home-assistant:
+      - heartbeats
+    jung2bot:
+      - jung2bot
+    longhorn-system:
+      - b2-secret
+      - longhorn-crypto
+    monitoring:
+      - grafana
+      - heartbeats
+    teslamate:
+      - b2-secret-cloudnative-pg
+      - heartbeats
+      - teslamate

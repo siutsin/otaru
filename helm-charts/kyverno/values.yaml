@@ -1,0 +1,21 @@
+namespace: kyverno
+
+_shared:
+  resources: &resources
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+
+kyverno:
+  admissionController:
+    resources: *resources
+  backgroundController:
+    resources: *resources
+  cleanupController:
+    resources: *resources
+  reportsController:
+    resources: *resources
