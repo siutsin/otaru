@@ -36,6 +36,7 @@ spec:
                   - home-assistant
                   - httpbin
                   - istio-system
+                  - jellyfin
                   - jsoncrack
                   - jung2bot
                   - jung2bot-dev
@@ -62,6 +63,7 @@ spec:
                   - home-assistant
                   - httpbin
                   - istio-system
+                  - jellyfin
                   - jsoncrack
                   - jung2bot
                   - jung2bot-dev
@@ -69,6 +71,18 @@ spec:
                   - longhorn-system
                   - monitoring
                   - teslamate
+    - name: jellyfin-sftp
+      protocol: TCP
+      port: 2022
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - jellyfin
     - name: dns-tcp
       protocol: TCP
       port: 53
