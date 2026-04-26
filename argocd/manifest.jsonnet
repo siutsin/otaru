@@ -29,13 +29,17 @@ local crdConversionCABundle(name) = [{
   ],
 }];
 
-local crdDefaultedConversion = [{
-  group: 'apiextensions.k8s.io',
-  kind: 'CustomResourceDefinition',
-  jsonPointers: [
-    '/spec/conversion',
-  ],
-}];
+local crdDefaultedConversion(names) = [
+  {
+    group: 'apiextensions.k8s.io',
+    kind: 'CustomResourceDefinition',
+    name: name,
+    jsonPointers: [
+      '/spec/conversion',
+    ],
+  }
+  for name in names
+];
 
 local cleanerExcludeDeleted = [{
   group: 'apps.projectsveltos.io',
@@ -66,7 +70,19 @@ local _ignoreDifferences = {
     istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
   },
   security: {
-    kyverno: crdDefaultedConversion,
+    kyverno: crdDefaultedConversion([
+      'deletingpolicies.policies.kyverno.io',
+      'generatingpolicies.policies.kyverno.io',
+      'imagevalidatingpolicies.policies.kyverno.io',
+      'mutatingpolicies.policies.kyverno.io',
+      'namespaceddeletingpolicies.policies.kyverno.io',
+      'namespacedgeneratingpolicies.policies.kyverno.io',
+      'namespacedimagevalidatingpolicies.policies.kyverno.io',
+      'namespacedmutatingpolicies.policies.kyverno.io',
+      'namespacedvalidatingpolicies.policies.kyverno.io',
+      'policyexceptions.policies.kyverno.io',
+      'validatingpolicies.policies.kyverno.io',
+    ]),
   },
 };
 
