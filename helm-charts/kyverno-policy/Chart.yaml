@@ -1,6 +1,6 @@
 apiVersion: v2
 name: kyverno-policy
-description: A Helm chart for Kubernetes
+description: Kyverno policies for the Otaru cluster
 type: application
 version: 0.1.0
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
