@@ -9,10 +9,10 @@ deployment:
   resources:
     requests:
       cpu: 100m
-      memory: 170Mi
+      memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 170Mi
+      memory: 128Mi
       ephemeral-storage: 64Mi
 
 config:

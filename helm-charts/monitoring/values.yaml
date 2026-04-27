@@ -77,15 +77,17 @@ loki:
     resources:
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 768Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 1Gi
+        memory: 768Mi
         ephemeral-storage: 128Mi
   minio:
     enabled: false
   chunksCache:
     enabled: false
+  resultsCache:
+    allocatedMemory: 128
   memberlist:
     service:
       publishNotReadyAddresses: true

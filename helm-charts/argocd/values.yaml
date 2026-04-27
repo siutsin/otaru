@@ -15,10 +15,10 @@ argo-cd:
     componentResources: &componentResources
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 128Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 256Mi
+        memory: 128Mi
         ephemeral-storage: 128Mi
     redisResources: &redisResources
       requests:
@@ -113,15 +113,15 @@ argo-cd:
   repoServer:
     autoscaling:
       enabled: true
-      minReplicas: 2
-      maxReplicas: 3
+      minReplicas: 1
+      maxReplicas: 2
     resources:
       requests:
         cpu: 250m
-        memory: 2Gi
+        memory: 1Gi
         ephemeral-storage: 512Mi
       limits:
-        memory: 2Gi
+        memory: 1Gi
         ephemeral-storage: 512Mi
     readinessProbe:
       initialDelaySeconds: 10
@@ -133,7 +133,7 @@ argo-cd:
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 6
-    pdb: *haPdb
+    pdb: *singletonPdb
     containerSecurityContext:
       runAsUser: 999
     rbac:
@@ -205,10 +205,10 @@ argo-cd:
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
+            memory: 128Mi
             ephemeral-storage: 256Mi
           limits:
-            memory: 256Mi
+            memory: 128Mi
             ephemeral-storage: 256Mi
         volumeMounts:
           - mountPath: /var/run/argocd
