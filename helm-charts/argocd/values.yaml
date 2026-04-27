@@ -84,10 +84,10 @@ argo-cd:
   notifications:
     enabled: false
   controller:
-    replicas: 3
+    replicas: 1
     resources: *controllerResources
     readinessProbe: *readinessProbe
-    pdb: *haPdb
+    pdb: *singletonPdb
   server:
     autoscaling:
       enabled: true
