@@ -1,9 +1,9 @@
 {{- range $k, $clusterConfig := .Values.clusters }}
 {{- if ($clusterConfig.test | default dict).enabled | default false }}
 ---
-# Test deployment for cluster: {{ $clusterConfig.clusterName }}
-apiVersion: apps/v1
-kind: Deployment
+# Test job for cluster: {{ $clusterConfig.clusterName }}
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: {{ $clusterConfig.clusterName }}-test
   namespace: {{ $clusterConfig.namespace }}
@@ -11,12 +11,12 @@ metadata:
     app: {{ $clusterConfig.clusterName }}-test
     cluster: {{ $clusterConfig.clusterName }}
   annotations:
-    reloader.stakater.com/auto: "true"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
-  replicas: {{ $clusterConfig.test.replicas | default 1 }}
-  selector:
-    matchLabels:
-      app: {{ $clusterConfig.clusterName }}-test
+  activeDeadlineSeconds: {{ $clusterConfig.test.activeDeadlineSeconds | default 900 }}
+  backoffLimit: {{ $clusterConfig.test.backoffLimit | default 0 }}
+  ttlSecondsAfterFinished: {{ $clusterConfig.test.ttlSecondsAfterFinished | default 600 }}
   template:
     metadata:
       labels:
@@ -24,6 +24,7 @@ spec:
         cluster: {{ $clusterConfig.clusterName }}
     spec:
       automountServiceAccountToken: false
+      restartPolicy: Never
       containers:
         - image: {{ $clusterConfig.test.image | default "postgres:17-alpine" }}
           name: {{ $clusterConfig.clusterName }}-test
@@ -31,18 +32,34 @@ spec:
           args:
             - -c
             - |
-              while true; do
+              set -eu
+
+              attempts={{ $clusterConfig.test.attempts | default 20 }}
+              interval={{ $clusterConfig.test.interval | default 30 }}
+              database_url="${DATABASE_URL}?sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt"
+
+              while [ "$attempts" -gt 0 ]; do
                 echo "Testing connection to {{ $clusterConfig.clusterName }}..."
-                psql "$DATABASE_URL" -c "{{ $clusterConfig.test.query | default "SELECT 1 as test_connection;" }}"
-                echo "Test completed at $(date)"
-                sleep {{ $clusterConfig.test.interval | default 30 }}
+                if psql "$database_url" -c "{{ $clusterConfig.test.query | default "SELECT 1 as test_connection;" }}"; then
+                  echo "Test completed at $(date)"
+                  exit 0
+                fi
+
+                attempts=$((attempts - 1))
+                if [ "$attempts" -eq 0 ]; then
+                  echo "Test failed after all attempts"
+                  exit 1
+                fi
+
+                echo "Test failed, retrying in ${interval}s (${attempts} attempts remaining)"
+                sleep "$interval"
               done
           env:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ $clusterConfig.clusterName }}
-                  key: DATABASE_URL
+                  name: {{ $clusterConfig.test.secretName | default (printf "%s-app" $clusterConfig.clusterName) }}
+                  key: {{ $clusterConfig.test.secretKey | default "uri" }}
         {{- if $clusterConfig.test.resources }}
           resources: {{ toYaml $clusterConfig.test.resources | nindent 10 }}
         {{- else }}
