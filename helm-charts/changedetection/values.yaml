@@ -8,7 +8,7 @@ onepassword:
 deployment:
   image:
     repository: ghcr.io/dgtlmoon/changedetection.io
-    tag: latest@sha256:c85fb73ce4e1986c90b9b747e0247cd67b0d4ebcce4718a5f7205dc64ccc178a
+    tag: latest@sha256:1cb94f27cac395c90ea4c7a1ea891b241c9a5d5231483961a782312545aadeec
     pullPolicy: IfNotPresent
   resources:
     requests:
