@@ -13,10 +13,10 @@ deployment:
   resources:
     requests:
       cpu: 100m
-      memory: 500Mi
+      memory: 256Mi
       ephemeral-storage: 100Mi
     limits:
-      memory: 500Mi
+      memory: 256Mi
       ephemeral-storage: 100Mi
 
 service:
