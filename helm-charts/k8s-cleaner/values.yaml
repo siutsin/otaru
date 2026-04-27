@@ -17,6 +17,9 @@ failedPods:
 longhornTrimJobs:
   namespace: longhorn-system
 
+kyvernoHookJobs:
+  namespace: kyverno
+
 k8s-cleaner:
   deployment:
     resources:

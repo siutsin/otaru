@@ -1,0 +1,49 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: kyverno-hook-jobs
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "*/5 * * * *"
+  deleteOptions:
+    propagationPolicy: Foreground
+  resourcePolicySet:
+    resourceSelectors:
+      - kind: Job
+        group: batch
+        version: v1
+        namespace: {{ .Values.kyvernoHookJobs.namespace }}
+        labelFilters:
+          - key: app.kubernetes.io/part-of
+            operation: Equal
+            value: kyverno
+          - key: app.kubernetes.io/component
+            operation: Equal
+            value: hooks
+        evaluate: |
+          function evaluate()
+            local result = {}
+            result.matching = false
+
+            if obj.metadata == nil or obj.metadata.name ~= "kyverno-migrate-resources" then
+              return result
+            end
+
+            if obj.status == nil or obj.status.conditions == nil then
+              return result
+            end
+
+            for _, condition in ipairs(obj.status.conditions) do
+              if (condition.type == "Complete" or condition.type == "Failed")
+                and condition.status == "True"
+              then
+                result.matching = true
+                return result
+              end
+            end
+
+            return result
+          end
+  action: Delete

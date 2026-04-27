@@ -1,0 +1,35 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: longhorn-trim-pods
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "*/5 * * * *"
+  resourcePolicySet:
+    resourceSelectors:
+      - kind: Pod
+        group: ""
+        version: v1
+        namespace: {{ .Values.longhornTrimJobs.namespace }}
+        labelFilters:
+          - key: recurring-job.longhorn.io
+            operation: Equal
+            value: trim
+        evaluate: |
+          function evaluate()
+            local result = {}
+            result.matching = false
+
+            if obj.status == nil then
+              return result
+            end
+
+            if obj.status.phase == "Succeeded" or obj.status.phase == "Failed" then
+              result.matching = true
+            end
+
+            return result
+          end
+  action: Delete
