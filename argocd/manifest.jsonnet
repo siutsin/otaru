@@ -29,12 +29,14 @@ local crdConversionCABundle(name) = [{
   ],
 }];
 
-local crdDefaultedConversion(crdNames) = [
+local kyvernoDefaultedCrdFields(crdNames) = [
   {
     group: 'apiextensions.k8s.io',
     kind: 'CustomResourceDefinition',
     name: crdName,
     jsonPointers: [
+      '/metadata/annotations',
+      '/metadata/labels',
       '/spec/conversion',
     ],
   }
@@ -71,7 +73,7 @@ local _ignoreDifferences = {
   },
   security: {
     // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
-    kyverno: crdDefaultedConversion([
+    kyverno: kyvernoDefaultedCrdFields([
       'deletingpolicies.policies.kyverno.io',
       'generatingpolicies.policies.kyverno.io',
       'imagevalidatingpolicies.policies.kyverno.io',
