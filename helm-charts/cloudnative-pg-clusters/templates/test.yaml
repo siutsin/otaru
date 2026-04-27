@@ -36,7 +36,10 @@ spec:
 
               attempts={{ $clusterConfig.test.attempts | default 20 }}
               interval={{ $clusterConfig.test.interval | default 30 }}
-              database_url="${DATABASE_URL}?sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt"
+              case "$DATABASE_URL" in
+                *\?*) database_url="${DATABASE_URL}&sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt" ;;
+                *) database_url="${DATABASE_URL}?sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt" ;;
+              esac
 
               while [ "$attempts" -gt 0 ]; do
                 echo "Testing connection to {{ $clusterConfig.clusterName }}..."
