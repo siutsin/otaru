@@ -1,0 +1,68 @@
+name: Codex Connector Gate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  codex-connector-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Codex connector review
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const headSha = context.payload.pull_request.head.sha;
+            const updatedAt = new Date(context.payload.pull_request.updated_at);
+            const botLogins = new Set([
+              "chatgpt-codex-connector[bot]",
+              "chatgpt-codex-connector",
+            ]);
+
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            const deadline = Date.now() + 20 * 60 * 1000;
+
+            while (Date.now() < deadline) {
+              const reviews = await github.paginate(
+                github.rest.pulls.listReviews,
+                { owner, repo, pull_number, per_page: 100 }
+              );
+
+              const reviewedHead = reviews.some(review =>
+                botLogins.has(review.user?.login) &&
+                review.commit_id === headSha
+              );
+
+              if (reviewedHead) {
+                core.info(`Codex reviewed HEAD ${headSha}`);
+                return;
+              }
+
+              const reactions = await github.paginate(
+                github.rest.reactions.listForIssue,
+                { owner, repo, issue_number: pull_number, per_page: 100 }
+              );
+
+              const thumbsUpAfterUpdate = reactions.some(reaction =>
+                botLogins.has(reaction.user?.login) &&
+                reaction.content === "+1" &&
+                new Date(reaction.created_at) >= updatedAt
+              );
+
+              if (thumbsUpAfterUpdate) {
+                core.info("Codex gave 👍 after latest PR update");
+                return;
+              }
+
+              core.info("Waiting for Codex connector review or 👍...");
+              await sleep(60 * 1000);
+            }
+
+            core.setFailed("Timed out waiting for Codex connector review signal.");
