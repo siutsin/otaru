@@ -22,7 +22,7 @@ app:
     stage: prod
   autoscaling:
     min: 6
-    max: 18
+    max: 10
 
 cron:
   image:
