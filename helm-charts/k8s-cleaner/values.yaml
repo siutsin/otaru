@@ -14,8 +14,11 @@ repave:
 failedPods:
   excludeNamespaces: *excludeNamespaces
 
-longhornTrimJobs:
+longhornRecurringJobPods:
   namespace: longhorn-system
+  jobs:
+    - backup
+    - trim
 
 kyvernoHookJobs:
   namespace: kyverno
