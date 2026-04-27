@@ -35,9 +35,11 @@ local kyvernoDefaultedCrdFields(crdNames) = [
     kind: 'CustomResourceDefinition',
     name: crdName,
     jsonPointers: [
-      '/metadata/annotations',
-      '/metadata/labels',
       '/spec/conversion',
+    ],
+    jqPathExpressions: [
+      '.metadata.annotations | select(. == {})',
+      '.metadata.labels | select(. == {})',
     ],
   }
   for crdName in crdNames
