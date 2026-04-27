@@ -9,7 +9,38 @@ permissions:
   pull-requests: read
 
 jobs:
+  check-files:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      should-review: ${{ steps.check.outputs.should-review }}
+    steps:
+      - name: Check if review is needed
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.url }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if [ "$ACTOR" = "otaru-ci[bot]" ] || echo "$ACTOR" | grep -q '\[bot\]$'; then
+            echo "should-review=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          FILES=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
+          if echo "$FILES" | grep -qx '.github/workflows/codex-connector-gate.yaml'; then
+            echo "should-review=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if echo "$FILES" | grep -q .; then
+            echo "should-review=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should-review=false" >> "$GITHUB_OUTPUT"
+          fi
+
   codex-connector-gate:
+    needs: check-files
+    if: needs.check-files.outputs.should-review == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Wait for Codex connector review
@@ -66,3 +97,23 @@ jobs:
             }
 
             core.setFailed("Timed out waiting for Codex connector review signal.");
+
+  codex-connector-status:
+    if: always()
+    needs:
+      - check-files
+      - codex-connector-gate
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check Codex connector gate result
+        env:
+          CHECK_FILES_RESULT: ${{ needs.check-files.result }}
+          GATE_RESULT: ${{ needs.codex-connector-gate.result }}
+        run: |
+          if [ "$CHECK_FILES_RESULT" = "failure" ] || [ "$CHECK_FILES_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
+          if [ "$GATE_RESULT" = "failure" ] || [ "$GATE_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
