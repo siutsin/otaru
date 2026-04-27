@@ -1,8 +1,9 @@
+{{- range .Values.longhornRecurringJobPods.jobs }}
 apiVersion: apps.projectsveltos.io/v1alpha1
 kind: Cleaner
 metadata:
-  name: longhorn-trim-pods
-  namespace: {{ .Values.namespace }}
+  name: longhorn-{{ . }}-pods
+  namespace: {{ $.Values.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
@@ -12,11 +13,11 @@ spec:
       - kind: Pod
         group: ""
         version: v1
-        namespace: {{ .Values.longhornTrimJobs.namespace }}
+        namespace: {{ $.Values.longhornRecurringJobPods.namespace }}
         labelFilters:
           - key: recurring-job.longhorn.io
             operation: Equal
-            value: trim
+            value: {{ . }}
         evaluate: |
           function evaluate()
             local result = {}
@@ -33,3 +34,5 @@ spec:
             return result
           end
   action: Delete
+---
+{{- end }}
