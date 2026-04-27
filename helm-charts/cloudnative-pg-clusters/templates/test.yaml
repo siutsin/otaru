@@ -1,9 +1,32 @@
 {{- range $k, $clusterConfig := .Values.clusters }}
 {{- if ($clusterConfig.test | default dict).enabled | default false }}
+{{- $database := "app" }}
+{{- $username := "app" }}
+{{- $bootstrapSecretName := "" }}
+{{- if and $clusterConfig.bootstrap $clusterConfig.bootstrap.initdb }}
+  {{- if $clusterConfig.bootstrap.initdb.database }}
+    {{- $database = $clusterConfig.bootstrap.initdb.database }}
+  {{- end }}
+  {{- if $clusterConfig.bootstrap.initdb.owner }}
+    {{- $username = $clusterConfig.bootstrap.initdb.owner }}
+  {{- end }}
+  {{- if and $clusterConfig.bootstrap.initdb.secret $clusterConfig.bootstrap.initdb.secret.name }}
+    {{- $bootstrapSecretName = $clusterConfig.bootstrap.initdb.secret.name }}
+  {{- end }}
+{{- else if and $clusterConfig.bootstrap $clusterConfig.bootstrap.recovery }}
+  {{- if $clusterConfig.bootstrap.recovery.database }}
+    {{- $database = $clusterConfig.bootstrap.recovery.database }}
+  {{- end }}
+  {{- if $clusterConfig.bootstrap.recovery.owner }}
+    {{- $username = $clusterConfig.bootstrap.recovery.owner }}
+  {{- end }}
+{{- end }}
+{{- $host := printf "%s-rw.%s" $clusterConfig.clusterName $clusterConfig.namespace }}
+{{- $port := $clusterConfig.port | default 5432 }}
 ---
-# Test deployment for cluster: {{ $clusterConfig.clusterName }}
-apiVersion: apps/v1
-kind: Deployment
+# Test job for cluster: {{ $clusterConfig.clusterName }}
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: {{ $clusterConfig.clusterName }}-test
   namespace: {{ $clusterConfig.namespace }}
@@ -11,12 +34,12 @@ metadata:
     app: {{ $clusterConfig.clusterName }}-test
     cluster: {{ $clusterConfig.clusterName }}
   annotations:
-    reloader.stakater.com/auto: "true"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
-  replicas: {{ $clusterConfig.test.replicas | default 1 }}
-  selector:
-    matchLabels:
-      app: {{ $clusterConfig.clusterName }}-test
+  activeDeadlineSeconds: {{ $clusterConfig.test.activeDeadlineSeconds | default 900 }}
+  backoffLimit: {{ $clusterConfig.test.backoffLimit | default 0 }}
+  ttlSecondsAfterFinished: {{ $clusterConfig.test.ttlSecondsAfterFinished | default 600 }}
   template:
     metadata:
       labels:
@@ -24,6 +47,7 @@ spec:
         cluster: {{ $clusterConfig.clusterName }}
     spec:
       automountServiceAccountToken: false
+      restartPolicy: Never
       containers:
         - image: {{ $clusterConfig.test.image | default "postgres:17-alpine" }}
           name: {{ $clusterConfig.clusterName }}-test
@@ -31,18 +55,65 @@ spec:
           args:
             - -c
             - |
-              while true; do
+              set -eu
+
+              attempts={{ $clusterConfig.test.attempts | default 20 }}
+              interval={{ $clusterConfig.test.interval | default 30 }}
+              if [ "$attempts" -lt 1 ]; then
+                echo "test.attempts must be greater than 0"
+                exit 1
+              fi
+              if [ "$interval" -lt 1 ]; then
+                echo "test.interval must be greater than 0"
+                exit 1
+              fi
+
+              if [ -n "${DATABASE_URL:-}" ]; then
+                case "$DATABASE_URL" in
+                  *\?*) connection_target="${DATABASE_URL}&sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt" ;;
+                  *) connection_target="${DATABASE_URL}?sslmode=verify-full&sslrootcert=/etc/secrets/ca/ca.crt" ;;
+                esac
+              else
+                export PGPASSWORD="${DATABASE_PASS:?DATABASE_PASS is required}"
+                connection_target="host={{ $host }} port={{ $port }} dbname={{ $database }} user={{ $username }} sslmode=verify-full sslrootcert=/etc/secrets/ca/ca.crt"
+              fi
+
+              while [ "$attempts" -gt 0 ]; do
                 echo "Testing connection to {{ $clusterConfig.clusterName }}..."
-                psql "$DATABASE_URL" -c "{{ $clusterConfig.test.query | default "SELECT 1 as test_connection;" }}"
-                echo "Test completed at $(date)"
-                sleep {{ $clusterConfig.test.interval | default 30 }}
+                if psql "$connection_target" -c "{{ $clusterConfig.test.query | default "SELECT 1 as test_connection;" }}"; then
+                  echo "Test completed at $(date)"
+                  exit 0
+                fi
+
+                attempts=$((attempts - 1))
+                if [ "$attempts" -eq 0 ]; then
+                  echo "Test failed after all attempts"
+                  exit 1
+                fi
+
+                echo "Test failed, retrying in ${interval}s (${attempts} attempts remaining)"
+                sleep "$interval"
               done
           env:
+        {{- if $clusterConfig.test.secretName }}
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ $clusterConfig.clusterName }}
-                  key: DATABASE_URL
+                  name: {{ $clusterConfig.test.secretName }}
+                  key: {{ $clusterConfig.test.secretKey | default "uri" }}
+        {{- else if $bootstrapSecretName }}
+            - name: DATABASE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $bootstrapSecretName }}
+                  key: {{ $clusterConfig.test.passwordKey | default "password" }}
+        {{- else }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-app" $clusterConfig.clusterName }}
+                  key: {{ $clusterConfig.test.secretKey | default "uri" }}
+        {{- end }}
         {{- if $clusterConfig.test.resources }}
           resources: {{ toYaml $clusterConfig.test.resources | nindent 10 }}
         {{- else }}
