@@ -171,7 +171,6 @@ jobs:
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           track_progress: true
           claude_args: |
             --model sonnet --allowedTools "Bash(make:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
