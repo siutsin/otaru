@@ -79,11 +79,11 @@ jobs:
       - check-files
     if: |
       always() &&
-      ((github.event_name == 'pull_request' &&
-        needs.check-files.outputs.should-review == 'true' &&
-        needs.authorize-write.outputs.can-write != 'true') ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      ((github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["COLLABORATOR", "MEMBER", "OWNER"]'), github.event.comment.author_association)) ||
       (github.event_name == 'issues' &&
+        contains(fromJSON('["COLLABORATOR", "MEMBER", "OWNER"]'), github.event.issue.author_association) &&
         (contains(github.event.issue.body, '@claude') ||
         contains(github.event.issue.title, '@claude'))))
     runs-on: ubuntu-latest
