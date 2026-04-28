@@ -64,10 +64,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.url }}
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
-          case "$AUTHOR_ASSOCIATION" in
-            COLLABORATOR|MEMBER|OWNER)
+          PERMISSION=$(gh api "repos/${GITHUB_REPOSITORY}/collaborators/${PR_AUTHOR}/permission" --jq '.permission' 2>/dev/null || echo "none")
+          case "$PERMISSION" in
+            admin|maintain|write)
               echo "can-write=true" >> "$GITHUB_OUTPUT"
               exit 0
               ;;
@@ -228,6 +229,7 @@ jobs:
     if: |
       always() &&
       github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
       needs.check-files.outputs.should-review == 'true' &&
       needs.authorize-write.outputs.can-write == 'true'
     runs-on: ubuntu-latest
