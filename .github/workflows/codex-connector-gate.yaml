@@ -43,6 +43,9 @@ jobs:
     needs: check-files
     if: needs.check-files.outputs.should-review == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      pull-requests: read
     steps:
       - name: Wait for Codex connector review
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

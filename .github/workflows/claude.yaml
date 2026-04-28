@@ -1,14 +1,35 @@
 name: Claude Code
 
-# Disabled to avoid exhausting Claude review limits.
 on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - unlabeled
+  # zizmor: ignore[dangerous-triggers] Fork PRs need base-repo secrets for Claude review; the target job never checks out or executes PR code.
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  issue_comment:
+    types:
+      - created
+  issues:
+    types:
+      - opened
+      - edited
   workflow_dispatch:
 
 permissions: {}
 
 jobs:
   check-files:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -37,24 +58,55 @@ jobs:
             echo "should-review=false" >> "$GITHUB_OUTPUT"
           fi
 
-  claude:
-    needs: check-files
+  authorize-write:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      can-write: ${{ steps.authorize.outputs.can-write }}
+    steps:
+      - name: Check write authorization
+        id: authorize
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          PERMISSION=$(gh api "repos/${GITHUB_REPOSITORY}/collaborators/${PR_AUTHOR}/permission" --jq '.permission' 2>/dev/null || echo "none")
+          case "$PERMISSION" in
+            admin|maintain|write)
+              echo "can-write=true" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+
+          LABELS=$(gh api "$PR_URL" --jq '.labels[].name')
+          if echo "$LABELS" | grep -qx 'claude-write'; then
+            echo "can-write=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "can-write=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  claude-review:
+    needs:
+      - authorize-write
+      - check-files
     if: |
       always() &&
-      ((github.event_name == 'pull_request' && needs.check-files.outputs.should-review == 'true') ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      ((github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["COLLABORATOR", "MEMBER", "OWNER"]'), github.event.comment.author_association)) ||
       (github.event_name == 'issues' &&
+        contains(fromJSON('["COLLABORATOR", "MEMBER", "OWNER"]'), github.event.issue.author_association) &&
         (contains(github.event.issue.body, '@claude') ||
         contains(github.event.issue.title, '@claude'))))
     runs-on: ubuntu-latest
     environment: automation
     permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
       actions: read
     steps:
       - name: Checkout repository
@@ -116,12 +168,152 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
           claude_args: |
-            --model opus --allowedTools "Bash(make:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
+            --model sonnet --allowedTools "Bash(make:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
+          prompt: |
+            Review only. Do not push commits, edit PR metadata, change labels, or write repository content.
+
+            Review the PR changes with focus on:
+            1. Code quality, readability, and best practices
+            2. Security vulnerabilities
+            3. Potential bugs or edge cases
+            4. Configuration correctness (Helm, Terraform, YAML)
+
+            Skip auto-generated files (CRDs, dashboard JSON, lock files).
+            Keep output short and concise. Use bullet points where possible.
+            Only comment on issues worth fixing. Skip praise and nitpicks.
+
+  claude-external-review:
+    needs:
+      - authorize-write
+      - check-files
+    if: |
+      always() &&
+      ((github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name != github.repository)) &&
+      needs.check-files.outputs.should-review == 'true' &&
+      needs.authorize-write.outputs.can-write != 'true'
+    runs-on: ubuntu-latest
+    environment: automation
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      actions: read
+    steps:
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_non_write_users: '*'
+          track_progress: false
+          claude_args: |
+            --model sonnet --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
+          prompt: |
+            Review only. Do not push commits, edit PR metadata, change labels, write repository content, or run code from the PR.
+
+            Use only read-only GitHub CLI commands such as `gh pr view` and `gh pr diff`.
+            Review the PR changes with focus on:
+            1. Code quality, readability, and best practices
+            2. Security vulnerabilities
+            3. Potential bugs or edge cases
+            4. Configuration correctness (Helm, Terraform, YAML)
+
+            Skip auto-generated files (CRDs, dashboard JSON, lock files).
+            Keep output short and concise. Use bullet points where possible.
+            Only comment on issues worth fixing. Skip praise and nitpicks.
+
+  claude-maintainer:
+    needs:
+      - authorize-write
+      - check-files
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.check-files.outputs.should-review == 'true' &&
+      needs.authorize-write.outputs.can-write == 'true'
+    runs-on: ubuntu-latest
+    environment: automation
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install markdownlint-cli2
+        run: npm install -g markdownlint-cli2
+
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        with:
+          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
+        with:
+          tofu_version: '1.8.1'
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
+        with:
+          terragrunt-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install editorconfig-checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
+          tar -xzf /tmp/ec.tar.gz -C /tmp
+          BINARY=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
+          chmod +x "$BINARY"
+          sudo mv "$BINARY" /usr/local/bin/ec
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: stable
+
+      - name: Install go-jsonnet
+        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+
+      - name: Update Helm dependencies
+        run: make update-helm-deps
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          claude_args: |
+            --model sonnet --allowedTools "Bash(make:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
           prompt: |
             If the PR title or description does not meaningfully describe the changes, update them.
             Use conventional commit style for the title, under 72 characters.
@@ -139,14 +331,25 @@ jobs:
 
   claude-status:
     if: always()
-    needs: claude
+    needs:
+      - authorize-write
+      - check-files
+      - claude-review
+      - claude-external-review
+      - claude-maintainer
     runs-on: ubuntu-latest
     permissions: {}
     steps:
       - name: Check claude result
         env:
-          CLAUDE_RESULT: ${{ needs.claude.result }}
+          AUTHORIZE_RESULT: ${{ needs.authorize-write.result }}
+          CHECK_FILES_RESULT: ${{ needs.check-files.result }}
+          CLAUDE_REVIEW_RESULT: ${{ needs.claude-review.result }}
+          CLAUDE_EXTERNAL_REVIEW_RESULT: ${{ needs.claude-external-review.result }}
+          CLAUDE_MAINTAINER_RESULT: ${{ needs.claude-maintainer.result }}
         run: |
-          if [ "$CLAUDE_RESULT" = "failure" ] || [ "$CLAUDE_RESULT" = "cancelled" ]; then
-            exit 1
-          fi
+          for result in "$AUTHORIZE_RESULT" "$CHECK_FILES_RESULT" "$CLAUDE_REVIEW_RESULT" "$CLAUDE_EXTERNAL_REVIEW_RESULT" "$CLAUDE_MAINTAINER_RESULT"; do
+            if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
+              exit 1
+            fi
+          done
