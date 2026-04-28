@@ -172,6 +172,47 @@ jobs:
             Keep output short and concise. Use bullet points where possible.
             Only comment on issues worth fixing. Skip praise and nitpicks.
 
+  claude-external-review:
+    needs:
+      - authorize-write
+      - check-files
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      needs.check-files.outputs.should-review == 'true' &&
+      needs.authorize-write.outputs.can-write != 'true'
+    runs-on: ubuntu-latest
+    environment: automation
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      actions: read
+    steps:
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_non_write_users: '*'
+          track_progress: false
+          claude_args: |
+            --model sonnet --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
+          prompt: |
+            Review only. Do not push commits, edit PR metadata, change labels, write repository content, or run code from the PR.
+
+            Use only read-only GitHub CLI commands such as `gh pr view` and `gh pr diff`.
+            Review the PR changes with focus on:
+            1. Code quality, readability, and best practices
+            2. Security vulnerabilities
+            3. Potential bugs or edge cases
+            4. Configuration correctness (Helm, Terraform, YAML)
+
+            Skip auto-generated files (CRDs, dashboard JSON, lock files).
+            Keep output short and concise. Use bullet points where possible.
+            Only comment on issues worth fixing. Skip praise and nitpicks.
+
   claude-maintainer:
     needs:
       - authorize-write
@@ -275,6 +316,7 @@ jobs:
       - authorize-write
       - check-files
       - claude-review
+      - claude-external-review
       - claude-maintainer
     runs-on: ubuntu-latest
     permissions: {}
@@ -284,9 +326,10 @@ jobs:
           AUTHORIZE_RESULT: ${{ needs.authorize-write.result }}
           CHECK_FILES_RESULT: ${{ needs.check-files.result }}
           CLAUDE_REVIEW_RESULT: ${{ needs.claude-review.result }}
+          CLAUDE_EXTERNAL_REVIEW_RESULT: ${{ needs.claude-external-review.result }}
           CLAUDE_MAINTAINER_RESULT: ${{ needs.claude-maintainer.result }}
         run: |
-          for result in "$AUTHORIZE_RESULT" "$CHECK_FILES_RESULT" "$CLAUDE_REVIEW_RESULT" "$CLAUDE_MAINTAINER_RESULT"; do
+          for result in "$AUTHORIZE_RESULT" "$CHECK_FILES_RESULT" "$CLAUDE_REVIEW_RESULT" "$CLAUDE_EXTERNAL_REVIEW_RESULT" "$CLAUDE_MAINTAINER_RESULT"; do
             if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
               exit 1
             fi
