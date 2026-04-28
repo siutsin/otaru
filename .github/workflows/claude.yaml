@@ -2,6 +2,13 @@ name: Claude Code
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - unlabeled
   issue_comment:
     types:
       - created
@@ -179,6 +186,7 @@ jobs:
     if: |
       always() &&
       github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
       needs.check-files.outputs.should-review == 'true' &&
       needs.authorize-write.outputs.can-write != 'true'
     runs-on: ubuntu-latest
