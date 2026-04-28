@@ -5,15 +5,15 @@
 
 > Over-Engineering at Its Finest.
 
-Bare-metal `k3s` home lab and technical playground.
+Bare-metal `k3s` home lab and technical playground. The game rule is to build a Kubernetes cluster with Raspberry Pi hardware.
 
 Current cluster shape:
 
 - Dedicated `192.168.10.0/24` VLAN for cluster nodes and service virtual IPs
-- `k3s` with embedded etcd on three Raspberry Pi 5 control-plane nodes
+- `k3s` with embedded etcd on three control-plane nodes
 - Flannel `wireguard-native` for pod networking
-- MetalLB + Envoy Gateway for service and ingress load balancing
-- Istio ambient mesh for east-west traffic and Kiali for mesh observability
+- MetalLB + Envoy Gateway for service and ingress virtual IPs
+- Istio ambient mesh with Kiali for service mesh observability
 
 ## Architecture
 
@@ -36,15 +36,7 @@ Current cluster shape:
 | `rack-mount`     | [GeeekPi 10" 2U Rack Mount][rack-mount]   | Pi rack mount  | -    | -                                                    |
 <!-- markdownlint-enable MD060 -->
 
-The cluster now runs embedded etcd on `raspberrypi-00`, `raspberrypi-01`, and `raspberrypi-02`.
-Longhorn uses the root filesystem on the NVMe-backed nodes directly. `raspberrypi-03` remains a worker
-and is intentionally unschedulable for Longhorn storage.
-
-## Pending Node
-
-| Node     | Device                                     | Planned role  | Boot      | Storage             |
-|----------|--------------------------------------------|---------------|-----------|---------------------|
-| `nuc-00` | [Intel NUC Mini PC Core i3-3217U 8GB][nuc] | Future worker | mSATA/LVM | 64 GB local storage |
+Three nodes form the control plane. One node remains a worker.
 
 ## Network Layout
 
@@ -57,9 +49,7 @@ and is intentionally unschedulable for Longhorn storage.
 | `192.168.10.61` | `raspberrypi-01`     |
 | `192.168.10.62` | `raspberrypi-02`     |
 | `192.168.10.63` | `raspberrypi-03`     |
-| `192.168.10.64` | `nuc-00`             |
 
-[nuc]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
 [samsung-980-pro]: https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-2tb-nvme-pcie-gen-4-mz-v8p2t0bw/
@@ -83,38 +73,34 @@ and is intentionally unschedulable for Longhorn storage.
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                 |
 | Application  | [Kubernetes MCP Server](https://github.com/containers/kubernetes-mcp-server)                        | Model Context Protocol server for Kubernetes cluster operations                                        |
 | Application  | [TeslaMate](https://github.com/teslamate-org/teslamate/)                                            | Self-hosted data logger for Tesla                                                                      |
-| Application  | [k3s-apiserver-loadbalancer](https://github.com/siutsin/k3s-apiserver-loadbalancer)                 | An operator to update the `kubernetes` service type to `LoadBalancer`                                  |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                     |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                            |
 | CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | OpenTofu Pull Request Automation, currently disabled in Argo CD                                        |
-| Connectivity | [Envoy Gateway](helm-charts/envoy-gateway)                                                          | Gateway API ingress controller with TLS termination and shared MetalLB virtual IP                      |
 | Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                             |
+| Connectivity | [CoreDNS](https://github.com/coredns/coredns)                                                        | Cluster DNS managed separately from the disabled bundled k3s add-on                                    |
+| Connectivity | [Envoy Gateway](helm-charts/envoy-gateway)                                                          | Gateway API ingress controller with TLS termination and shared MetalLB virtual IP                      |
 | Connectivity | [Flannel](https://github.com/flannel-io/flannel)                                                    | `wireguard-native` encrypted pod networking for `k3s`                                                  |
-| Connectivity | [Gateway API Kubernetes](helm-charts/gateway-api-kubernetes)                                        | Virtual IP and Layer 2 announcement for `kubernetes` service's External IP                             |
 | Connectivity | [Gateway API](https://gateway-api.sigs.k8s.io/)                                                     | Kubernetes standard CRDs for managing network traffic                                                  |
+| Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic echo server for health checks                                                                  |
+| Connectivity | [Istio](helm-charts/istio-base)                                                                     | Service mesh control plane and ambient dataplane (`istiod`, `istio-cni`, `ztunnel`)                    |
+| Connectivity | [k3s-apiserver-loadbalancer](https://github.com/siutsin/k3s-apiserver-loadbalancer)                 | Operator that keeps the `kubernetes` service exposed as a `LoadBalancer`                               |
 | Connectivity | [MetalLB](helm-charts/metallb)                                                                      | Bare metal `LoadBalancer` implementation for service virtual IP allocation and L2 advertisement        |
-| Connectivity | [httpbin](https://github.com/Kong/httpbin)                                                          | Generic health check service                                                                           |
-| Database     | [CloudNativePG Barman Cloud Plugin](helm-charts/cloudnative-pg-plugin-barman-cloud)                 | PostgreSQL backup plugin for cloud storage providers                                                   |
-| Database     | [CloudNativePG Clusters](helm-charts/cloudnative-pg-clusters)                                       | Multi-cluster PostgreSQL management with B2 backup integration                                         |
 | Database     | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg)                                   | A Kubernetes operator that manages PostgreSQL clusters                                                 |
-| Monitoring   | [Grafana](https://github.com/grafana/grafana)                                                       | Grafana LGTM Stack. Visualisation dashboards                                                           |
+| Database     | [CloudNativePG Barman Cloud Plugin](helm-charts/cloudnative-pg-plugin-barman-cloud)                 | Backup plugin for CloudNativePG                                                                        |
+| Monitoring   | [Grafana LGTM Stack](helm-charts/monitoring)                                                        | Grafana, Prometheus, Loki, Promtail, and dashboards                                                    |
 | Monitoring   | [Heartbeats](helm-charts/heartbeats)                                                                | Kubernetes operator for heartbeat monitoring                                                           |
 | Monitoring   | [Kiali](helm-charts/kiali)                                                                          | Service mesh observability UI for Istio                                                                |
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines |
-| Monitoring   | [Monitoring Stack](helm-charts/monitoring)                                                          | Complete monitoring stack with Grafana, Prometheus, and Loki                                           |
 | Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                       |
 | Scheduling   | [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)                                           | Automated failed pod cleanup and periodic workload repaving                                            |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                |
 | Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                                          |
 | Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                                                 |
-| Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                |
 | Security     | [amazon-eks-pod-identity-webhook](https://github.com/aws/amazon-eks-pod-identity-webhook)           | Amazon EKS Pod Identity Webhook for IRSA in bare metal Kubernetes clusters                             |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                           |
-| Security     | [Istio](helm-charts/istio-base)                                                                     | Service mesh control plane and ambient dataplane (`istiod`, `istio-cni`, `ztunnel`)                    |
+| Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                |
+| Security     | [Kyverno](https://github.com/kyverno/kyverno)                                                       | Kubernetes policy engine                                                                               |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                             |
-| Security     | [zizmor](https://docs.zizmor.sh/)                                                                   | Static analysis for GitHub Actions                                                                     |
-| Storage      | [Longhorn Config](helm-charts/longhorn-config)                                                      | Longhorn configuration and recurring jobs                                                              |
-| Storage      | [Longhorn Volume Lib](helm-charts/longhorn-volume-lib)                                              | Reusable volume templates for Longhorn storage                                                         |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                       |
 <!-- markdownlint-enable MD060 -->
 
@@ -123,21 +109,24 @@ and is intentionally unschedulable for Longhorn storage.
 <!-- markdownlint-disable MD060 -->
 | Category     | Name          | Service                                                                                  | Description                                  |
 |--------------|---------------|------------------------------------------------------------------------------------------|----------------------------------------------|
-| CI/CD        | GitHub        | [Actions](https://github.com/features/actions)                                           | Run Terragrunt                               |
-| CI/CD        | Sourcery      | [AI Code Reviews](https://docs.sourcery.ai/)                                             | Instant feedback for Pull Requests           |
+| CI/CD        | Anthropic     | [Claude Code](https://www.anthropic.com/claude-code)                                     | AI code review                               |
+| CI/CD        | OpenAI        | [Codex](https://openai.com/codex/)                                                       | AI code review                               |
+| CI/CD        | GitHub        | [Actions](https://github.com/features/actions)                                           | Repository validation and release automation |
+| CI/CD        | Renovate      | [Dependency Updates](https://docs.renovatebot.com/)                                      | Automated dependency maintenance             |
 | Connectivity | Cloudflare    | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)              | Edge Access Control                          |
 | Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS Service                    |
 | Connectivity | Cloudflare    | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Edge Connectivity                            |
-| Connectivity | UniFi         | [Wifiman](https://ui.com/)                                                               | VPN gateway to home network                  |
+| Connectivity | UniFi         | [Network](https://ui.com/)                                                               | Gateway, VLAN, WLAN, and firewall management |
 | Monitoring   | Heartbeats    | [Heartbeats Operator](helm-charts/heartbeats)                                            | Kubernetes operator for heartbeat monitoring |
 | Monitoring   | WebGazer      | [Uptime Monitoring](https://www.webgazer.io/)                                            | Health Check                                 |
 | Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                 | Secrets Automation                           |
-| Security     | AWS           | [STS](https://aws.amazon.com/iam/features/sts/)                                          | OIDC/IRSA JWT token exchange                 |
+| Security     | AWS           | [IAM](https://aws.amazon.com/iam/)                                                       | OIDC/IRSA permissions and token exchange     |
 | Security     | Let's Encrypt | [Let's Encrypt](https://letsencrypt.org/)                                                | Certificate Authority                        |
-| Security     | Snyk          | [Snyk](https://app.snyk.io/)                                                             | Detects vulnerabilities                      |
+| Security     | Snyk          | [Snyk](https://app.snyk.io/)                                                             | Vulnerability detection                      |
 | Storage      | AWS           | [DynamoDB](https://aws.amazon.com/dynamodb/)                                             | Database backend for 冗PowerBot               |
+| Storage      | AWS           | [SQS](https://aws.amazon.com/sqs/)                                                       | Queue backend for 冗PowerBot                  |
 | Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                         | OpenTofu Remote State                        |
-| Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                            | Volume Backup                                |
+| Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                            | Longhorn and CloudNativePG backups           |
 <!-- markdownlint-enable MD060 -->
 
 ## Bootstrap Cluster
@@ -148,11 +137,15 @@ and is intentionally unschedulable for Longhorn storage.
     brew install \
       ansible \
       direnv \
+      editorconfig-checker \
       go-jsonnet \
       helm \
       kubectl \
+      markdownlint-cli2 \
       opentofu \
-      terragrunt
+      terragrunt \
+      yq \
+      zizmor
     ```
 
 2. **Add SSH Keys to `known_hosts`**
