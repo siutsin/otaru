@@ -70,12 +70,28 @@ jobs:
                 { owner, repo, pull_number, per_page: 100 }
               );
 
-              const reviewedHead = reviews.some(review =>
+              const latestCodexReviews = reviews.filter(review =>
                 botLogins.has(review.user?.login) &&
                 review.commit_id === headSha
               );
 
-              if (reviewedHead) {
+              if (latestCodexReviews.length > 0) {
+                const reviewComments = await github.paginate(
+                  github.rest.pulls.listReviewComments,
+                  { owner, repo, pull_number, per_page: 100 }
+                );
+
+                const latestCodexComments = reviewComments.filter(comment =>
+                  botLogins.has(comment.user?.login) &&
+                  comment.commit_id === headSha &&
+                  !comment.in_reply_to_id
+                );
+
+                if (latestCodexComments.length > 0) {
+                  core.setFailed(`Codex left ${latestCodexComments.length} review comment(s) on HEAD ${headSha}.`);
+                  return;
+                }
+
                 core.info(`Codex reviewed HEAD ${headSha}`);
                 return;
               }
