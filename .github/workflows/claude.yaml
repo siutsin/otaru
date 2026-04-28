@@ -9,6 +9,13 @@ on:
       - ready_for_review
       - labeled
       - unlabeled
+  # zizmor: ignore[dangerous-triggers] Fork PRs need base-repo secrets for Claude review; the target job never checks out or executes PR code.
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   issue_comment:
     types:
       - created
@@ -22,7 +29,7 @@ permissions: {}
 
 jobs:
   check-files:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -186,8 +193,10 @@ jobs:
       - check-files
     if: |
       always() &&
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
+      ((github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name != github.repository)) &&
       needs.check-files.outputs.should-review == 'true' &&
       needs.authorize-write.outputs.can-write != 'true'
     runs-on: ubuntu-latest
