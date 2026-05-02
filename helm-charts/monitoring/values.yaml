@@ -41,8 +41,8 @@ prometheus:
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 50Gi
-    # One day currently uses about 2.3G; retain 7 days while leaving PVC headroom for WAL/head chunks and growth.
-    retentionSize: 45GB
+    # One day currently uses about 2.3G; cap at 40GB on the 50Gi PVC to leave WAL/headroom and growth space.
+    retentionSize: 40GB
     retention: 7d
   alertmanager:
     enabled: false
@@ -61,22 +61,22 @@ prometheus:
             - record: namespace:workload_cpu_usage_cores:rate5m
               expr: |
                 sum by (namespace) (
-                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!=""}[5m])
+                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}[5m])
                 )
             - record: namespace:workload_memory_working_set_bytes:sum
               expr: |
                 sum by (namespace) (
-                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!=""}
+                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
                 )
             - record: pod:workload_cpu_usage_cores:rate5m
               expr: |
                 sum by (namespace, pod) (
-                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!=""}[5m])
+                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}[5m])
                 )
             - record: pod:workload_memory_working_set_bytes:sum
               expr: |
                 sum by (namespace, pod) (
-                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!=""}
+                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
                 )
 
 grafana:
@@ -139,7 +139,7 @@ loki:
     allocatedMemory: 128
     resources:
       requests:
-        cpu: 500m
+        cpu: 100m
         memory: 154Mi
         ephemeral-storage: 64Mi
       limits:
