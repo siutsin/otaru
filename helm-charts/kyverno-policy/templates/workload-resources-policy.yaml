@@ -14,6 +14,15 @@ spec:
           - resources:
               kinds:
                 - Pod
+{{- with .Values.workloadResourcesPolicy.excludedNamespaces }}
+      exclude:
+        any:
+          - resources:
+              namespaces:
+{{- range . }}
+                - {{ . }}
+{{- end }}
+{{- end }}
       validate:
         failureAction: Audit
         message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.

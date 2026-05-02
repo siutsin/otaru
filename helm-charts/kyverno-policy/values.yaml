@@ -35,3 +35,8 @@ clusterSecretStorePolicy:
 
 workloadResourcesPolicy:
   enabled: true
+  excludedNamespaces:
+    - kube-node-lease
+    - kube-public
+    - kube-system
+    - kyverno
