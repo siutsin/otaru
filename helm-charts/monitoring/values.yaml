@@ -205,8 +205,47 @@ loki:
   bloomGateway:
     replicas: 0
 
-promtail:
+fluent-bit:
   resources: *smallResources
+  logLevel: warn
   config:
-    clients:
-      - url: http://monitoring-loki:3100/loki/api/v1/push
+    inputs: |
+      [INPUT]
+          Name tail
+          Path /var/log/containers/*.log
+          multiline.parser docker, cri
+          Tag kube.*
+          Mem_Buf_Limit 5MB
+          Skip_Long_Lines On
+
+    filters: |
+      [FILTER]
+          Name kubernetes
+          Match kube.*
+          Merge_Log On
+          Keep_Log Off
+          K8S-Logging.Parser On
+          K8S-Logging.Exclude On
+
+    outputs: |
+      [OUTPUT]
+          Name loki
+          Match kube.*
+          Host monitoring-loki
+          Port 3100
+          URI /loki/api/v1/push
+          Labels job=fluent-bit
+          Label_Map_Path /fluent-bit/etc/conf/loki-labels.json
+          Retry_Limit False
+
+    extraFiles:
+      loki-labels.json: |
+        {
+          "kubernetes": {
+            "namespace_name": "namespace",
+            "pod_name": "pod",
+            "container_name": "container",
+            "host": "node"
+          },
+          "stream": "stream"
+        }
