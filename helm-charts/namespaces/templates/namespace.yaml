@@ -12,6 +12,8 @@ metadata:
     argocd.argoproj.io/sync-options: Delete=false,Prune=false
 {{- if $ambient }}
   labels:
-{{- $.Values.labels | toYaml | nindent 4 }}
+{{- range $key, $value := $.Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
