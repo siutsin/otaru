@@ -1,5 +1,8 @@
 labels:
   istio.io/dataplane-mode: ambient
+  istio.io/use-waypoint: waypoint
+  istio.io/use-waypoint-namespace: gateway-api
+  istio.io/ingress-use-waypoint: "true"
 
 namespaces:
   # Intentional: managed workload namespaces are enrolled in ambient mesh so

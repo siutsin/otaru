@@ -3,6 +3,8 @@ namespace: istio-system
 istiod:
   profile: ambient
   pilot:
+    env:
+      ENABLE_INGRESS_WAYPOINT_ROUTING: "true"
     resources:
       requests:
         cpu: 100m

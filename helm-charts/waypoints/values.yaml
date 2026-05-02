@@ -1,0 +1,5 @@
+waypoint:
+  name: waypoint
+  for: service
+  namespace: gateway-api
+  allowedRoutesFrom: All

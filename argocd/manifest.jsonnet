@@ -207,6 +207,7 @@ local serviceMesh = [
   { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
   { wave: '04', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh.istiod },
   { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
+  { wave: '06', name: 'waypoints', namespace: 'argocd' },
 ];
 
 [
