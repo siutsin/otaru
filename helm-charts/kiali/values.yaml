@@ -25,6 +25,9 @@ kiali-server:
       internal_url: http://monitoring-grafana.monitoring.svc.cluster.local
       external_url: https://grafana.internal.siutsin.com
     istio:
+      gateway_api_classes:
+        - name: Envoy Gateway
+          class_name: eg
       root_namespace: istio-system
     prometheus:
       url: http://monitoring-prometheus-server.monitoring.svc.cluster.local
