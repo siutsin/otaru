@@ -10,6 +10,7 @@ kiali-server:
   deployment:
     accessible_namespaces:
       - "**"
+    view_only_mode: true
     resources:
       requests:
         cpu: 50m
@@ -19,5 +20,11 @@ kiali-server:
         memory: 256Mi
         ephemeral-storage: 64Mi
   external_services:
+    grafana:
+      enabled: true
+      internal_url: http://monitoring-grafana.monitoring.svc.cluster.local
+      external_url: https://grafana.internal.siutsin.com
     istio:
       root_namespace: istio-system
+    prometheus:
+      url: http://monitoring-prometheus-server.monitoring.svc.cluster.local
