@@ -26,21 +26,58 @@ httpRoutes:
       port: 80
 
 prometheus:
+  configmapReload:
+    prometheus:
+      resources: *smallResources
   server:
     resources:
+      # Keep memory at 3Gi: Grafana dashboard queries pushed Prometheus close to the previous 2Gi limit.
       requests:
         cpu: 100m
-        memory: 2Gi
+        memory: 3Gi
         ephemeral-storage: 256Mi
       limits:
-        memory: 2Gi
+        memory: 3Gi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 50Gi
-    retentionSize: 10GB
-    retention: 1d
+    # One day currently uses about 2.3G; retain 7 days while leaving PVC headroom for WAL/head chunks and growth.
+    retentionSize: 45GB
+    retention: 7d
   alertmanager:
     enabled: false
+  kube-state-metrics:
+    resources: *smallResources
+  prometheus-node-exporter:
+    resources: *smallResources
+  prometheus-pushgateway:
+    resources: *smallResources
+  serverFiles:
+    recording_rules.yml:
+      groups:
+        - name: workload-resource-usage
+          interval: 30s
+          rules:
+            - record: namespace:workload_cpu_usage_cores:rate5m
+              expr: |
+                sum by (namespace) (
+                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!=""}[5m])
+                )
+            - record: namespace:workload_memory_working_set_bytes:sum
+              expr: |
+                sum by (namespace) (
+                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!=""}
+                )
+            - record: pod:workload_cpu_usage_cores:rate5m
+              expr: |
+                sum by (namespace, pod) (
+                  rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!=""}[5m])
+                )
+            - record: pod:workload_memory_working_set_bytes:sum
+              expr: |
+                sum by (namespace, pod) (
+                  container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!=""}
+                )
 
 grafana:
   resources:
@@ -71,7 +108,7 @@ grafana:
       providers:
         - name: default
           folder: ''
-          allowUiUpdates: true
+          allowUiUpdates: false
           options:
             path: /var/lib/grafana/dashboards
   grafana.ini:
@@ -80,6 +117,10 @@ grafana:
 
 loki:
   deploymentMode: SingleBinary
+  lokiCanary:
+    resources: *smallResources
+  gateway:
+    resources: *smallResources
   singleBinary:
     replicas: 1
     resources:
@@ -96,6 +137,18 @@ loki:
     enabled: false
   resultsCache:
     allocatedMemory: 128
+    resources:
+      requests:
+        cpu: 500m
+        memory: 154Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 154Mi
+        ephemeral-storage: 64Mi
+  memcachedExporter:
+    resources: *smallResources
+  sidecar:
+    resources: *smallResources
   memberlist:
     service:
       publishNotReadyAddresses: true
