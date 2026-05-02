@@ -231,6 +231,7 @@ fluent-bit:
           Keep_Log Off
           K8S-Logging.Parser On
           K8S-Logging.Exclude On
+          buffer_size 128k
 
     outputs: |
       [OUTPUT]
