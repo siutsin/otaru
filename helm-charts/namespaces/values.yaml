@@ -35,6 +35,7 @@ namespaces:
   - name: keda
     ambient: false
   - name: kube-system
+    ambient: false
   - name: kubernetes-mcp-server
   - name: kyverno
     ambient: false
