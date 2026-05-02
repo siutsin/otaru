@@ -63,16 +63,11 @@ jobs:
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             const deadline = Date.now() + 20 * 60 * 1000;
 
-            const { data: headCommit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: headSha,
-            });
-            const headCommittedAt = new Date(headCommit.commit.committer.date);
+            const prUpdatedAt = new Date(context.payload.pull_request.updated_at);
 
             const isCodex = user => botLogins.has(user?.login);
-            const isCurrentHeadSignal = createdAt =>
-              new Date(createdAt) >= headCommittedAt;
+            const isCurrentPrUpdateSignal = createdAt =>
+              new Date(createdAt) >= prUpdatedAt;
 
             while (Date.now() < deadline) {
               const reactions = await github.paginate(
@@ -83,11 +78,11 @@ jobs:
               const thumbsUpAfterHead = reactions.some(reaction =>
                 isCodex(reaction.user) &&
                 reaction.content === "+1" &&
-                isCurrentHeadSignal(reaction.created_at)
+                isCurrentPrUpdateSignal(reaction.created_at)
               );
 
               if (thumbsUpAfterHead) {
-                core.info(`Codex gave 👍 after HEAD ${headSha}`);
+                core.info(`Codex gave 👍 after PR update for HEAD ${headSha}`);
                 return;
               }
 
@@ -130,7 +125,7 @@ jobs:
 
               const codexIssueCommentsAfterHead = issueComments.filter(comment =>
                 isCodex(comment.user) &&
-                isCurrentHeadSignal(comment.created_at)
+                isCurrentPrUpdateSignal(comment.created_at)
               );
 
               if (codexIssueCommentsAfterHead.length > 0) {
@@ -138,7 +133,7 @@ jobs:
                 return;
               }
 
-              core.info("Waiting for Codex connector 👍...");
+              core.info("Waiting for Codex connector 👍 after current PR update...");
               await sleep(60 * 1000);
             }
 
