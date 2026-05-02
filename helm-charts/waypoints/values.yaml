@@ -3,3 +3,7 @@ waypoint:
   for: service
   namespace: gateway-api
   allowedRoutesFrom: All
+  deployment:
+    replicas: 2
+  podDisruptionBudget:
+    minAvailable: 1

@@ -6,6 +6,11 @@ metadata:
   labels:
     istio.io/waypoint-for: {{ $.Values.waypoint.for | quote }}
 spec:
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ $.Values.waypoint.name }}-options
   gatewayClassName: istio-waypoint
   listeners:
     - name: mesh
