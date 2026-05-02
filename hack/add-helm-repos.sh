@@ -7,6 +7,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 CHARTS_DIR="${1:-./helm-charts}"
 TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/helm-repos.XXXXXX")
+ALL_REPOS_FILE="${TEMP_DIR}/all-repos"
 REPOS_FILE="${TEMP_DIR}/repos"
 
 cleanup() {
@@ -31,9 +32,9 @@ find "$CHARTS_DIR" -name 'Chart.yaml' -print0 \
     | while IFS= read -r -d '' chart; do
         yq -r '.dependencies[]?.repository // ""' "$chart"
     done \
-    | sed '/^$/d' \
-    | awk '/^https?:\/\//' \
-    | sort -u > "$REPOS_FILE"
+    | sed '/^$/d' > "$ALL_REPOS_FILE"
+
+awk '/^https?:\/\//' "$ALL_REPOS_FILE" | sort -u > "$REPOS_FILE"
 
 if [ ! -s "$REPOS_FILE" ]; then
     log_warning "No HTTP Helm repositories found in $CHARTS_DIR"
