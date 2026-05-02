@@ -1,0 +1,41 @@
+labels:
+  istio.io/dataplane-mode: ambient
+
+namespaces:
+  # Intentional: managed workload namespaces are enrolled in ambient mesh so
+  # mTLS can be observed in PERMISSIVE mode before tightening enforcement.
+  - name: argocd
+  - name: atlantis
+  - name: blocky
+  - name: cert-manager
+    ambient: false
+  - name: changedetection
+  - name: cloudflare-tunnel
+  - name: cnpg-system
+    ambient: false
+  - name: cyberchef
+  - name: default
+    ambient: false
+  - name: descheduler
+  - name: excalidraw
+  - name: external-secrets
+    ambient: false
+  - name: home-assistant
+  - name: httpbin
+  - name: istio-system
+    ambient: false
+  - name: jellyfin
+  - name: jsoncrack
+  - name: jung2bot
+  - name: jung2bot-dev
+  - name: k8s-cleaner
+  - name: keda
+    ambient: false
+  - name: kubernetes-mcp-server
+  - name: kyverno
+    ambient: false
+  - name: longhorn-system
+  - name: monitoring
+  - name: onepassword
+  - name: reloader
+  - name: teslamate

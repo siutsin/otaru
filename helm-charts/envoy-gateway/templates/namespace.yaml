@@ -1,4 +1,8 @@
 apiVersion: v1
 kind: Namespace
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
+  labels:
+    istio.io/dataplane-mode: ambient
   name: {{ .Values.namespace }}

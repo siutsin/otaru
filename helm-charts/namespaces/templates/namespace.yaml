@@ -1,0 +1,19 @@
+{{- range $namespace := .Values.namespaces }}
+{{- $ambient := true }}
+{{- if hasKey $namespace "ambient" }}
+{{- $ambient = $namespace.ambient }}
+{{- end }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace.name }}
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
+{{- if $ambient }}
+  labels:
+{{- range $key, $value := $.Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

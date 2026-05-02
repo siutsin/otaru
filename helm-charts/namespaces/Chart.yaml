@@ -1,0 +1,6 @@
+apiVersion: v2
+name: namespaces
+description: Bootstrap namespaces and shared namespace labels
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
