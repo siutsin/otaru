@@ -32,7 +32,7 @@ find "$CHARTS_DIR" -name 'Chart.yaml' -print0 \
         yq -r '.dependencies[]?.repository // ""' "$chart"
     done \
     | sed '/^$/d' \
-    | grep -E '^https?://' \
+    | { grep -E '^https?://' || true; } \
     | sort -u > "$REPOS_FILE"
 
 if [ ! -s "$REPOS_FILE" ]; then
