@@ -1,0 +1,41 @@
+{{- if .Values.workloadResourcesPolicy.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-workload-resources
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  rules:
+    - name: require-container-resource-requests-and-limits
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        failureAction: Audit
+        message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.
+        pattern:
+          spec:
+            =(initContainers):
+              - resources:
+                  requests:
+                    cpu: ?*
+                    memory: ?*
+                    ephemeral-storage: ?*
+                  limits:
+                    memory: ?*
+                    ephemeral-storage: ?*
+            containers:
+              - resources:
+                  requests:
+                    cpu: ?*
+                    memory: ?*
+                    ephemeral-storage: ?*
+                  limits:
+                    memory: ?*
+                    ephemeral-storage: ?*
+  validationFailureAction: Audit
+{{- end }}
