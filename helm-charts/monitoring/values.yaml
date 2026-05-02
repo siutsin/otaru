@@ -43,7 +43,15 @@ prometheus:
     enabled: false
 
 grafana:
-  resources: *smallResources
+  resources:
+    # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
+    requests:
+      cpu: 50m
+      memory: 512Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 512Mi
+      ephemeral-storage: 64Mi
   admin:
     existingSecret: grafana
   datasources:
