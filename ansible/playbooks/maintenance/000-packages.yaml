@@ -45,14 +45,14 @@
     - name: Cordon the node
       delegate_to: localhost
       become: false
-      command: kubectl --kubeconfig {{ local_kubeconfig }} cordon {{ node_name }}
+      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl cordon {{ node_name }}
       changed_when: false
       when: reboot_required_marker.stat.exists
 
     - name: Drain the node, ignoring PDBs
       delegate_to: localhost
       become: false
-      command: kubectl --kubeconfig {{ local_kubeconfig }} drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
+      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
       register: drain_result
       changed_when: false
       retries: 5
@@ -122,6 +122,6 @@
     - name: Uncordon the node
       delegate_to: localhost
       become: false
-      command: kubectl --kubeconfig {{ local_kubeconfig }} uncordon {{ node_name }}
+      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl uncordon {{ node_name }}
       changed_when: false
       when: reboot_required_marker.stat.exists
