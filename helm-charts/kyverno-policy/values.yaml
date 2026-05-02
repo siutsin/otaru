@@ -32,3 +32,11 @@ clusterSecretStorePolicy:
       - b2-secret-cloudnative-pg
       - heartbeats
       - teslamate
+
+workloadResourcesPolicy:
+  enabled: true
+  excludedNamespaces:
+    - kube-node-lease
+    - kube-public
+    - kube-system
+    - kyverno
