@@ -1111,6 +1111,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/monitoring-volume-0.1.0/monitoring-volume-0.1.0.tgz
     version: 0.1.0
+  namespaces:
+  - apiVersion: v2
+    created: "2026-05-02T20:57:33.523694781Z"
+    description: Bootstrap namespaces and shared namespace labels
+    digest: 791ef2434db4a9bc98c4948c843da061d3adfe1b6a85b06a208136d094a36e4b
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: namespaces
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/namespaces-0.1.0/namespaces-0.1.0.tgz
+    version: 0.1.0
   oidc-provider:
   - apiVersion: v2
     created: "2025-07-06T15:50:35.858975121Z"
@@ -1277,4 +1288,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-02T04:45:14.332106167Z"
+generated: "2026-05-02T20:57:33.523822731Z"
