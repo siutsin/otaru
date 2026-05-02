@@ -88,7 +88,7 @@ victoria-metrics-cluster:
     fullnameOverride: monitoring-vmselect
     replicaCount: 3
     extraArgs:
-      dedup.minScrapeInterval: 1ms
+      dedup.minScrapeInterval: 60s
       replicationFactor: 2
     resources:
       requests:
@@ -147,6 +147,8 @@ victoria-metrics-agent:
     enabled: true
     size: 2Gi
   config:
+    # Scrape configs are inherited from the victoria-metrics-agent chart defaults.
+    # Keep these timings aligned with vmselect dedup.minScrapeInterval above.
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
@@ -169,6 +171,8 @@ victoria-metrics-alert:
         memory: 128Mi
         ephemeral-storage: 64Mi
     config:
+      # Duplicated from prometheus.serverFiles.recording_rules.yml while both stacks
+      # run side-by-side; keep them in sync until Prometheus is removed.
       alerts:
         groups:
           - name: workload-resource-usage
