@@ -2,6 +2,8 @@ labels:
   istio.io/dataplane-mode: ambient
 
 namespaces:
+  # Intentional: every managed namespace is enrolled in ambient mesh so
+  # mesh-wide STRICT PeerAuthentication can enforce workload mTLS.
   - argocd
   - atlantis
   - blocky

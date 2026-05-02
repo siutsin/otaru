@@ -14,6 +14,7 @@
     retries: 5
     delay: 10
     until: namespaces_result.rc == 0
+    changed_when: "'unchanged' not in namespaces_result.stdout"
 
   - name: Initialise CoreDNS
     shell: "helm template coredns ../../../helm-charts/coredns -n kube-system | kubectl apply -f -"
