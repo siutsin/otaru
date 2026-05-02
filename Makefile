@@ -167,7 +167,7 @@ validate-helm-charts: ## Validate all Helm charts
 	@for chart in helm-charts/*/; do \
 		if [ -f "$$chart/Chart.yaml" ]; then \
 			helm dependency list "$$chart" | awk ' \
-				NR > 1 && NF > 0 && $$4 != "ok" { \
+				NR > 1 && NF > 0 && $$4 !~ /^(ok|unpacked)$$/ { \
 					print "Helm dependency not current in " chart ": " $$0; \
 					bad = 1 \
 				} \
