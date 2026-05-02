@@ -207,7 +207,6 @@ loki:
 
 fluent-bit:
   resources: *smallResources
-  logLevel: warn
   tolerations:
     - key: node-role.kubernetes.io/control-plane
       operator: Exists
