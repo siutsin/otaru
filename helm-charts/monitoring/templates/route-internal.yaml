@@ -20,7 +20,7 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: {{ $v.path | default "/" }}
       backendRefs:
         - group: ""
           kind: Service
