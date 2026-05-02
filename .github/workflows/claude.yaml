@@ -62,7 +62,8 @@ jobs:
               if [ "$ACTOR" = "renovate[bot]" ] || [ "$ACTOR" = "otaru-ci[bot]" ]; then
                 :
               elif [ "$PR_HEAD_REPO" != "$REPOSITORY" ]; then
-                :
+                should_run=true
+                mode=wait-external
               else
                 files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
                 if echo "$files" | grep -qx '.github/workflows/claude.yaml'; then
@@ -99,6 +100,32 @@ jobs:
 
           echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for external review
+        if: steps.decide.outputs.mode == 'wait-external'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          deadline=$((SECONDS + 1200))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            result=$(gh pr checks "$PR_NUMBER" \
+              --repo "$GITHUB_REPOSITORY" \
+              --json name,state,workflow \
+              --jq '.[] | select(.name == "claude-external-review" and .workflow == "Claude Code") | .state' \
+              | head -n 1)
+            case "$result" in
+              SUCCESS|SKIPPED)
+                exit 0
+                ;;
+              FAILURE|CANCELLED|TIMED_OUT)
+                exit 1
+                ;;
+            esac
+            sleep 30
+          done
+          echo "Timed out waiting for claude-external-review." >&2
+          exit 1
 
       - name: Checkout repository
         if: steps.decide.outputs.mode == 'requested-review'
