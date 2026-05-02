@@ -1,8 +1,20 @@
 labels:
   istio.io/dataplane-mode: ambient
 
+ambientLabelExclusions:
+  # Admission webhook services must remain reachable from the Kubernetes API
+  # server, which is outside the mesh and cannot use Istio mTLS.
+  - cert-manager
+  - cnpg-system
+  - default
+  - external-secrets
+  - istio-system
+  - keda
+  - kyverno
+  - metallb-system
+
 namespaces:
-  # Intentional: every managed namespace is enrolled in ambient mesh so
+  # Intentional: managed workload namespaces are enrolled in ambient mesh so
   # mesh-wide STRICT PeerAuthentication can enforce workload mTLS.
   - argocd
   - atlantis
