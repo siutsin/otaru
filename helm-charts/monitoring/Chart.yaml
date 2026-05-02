@@ -8,15 +8,6 @@ dependencies:
 - name: prometheus
   version: 29.2.1
   repository: https://prometheus-community.github.io/helm-charts
-- name: victoria-metrics-cluster
-  version: 0.41.2
-  repository: https://victoriametrics.github.io/helm-charts
-- name: victoria-metrics-agent
-  version: 0.38.0
-  repository: https://victoriametrics.github.io/helm-charts
-- name: victoria-metrics-alert
-  version: 0.39.0
-  repository: https://victoriametrics.github.io/helm-charts
 - name: loki
   version: 7.0.0
   repository: https://grafana.github.io/helm-charts
