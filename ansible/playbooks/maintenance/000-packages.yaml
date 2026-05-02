@@ -44,6 +44,7 @@
       delegate_to: localhost
       become: false
       command: kubectl cordon {{ node_name }}
+      changed_when: false
       when: reboot_required_marker.stat.exists
 
     - name: Drain the node, ignoring PDBs
@@ -51,6 +52,7 @@
       become: false
       command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
       register: drain_result
+      changed_when: false
       retries: 5
       delay: 30
       until: drain_result.rc == 0
@@ -119,4 +121,5 @@
       delegate_to: localhost
       become: false
       command: kubectl uncordon {{ node_name }}
+      changed_when: false
       when: reboot_required_marker.stat.exists
