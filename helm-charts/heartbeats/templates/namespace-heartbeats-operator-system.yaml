@@ -8,4 +8,7 @@ metadata:
     app.kubernetes.io/name: heartbeats-operator
     control-plane: controller-manager
     istio.io/dataplane-mode: ambient
+    istio.io/use-waypoint: waypoint
+    istio.io/use-waypoint-namespace: gateway-api
+    istio.io/ingress-use-waypoint: "true"
   name: heartbeats-operator-system

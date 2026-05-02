@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $.Values.waypoint.name }}
+  namespace: {{ $.Values.waypoint.namespace }}
+  labels:
+    istio.io/waypoint-for: {{ $.Values.waypoint.for | quote }}
+spec:
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ $.Values.waypoint.name }}-options
+  gatewayClassName: istio-waypoint
+  listeners:
+    - name: mesh
+      port: 15008
+      protocol: HBONE
+      allowedRoutes:
+        namespaces:
+          from: {{ $.Values.waypoint.allowedRoutesFrom }}

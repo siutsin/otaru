@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.waypoint.name }}-options
+  namespace: {{ .Values.waypoint.namespace }}
+data:
+  deployment: |
+    spec:
+      replicas: {{ .Values.waypoint.deployment.replicas }}
+  podDisruptionBudget: |
+    spec:
+      minAvailable: {{ .Values.waypoint.podDisruptionBudget.minAvailable }}

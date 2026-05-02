@@ -1,0 +1,5 @@
+apiVersion: v2
+name: waypoints
+description: Deploy Istio ambient waypoints for managed namespaces
+type: application
+version: 0.1.0
