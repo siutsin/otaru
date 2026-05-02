@@ -14,7 +14,11 @@
     retries: 5
     delay: 10
     until: namespaces_result.rc == 0
-    changed_when: "'unchanged' not in namespaces_result.stdout"
+    changed_when: >-
+      namespaces_result.stdout_lines
+      | select('search', ' (created|configured)$')
+      | list
+      | length > 0
 
   - name: Initialise CoreDNS
     shell: "helm template coredns ../../../helm-charts/coredns -n kube-system | kubectl apply -f -"
