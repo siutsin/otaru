@@ -1,0 +1,16 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway-api" -}}
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: {{ .Values.name }}-gateway-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: {{ $gatewayNamespace }}
+  to:
+    - group: ""
+      kind: Service
+      name: kiali
