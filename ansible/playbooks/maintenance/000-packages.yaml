@@ -13,13 +13,21 @@
 - hosts: raspberrypi
   become: true
   serial: 1
-  vars:
-    k3s_kubeconfig: /etc/rancher/k3s/k3s.yaml
 
   tasks:
     - name: Get node name by removing .local from inventory_hostname
       set_fact:
         node_name: "{{ inventory_hostname | regex_replace('\\.local$', '') }}"
+
+    - name: Check if reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_marker
+
+    - name: Node reboot not required
+      debug:
+        msg: "Skipping {{ node_name }} because /var/run/reboot-required is absent."
+      when: not reboot_required_marker.stat.exists
 
     - name: Assert LUKS reboot passphrase is provided locally
       delegate_to: localhost
@@ -28,33 +36,43 @@
         that:
           - lookup('ansible.builtin.env', 'OTARU_LUKS_PASSWORD') | length > 0
         fail_msg: "Set OTARU_LUKS_PASSWORD in the controller environment before rebooting a LUKS node."
-      when: luks_enabled | default(false)
+      when:
+        - reboot_required_marker.stat.exists
+        - luks_enabled | default(false)
 
     - name: Cordon the node
-      command: kubectl cordon {{ node_name }}
-      environment:
-        KUBECONFIG: "{{ k3s_kubeconfig }}"
+      delegate_to: localhost
+      become: false
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl cordon {{ node_name }}
+      changed_when: false
+      when: reboot_required_marker.stat.exists
 
     - name: Drain the node, ignoring PDBs
-      command: kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
+      delegate_to: localhost
+      become: false
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
       register: drain_result
+      changed_when: false
       retries: 5
       delay: 30
       until: drain_result.rc == 0
-      environment:
-        KUBECONFIG: "{{ k3s_kubeconfig }}"
+      when: reboot_required_marker.stat.exists
 
     - name: Reboot the system
       reboot:
         reboot_command: systemctl reboot --job-mode=replace-irreversibly
-      when: not (luks_enabled | default(false))
+      when:
+        - reboot_required_marker.stat.exists
+        - not (luks_enabled | default(false))
 
     - name: Reboot the LUKS system
       command: systemctl reboot --job-mode=replace-irreversibly
       async: 1
       poll: 0
       failed_when: false
-      when: luks_enabled | default(false)
+      when:
+        - reboot_required_marker.stat.exists
+        - luks_enabled | default(false)
 
     - name: Wait for initramfs dropbear on LUKS node
       delegate_to: localhost
@@ -64,22 +82,24 @@
         port: "{{ luks_dropbear_port }}"
         delay: 5
         timeout: 600
-      when: luks_enabled | default(false)
+      when:
+        - reboot_required_marker.stat.exists
+        - luks_enabled | default(false)
 
     - name: Unlock LUKS node through initramfs passfifo
       delegate_to: localhost
       become: false
-      shell: >-
-        {{ playbook_dir }}/../../hack/luks-cryptroot-unlock.sh
-        {{ ansible_host | default(inventory_hostname, true) }}
-        {{ luks_dropbear_port | string }}
-        --env-passfifo
+      command: make LUKS_UNLOCK_PORT={{ luks_dropbear_port | string }} unlock {{ node_name }}
+      args:
+        chdir: "{{ inventory_dir }}/.."
       register: luks_unlock_result
       retries: 3
       delay: 10
       until: luks_unlock_result.rc == 0
       no_log: true
-      when: luks_enabled | default(false)
+      when:
+        - reboot_required_marker.stat.exists
+        - luks_enabled | default(false)
 
     - name: Wait for system to become reachable
       delegate_to: localhost
@@ -89,13 +109,17 @@
         port: 22
         delay: 10
         timeout: 600
+      when: reboot_required_marker.stat.exists
 
     - name: Wait for SSH connection to recover
       wait_for_connection:
         delay: 5
         timeout: 300
+      when: reboot_required_marker.stat.exists
 
     - name: Uncordon the node
-      command: kubectl uncordon {{ node_name }}
-      environment:
-        KUBECONFIG: "{{ k3s_kubeconfig }}"
+      delegate_to: localhost
+      become: false
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl uncordon {{ node_name }}
+      changed_when: false
+      when: reboot_required_marker.stat.exists
