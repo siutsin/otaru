@@ -89,7 +89,7 @@
       become: false
       command: make LUKS_UNLOCK_PORT={{ luks_dropbear_port | string }} unlock {{ node_name }}
       args:
-        chdir: "{{ playbook_dir }}/../../.."
+        chdir: "{{ inventory_dir }}/.."
       register: luks_unlock_result
       retries: 3
       delay: 10
