@@ -1225,6 +1225,16 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/teslamate-0.1.1/teslamate-0.1.1.tgz
     version: 0.1.1
+  waypoints:
+  - apiVersion: v2
+    created: "2026-05-02T22:37:46.957172853Z"
+    description: Deploy Istio ambient waypoints for managed namespaces
+    digest: 7abebe32ca531e9cfb0137ee45e675c695dd814cd2680ce3a60d0518974c7cea
+    name: waypoints
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/waypoints-0.1.0/waypoints-0.1.0.tgz
+    version: 0.1.0
   yaade:
   - apiVersion: v2
     created: "2025-07-06T15:50:36.14091301Z"
@@ -1288,4 +1298,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-02T20:57:33.523822731Z"
+generated: "2026-05-02T22:37:46.957296449Z"
