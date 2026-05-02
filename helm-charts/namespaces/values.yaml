@@ -20,8 +20,6 @@ namespaces:
   - name: excalidraw
   - name: external-secrets
     ambient: false
-  - name: gateway-api
-  - name: heartbeats-operator-system
   - name: home-assistant
   - name: httpbin
   - name: istio-system
@@ -30,7 +28,6 @@ namespaces:
   - name: jsoncrack
   - name: jung2bot
   - name: jung2bot-dev
-  - name: k3s-apiserver-loadbalancer-system
   - name: k8s-cleaner
   - name: keda
     ambient: false
@@ -38,8 +35,6 @@ namespaces:
   - name: kyverno
     ambient: false
   - name: longhorn-system
-  - name: metallb-system
-    ambient: false
   - name: monitoring
   - name: onepassword
   - name: reloader
