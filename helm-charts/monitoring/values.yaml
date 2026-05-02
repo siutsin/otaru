@@ -87,7 +87,7 @@ prometheus:
 victoria-metrics-cluster:
   vmselect:
     fullnameOverride: monitoring-vmselect
-    replicaCount: 3
+    replicaCount: 2
     extraArgs:
       dedup.minScrapeInterval: 30s
       replicationFactor: 2
@@ -101,7 +101,7 @@ victoria-metrics-cluster:
         ephemeral-storage: 128Mi
   vminsert:
     fullnameOverride: monitoring-vminsert
-    replicaCount: 3
+    replicaCount: 2
     extraArgs:
       replicationFactor: 2
     resources:
@@ -129,7 +129,7 @@ victoria-metrics-cluster:
 
 victoria-metrics-agent:
   fullnameOverride: monitoring-vmagent
-  replicaCount: 3
+  replicaCount: 2
   mode: statefulSet
   statefulSet:
     clusterMode: true
