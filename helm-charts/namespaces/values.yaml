@@ -1,0 +1,37 @@
+labels:
+  istio.io/dataplane-mode: ambient
+
+namespaces:
+  - argocd
+  - atlantis
+  - blocky
+  - cert-manager
+  - changedetection
+  - cloudflare-tunnel
+  - cnpg-system
+  - cyberchef
+  - default
+  - descheduler
+  - excalidraw
+  - external-secrets
+  - gateway-api
+  - heartbeats-operator-system
+  - home-assistant
+  - httpbin
+  - istio-system
+  - jellyfin
+  - jsoncrack
+  - jung2bot
+  - jung2bot-dev
+  - k3s-apiserver-loadbalancer-system
+  - k8s-cleaner
+  - keda
+  - kube-system
+  - kubernetes-mcp-server
+  - kyverno
+  - longhorn-system
+  - metallb-system
+  - monitoring
+  - onepassword
+  - reloader
+  - teslamate

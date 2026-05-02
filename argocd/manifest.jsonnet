@@ -128,6 +128,7 @@ local baseline = [
 
 // Re-track bootstrap resources
 local bootstrap = [
+  { wave: '00', name: 'namespaces', namespace: 'argocd' },
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
