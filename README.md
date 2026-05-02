@@ -7,7 +7,7 @@
 
 Bare-metal `k3s` home lab and technical playground.
 
-The only rule: Raspberry Pi 🍓. Why? Why not ¯\_(ツ)_/¯
+The only rule: Raspberry Pi 🍓. Why? Why not ¯\\\_(ツ)\_/¯
 
 ## Architecture
 
