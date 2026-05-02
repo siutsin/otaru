@@ -87,7 +87,7 @@
     - name: Unlock LUKS node through initramfs passfifo
       delegate_to: localhost
       become: false
-      command: make unlock {{ node_name }}
+      command: make LUKS_UNLOCK_PORT={{ luks_dropbear_port | string }} unlock {{ node_name }}
       args:
         chdir: "{{ playbook_dir }}/../../.."
       register: luks_unlock_result
