@@ -16,6 +16,11 @@ httpRoutes:
     service:
       name: monitoring-prometheus-server
       port: 80
+  victoriametrics:
+    path: /select
+    service:
+      name: monitoring-vmselect
+      port: 8481
   loki:
     service:
       name: monitoring-loki
@@ -79,6 +84,124 @@ prometheus:
                   container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
                 )
 
+victoria-metrics-cluster:
+  vmselect:
+    fullnameOverride: monitoring-vmselect
+    replicaCount: 3
+    extraArgs:
+      dedup.minScrapeInterval: 30s
+      replicationFactor: 2
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+  vminsert:
+    fullnameOverride: monitoring-vminsert
+    replicaCount: 3
+    extraArgs:
+      replicationFactor: 2
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+  vmstorage:
+    fullnameOverride: monitoring-vmstorage
+    replicaCount: 3
+    retentionPeriod: 30d
+    persistentVolume:
+      size: 25Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
+        ephemeral-storage: 256Mi
+      limits:
+        memory: 1Gi
+        ephemeral-storage: 256Mi
+
+victoria-metrics-agent:
+  fullnameOverride: monitoring-vmagent
+  replicaCount: 3
+  mode: statefulSet
+  statefulSet:
+    clusterMode: true
+    replicationFactor: 2
+  remoteWrite:
+    - url: http://monitoring-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 256Mi
+    limits:
+      memory: 256Mi
+      ephemeral-storage: 256Mi
+  persistentVolume:
+    enabled: true
+    size: 2Gi
+  config:
+    # Scrape configs are inherited from victoria-metrics-agent 0.38.0 chart defaults.
+    # Review rendered scrape_configs deliberately when changing the chart version.
+    # Keep these timings aligned with vmselect dedup.minScrapeInterval above.
+    global:
+      scrape_interval: 30s
+      scrape_timeout: 10s
+
+victoria-metrics-alert:
+  server:
+    fullnameOverride: monitoring-vmalert
+    # Recording-rules-only for now; add a notifier before introducing alerting rules.
+    datasource:
+      url: http://monitoring-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus/
+    remoteWrite:
+      url: http://monitoring-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/
+    remoteRead:
+      url: http://monitoring-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus/
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+    config:
+      # Duplicated from prometheus.serverFiles.recording_rules.yml while both stacks
+      # run side-by-side; keep them in sync until Prometheus is removed.
+      alerts:
+        groups:
+          - name: workload-resource-usage
+            interval: 30s
+            rules:
+              - record: namespace:workload_cpu_usage_cores:rate5m
+                expr: |
+                  sum by (namespace) (
+                    rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}[5m])
+                  )
+              - record: namespace:workload_memory_working_set_bytes:sum
+                expr: |
+                  sum by (namespace) (
+                    container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
+                  )
+              - record: pod:workload_cpu_usage_cores:rate5m
+                expr: |
+                  sum by (namespace, pod) (
+                    rate(container_cpu_usage_seconds_total{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}[5m])
+                  )
+              - record: pod:workload_memory_working_set_bytes:sum
+                expr: |
+                  sum by (namespace, pod) (
+                    container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
+                  )
+
 grafana:
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
@@ -99,6 +222,9 @@ grafana:
           type: prometheus
           url: http://monitoring-prometheus-server.monitoring.svc.cluster.local
           isDefault: true
+        - name: VictoriaMetrics
+          type: prometheus
+          url: http://monitoring-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus/
         - name: Loki
           type: loki
           url: http://monitoring-loki.monitoring.svc.cluster.local:3100
