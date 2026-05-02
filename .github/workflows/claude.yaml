@@ -418,3 +418,28 @@ jobs:
       - name: Report skipped external review
         if: steps.check.outputs.should-run != 'true'
         run: echo "Claude external review skipped."
+
+  claude-status:
+    if: always()
+    needs:
+      - claude-review
+      - claude-maintainer
+      - claude-external-review
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check Claude workflow result
+        env:
+          REVIEW_RESULT: ${{ needs.claude-review.result }}
+          MAINTAINER_RESULT: ${{ needs.claude-maintainer.result }}
+          EXTERNAL_REVIEW_RESULT: ${{ needs.claude-external-review.result }}
+        run: |
+          if [ "$REVIEW_RESULT" = "failure" ] || [ "$REVIEW_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
+          if [ "$MAINTAINER_RESULT" = "failure" ] || [ "$MAINTAINER_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
+          if [ "$EXTERNAL_REVIEW_RESULT" = "failure" ] || [ "$EXTERNAL_REVIEW_RESULT" = "cancelled" ]; then
+            exit 1
+          fi
