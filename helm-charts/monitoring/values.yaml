@@ -241,6 +241,7 @@ fluent-bit:
           URI /loki/api/v1/push
           Labels job=fluent-bit
           Label_Map_Path /fluent-bit/etc/conf/loki-labels.json
+          Buffer_Size 1M
           Retry_Limit False
 
     extraFiles:
