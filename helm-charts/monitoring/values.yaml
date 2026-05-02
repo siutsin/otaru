@@ -94,10 +94,10 @@ victoria-metrics-cluster:
     resources:
       requests:
         cpu: 50m
-        memory: 512Mi
+        memory: 256Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 512Mi
+        memory: 256Mi
         ephemeral-storage: 128Mi
   vminsert:
     fullnameOverride: monitoring-vminsert
@@ -107,10 +107,10 @@ victoria-metrics-cluster:
     resources:
       requests:
         cpu: 50m
-        memory: 256Mi
+        memory: 512Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 256Mi
+        memory: 512Mi
         ephemeral-storage: 128Mi
   vmstorage:
     fullnameOverride: monitoring-vmstorage
