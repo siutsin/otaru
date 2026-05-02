@@ -27,8 +27,7 @@ if ! directory_exists "$CHARTS_DIR"; then
 fi
 
 ensure_helm_repos() {
-    helm repo add fluent https://fluent.github.io/helm-charts --force-update >/dev/null
-    helm repo update fluent >/dev/null
+    "${SCRIPT_DIR}/add-helm-repos.sh" "$CHARTS_DIR"
 }
 
 log_info "Ensuring Helm repositories are configured..."
