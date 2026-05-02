@@ -15,7 +15,7 @@ ambientLabelExclusions:
 
 namespaces:
   # Intentional: managed workload namespaces are enrolled in ambient mesh so
-  # mesh-wide STRICT PeerAuthentication can enforce workload mTLS.
+  # mTLS can be observed in PERMISSIVE mode before tightening enforcement.
   - argocd
   - atlantis
   - blocky
