@@ -3,21 +3,23 @@
 ![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.6+k3s1-blue)
 [![Cluster Health](https://img.shields.io/static/v1?label=Cluster%20Health&message=WebGazer&color=brightgreen)](https://www.webgazer.io/s?id=493)
 
-> Over-Engineering at Its Finest.
+> Over-Engineering at Its Finest
 
-Bare-metal `k3s` home lab and technical playground. The game rule is to build a Kubernetes cluster with Raspberry Pi hardware.
+Bare-metal `k3s` home lab and technical playground.
 
-Current cluster shape:
+The only rule: Raspberry Pi 🍓. Why? Why not ¯\_(ツ)_/¯
+
+## Architecture
+
+![Otaru cluster architecture diagram](assets/otaru-architecture.png)
+
+Current cluster layout:
 
 - Dedicated `192.168.10.0/24` VLAN for cluster nodes and service virtual IPs
 - `k3s` with embedded etcd on three control-plane nodes
 - Flannel `wireguard-native` for pod networking
 - MetalLB + Envoy Gateway for service and ingress virtual IPs
 - Istio ambient mesh with Kiali for service mesh observability
-
-## Architecture
-
-![Otaru cluster architecture diagram](assets/otaru-architecture.png)
 
 ## Hardware
 
@@ -69,14 +71,14 @@ Three nodes form the control plane. One node remains a worker.
 | Application  | [changedetection.io](https://github.com/dgtlmoon/changedetection.io)                                | Self-hosted website change detection and alerting                                                      |
 | Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                     |
 | Application  | [Excalidraw](https://github.com/excalidraw/excalidraw)                                              | Virtual whiteboard for sketching hand-drawn like diagrams                                              |
-| Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home Automation                                                                                        |
+| Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home automation                                                                                        |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                 |
 | Application  | [Kubernetes MCP Server](https://github.com/containers/kubernetes-mcp-server)                        | Model Context Protocol server for Kubernetes cluster operations                                        |
 | Application  | [TeslaMate](https://github.com/teslamate-org/teslamate/)                                            | Self-hosted data logger for Tesla                                                                      |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                     |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                            |
 | CI/CD        | [Atlantis](https://github.com/runatlantis/atlantis)                                                 | OpenTofu Pull Request Automation, currently disabled in Argo CD                                        |
-| Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust Edge                                                                             |
+| Connectivity | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Cloudflare Zero Trust edge                                                                             |
 | Connectivity | [CoreDNS](https://github.com/coredns/coredns)                                                        | Cluster DNS managed separately from the disabled bundled k3s add-on                                    |
 | Connectivity | [Envoy Gateway](helm-charts/envoy-gateway)                                                          | Gateway API ingress controller with TLS termination and shared MetalLB virtual IP                      |
 | Connectivity | [Flannel](https://github.com/flannel-io/flannel)                                                    | `wireguard-native` encrypted pod networking for `k3s`                                                  |
@@ -113,23 +115,23 @@ Three nodes form the control plane. One node remains a worker.
 | CI/CD        | OpenAI        | [Codex](https://openai.com/codex/)                                                       | AI code review                               |
 | CI/CD        | GitHub        | [Actions](https://github.com/features/actions)                                           | Repository validation and release automation |
 | CI/CD        | Renovate      | [Dependency Updates](https://docs.renovatebot.com/)                                      | Automated dependency maintenance             |
-| Connectivity | Cloudflare    | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)              | Edge Access Control                          |
-| Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS Service                    |
-| Connectivity | Cloudflare    | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Edge Connectivity                            |
+| Connectivity | Cloudflare    | [Access](https://developers.cloudflare.com/cloudflare-one/policies/access/)              | Edge access control                          |
+| Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS service                    |
+| Connectivity | Cloudflare    | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Edge connectivity                            |
 | Connectivity | UniFi         | [Network](https://ui.com/)                                                               | Gateway, VLAN, WLAN, and firewall management |
 | Monitoring   | Heartbeats    | [Heartbeats Operator](helm-charts/heartbeats)                                            | Kubernetes operator for heartbeat monitoring |
-| Monitoring   | WebGazer      | [Uptime Monitoring](https://www.webgazer.io/)                                            | Health Check                                 |
-| Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                 | Secrets Automation                           |
+| Monitoring   | WebGazer      | [Uptime Monitoring](https://www.webgazer.io/)                                            | Health check                                 |
+| Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                 | Secrets automation                           |
 | Security     | AWS           | [IAM](https://aws.amazon.com/iam/)                                                       | OIDC/IRSA permissions and token exchange     |
-| Security     | Let's Encrypt | [Let's Encrypt](https://letsencrypt.org/)                                                | Certificate Authority                        |
+| Security     | Let's Encrypt | [Let's Encrypt](https://letsencrypt.org/)                                                | Certificate authority                        |
 | Security     | Snyk          | [Snyk](https://app.snyk.io/)                                                             | Vulnerability detection                      |
 | Storage      | AWS           | [DynamoDB](https://aws.amazon.com/dynamodb/)                                             | Database backend for 冗PowerBot               |
 | Storage      | AWS           | [SQS](https://aws.amazon.com/sqs/)                                                       | Queue backend for 冗PowerBot                  |
-| Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                         | OpenTofu Remote State                        |
+| Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                         | OpenTofu remote state                        |
 | Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                            | Longhorn and CloudNativePG backups           |
 <!-- markdownlint-enable MD060 -->
 
-## Bootstrap Cluster
+## Cluster Bootstrap
 
 1. **Install Tooling**
 
@@ -173,7 +175,7 @@ Update host packages and reboot the entire cluster.
 make maintenance
 ```
 
-Upgrade k3s kubernetes version and restart workloads.
+Upgrade the `k3s` Kubernetes version and restart workloads.
 
 ```shell
 make upgrade
@@ -191,7 +193,7 @@ Wipe everything and start from scratch.
 make nuke
 ```
 
-Set up Raspberry Pi nodes and K3s cluster.
+Set up Raspberry Pi nodes and the `k3s` cluster.
 
 ```shell
 make setup
