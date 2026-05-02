@@ -106,19 +106,20 @@ local cnpgClustersHelm = { parameters: [
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
+local ambientMesh = { namespaceLabels: { 'istio.io/dataplane-mode': 'ambient' } };
 local application = [
-  { wave: '10', name: 'blocky', namespace: 'blocky' },
-  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
-  { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
-  { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
-  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
-  { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
-  { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
-  { wave: '10', name: 'teslamate', namespace: 'teslamate' },
-  { wave: '11', name: 'changedetection', namespace: 'changedetection' },
-  { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
-  { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
-  { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
+  ambientMesh { wave: '10', name: 'blocky', namespace: 'blocky' },
+  ambientMesh { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
+  ambientMesh { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
+  ambientMesh { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
+  ambientMesh { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
+  ambientMesh { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
+  ambientMesh { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
+  ambientMesh { wave: '10', name: 'teslamate', namespace: 'teslamate' },
+  ambientMesh { wave: '11', name: 'changedetection', namespace: 'changedetection' },
+  ambientMesh { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+  ambientMesh { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
+  ambientMesh { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
 ];
 
 local baseline = [
@@ -145,7 +146,7 @@ local cicd = [
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
   { wave: '02', name: 'envoy-gateway', namespace: 'gateway-api', helm: { skipCrds: true } },
-  { wave: '10', name: 'httpbin', namespace: 'httpbin' },
+  ambientMesh { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
 local database = [

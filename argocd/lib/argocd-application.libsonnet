@@ -36,6 +36,10 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
         prune: true,
         selfHeal: true,
       } + std.get(config, 'automated', {}),
+      [if std.objectHas(config, 'namespaceLabels') || std.objectHas(config, 'namespaceAnnotations') then 'managedNamespaceMetadata']: {
+        labels: std.get(config, 'namespaceLabels', {}),
+        annotations: std.get(config, 'namespaceAnnotations', {}),
+      },
       syncOptions: [
         'ServerSideApply=true',
         'CreateNamespace=true',
