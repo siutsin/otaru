@@ -34,8 +34,6 @@ namespaces:
   - name: k8s-cleaner
   - name: keda
     ambient: false
-  - name: kube-system
-    ambient: false
   - name: kubernetes-mcp-server
   - name: kyverno
     ambient: false
