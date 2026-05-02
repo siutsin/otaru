@@ -1033,6 +1033,29 @@ entries:
     version: 0.1.0
   monitoring:
   - apiVersion: v2
+    created: "2026-05-02T04:45:14.165917834Z"
+    dependencies:
+    - name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 29.2.1
+    - name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 7.0.0
+    - name: fluent-bit
+      repository: https://fluent.github.io/helm-charts
+      version: 0.57.3
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 10.5.15
+    description: A Helm chart for Kubernetes
+    digest: bad55afd6531dd86575335279e10497d662c9ca224f641f5227530046588c77d
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: monitoring
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/monitoring-0.1.2/monitoring-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     created: "2025-07-06T15:50:35.764027195Z"
     dependencies:
     - name: prometheus
@@ -1254,4 +1277,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-04-26T22:49:15.146865323Z"
+generated: "2026-05-02T04:45:14.332106167Z"
