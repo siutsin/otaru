@@ -5,6 +5,4 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   mtls:
-    # Start in permissive mode while ambient enrollment is rolled out and
-    # verified, then tighten to STRICT once webhook and system paths are known.
-    mode: PERMISSIVE
+    mode: {{ .Values.peerAuthentication.mtlsMode }}

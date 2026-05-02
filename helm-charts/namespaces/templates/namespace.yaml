@@ -1,13 +1,17 @@
-{{- range .Values.namespaces }}
+{{- range $namespace := .Values.namespaces }}
+{{- $ambient := true }}
+{{- if hasKey $namespace "ambient" }}
+{{- $ambient = $namespace.ambient }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: {{ $namespace.name }}
   annotations:
     argocd.argoproj.io/sync-options: Delete=false,Prune=false
-{{- if not (has . ($.Values.ambientLabelExclusions | default list)) }}
+{{- if $ambient }}
   labels:
 {{- $.Values.labels | toYaml | nindent 4 }}
 {{- end }}
-  name: {{ . }}
 {{- end }}
