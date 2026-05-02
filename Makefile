@@ -43,7 +43,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(atlantis|clean-terragrunt-cache|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
+		grep -E "^(atlantis|clean-terragrunt-cache|add-helm-repos|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
@@ -124,6 +124,12 @@ atlantis: ## Generate Atlantis configuration file
 clean-terragrunt-cache: ## Clean up all .terragrunt-cache folders in infrastructure directory
 	@echo "$(GREEN)Cleaning Terragrunt cache...$(NC)"
 	bash $(HACK_DIR)/remove-terragrunt-cache.sh $(INFRASTRUCTURE_DIR)
+
+.PHONY: add-helm-repos
+add-helm-repos: ## Add Helm repositories declared by chart dependencies
+	@echo "$(GREEN)Adding Helm repositories from chart dependencies...$(NC)"
+	bash $(HACK_DIR)/add-helm-repos.sh helm-charts
+	@echo "$(GREEN)Helm repositories added successfully!$(NC)"
 
 .PHONY: update-helm-deps
 update-helm-deps: ## Update all Helm chart dependencies

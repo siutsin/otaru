@@ -28,29 +28,14 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
+        with:
+          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
 
-      - name: add repos
-        run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo add atlantis https://runatlantis.github.io/helm-charts
-          helm repo add cert-manager https://charts.jetstack.io
-          helm repo add cilium https://helm.cilium.io/
-          helm repo add descheduler https://kubernetes-sigs.github.io/descheduler/
-          helm repo add external-secrets-operator https://charts.external-secrets.io/
-          helm repo add fluent https://fluent.github.io/helm-charts
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add istio https://istio-release.storage.googleapis.com/charts
-          helm repo add jkroepke https://jkroepke.github.io/helm-charts/
-          helm repo add kedacore https://kedacore.github.io/charts
-          helm repo add kyverno https://kyverno.github.io/kyverno/
-          helm repo add kiali https://kiali.org/helm-charts
-          helm repo add longhorn https://charts.longhorn.io
-          helm repo add metallb https://metallb.github.io/metallb
-          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-          helm repo add onepassword-connect https://1password.github.io/connect-helm-charts
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add siutsin https://siutsin.github.io/otaru
-          helm repo add stakater https://stakater.github.io/stakater-charts
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
+
+      - name: Add Helm repositories
+        run: make add-helm-repos
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1
