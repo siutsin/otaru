@@ -13,8 +13,6 @@
 - hosts: raspberrypi
   become: true
   serial: 1
-  vars:
-    local_kubeconfig: "{{ lookup('ansible.builtin.env', 'KUBECONFIG') | default(lookup('ansible.builtin.env', 'HOME') ~ '/.kube/config', true) }}"
 
   tasks:
     - name: Get node name by removing .local from inventory_hostname
@@ -45,14 +43,14 @@
     - name: Cordon the node
       delegate_to: localhost
       become: false
-      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl cordon {{ node_name }}
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl cordon {{ node_name }}
       changed_when: false
       when: reboot_required_marker.stat.exists
 
     - name: Drain the node, ignoring PDBs
       delegate_to: localhost
       become: false
-      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl drain {{ node_name }} --ignore-daemonsets --force --delete-emptydir-data --disable-eviction
       register: drain_result
       changed_when: false
       retries: 5
@@ -122,6 +120,6 @@
     - name: Uncordon the node
       delegate_to: localhost
       become: false
-      command: env KUBECONFIG={{ local_kubeconfig | quote }} kubectl uncordon {{ node_name }}
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl uncordon {{ node_name }}
       changed_when: false
       when: reboot_required_marker.stat.exists
