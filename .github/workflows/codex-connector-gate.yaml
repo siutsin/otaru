@@ -70,22 +70,6 @@ jobs:
               new Date(createdAt) >= prUpdatedAt;
 
             while (Date.now() < deadline) {
-              const reactions = await github.paginate(
-                github.rest.reactions.listForIssue,
-                { owner, repo, issue_number: pull_number, per_page: 100 }
-              );
-
-              const thumbsUpAfterHead = reactions.some(reaction =>
-                isCodex(reaction.user) &&
-                reaction.content === "+1" &&
-                isCurrentPrUpdateSignal(reaction.created_at)
-              );
-
-              if (thumbsUpAfterHead) {
-                core.info(`Codex gave 👍 after PR update for HEAD ${headSha}`);
-                return;
-              }
-
               const reviews = await github.paginate(
                 github.rest.pulls.listReviews,
                 { owner, repo, pull_number, per_page: 100 }
@@ -123,13 +107,29 @@ jobs:
                 { owner, repo, issue_number: pull_number, per_page: 100 }
               );
 
-              const codexIssueCommentsAfterHead = issueComments.filter(comment =>
+              const codexIssueCommentsAfterPrUpdate = issueComments.filter(comment =>
                 isCodex(comment.user) &&
                 isCurrentPrUpdateSignal(comment.created_at)
               );
 
-              if (codexIssueCommentsAfterHead.length > 0) {
-                core.setFailed(`Codex left ${codexIssueCommentsAfterHead.length} PR comment(s) after HEAD ${headSha}; only a 👍 reaction passes this gate.`);
+              if (codexIssueCommentsAfterPrUpdate.length > 0) {
+                core.setFailed(`Codex left ${codexIssueCommentsAfterPrUpdate.length} PR comment(s) after PR update for HEAD ${headSha}; only a 👍 reaction passes this gate.`);
+                return;
+              }
+
+              const reactions = await github.paginate(
+                github.rest.reactions.listForIssue,
+                { owner, repo, issue_number: pull_number, per_page: 100 }
+              );
+
+              const thumbsUpAfterPrUpdate = reactions.some(reaction =>
+                isCodex(reaction.user) &&
+                reaction.content === "+1" &&
+                isCurrentPrUpdateSignal(reaction.created_at)
+              );
+
+              if (thumbsUpAfterPrUpdate) {
+                core.info(`Codex gave 👍 after PR update for HEAD ${headSha}`);
                 return;
               }
 
