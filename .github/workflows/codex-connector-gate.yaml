@@ -55,7 +55,6 @@ jobs:
             const repo = context.repo.repo;
             const pull_number = context.payload.pull_request.number;
             const headSha = context.payload.pull_request.head.sha;
-            const updatedAt = new Date(context.payload.pull_request.updated_at);
             const botLogins = new Set([
               "chatgpt-codex-connector[bot]",
               "chatgpt-codex-connector",
@@ -64,35 +63,57 @@ jobs:
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             const deadline = Date.now() + 20 * 60 * 1000;
 
+            const prUpdatedAt = new Date(context.payload.pull_request.updated_at);
+
+            const isCodex = user => botLogins.has(user?.login);
+            const isCurrentPrUpdateSignal = createdAt =>
+              new Date(createdAt) >= prUpdatedAt;
+
             while (Date.now() < deadline) {
               const reviews = await github.paginate(
                 github.rest.pulls.listReviews,
                 { owner, repo, pull_number, per_page: 100 }
               );
 
-              const latestCodexReviews = reviews.filter(review =>
-                botLogins.has(review.user?.login) &&
-                review.commit_id === headSha
+              const codexReviewsOnHead = reviews.filter(review =>
+                isCodex(review.user) &&
+                review.commit_id === headSha &&
+                review.state !== "DISMISSED"
               );
 
-              if (latestCodexReviews.length > 0) {
-                const reviewComments = await github.paginate(
-                  github.rest.pulls.listReviewComments,
-                  { owner, repo, pull_number, per_page: 100 }
-                );
+              if (codexReviewsOnHead.length > 0) {
+                core.setFailed(`Codex left ${codexReviewsOnHead.length} review(s) on HEAD ${headSha}; only a 👍 reaction passes this gate.`);
+                return;
+              }
 
-                const latestCodexComments = reviewComments.filter(comment =>
-                  botLogins.has(comment.user?.login) &&
-                  comment.commit_id === headSha &&
-                  !comment.in_reply_to_id
-                );
+              const reviewComments = await github.paginate(
+                github.rest.pulls.listReviewComments,
+                { owner, repo, pull_number, per_page: 100 }
+              );
 
-                if (latestCodexComments.length > 0) {
-                  core.setFailed(`Codex left ${latestCodexComments.length} review comment(s) on HEAD ${headSha}.`);
-                  return;
-                }
+              const codexReviewCommentsOnHead = reviewComments.filter(comment =>
+                isCodex(comment.user) &&
+                comment.commit_id === headSha &&
+                !comment.in_reply_to_id
+              );
 
-                core.info(`Codex reviewed HEAD ${headSha}`);
+              if (codexReviewCommentsOnHead.length > 0) {
+                core.setFailed(`Codex left ${codexReviewCommentsOnHead.length} review comment(s) on HEAD ${headSha}; only a 👍 reaction passes this gate.`);
+                return;
+              }
+
+              const issueComments = await github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pull_number, per_page: 100 }
+              );
+
+              const codexIssueCommentsAfterPrUpdate = issueComments.filter(comment =>
+                isCodex(comment.user) &&
+                isCurrentPrUpdateSignal(comment.created_at)
+              );
+
+              if (codexIssueCommentsAfterPrUpdate.length > 0) {
+                core.setFailed(`Codex left ${codexIssueCommentsAfterPrUpdate.length} PR comment(s) after PR update for HEAD ${headSha}; only a 👍 reaction passes this gate.`);
                 return;
               }
 
@@ -101,22 +122,22 @@ jobs:
                 { owner, repo, issue_number: pull_number, per_page: 100 }
               );
 
-              const thumbsUpAfterUpdate = reactions.some(reaction =>
-                botLogins.has(reaction.user?.login) &&
+              const thumbsUpAfterPrUpdate = reactions.some(reaction =>
+                isCodex(reaction.user) &&
                 reaction.content === "+1" &&
-                new Date(reaction.created_at) >= updatedAt
+                isCurrentPrUpdateSignal(reaction.created_at)
               );
 
-              if (thumbsUpAfterUpdate) {
-                core.info("Codex gave 👍 after latest PR update");
+              if (thumbsUpAfterPrUpdate) {
+                core.info(`Codex gave 👍 after PR update for HEAD ${headSha}`);
                 return;
               }
 
-              core.info("Waiting for Codex connector review or 👍...");
+              core.info("Waiting for Codex connector 👍 after current PR update...");
               await sleep(60 * 1000);
             }
 
-            core.setFailed("Timed out waiting for Codex connector review signal.");
+            core.setFailed("Timed out waiting for Codex connector 👍.");
 
   codex-connector-status:
     if: always()
