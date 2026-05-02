@@ -26,6 +26,14 @@ if ! directory_exists "$CHARTS_DIR"; then
     exit_with_error "Charts directory '$CHARTS_DIR' does not exist"
 fi
 
+ensure_helm_repos() {
+    helm repo add fluent https://fluent.github.io/helm-charts --force-update >/dev/null
+    helm repo update fluent >/dev/null
+}
+
+log_info "Ensuring Helm repositories are configured..."
+ensure_helm_repos
+
 log_info "Updating Helm dependencies..."
 log_info "Charts directory: $CHARTS_DIR"
 log_info "Parallel jobs: $JOBS"
