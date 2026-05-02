@@ -37,6 +37,7 @@ jobs:
           helm repo add cilium https://helm.cilium.io/
           helm repo add descheduler https://kubernetes-sigs.github.io/descheduler/
           helm repo add external-secrets-operator https://charts.external-secrets.io/
+          helm repo add fluent https://fluent.github.io/helm-charts
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add istio https://istio-release.storage.googleapis.com/charts
           helm repo add jkroepke https://jkroepke.github.io/helm-charts/
