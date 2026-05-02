@@ -16,12 +16,13 @@ deployment:
   ports:
     http: 4000
   resources:
+    # Keep memory at 512Mi: Blocky spikes during denylist refresh/import and was OOMKilled at 192Mi.
     requests:
       cpu: 100m
-      memory: 192Mi
+      memory: 512Mi
       ephemeral-storage: 100Mi
     limits:
-      memory: 192Mi
+      memory: 512Mi
       ephemeral-storage: 100Mi
 
 hpa:
