@@ -89,7 +89,7 @@ victoria-metrics-cluster:
     fullnameOverride: monitoring-vmselect
     replicaCount: 3
     extraArgs:
-      dedup.minScrapeInterval: 60s
+      dedup.minScrapeInterval: 30s
       replicationFactor: 2
     resources:
       requests:
@@ -152,7 +152,7 @@ victoria-metrics-agent:
     # Review rendered scrape_configs deliberately when changing the chart version.
     # Keep these timings aligned with vmselect dedup.minScrapeInterval above.
     global:
-      scrape_interval: 1m
+      scrape_interval: 30s
       scrape_timeout: 10s
 
 victoria-metrics-alert:
@@ -179,7 +179,7 @@ victoria-metrics-alert:
       alerts:
         groups:
           - name: workload-resource-usage
-            interval: 1m
+            interval: 30s
             rules:
               - record: namespace:workload_cpu_usage_cores:rate5m
                 expr: |
