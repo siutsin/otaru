@@ -179,7 +179,7 @@ victoria-metrics-alert:
       alerts:
         groups:
           - name: workload-resource-usage
-            interval: 30s
+            interval: 1m
             rules:
               - record: namespace:workload_cpu_usage_cores:rate5m
                 expr: |
