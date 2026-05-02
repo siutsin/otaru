@@ -45,9 +45,11 @@ plain reboot until the initramfs unlock step runs.
 - For rolling maintenance, use `make maintenance` with
   `OTARU_LUKS_PASSWORD` available in the controller environment.
 - For workload-only restarts that do not reboot hosts, use `make restart`.
+- If a LUKS node is already waiting in initramfs after boot, unlock it with the
+  documented make target, for example `make unlock raspberrypi-01`.
 - For emergency single-node reboot work, first check whether the target is in
   the `luks_root_nodes` inventory group; if it is, do not proceed unless a
-  LUKS-aware playbook or unlock workflow is used.
+  LUKS-aware playbook or `make unlock <node-name>` workflow is used.
 
 ## Tool Selection
 
