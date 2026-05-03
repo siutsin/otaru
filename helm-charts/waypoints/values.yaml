@@ -1,7 +1,7 @@
 waypoint:
   name: waypoint
   for: service
-  namespace: gateway-api
+  namespace: istio-waypoints
   allowedRoutesFrom: All
   deployment:
     replicas: 2
