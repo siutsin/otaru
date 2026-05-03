@@ -43,7 +43,21 @@ jobs:
       pull-requests: write
       issues: write
     steps:
+      - name: Check if Claude review can run
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.url }}
+        run: |
+          should_run=true
+          files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
+          if echo "$files" | grep -qx '.github/workflows/claude.yaml'; then
+            should_run=false
+          fi
+          echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
+
       - name: Run Claude review
+        if: steps.check.outputs.should-run == 'true'
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
