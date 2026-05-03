@@ -18,9 +18,6 @@ clusterSecretStorePolicy:
     gateway:
       - cloudflare-acme-verification-secret
       - heartbeats
-    gateway-api:
-      - cloudflare-acme-verification-secret
-      - heartbeats
     home-assistant:
       - heartbeats
     jung2bot:
