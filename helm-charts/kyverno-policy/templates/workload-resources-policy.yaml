@@ -9,6 +9,7 @@ spec:
   emitWarning: false
   rules:
     - name: require-container-resource-requests-and-limits
+      skipBackgroundRequests: true
       match:
         any:
           - resources:
@@ -24,6 +25,7 @@ spec:
 {{- end }}
 {{- end }}
       validate:
+        allowExistingViolations: true
         failureAction: Audit
         message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.
         pattern:
