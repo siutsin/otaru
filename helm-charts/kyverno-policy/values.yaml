@@ -15,7 +15,7 @@ clusterSecretStorePolicy:
       - changedetection
     cloudflare-tunnel:
       - cloudflare-tunnel-credentials
-    gateway-api:
+    gateway:
       - cloudflare-acme-verification-secret
       - heartbeats
     home-assistant:

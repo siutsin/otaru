@@ -145,7 +145,7 @@ local cicd = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'envoy-gateway', namespace: 'gateway-api', helm: { skipCrds: true } },
+  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true } },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 

@@ -1,6 +1,6 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
-{{- $gatewayNamespace := $gateway.namespace | default "gateway-api" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: UDPRoute
 metadata:
