@@ -35,7 +35,7 @@ Atlantis is not a safe fit for this repository while it remains public.
 Do not run Atlantis against this repo. Prefer GitHub Actions or other CI where credentials, workflow scope, and
 execution paths are tightly controlled per job.
 
-Infrastructure changes under [`infrastructure/`](/Users/simon/projects/github/siutsin/otaru/infrastructure) are
+Infrastructure changes under [`infrastructure/`](../infrastructure) are
 manual now. Run `terragrunt` or `tofu` directly from the relevant stack directory, for example:
 
 ```shell
