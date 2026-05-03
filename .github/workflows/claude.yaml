@@ -7,397 +7,60 @@ on:
       - synchronize
       - reopened
       - ready_for_review
-      - labeled
-      - unlabeled
-  # zizmor: ignore[dangerous-triggers] Fork PRs need base-repo secrets for Claude review; the target job never checks out or executes PR code.
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-  issue_comment:
-    types:
-      - created
-  issues:
-    types:
-      - opened
-      - edited
-  workflow_dispatch:
 
 permissions: {}
 
 jobs:
-  claude-review:
-    if: github.event_name != 'pull_request_target'
+  check-author:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      should-review: ${{ steps.check.outputs.should-review }}
+    steps:
+      - name: Check PR author
+        id: check
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          should_review=false
+          if [ "$PR_AUTHOR" = "$REPO_OWNER" ]; then
+            should_review=true
+          fi
+          echo "should-review=$should_review" >> "$GITHUB_OUTPUT"
+
+  claude:
+    needs: check-author
+    if: |
+      needs.check-author.outputs.should-review == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment: automation
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
-      actions: read
-    steps:
-      - name: Decide Claude mode
-        id: decide
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          REPOSITORY: ${{ github.repository }}
-          ACTOR: ${{ github.actor }}
-          PR_URL: ${{ github.event.pull_request.url }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
-          COMMENT_BODY: ${{ github.event.comment.body }}
-          COMMENT_ASSOCIATION: ${{ github.event.comment.author_association }}
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_ASSOCIATION: ${{ github.event.issue.author_association }}
-        run: |
-          should_run=false
-          mode=skip
-
-          case "$EVENT_NAME" in
-            pull_request)
-              if [ "$ACTOR" = "renovate[bot]" ] || [ "$ACTOR" = "otaru-ci[bot]" ]; then
-                :
-              elif [ "$PR_HEAD_REPO" != "$REPOSITORY" ]; then
-                should_run=true
-                mode=wait-external
-              else
-                files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
-                if echo "$files" | grep -qx '.github/workflows/claude.yaml'; then
-                  :
-                elif echo "$files" | grep -q .; then
-                  permission=$(gh api "repos/${GITHUB_REPOSITORY}/collaborators/${PR_AUTHOR}/permission" --jq '.permission' 2>/dev/null || echo "none")
-                  labels=$(gh api "$PR_URL" --jq '.labels[].name')
-                  if [ "$permission" = "admin" ] || [ "$permission" = "maintain" ] || [ "$permission" = "write" ] || echo "$labels" | grep -qx 'claude-write'; then
-                    mode=skip-maintainer
-                  else
-                    should_run=true
-                    mode=review
-                  fi
-                fi
-              fi
-              ;;
-            issue_comment)
-              if echo "$COMMENT_BODY" | grep -q '@claude' && echo 'COLLABORATOR MEMBER OWNER' | grep -qw "$COMMENT_ASSOCIATION"; then
-                should_run=true
-                mode=requested-review
-              fi
-              ;;
-            issues)
-              if { echo "$ISSUE_TITLE"; echo "$ISSUE_BODY"; } | grep -q '@claude' && echo 'COLLABORATOR MEMBER OWNER' | grep -qw "$ISSUE_ASSOCIATION"; then
-                should_run=true
-                mode=requested-review
-              fi
-              ;;
-            workflow_dispatch)
-              should_run=true
-              mode=requested-review
-              ;;
-          esac
-
-          echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
-          echo "mode=$mode" >> "$GITHUB_OUTPUT"
-
-      - name: Wait for external review
-        if: steps.decide.outputs.mode == 'wait-external'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          deadline=$((SECONDS + 1200))
-          while [ "$SECONDS" -lt "$deadline" ]; do
-            result=$(gh pr checks "$PR_NUMBER" \
-              --repo "$GITHUB_REPOSITORY" \
-              --json name,state,workflow \
-              --jq '.[] | select(.name == "claude-external-review" and .workflow == "Claude Code") | .state' \
-              | head -n 1)
-            case "$result" in
-              SUCCESS|SKIPPED)
-                exit 0
-                ;;
-              FAILURE|CANCELLED|TIMED_OUT)
-                exit 1
-                ;;
-            esac
-            sleep 30
-          done
-          echo "Timed out waiting for claude-external-review." >&2
-          exit 1
-
-      - name: Checkout repository
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Setup review tools
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: 'lts/*'
-
-      - name: Install review tools
-        if: steps.decide.outputs.mode == 'requested-review'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm install -g markdownlint-cli2
-          pip install zizmor
-          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
-          tar -xzf /tmp/ec.tar.gz -C /tmp
-          binary=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
-          chmod +x "$binary"
-          sudo mv "$binary" /usr/local/bin/ec
-
-      - name: Setup yq
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
-
-      - name: Install Helm
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
-        with:
-          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
-
-      - name: Setup OpenTofu
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
-        with:
-          tofu_version: '1.8.1'
-
-      - name: Setup Terragrunt
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
-        with:
-          terragrunt-version: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Go
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-        with:
-          go-version: stable
-
-      - name: Install go-jsonnet
-        if: steps.decide.outputs.mode == 'requested-review'
-        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
-
-      - name: Update Helm dependencies
-        if: steps.decide.outputs.mode == 'requested-review'
-        run: make update-helm-deps
-
-      - name: Run Claude read-only review
-        if: steps.decide.outputs.mode == 'review'
-        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          allowed_non_write_users: '*'
-          track_progress: false
-          claude_args: |
-            --model sonnet --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
-          prompt: |
-            Review only. Do not push commits, edit PR metadata, change labels, write repository content, or run code from the PR.
-
-            Use only read-only GitHub CLI commands such as `gh pr view` and `gh pr diff`.
-            Review the PR changes with focus on:
-            1. Code quality, readability, and best practices
-            2. Security vulnerabilities
-            3. Potential bugs or edge cases
-            4. Configuration correctness (Helm, Terraform, YAML)
-
-            Skip auto-generated files (CRDs, dashboard JSON, lock files).
-            Keep output short and concise. Use bullet points where possible.
-            Only comment on issues worth fixing. Skip praise and nitpicks.
-
-      - name: Run requested Claude review
-        if: steps.decide.outputs.mode == 'requested-review'
-        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          track_progress: true
-          claude_args: |
-            --model sonnet --allowedTools "Bash(make:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
-          prompt: |
-            Review only. Do not push commits, edit PR metadata, change labels, or write repository content.
-
-            Review the PR changes with focus on:
-            1. Code quality, readability, and best practices
-            2. Security vulnerabilities
-            3. Potential bugs or edge cases
-            4. Configuration correctness (Helm, Terraform, YAML)
-
-            Skip auto-generated files (CRDs, dashboard JSON, lock files).
-            Keep output short and concise. Use bullet points where possible.
-            Only comment on issues worth fixing. Skip praise and nitpicks.
-
-      - name: Report skipped Claude review
-        if: steps.decide.outputs.should-run != 'true'
-        run: echo "Claude review skipped (${mode})."
-        env:
-          mode: ${{ steps.decide.outputs.mode }}
-
-  claude-maintainer:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    environment: automation
-    permissions:
-      contents: write
+      id-token: write
       pull-requests: write
       issues: write
-      actions: read
     steps:
-      - name: Check maintainer authorization
-        id: authorize
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_URL: ${{ github.event.pull_request.url }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          ACTOR: ${{ github.actor }}
-        run: |
-          should_run=false
-          if [ "$ACTOR" != "renovate[bot]" ] && [ "$ACTOR" != "otaru-ci[bot]" ]; then
-            files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
-            if ! echo "$files" | grep -qx '.github/workflows/claude.yaml' && echo "$files" | grep -q .; then
-              permission=$(gh api "repos/${GITHUB_REPOSITORY}/collaborators/${PR_AUTHOR}/permission" --jq '.permission' 2>/dev/null || echo "none")
-              labels=$(gh api "$PR_URL" --jq '.labels[].name')
-              if [ "$permission" = "admin" ] || [ "$permission" = "maintain" ] || [ "$permission" = "write" ] || echo "$labels" | grep -qx 'claude-write'; then
-                should_run=true
-              fi
-            fi
-          fi
-          echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
-
-      - name: Checkout repository
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Setup Node.js
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: 'lts/*'
-
-      - name: Install review tools
-        if: steps.authorize.outputs.should-run == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm install -g markdownlint-cli2
-          pip install zizmor
-          gh release download --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
-          tar -xzf /tmp/ec.tar.gz -C /tmp
-          binary=$(find /tmp -type f -name "ec-linux-amd64" | head -n 1)
-          chmod +x "$binary"
-          sudo mv "$binary" /usr/local/bin/ec
-
-      - name: Setup yq
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: vegardit/gha-setup-yq@ab621a91ac86c67e5b68b9f191e70acc09ebc61b # 1.1.0
-
-      - name: Install Helm
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
-        with:
-          version: '3.18.4' # Pending on bugfix: https://github.com/helm/helm/issues/31148
-
-      - name: Setup OpenTofu
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
-        with:
-          tofu_version: '1.8.1'
-
-      - name: Setup Terragrunt
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
-        with:
-          terragrunt-version: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Go
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-        with:
-          go-version: stable
-
-      - name: Install go-jsonnet
-        if: steps.authorize.outputs.should-run == 'true'
-        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
-
-      - name: Update Helm dependencies
-        if: steps.authorize.outputs.should-run == 'true'
-        run: make update-helm-deps
-
-      - name: Run Claude maintainer review
-        if: steps.authorize.outputs.should-run == 'true'
-        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          track_progress: true
-          claude_args: |
-            --model sonnet --allowedTools "Bash(make:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
-          prompt: |
-            If the PR title or description does not meaningfully describe the changes, update them.
-            Use conventional commit style for the title, under 72 characters.
-            Keep the description short with bullet points summarising the changes.
-
-            Review the PR changes with focus on:
-            1. Code quality, readability, and best practices
-            2. Security vulnerabilities
-            3. Potential bugs or edge cases
-            4. Configuration correctness (Helm, Terraform, YAML)
-
-            Skip auto-generated files (CRDs, dashboard JSON, lock files).
-            Keep output short and concise. Use bullet points where possible.
-            Only comment on issues worth fixing. Skip praise and nitpicks.
-
-      - name: Report skipped maintainer review
-        if: steps.authorize.outputs.should-run != 'true'
-        run: echo "Claude maintainer review skipped."
-
-  claude-external-review:
-    if: |
-      github.event_name == 'pull_request_target' &&
-      github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-latest
-    environment: automation
-    permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      actions: read
-    steps:
-      - name: Check if review is needed
+      - name: Check if Claude review can run
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.url }}
-          ACTOR: ${{ github.actor }}
         run: |
-          should_run=false
-          if [ "$ACTOR" != "renovate[bot]" ] && [ "$ACTOR" != "otaru-ci[bot]" ]; then
-            files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
-            if ! echo "$files" | grep -qx '.github/workflows/claude.yaml' && echo "$files" | grep -q .; then
-              should_run=true
-            fi
+          should_run=true
+          files=$(gh api "$PR_URL/files" --paginate --jq '.[].filename')
+          if echo "$files" | grep -qx '.github/workflows/claude.yaml'; then
+            should_run=false
           fi
           echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
 
-      - name: Run Claude external review
+      - name: Run Claude review
         if: steps.check.outputs.should-run == 'true'
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          allowed_non_write_users: '*'
           track_progress: false
           claude_args: |
             --model sonnet --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
@@ -415,31 +78,22 @@ jobs:
             Keep output short and concise. Use bullet points where possible.
             Only comment on issues worth fixing. Skip praise and nitpicks.
 
-      - name: Report skipped external review
-        if: steps.check.outputs.should-run != 'true'
-        run: echo "Claude external review skipped."
-
   claude-status:
     if: always()
     needs:
-      - claude-review
-      - claude-maintainer
-      - claude-external-review
+      - check-author
+      - claude
     runs-on: ubuntu-latest
     permissions: {}
     steps:
-      - name: Check Claude workflow result
+      - name: Check Claude result
         env:
-          REVIEW_RESULT: ${{ needs.claude-review.result }}
-          MAINTAINER_RESULT: ${{ needs.claude-maintainer.result }}
-          EXTERNAL_REVIEW_RESULT: ${{ needs.claude-external-review.result }}
+          CHECK_AUTHOR_RESULT: ${{ needs.check-author.result }}
+          CLAUDE_RESULT: ${{ needs.claude.result }}
         run: |
-          if [ "$REVIEW_RESULT" = "failure" ] || [ "$REVIEW_RESULT" = "cancelled" ]; then
+          if [ "$CHECK_AUTHOR_RESULT" = "failure" ] || [ "$CHECK_AUTHOR_RESULT" = "cancelled" ]; then
             exit 1
           fi
-          if [ "$MAINTAINER_RESULT" = "failure" ] || [ "$MAINTAINER_RESULT" = "cancelled" ]; then
-            exit 1
-          fi
-          if [ "$EXTERNAL_REVIEW_RESULT" = "failure" ] || [ "$EXTERNAL_REVIEW_RESULT" = "cancelled" ]; then
+          if [ "$CLAUDE_RESULT" = "failure" ] || [ "$CLAUDE_RESULT" = "cancelled" ]; then
             exit 1
           fi
