@@ -1,4 +1,4 @@
-# LUKS vault variables
+# LUKS passphrase handling
 
 LUKS passphrases must stay out of the repo. Keep the source of truth outside this repo and
 supply the passphrase explicitly when running rebuild or unlock helpers.

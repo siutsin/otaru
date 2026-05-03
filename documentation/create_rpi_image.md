@@ -1,16 +1,6 @@
-# Create a bootable encrypted NVMe drive with Ubuntu on Raspberry Pi 5
+# Create a Raspberry Pi Image
 
-This is the encrypted-root variant of [create_rpi5_nvme_image.md](create_rpi5_nvme_image.md).
-
-Current rollout scope:
-
-- `raspberrypi-00` now
-- later `raspberrypi-02`
-
-Out of scope for now:
-
-- `raspberrypi-03`
-- `nuc-00`
+This is the standard Raspberry Pi 5 encrypted NVMe path for this repo.
 
 ## Preferred path
 
@@ -34,7 +24,7 @@ The wrapper:
 
 Before running the wrapper:
 
-1. `raspberrypi-00` is removed from the cluster or otherwise safe to rebuild.
+1. The target node is removed from the cluster or otherwise safe to rebuild.
 2. The rescue SD is booted and reachable at `192.168.10.40`.
 3. The local vault file contains `otaru_luks_password`.
 4. Do not pass the LUKS password on the command line during rescue work.
@@ -44,7 +34,7 @@ Before running the wrapper:
 ```shell
 umask 077
 printf '%s' '...' > /tmp/otaru-luks-password
-export EXPECTED_DISK_MODEL_SUBSTRING='Lexar'
+export EXPECTED_DISK_MODEL_SUBSTRING='<disk-model-substring>'
 LUKS_NODE_INIT_CONFIRM=yes \
 LUKS_PASSWORD_FILE=/tmp/otaru-luks-password \
 ./hack/luks-node-init.sh
@@ -53,18 +43,6 @@ rm -f /tmp/otaru-luks-password
 
 If you must use an environment variable, use `OTARU_LUKS_PASSWORD` only for the current shell
 session and clear it immediately afterward.
-
-## Current status
-
-On `raspberrypi-01`, the full flow is now proven live:
-
-1. one-pass rescue rebuild
-2. first encrypted NVMe boot
-3. remote unlock through initramfs `dropbear` across a real reboot
-4. clean `k3s` rejoin as a control-plane/etcd node
-
-`raspberrypi-01` remains the proven reference node. `raspberrypi-00` is the active next migration
-target.
 
 ## After the rebuild
 
@@ -75,8 +53,8 @@ target.
 5. Verify normal boot:
 
 ```shell
-make unlock raspberrypi-00
-ssh pi@192.168.10.60
+make unlock <node-name>
+ssh pi@<node-ip>
 findmnt /
 lsblk
 ```
@@ -91,7 +69,7 @@ Expected target shape:
 After the encrypted node is back:
 
 ```shell
-./hack/luks-postflight-check.sh raspberrypi-00
+./hack/luks-postflight-check.sh <node-name>
 ```
 
 Keep the node cordoned until:
@@ -104,7 +82,6 @@ Keep the node cordoned until:
 
 ## Related references
 
-- [Create a bootable NVMe drive with Ubuntu on Raspberry Pi 5](create_rpi5_nvme_image.md)
 - [LUKS remote unlock and recovery](luks_remote_unlock.md)
-- [LUKS vault variables](luks_vault.md)
+- [LUKS passphrase handling](luks_passphrase.md)
 - [Gotchas and Workarounds](gotcha.md)
