@@ -1,8 +1,12 @@
+{{- $version := regexReplaceAll "@sha256:.*$" .Values.deployment.image.tag "" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/version: {{ $version | quote }}
   annotations:
     reloader.stakater.com/auto: "true"
 spec:
@@ -15,6 +19,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
+        app.kubernetes.io/version: {{ $version | quote }}
     spec:
       {{- if .Values.deployment.affinity }}
       affinity: {{ toYaml .Values.deployment.affinity | nindent 8 }}
