@@ -139,9 +139,7 @@ local bootstrap = [
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
-local cicd = [
-  // { wave: '10', name: 'atlantis', namespace: 'atlantis' },
-];
+local cicd = [];
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },

@@ -196,7 +196,6 @@ with Diagram(
 
                 # Core applications
                 argocd = Argocd("ArgoCD")
-                atlantis = icon_node("Atlantis\n(inactive)", "atlantis")
                 applications = Deployment("Applications")
 
                 with Cluster(
@@ -296,16 +295,6 @@ with Diagram(
 
     # GitOps
     argocd >> edge("Pull when\nreceived\nwebhook event", colour=COLOUR_GITOPS) >> github
-    (
-        atlantis
-        >> edge(
-            "Interact with\nGitHub PR webhooks.\n"
-            "Currently disabled\ndue to security\nconcern",
-            colour=COLOUR_GITOPS,
-        )
-        >> github
-    )
-
     # TLS
     tls_cert << edge("Mount", colour=COLOUR_TLS) << envoy_gateway
     (

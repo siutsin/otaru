@@ -39,7 +39,6 @@ Custom icons are stored in `../assets/icons/`.
 | Icon                 | Source                                                                           | License                                                                              |
 |----------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | 1password.png        | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
-| atlantis.png         | [Atlantis](https://github.com/runatlantis/atlantis)                              | [Apache 2.0](https://github.com/runatlantis/atlantis/blob/main/LICENSE)              |
 | backblaze.png        | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | cert-manager.png     | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | cilium.png           | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |

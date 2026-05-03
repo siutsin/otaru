@@ -7,8 +7,6 @@ clusterSecretStorePolicy:
   allowedNamespaces:
     argocd:
       - argocd-secret
-    atlantis:
-      - atlantis
     blocky:
       - blocky
     changedetection:
