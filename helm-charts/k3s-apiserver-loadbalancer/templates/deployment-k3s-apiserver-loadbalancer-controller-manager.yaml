@@ -4,6 +4,7 @@ kind: Deployment
 metadata:
   labels:
     app.kubernetes.io/name: k3s-apiserver-loadbalancer
+    app.kubernetes.io/version: "v1.238.0"
     control-plane: controller-manager
   name: k3s-apiserver-loadbalancer-controller-manager
   namespace: k3s-apiserver-loadbalancer-system
@@ -19,6 +20,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         app.kubernetes.io/name: k3s-apiserver-loadbalancer
+        app.kubernetes.io/version: "v1.238.0"
         control-plane: controller-manager
     spec:
       containers:

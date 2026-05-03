@@ -1,3 +1,4 @@
+{{- $version := regexReplaceAll "@sha256:.*$" .Values.app.image.tag "" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +6,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/version: {{ $version | quote }}
 spec:
   selector:
     matchLabels:
@@ -13,6 +15,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
+        app.kubernetes.io/version: {{ $version | quote }}
     spec:
       affinity:
         podAntiAffinity:
