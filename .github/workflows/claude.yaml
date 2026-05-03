@@ -56,6 +56,13 @@ jobs:
           fi
           echo "should-run=$should_run" >> "$GITHUB_OUTPUT"
 
+      - name: Checkout repository
+        if: steps.check.outputs.should-run == 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Run Claude review
         if: steps.check.outputs.should-run == 'true'
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
