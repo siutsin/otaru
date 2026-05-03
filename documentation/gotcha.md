@@ -36,7 +36,7 @@ Do not run Atlantis against this repo. Prefer GitHub Actions or other CI where c
 execution paths are tightly controlled per job.
 
 Infrastructure changes under [`infrastructure/`](../infrastructure) are
-manual now. Run `terragrunt` or `tofu` directly from the relevant stack directory, for example:
+manual now. Run `terragrunt` directly from the relevant stack directory, for example:
 
 ```shell
 cd infrastructure/cloud/cloudflare/dns
