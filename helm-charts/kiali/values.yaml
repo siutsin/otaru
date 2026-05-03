@@ -1,5 +1,5 @@
 name: kiali
-namespace: istio-system
+namespace: kiali
 
 kiali-server:
   auth:

@@ -177,7 +177,7 @@ local database = [
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
-  { wave: '05', name: 'kiali', namespace: 'istio-system' },
+  { wave: '05', name: 'kiali', namespace: 'kiali' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
   { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
 ];
