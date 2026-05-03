@@ -139,8 +139,6 @@ local bootstrap = [
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
 ];
 
-local cicd = [];
-
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
   { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true } },
@@ -210,5 +208,5 @@ local serviceMesh = [
 
 [
   ArgoCDApplication.new(appConfig, revision)
-  for appConfig in application + baseline + bootstrap + cicd + connectivity + database + monitoring + scheduling + security + serviceMesh + storage
+  for appConfig in application + baseline + bootstrap + connectivity + database + monitoring + scheduling + security + serviceMesh + storage
 ]
