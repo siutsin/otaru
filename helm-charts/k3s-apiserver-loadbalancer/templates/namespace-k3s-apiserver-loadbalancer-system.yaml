@@ -8,6 +8,6 @@ metadata:
     control-plane: controller-manager
     istio.io/dataplane-mode: ambient
     istio.io/use-waypoint: waypoint
-    istio.io/use-waypoint-namespace: gateway-api
+    istio.io/use-waypoint-namespace: istio-waypoints
     istio.io/ingress-use-waypoint: "true"
   name: k3s-apiserver-loadbalancer-system
