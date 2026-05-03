@@ -18,6 +18,34 @@ A custom operator, `k3s-apiserver-loadbalancer`, was created to monitor and upda
 
 ---
 
+## Atlantis Is Unsafe for This Public Repo
+
+Atlantis is not a safe fit for this repository while it remains public.
+
+### Why
+
+- `terraform plan` is not a harmless read-only action. It can execute provider code, `external` data sources, and
+  repo-controlled workflow steps.
+- Public pull requests are not fully trusted, even when `apply` is locked down.
+- Fork PR restrictions and webhook validation are necessary, but they do not remove the core risk of running
+  untrusted infrastructure code during `plan`.
+
+### Recommendation
+
+Do not run Atlantis against this repo. Prefer GitHub Actions or other CI where credentials, workflow scope, and
+execution paths are tightly controlled per job.
+
+Infrastructure changes under [`infrastructure/`](../infrastructure) are
+manual now. Run `terragrunt` directly from the relevant stack directory, for example:
+
+```shell
+cd infrastructure/cloud/cloudflare/dns
+terragrunt plan
+terragrunt apply
+```
+
+---
+
 ## Envoy Image Recompilation Issue
 
 There is an issue with the current Envoy image that requires recompilation when running on certain platforms. This issue is discussed in detail in the [Envoy GitHub issue][envoy-issue].

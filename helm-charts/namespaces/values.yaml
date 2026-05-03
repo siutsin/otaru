@@ -8,7 +8,6 @@ namespaces:
   # Intentional: managed workload namespaces are enrolled in ambient mesh so
   # mTLS can be observed in PERMISSIVE mode before tightening enforcement.
   - name: argocd
-  - name: atlantis
   - name: blocky
   - name: cert-manager
   - name: changedetection

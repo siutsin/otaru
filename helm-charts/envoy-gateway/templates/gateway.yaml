@@ -29,7 +29,6 @@ spec:
                 operator: In
                 values:
                   - argocd
-                  - atlantis
                   - changedetection
                   - cyberchef
                   - excalidraw
@@ -57,7 +56,6 @@ spec:
                 operator: In
                 values:
                   - argocd
-                  - atlantis
                   - changedetection
                   - cyberchef
                   - excalidraw

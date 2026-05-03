@@ -43,7 +43,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(atlantis|clean-terragrunt-cache|add-helm-repos|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
+		grep -E "^(clean-terragrunt-cache|add-helm-repos|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
@@ -114,12 +114,6 @@ nuke: ## Run cluster destruction playbook (DANGEROUS!)
 	@read -p "Are you sure? Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
 	$(call ansible_playbook,nuke)
 
-# Infrastructure and development targets
-.PHONY: atlantis
-atlantis: ## Generate Atlantis configuration file
-	@echo "$(GREEN)Generating Atlantis configuration...$(NC)"
-	bash $(HACK_DIR)/generate-atlantis-yaml.sh
-
 .PHONY: clean-terragrunt-cache
 clean-terragrunt-cache: ## Clean up all .terragrunt-cache folders in infrastructure directory
 	@echo "$(GREEN)Cleaning Terragrunt cache...$(NC)"
@@ -188,7 +182,6 @@ validate-helm-charts: ## Validate all Helm charts
 check-yaml: ## Check YAML syntax in key files
 	@echo "$(GREEN)Checking YAML syntax...$(NC)"
 	@yq eval '.' ansible/inventory.yaml > /dev/null
-	@yq eval '.' atlantis.yaml > /dev/null
 	@echo "$(GREEN)YAML syntax check passed!$(NC)"
 
 .PHONY: check-markdown
