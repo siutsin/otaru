@@ -27,10 +27,13 @@ helm upgrade --install gateway-api-kubernetes helm-charts/gateway-api-kubernetes
 
 # Apply Envoy Gateway
 helm upgrade --install envoy-gateway helm-charts/envoy-gateway \
-  -n gateway-api \
+  -n envoy-gateway-system \
   --create-namespace \
   --set bootstrap.enabled=true \
   --set tls.secretName=envoy
+
+kubectl rollout status deployment/envoy-gateway -n envoy-gateway-system --timeout=15m
+kubectl wait deployment -n gateway -l gateway.envoyproxy.io/owning-gateway-name=gateway --for=condition=Available=True --timeout=15m
 
 # Configure nodes to use LB api-server IP
 LB_API_SERVER_IP="https://192.168.10.50"

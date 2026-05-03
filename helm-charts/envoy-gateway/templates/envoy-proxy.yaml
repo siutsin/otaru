@@ -7,9 +7,5 @@ spec:
   provider:
     type: Kubernetes
     kubernetes:
-      envoyDeployment:
-        pod:
-          labels:
-            istio.io/dataplane-mode: none
       envoyService:
         name: {{ .Values.service.name }}

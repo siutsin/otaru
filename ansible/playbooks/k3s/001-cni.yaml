@@ -122,7 +122,7 @@
 
     - name: Apply Envoy Gateway Helm template
       shell: |
-        helm template envoy-gateway ../../../helm-charts/envoy-gateway -n gateway-api \
+        helm template envoy-gateway ../../../helm-charts/envoy-gateway -n envoy-gateway-system \
           --set bootstrap.enabled=true \
           --set tls.secretName=envoy \
           --api-versions='gateway.networking.k8s.io/v1/GatewayClass' | kubectl apply -f -
@@ -132,8 +132,15 @@
       until: envoy_gateway_result.rc == 0
 
     - name: Wait for Envoy Gateway to rollout
-      shell: "kubectl rollout status deploy/envoy-gateway -n gateway-api --timeout=15m"
+      shell: "kubectl rollout status deploy/envoy-gateway -n envoy-gateway-system --timeout=15m"
       register: envoy_gateway_rollout_result
       retries: 5
       delay: 10
       until: envoy_gateway_rollout_result.rc == 0
+
+    - name: Wait for Envoy Gateway data plane to become available
+      shell: "kubectl wait deployment -n gateway -l gateway.envoyproxy.io/owning-gateway-name=gateway --for=condition=Available=True --timeout=15m"
+      register: envoy_gateway_dataplane_result
+      retries: 5
+      delay: 10
+      until: envoy_gateway_dataplane_result.rc == 0

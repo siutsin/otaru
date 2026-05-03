@@ -1,5 +1,6 @@
 name: gateway
-namespace: gateway-api
+namespace: gateway
+controllerNamespace: envoy-gateway-system
 gatewayClassName: eg
 metallbNamespace: metallb-system
 bootstrap:
@@ -24,3 +25,12 @@ l2AnnouncementPolicy:
 
 loadBalancerIPPool:
   cidr: 192.168.10.51/32
+
+envoy-gateway:
+  config:
+    envoyGateway:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          deploy:
+            type: GatewayNamespace

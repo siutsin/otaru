@@ -1,7 +1,8 @@
 namespace: k8s-cleaner
 
 excludeNamespaces: &excludeNamespaces
-  - gateway-api
+  - envoy-gateway-system
+  - gateway
   - istio-system
   - kube-system
   - longhorn-system

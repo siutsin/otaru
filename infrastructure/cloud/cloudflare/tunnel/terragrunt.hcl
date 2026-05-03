@@ -22,5 +22,5 @@ inputs = {
   config_src      = "cloudflare"
   tunnel_secret   = local.tunnel_secret
   network_cidr    = "192.168.10.0/24"
-  gateway_service = "http://gateway.gateway-api.svc.cluster.local"
+  gateway_service = "http://gateway.gateway.svc.cluster.local"
 }

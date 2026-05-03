@@ -33,7 +33,7 @@ spec:
                   - changedetection
                   - cyberchef
                   - excalidraw
-                  - gateway-api
+                  - gateway
                   - home-assistant
                   - httpbin
                   - istio-system
@@ -61,7 +61,7 @@ spec:
                   - changedetection
                   - cyberchef
                   - excalidraw
-                  - gateway-api
+                  - gateway
                   - home-assistant
                   - httpbin
                   - istio-system
