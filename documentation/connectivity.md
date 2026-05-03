@@ -16,6 +16,7 @@ Current state as of `2026-05-03`:
 - `waypoint`: shared Envoy waypoint in `istio-waypoints`
 - `envoy-gateway`: controller in `envoy-gateway-system`
 - `gateway`: Envoy Gateway proxy in `gateway`
+- `kiali`: observability UI in its own ambient namespace
 
 ## Namespace Model
 
@@ -23,6 +24,7 @@ The cluster uses four connectivity roles:
 
 - application namespaces: ambient-enrolled and configured to use the shared waypoint
 - `gateway`: ambient-enrolled ingress data plane
+- `kiali`: ambient-enrolled observability namespace
 - `istio-waypoints`: hosts the shared waypoint and stays outside ambient
 - `envoy-gateway-system`: hosts the Envoy Gateway controller and stays outside ambient
 
