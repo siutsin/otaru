@@ -190,6 +190,13 @@ jobs:
         if: steps.decide.outputs.mode == 'requested-review'
         run: make update-helm-deps
 
+      - name: Checkout repository for read-only review
+        if: steps.decide.outputs.mode == 'review'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Run Claude read-only review
         if: steps.decide.outputs.mode == 'review'
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
