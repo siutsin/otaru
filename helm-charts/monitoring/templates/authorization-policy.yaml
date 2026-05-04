@@ -2,6 +2,7 @@
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $gatewayPrincipal := printf "cluster.local/ns/%s/sa/%s" $gatewayNamespace $gatewayName -}}
+{{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -42,6 +43,7 @@ spec:
               - {{ $gatewayPrincipal }}
               - cluster.local/ns/monitoring/sa/monitoring-grafana
               - cluster.local/ns/kiali/sa/kiali
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
@@ -65,6 +67,7 @@ spec:
               - {{ $gatewayPrincipal }}
               - cluster.local/ns/monitoring/sa/monitoring-grafana
               - cluster.local/ns/monitoring/sa/monitoring-fluent-bit
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:

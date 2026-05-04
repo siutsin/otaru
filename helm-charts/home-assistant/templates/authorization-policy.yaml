@@ -1,6 +1,7 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -17,6 +18,7 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
