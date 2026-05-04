@@ -29,6 +29,14 @@ peerAuthentication:
         matchLabels:
           app.kubernetes.io/instance: external-secrets
           app.kubernetes.io/name: external-secrets-webhook
+    - name: kyverno-admission-controller
+      namespace: kyverno
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: admission-controller
+          app.kubernetes.io/instance: kyverno
+          app.kubernetes.io/part-of: kyverno
     - name: amazon-eks-pod-identity-webhook
       namespace: default
       mtlsMode: PERMISSIVE
