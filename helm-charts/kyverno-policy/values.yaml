@@ -38,3 +38,12 @@ workloadResourcesPolicy:
     - kube-public
     - kube-system
     - kyverno
+
+barmanObjectStorePolicy:
+  enabled: true
+  allowedNamespaces:
+    teslamate:
+      objectStores:
+        - b2-backup
+      credentialSecrets:
+        - b2-backup-credentials

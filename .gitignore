@@ -298,3 +298,6 @@ cython_debug/
 
 # Local Air workspace metadata
 .air/
+
+# Local coordination notes
+FIX.md
