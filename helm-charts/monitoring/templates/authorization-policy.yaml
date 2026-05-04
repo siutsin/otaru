@@ -18,6 +18,7 @@ spec:
         - source:
             principals:
               - {{ $gatewayPrincipal }}
+              - cluster.local/ns/kiali/sa/kiali
       to:
         - operation:
             ports:
