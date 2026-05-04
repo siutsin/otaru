@@ -50,5 +50,48 @@ spec:
               - key: "{{ `{{ authorizationPolicyCount }}` }}"
                 operator: Equals
                 value: 0
+    - name: require-workload-authorization-policy-for-prometheus-scrapes
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              operations:
+                - CREATE
+                - UPDATE
+              namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
+      preconditions:
+        all:
+          - key: {{ printf "{{ request.object.metadata.annotations.\"prometheus.io/scrape\" || '' }}" | quote }}
+            operator: Equals
+            value: "true"
+          - key: {{ printf "{{ request.object.metadata.labels.\"app.kubernetes.io/name\" || '' }}" | quote }}
+            operator: NotEquals
+            value: ""
+      context:
+        - name: workloadAuthorizationPolicyCount
+          apiCall:
+            method: GET
+            urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
+            jmesPath: >-
+              items[?spec.selector.matchLabels."app.kubernetes.io/name" ==
+              '{{ `{{ request.object.metadata.labels."app.kubernetes.io/name" }}` }}'] | length(@)
+            default: 0
+      skipBackgroundRequests: true
+      validate:
+        allowExistingViolations: true
+        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
+        message: >-
+          Prometheus-scraped Pods in ambient mesh namespaces must have a
+          workload-selector AuthorizationPolicy in the same namespace selecting
+          the Pod's app.kubernetes.io/name label. Service targetRefs policies do
+          not cover Prometheus pod-IP scrapes.
+        deny:
+          conditions:
+            all:
+              - key: "{{ `{{ workloadAuthorizationPolicyCount }}` }}"
+                operator: Equals
+                value: 0
   validationFailureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
 {{- end }}
