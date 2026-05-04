@@ -1,0 +1,146 @@
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $prometheusPrincipal := printf "cluster.local/ns/%s/sa/%s" $prometheusNamespace $prometheusServiceAccount -}}
+{{- $waypoint := .Values.waypoint | default dict -}}
+{{- $waypointServiceAccount := $waypoint.serviceAccount | default "waypoint" -}}
+{{- $waypointNamespace := $waypoint.namespace | default "istio-waypoints" -}}
+{{- $waypointPrincipal := printf "cluster.local/ns/%s/sa/%s" $waypointNamespace $waypointServiceAccount -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: cert-manager
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager-cainjector
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: cert-manager-cainjector
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager-webhook
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: cert-manager-webhook
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+    - to:
+        - operation:
+            ports:
+              - "443"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager-workload
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cert-manager
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+    - to:
+        - operation:
+            ports:
+              - "9403"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager-cainjector-workload
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cainjector
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cert-manager-webhook-workload
+  namespace: cert-manager
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webhook
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9402"
+    - to:
+        - operation:
+            ports:
+              - "10250"
+              - "6080"

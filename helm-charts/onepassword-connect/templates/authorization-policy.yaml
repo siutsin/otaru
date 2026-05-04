@@ -1,0 +1,23 @@
+{{- $namespace := .Release.Namespace | default "onepassword" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: onepassword-connect
+  namespace: {{ $namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: onepassword-connect
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/external-secrets/sa/external-secrets
+              - cluster.local/ns/external-secrets/sa/external-secrets-cert-controller
+      to:
+        - operation:
+            ports:
+              - "8080"
+              - "8081"

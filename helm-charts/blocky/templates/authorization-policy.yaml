@@ -45,6 +45,27 @@ spec:
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
+  name: {{ .Values.name }}-dns
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-dns
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+      to:
+        - operation:
+            ports:
+              - "53"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
   name: {{ .Values.name }}-workload
   namespace: {{ .Values.namespace }}
 spec:
