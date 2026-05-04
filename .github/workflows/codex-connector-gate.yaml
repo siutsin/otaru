@@ -78,6 +78,7 @@ jobs:
               const codexReviewsOnHead = reviews.filter(review =>
                 isCodex(review.user) &&
                 review.commit_id === headSha &&
+                isCurrentPrUpdateSignal(review.submitted_at ?? review.submittedAt ?? review.created_at) &&
                 review.state !== "DISMISSED"
               );
 
@@ -94,6 +95,7 @@ jobs:
               const codexReviewCommentsOnHead = reviewComments.filter(comment =>
                 isCodex(comment.user) &&
                 comment.commit_id === headSha &&
+                isCurrentPrUpdateSignal(comment.created_at) &&
                 !comment.in_reply_to_id
               );
 
