@@ -1,6 +1,8 @@
 namespace: istio-system
 
 peerAuthentication:
+  # Ambient traffic is strict by default. Known non-mesh ingress and webhook
+  # callers are carved out below until those paths have a mesh-compatible design.
   mtlsMode: STRICT
   exceptions:
     - name: gateway
