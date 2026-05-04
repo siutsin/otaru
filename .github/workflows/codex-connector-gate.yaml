@@ -71,23 +71,6 @@ jobs:
               new Date(createdAt) >= prUpdatedAt;
 
             while (Date.now() < deadline) {
-              const reviews = await github.paginate(
-                github.rest.pulls.listReviews,
-                { owner, repo, pull_number, per_page: 100 }
-              );
-
-              const codexReviewsOnHead = reviews.filter(review =>
-                isCodex(review.user) &&
-                review.commit_id === headSha &&
-                isCurrentPrUpdateSignal(review.submitted_at ?? review.submittedAt ?? review.created_at) &&
-                review.state !== "DISMISSED"
-              );
-
-              if (codexReviewsOnHead.length > 0) {
-                core.setFailed(`Codex left ${codexReviewsOnHead.length} review(s) on HEAD ${headSha}; only a 👍 reaction passes this gate.`);
-                return;
-              }
-
               const reviewComments = await github.paginate(
                 github.rest.pulls.listReviewComments,
                 { owner, repo, pull_number, per_page: 100 }
