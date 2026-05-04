@@ -39,6 +39,13 @@ workloadResourcesPolicy:
     - kube-system
     - kyverno
 
+meshAuthorizationPolicy:
+  enabled: true
+  failureAction: Audit
+  namespaceSelector:
+    matchLabels:
+      istio.io/dataplane-mode: ambient
+
 barmanObjectStorePolicy:
   enabled: true
   allowedNamespaces:
