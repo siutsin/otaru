@@ -63,6 +63,7 @@ spec:
             principals:
               - {{ $gatewayPrincipal }}
               - cluster.local/ns/monitoring/sa/monitoring-grafana
+              - cluster.local/ns/monitoring/sa/monitoring-fluent-bit
       to:
         - operation:
             ports:
