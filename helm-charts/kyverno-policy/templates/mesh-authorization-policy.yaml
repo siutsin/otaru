@@ -29,8 +29,8 @@ spec:
           apiCall:
             urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
             jmesPath: >-
-              items[?spec.targetRefs[?group == '' && kind == 'Service' &&
-              name == '{{ `{{ request.object.metadata.name }}` }}']] | length(@)
+              items[?spec.targetRefs[?(group == '' || group == 'core') &&
+              kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']] | length(@)
             default: 0
       validate:
         allowExistingViolations: true
