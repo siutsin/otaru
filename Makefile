@@ -2,7 +2,7 @@
 ANSIBLE_INVENTORY := ansible/inventory.yaml
 INFRASTRUCTURE_DIR := infrastructure
 HACK_DIR := hack
-OUTPUT_FILE ?= otaru-architecture
+OUTPUT_FILE ?= architecture
 LUKS_UNLOCK_PORT ?= 1024
 LUKS_UNLOCK_HOST_QUERY := \
 	[(.all.children[]?.hosts? // {}) | to_entries[] | \

@@ -11,7 +11,7 @@ The only rule: Raspberry Pi 🍓. Why? Why not ¯\\\_(ツ)\_/¯
 
 ## Architecture
 
-![Otaru cluster architecture diagram](assets/otaru-architecture.png)
+![Otaru cluster architecture diagram](assets/architecture.png)
 
 Current cluster layout:
 
@@ -88,10 +88,13 @@ Three nodes form the control plane. One node remains a worker.
 | Connectivity | [MetalLB](helm-charts/metallb)                                                                      | Bare metal `LoadBalancer` implementation for service virtual IP allocation and L2 advertisement                                                                         |
 | Database     | [CloudNativePG](https://github.com/cloudnative-pg/cloudnative-pg)                                   | A Kubernetes operator that manages PostgreSQL clusters                                                                                                                  |
 | Database     | [CloudNativePG Barman Cloud Plugin](helm-charts/cloudnative-pg-plugin-barman-cloud)                 | Backup plugin for CloudNativePG                                                                                                                                         |
-| Monitoring   | [Grafana Observability Stack](helm-charts/monitoring)                                               | Grafana dashboards, Prometheus metrics, Loki logs, and Fluent Bit log shipping                                                                                          |
+| Monitoring   | [Fluent Bit](helm-charts/monitoring)                                                                | Node log collection and shipping to Loki                                                                                                                                |
+| Monitoring   | [Grafana](helm-charts/monitoring)                                                                   | Dashboards and visualization for cluster metrics and logs                                                                                                               |
 | Monitoring   | [Heartbeats](helm-charts/heartbeats)                                                                | Kubernetes operator for heartbeat monitoring                                                                                                                            |
 | Monitoring   | [Kiali](helm-charts/kiali)                                                                          | Service mesh observability UI for Istio                                                                                                                                 |
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines                                                                  |
+| Monitoring   | [Loki](helm-charts/monitoring)                                                                      | Log aggregation and query backend                                                                                                                                       |
+| Monitoring   | [Prometheus](helm-charts/monitoring)                                                                | Metrics collection and query backend                                                                                                                                    |
 | Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                                                                                        |
 | Scheduling   | [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)                                           | Automated failed pod cleanup and periodic workload repaving                                                                                                             |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                                                                                 |

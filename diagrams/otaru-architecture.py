@@ -32,11 +32,11 @@ from diagrams.onprem.vcs import Github
 from diagrams.saas.cdn import Cloudflare
 from diagrams.saas.chat import Telegram
 
-# Get output filename from command line argument, default to otaru-architecture
-output_filename = sys.argv[1] if len(sys.argv) > 1 else "otaru-architecture"
+# Get output filename from command line argument, default to architecture
+output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 
 # Semantic colours for logical flow grouping
-COLOUR_OIDC = "#00A4A7"  # DLR - OIDC/IRSA Authentication
+COLOUR_OIDC = "#7156A5"  # Elizabeth - OIDC/IRSA Authentication
 COLOUR_PUBLIC = "#DC241f"  # Central - Public Traffic
 COLOUR_GITOPS = "#A0A5A9"  # Jubilee - GitOps
 COLOUR_TLS = "#0098D4"  # Victoria - TLS/Certificate
@@ -46,7 +46,7 @@ COLOUR_MONITORING = "#9B0056"  # Metropolitan - Monitoring
 COLOUR_CONTROL_PLANE = "#00782A"  # District - Control Plane
 COLOUR_NODE = "#B36305"  # Bakerloo - Node Connectivity
 COLOUR_STORAGE = "#EE7C0E"  # Overground - Storage
-COLOUR_DATABASE = "#7156A5"  # Elizabeth - Database
+COLOUR_DATABASE = "#00A4A7"  # DLR - Database
 
 graph_attr = {
     "concentrate": "true",
@@ -113,18 +113,15 @@ def icon_node(label, icon_name):
     return Custom(label, f"../assets/icons/{icon_name}.png")
 
 
-def stack_vertically(*nodes):
-    """Force nodes onto one graph rank so they render as a vertical stack."""
-    node_ids = "; ".join(f'"{node._id}"' for node in nodes)
+def align_horizontally(*nodes):
+    """Order a small group left-to-right without adding visible edges."""
     current_cluster = nodes[0]._cluster
-    current_cluster.dot.body.append(f"{{ rank=same; {node_ids}; }}")
-    for upper, lower in zip(nodes, nodes[1:]):
+    for left, right in zip(nodes, nodes[1:]):
         current_cluster.dot.edge(
-            upper._id,
-            lower._id,
+            left._id,
+            right._id,
             style="invis",
             weight="100",
-            constraint="false",
         )
 
 
@@ -163,7 +160,7 @@ with Diagram(
 
         with Cluster("AWS", graph_attr=cluster_attr):
             aws_sts = IAMAWSSts("STS")
-            aws_resource = Dynamodb("DynamoDB")
+            aws_app_services = Dynamodb("DynamoDB\nand SQS")
 
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
@@ -207,21 +204,25 @@ with Diagram(
 
                 with Cluster(
                     "Secret Management",
-                    direction="TB",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    onepassword_connect = Deployment("1Password\nConnect")
                     external_secrets = icon_node("external-secrets", "external-secrets")
-                    secrets = Secret("Secrets")
-                    stack_vertically(secrets, external_secrets, onepassword_connect)
+                    secrets = Secret("Kubernetes\nSecrets")
 
                 with Cluster(
                     "Monitoring",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    monitoring_stack = Grafana("Grafana LGTM\nStack")
+                    monitoring_stack = Grafana(
+                        "Grafana,\nLoki,\nPrometheus,\nFluent Bit"
+                    )
                     kiali = Istio("Kiali")
                     heartbeats_operator = Deployment("Heartbeats\nOperator")
+                    align_horizontally(
+                        monitoring_stack,
+                        kiali,
+                        heartbeats_operator,
+                    )
 
                 with Cluster(
                     "Storage",
@@ -278,20 +279,24 @@ with Diagram(
             )
 
     # Public traffic via Cloudflare Tunnel
-    github >> edge("PR events\nwebhook", colour=COLOUR_GITOPS) >> cloudflare
-    telegram >> edge("New message webhook", colour=COLOUR_PUBLIC) >> cloudflare
+    github >> edge("Webhook", colour=COLOUR_GITOPS) >> cloudflare
+    telegram >> edge("Webhook", colour=COLOUR_PUBLIC) >> cloudflare
     (
         cloudflare
         >> edge("Cloudflare\nZero Trust\nTunnel", colour=COLOUR_PUBLIC)
         >> cloudflared
     )
-    cloudflared >> edge("Route public\ntraffic", colour=COLOUR_PUBLIC) >> envoy_gateway
+    (cloudflared >> edge("Tunnel ingress", colour=COLOUR_PUBLIC) >> envoy_gateway)
     (
         gateway_api
-        >> edge("Configure\nGateway and\nHTTPRoute", colour=COLOUR_PUBLIC)
+        >> edge("Configure\nGateway and\nRoutes", colour=COLOUR_PUBLIC)
         >> envoy_gateway
     )
-    (envoy_gateway >> edge(colour=COLOUR_PUBLIC) >> applications)
+    (
+        envoy_gateway
+        >> edge("Forward to\napplications", colour=COLOUR_PUBLIC)
+        >> applications
+    )
 
     # GitOps
     argocd >> edge("Pull when\nreceived\nwebhook event", colour=COLOUR_GITOPS) >> github
@@ -310,17 +315,8 @@ with Diagram(
     cert_manager >> edge("Issue certificate", colour=COLOUR_TLS) >> tls_cert
 
     # Secret flow
-    (
-        onepassword
-        << edge("Retrieve Secret\nfrom 1Password", colour=COLOUR_SECRET)
-        << onepassword_connect
-    )
-    (
-        onepassword_connect
-        << edge("Pull secrets", colour=COLOUR_SECRET)
-        << external_secrets
-    )
-    external_secrets >> edge("Create K8s\nSecret", colour=COLOUR_SECRET) >> secrets
+    onepassword >> edge("Source secrets", colour=COLOUR_SECRET) >> external_secrets
+    external_secrets >> edge("Sync K8s\nSecrets", colour=COLOUR_SECRET) >> secrets
 
     # External User Access
     external_user >> edge(colour=COLOUR_VPN) >> wifiman
@@ -355,9 +351,7 @@ with Diagram(
     # API Server
     (
         apiserver_lb_operator
-        >> edge(
-            "Maintain LoadBalancer\ntype for Virtual IP", colour=COLOUR_CONTROL_PLANE
-        )
+        >> edge("Maintain API VIP", colour=COLOUR_CONTROL_PLANE)
         >> api_server
     )
     (
@@ -369,18 +363,12 @@ with Diagram(
     # Infrastructure
     (
         gateway_api_kubernetes
-        >> edge(
-            "Maintain API\nLoadBalancer VIP\n192.168.10.50",
-            colour=COLOUR_CONTROL_PLANE,
-        )
+        >> edge("API VIP\n192.168.10.50", colour=COLOUR_CONTROL_PLANE)
         >> metallb
     )
     (
         metallb
-        >> edge(
-            "Advertise ingress VIP\n192.168.10.51",
-            colour=COLOUR_CONTROL_PLANE,
-        )
+        >> edge("Ingress VIP\n192.168.10.51", colour=COLOUR_CONTROL_PLANE)
         >> envoy_gateway
     )
     (
@@ -400,7 +388,7 @@ with Diagram(
     )
     (
         istio
-        >> edge("East-west\nservice traffic\nvia ztunnel", colour=COLOUR_CONTROL_PLANE)
+        >> edge("Ambient mesh\nservice traffic", colour=COLOUR_CONTROL_PLANE)
         >> applications
     )
 
@@ -422,7 +410,11 @@ with Diagram(
 
     # Database
     cnpg >> edge("Manage", colour=COLOUR_DATABASE) >> cnpg_db_cluster
-    cnpg >> edge("Backup database", colour=COLOUR_DATABASE) >> backblaze_b2
+    (
+        cnpg
+        >> edge("Backup and\nrestore database", colour=COLOUR_DATABASE)
+        >> backblaze_b2
+    )
     cnpg_db_cluster >> edge("Mount", colour=COLOUR_DATABASE) >> pvcs
     cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << applications
 
@@ -432,39 +424,9 @@ with Diagram(
         >> edge("Admission\nwebhook", colour=COLOUR_OIDC)
         >> pod_identity_webhook
     )
-    (
-        pod_identity_webhook
-        >> edge(
-            "Mutate pod to\ninject IRSA\nenvironment variables\n"
-            "such that AWS SDK\ncan exchange JWT\nfor credentials",
-            colour=COLOUR_OIDC,
-        )
-        >> applications
-    )
+    (pod_identity_webhook >> edge("Inject IRSA", colour=COLOUR_OIDC) >> applications)
     applications << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
-    (
-        applications
-        >> edge(
-            "Exchange AWS\naccess token with\nk3s API server\nissued JWT",
-            colour=COLOUR_OIDC,
-        )
-        >> aws_sts
-    )
-    (
-        aws_sts
-        >> edge("Fetch JWKS\npublic key to\nvalidate JWT", colour=COLOUR_OIDC)
-        >> cloudflare
-    )
-    (
-        cloudflare
-        >> edge(
-            "Route to\nwell-known\nendpoint\nvia cloudflared\nand Envoy Gateway",
-            colour=COLOUR_OIDC,
-        )
-        >> api_server
-    )
-    (
-        applications
-        >> edge("Access AWS\nresource with\naccess token", colour=COLOUR_OIDC)
-        >> aws_resource
-    )
+    (applications >> edge("Assume role\nwith JWT", colour=COLOUR_OIDC) >> aws_sts)
+    (aws_sts >> edge("Validate JWT", colour=COLOUR_OIDC) >> cloudflare)
+    (cloudflare >> edge("OIDC JWKS", colour=COLOUR_OIDC) >> api_server)
+    applications >> edge("Use AWS APIs", colour=COLOUR_OIDC) >> aws_app_services
