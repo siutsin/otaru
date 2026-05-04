@@ -22,7 +22,7 @@ From the project root:
 make generate-diagrams
 ```
 
-This will automatically format Python code and generate the diagram to `assets/otaru-architecture.png`.
+This will automatically format Python code and generate the diagram to `assets/architecture.png`.
 
 To generate with a custom filename:
 
