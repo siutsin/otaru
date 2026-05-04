@@ -1,0 +1,69 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $gatewayPrincipal := printf "cluster.local/ns/%s/sa/%s" $gatewayNamespace $gatewayName -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-grafana
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-grafana
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-prometheus-server
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-prometheus-server
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+              - cluster.local/ns/monitoring/sa/monitoring-grafana
+              - cluster.local/ns/kiali/sa/kiali
+      to:
+        - operation:
+            ports:
+              - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-loki
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-loki
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+              - cluster.local/ns/monitoring/sa/monitoring-grafana
+      to:
+        - operation:
+            ports:
+              - "3100"
