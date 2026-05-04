@@ -22,10 +22,8 @@ spec:
       match:
         any:
           - resources:
-              apiGroups:
-                - barmancloud.cnpg.io
               kinds:
-                - ObjectStore
+                - barmancloud.cnpg.io/v1/ObjectStore
               operations:
                 - CREATE
                 - UPDATE
@@ -48,10 +46,8 @@ spec:
       match:
         any:
           - resources:
-              apiGroups:
-                - barmancloud.cnpg.io
               kinds:
-                - ObjectStore
+                - barmancloud.cnpg.io/v1/ObjectStore
               namespaces:
                 - {{ $namespace }}
               operations:
