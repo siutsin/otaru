@@ -1,3 +1,6 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -13,7 +16,7 @@ spec:
     - from:
         - source:
             principals:
-              - cluster.local/ns/gateway/sa/gateway
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
       to:
         - operation:
             ports:
