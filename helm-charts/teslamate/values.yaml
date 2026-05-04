@@ -116,11 +116,11 @@ backup:
   resources:
     requests:
       cpu: 50m
-      memory: 128Mi
-      ephemeral-storage: 256Mi
+      memory: 256Mi
+      ephemeral-storage: 2Gi
     limits:
-      memory: 128Mi
-      ephemeral-storage: 256Mi
+      memory: 256Mi
+      ephemeral-storage: 2Gi
   schedule: "0 10 * * *"
   verify:
     schedule: "0 12 * * *"
