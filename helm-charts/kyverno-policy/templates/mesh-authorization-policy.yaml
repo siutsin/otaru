@@ -1,0 +1,49 @@
+{{- if .Values.meshAuthorizationPolicy.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-mesh-authorization-policy
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  rules:
+    - name: require-authorization-policy-for-ambient-services
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+              operations:
+                - CREATE
+                - UPDATE
+              namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
+      preconditions:
+        all:
+          - key: {{ printf "{{ (request.object.spec.selector || `{}`) | length(@) }}" | quote }}
+            operator: GreaterThan
+            value: 0
+      context:
+        - name: authorizationPolicyCount
+          apiCall:
+            urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
+            jmesPath: >-
+              items[?spec.targetRefs[?(group == '' || group == 'core') &&
+              kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']] | length(@)
+            default: 0
+      validate:
+        allowExistingViolations: true
+        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
+        message: >-
+          Selector-backed Services in ambient mesh namespaces must have an
+          AuthorizationPolicy in the same namespace with targetRefs pointing at
+          that Service.
+        deny:
+          conditions:
+            all:
+              - key: "{{ `{{ authorizationPolicyCount }}` }}"
+                operator: Equals
+                value: 0
+  validationFailureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
+{{- end }}
