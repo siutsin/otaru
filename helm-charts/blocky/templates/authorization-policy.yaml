@@ -41,3 +41,31 @@ spec:
               - /metrics
             ports:
               - {{ .Values.deployment.ports.http | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.deployment.ports.http | quote }}
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.deployment.ports.http | quote }}

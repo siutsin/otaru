@@ -36,3 +36,32 @@ spec:
               - /metrics
             ports:
               - "9090"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+      app.kubernetes.io/instance: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+      to:
+        - operation:
+            ports:
+              - "20001"
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+      to:
+        - operation:
+            ports:
+              - "9090"
