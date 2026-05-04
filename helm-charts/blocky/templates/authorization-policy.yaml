@@ -42,6 +42,8 @@ spec:
             ports:
               - {{ .Values.deployment.ports.http | quote }}
 ---
+# Istio AuthorizationPolicy only applies to the TCP side of this DNS Service;
+# UDPRoute traffic is not proxied by Istio and must be controlled outside AP.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
