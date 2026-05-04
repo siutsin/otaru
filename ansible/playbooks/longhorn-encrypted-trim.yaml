@@ -79,7 +79,7 @@
           - longhorn_trim_targets
         longhorn_crypto_key_value: "{{ longhorn_crypto_key_result.stdout }}"
         longhorn_trim_node_name: "{{ item }}"
-      loop: "{{ longhorn_attached_encrypted_volumes | map(attribute='node') | unique | sort }}"
+      loop: "{{ longhorn_attached_encrypted_volumes | default([]) | map(attribute='node') | unique | sort }}"
       no_log: true
 
 - name: Enable persistent discards for attached encrypted Longhorn volumes
@@ -89,7 +89,7 @@
   vars:
     longhorn_trim_node_volumes: >-
       {{
-        hostvars['localhost'].longhorn_attached_encrypted_volumes
+        hostvars['localhost'].longhorn_attached_encrypted_volumes | default([])
         | selectattr('node', 'equalto', longhorn_trim_node_name)
         | list
       }}
