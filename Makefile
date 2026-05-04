@@ -10,7 +10,7 @@ LUKS_UNLOCK_HOST_QUERY := \
 	.value.ansible_host == strenv(TARGET)) | .value.ansible_host][0] // \
 	strenv(TARGET)
 
-ifneq (,$(filter unlock luks,$(MAKECMDGOALS)))
+ifneq (,$(filter unlock luks trim,$(MAKECMDGOALS)))
 ifneq ($(word 2,$(MAKECMDGOALS)),)
 override NODE_TARGET := $(word 2,$(MAKECMDGOALS))
 .PHONY: $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -38,7 +38,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(BLUE)Cluster Management:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(setup|luks|maintenance|restart|nuke|upgrade):" | \
+		grep -E "^(setup|luks|maintenance|restart|nuke|trim|upgrade):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
@@ -99,6 +99,18 @@ luks: ## Rebuild one node into a clean encrypted-root state from rescue (usage: 
 .PHONY: maintenance
 maintenance: ## Update packages, rolling reboot, and restart workloads
 	$(call ansible_playbook,maintenance)
+
+.PHONY: trim
+trim: ## Enable persistent discards for encrypted Longhorn volumes (usage: make trim [volume-name])
+	@volume="$(NODE_TARGET)"; \
+	if [ -n "$$volume" ]; then \
+		echo "$(GREEN)Enabling Longhorn encrypted discard support for $$volume...$(NC)"; \
+	else \
+		echo "$(GREEN)Enabling Longhorn encrypted discard support for all attached encrypted volumes...$(NC)"; \
+	fi; \
+	ANSIBLE_CONFIG=ansible/ansible.cfg \
+	LONGHORN_TRIM_VOLUME="$$volume" \
+	ansible-playbook -i $(ANSIBLE_INVENTORY) ansible/playbooks/longhorn-encrypted-trim.yaml
 
 .PHONY: restart
 restart: ## Restart all workloads without updating packages

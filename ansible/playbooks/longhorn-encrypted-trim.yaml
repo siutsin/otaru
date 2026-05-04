@@ -1,0 +1,155 @@
+---
+- name: Discover encrypted Longhorn volumes
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    longhorn_namespace: longhorn-system
+    longhorn_crypto_secret_name: longhorn-crypto
+    longhorn_trim_volume: "{{ lookup('ansible.builtin.env', 'LONGHORN_TRIM_VOLUME') | default('', true) }}"
+    longhorn_trim_require_match: true
+
+  tasks:
+    - name: Read Longhorn crypto key from Kubernetes
+      shell: >-
+        kubectl -n {{ longhorn_namespace | quote }} get secret {{ longhorn_crypto_secret_name | quote }}
+        -o jsonpath='{.data.CRYPTO_KEY_VALUE}' | base64 --decode
+      register: longhorn_crypto_key_result
+      changed_when: false
+      no_log: true
+
+    - name: Require Longhorn crypto key
+      assert:
+        that:
+          - longhorn_crypto_key_result.stdout | length > 0
+        fail_msg: "Longhorn crypto key is empty or unavailable."
+      no_log: true
+
+    - name: Read Longhorn volumes
+      command:
+        argv:
+          - kubectl
+          - -n
+          - "{{ longhorn_namespace }}"
+          - get
+          - volumes.longhorn.io
+          - -o
+          - json
+      register: longhorn_volumes_result
+      changed_when: false
+      no_log: true
+
+    - name: Build attached encrypted volume list
+      set_fact:
+        longhorn_attached_encrypted_volumes: >-
+          {{
+            longhorn_attached_encrypted_volumes | default([])
+            + [
+              {
+                'name': item.metadata.name,
+                'node': item.status.currentNodeID,
+                'robustness': item.status.robustness | default('unknown')
+              }
+            ]
+          }}
+      loop: "{{ (longhorn_volumes_result.stdout | from_json)['items'] }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+      when:
+        - item.spec.encrypted | default(false) | bool
+        - item.status.state | default('') == 'attached'
+        - item.status.currentNodeID | default('') | length > 0
+        - longhorn_trim_volume | length == 0 or item.metadata.name == longhorn_trim_volume
+
+    - name: Require at least one matching attached encrypted volume
+      assert:
+        that:
+          - longhorn_attached_encrypted_volumes | default([]) | length > 0
+        fail_msg: >-
+          No matching attached encrypted Longhorn volumes found. Set LONGHORN_TRIM_VOLUME
+          to target one volume, or attach the target volume before running make trim.
+      when: longhorn_trim_require_match | bool
+
+    - name: Add target nodes
+      add_host:
+        name: "{{ item }}.local"
+        ansible_host: "{{ hostvars[item ~ '.local'].ansible_host | default(item ~ '.local') }}"
+        ansible_ssh_user: "{{ hostvars[item ~ '.local'].ansible_ssh_user | default('pi') }}"
+        groups:
+          - longhorn_trim_targets
+        longhorn_crypto_key_value: "{{ longhorn_crypto_key_result.stdout }}"
+        longhorn_trim_node_name: "{{ item }}"
+      loop: "{{ longhorn_attached_encrypted_volumes | map(attribute='node') | unique | sort }}"
+      no_log: true
+
+- name: Enable persistent discards for attached encrypted Longhorn volumes
+  hosts: longhorn_trim_targets
+  gather_facts: false
+  become: true
+  vars:
+    longhorn_trim_node_volumes: >-
+      {{
+        hostvars['localhost'].longhorn_attached_encrypted_volumes
+        | selectattr('node', 'equalto', longhorn_trim_node_name)
+        | list
+      }}
+
+  tasks:
+    - name: Show target volumes
+      debug:
+        msg: >-
+          {{ inventory_hostname }} will check {{ longhorn_trim_node_volumes | map(attribute='name') | join(', ') }}
+
+    - name: Check cryptsetup is installed
+      command:
+        argv:
+          - cryptsetup
+          - --version
+      changed_when: false
+
+    - name: Read current LUKS flags
+      command:
+        argv:
+          - cryptsetup
+          - luksDump
+          - "/dev/longhorn/{{ item.name }}"
+      loop: "{{ longhorn_trim_node_volumes }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: longhorn_luks_dump_results
+      changed_when: false
+
+    - name: Build refresh list
+      set_fact:
+        longhorn_trim_refresh_volumes: "{{ longhorn_trim_refresh_volumes | default([]) + [item.item] }}"
+      loop: "{{ longhorn_luks_dump_results.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      when: "'allow-discards' not in item.stdout"
+
+    - name: Enable persistent discards
+      command:
+        argv:
+          - cryptsetup
+          - --key-file=-
+          - --allow-discards
+          - --persistent
+          - refresh
+          - "{{ item.name }}"
+        stdin: "{{ longhorn_crypto_key_value }}"
+        stdin_add_newline: false
+      loop: "{{ longhorn_trim_refresh_volumes | default([]) }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: longhorn_refresh_results
+      no_log: true
+      when: longhorn_trim_refresh_volumes | default([]) | length > 0
+
+    - name: Verify allow-discards flag
+      shell: >-
+        cryptsetup luksDump {{ ('/dev/longhorn/' ~ item.name) | quote }}
+        | grep -q 'Flags:.*allow-discards'
+      loop: "{{ longhorn_trim_node_volumes }}"
+      loop_control:
+        label: "{{ item.name }}"
+      changed_when: false

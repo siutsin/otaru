@@ -232,7 +232,6 @@
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-provisioner
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-resizer
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=csi-snapshotter
-      kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l name=longhorn-setup-cypto-discard
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l longhorn.io/component=instance-manager
       kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=15m -l app=longhorn-csi-plugin
     register: argocd_longhorn_ready_result

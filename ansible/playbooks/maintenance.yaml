@@ -1,3 +1,6 @@
 ---
 - import_playbook: maintenance/000-packages.yaml
 - import_playbook: restart.yaml
+- import_playbook: longhorn-encrypted-trim.yaml
+  vars:
+    longhorn_trim_require_match: false
