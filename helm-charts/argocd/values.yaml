@@ -47,6 +47,8 @@ argo-cd:
   configs:
     cm:
       url: https://argocd.internal.siutsin.com/argocd/
+    secret:
+      createSecret: false
     params:
       # Keep repo-server concurrency bounded; Helm renders can spike memory during cold-cache bursts.
       reposerver.parallelism.limit: 2
