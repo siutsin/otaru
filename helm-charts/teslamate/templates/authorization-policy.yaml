@@ -1,0 +1,71 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $gatewayPrincipal := printf "cluster.local/ns/%s/sa/%s" $gatewayNamespace $gatewayName -}}
+{{- $databaseName := regexReplaceAll "-rw\\..*$" .Values.database.host "" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.service.port | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-grafana
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-grafana
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "80"
+{{- range $suffix := list "rw" "r" "ro" }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-%s" $databaseName $suffix }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ printf "%s-%s" $databaseName $suffix }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/default
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $.Values.name }}-grafana
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $.Values.name }}-verify-pitr
+      to:
+        - operation:
+            ports:
+              - {{ $.Values.database.port | quote }}
+{{- end }}
