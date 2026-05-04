@@ -1,6 +1,4 @@
 namespace: istio-system
 
 peerAuthentication:
-  # Start permissive while ambient enrollment is rolled out and verified, then
-  # tighten once webhook and system paths are known to tolerate enforcement.
-  mtlsMode: PERMISSIVE
+  mtlsMode: STRICT
