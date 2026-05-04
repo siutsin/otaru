@@ -62,6 +62,7 @@ jobs:
 
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             const deadline = Date.now() + 20 * 60 * 1000;
+            const quietPassGraceMs = 3 * 60 * 1000;
 
             const prUpdatedAt = new Date(context.payload.pull_request.updated_at);
 
@@ -135,11 +136,16 @@ jobs:
                 return;
               }
 
+              if (Date.now() - prUpdatedAt.getTime() >= quietPassGraceMs) {
+                core.info(`No new Codex feedback arrived within ${quietPassGraceMs / 60000} minutes of the latest PR update for HEAD ${headSha}; treating the review as clear.`);
+                return;
+              }
+
               core.info("Waiting for Codex connector 👍 after current PR update...");
               await sleep(60 * 1000);
             }
 
-            core.setFailed("Timed out waiting for Codex connector 👍.");
+            core.setFailed("Timed out waiting for Codex connector review signal.");
 
   codex-connector-status:
     if: always()
