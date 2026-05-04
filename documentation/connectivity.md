@@ -71,6 +71,10 @@ These are also the main cases that can still be plaintext in transit. The
 remaining non-ambient infrastructure paths are outside ambient mTLS, but
 inter-node traffic there is still covered by Flannel `wireguard-native`.
 
+For DNS clients that need an encrypted client-to-cluster path, Blocky also
+serves a DoH endpoint over the internal HTTPS ingress path. Plain DNS on
+`53/TCP` and `53/UDP` still remains available for clients that do not use DoH.
+
 ### Mitigations
 
 - inter-node DNS traffic is still encrypted on the wire by Flannel `wireguard-native`
