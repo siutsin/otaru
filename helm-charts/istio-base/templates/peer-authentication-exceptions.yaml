@@ -1,0 +1,13 @@
+{{- range .Values.peerAuthentication.exceptions }}
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  mtls:
+    mode: {{ .mtlsMode }}
+  selector:
+{{ toYaml .selector | nindent 4 }}
+---
+{{- end }}

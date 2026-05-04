@@ -52,6 +52,13 @@ Some platform namespaces stay outside ambient when they do not need the ambient 
 - north-south TCP and HTTP traffic from `gateway` to ambient backends uses the same mesh path
 - inter-node pod traffic also uses Flannel `wireguard-native`
 
+Temporary `PERMISSIVE` carveouts remain for known non-mesh callers:
+
+- `gateway/gateway`
+- `cert-manager/cert-manager-webhook`
+- `external-secrets/external-secrets-webhook`
+- `default/amazon-eks-pod-identity-webhook`
+
 Not protected by Istio mTLS:
 
 - `blocky` DNS on `53/UDP`
