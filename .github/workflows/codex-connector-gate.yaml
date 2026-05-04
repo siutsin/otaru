@@ -62,8 +62,6 @@ jobs:
 
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             const deadline = Date.now() + 20 * 60 * 1000;
-            const quietPassGraceMs = 3 * 60 * 1000;
-
             const prUpdatedAt = new Date(context.payload.pull_request.updated_at);
 
             const isCodex = user => botLogins.has(user?.login);
@@ -103,6 +101,23 @@ jobs:
                 return;
               }
 
+              const reviews = await github.paginate(
+                github.rest.pulls.listReviews,
+                { owner, repo, pull_number, per_page: 100 }
+              );
+
+              const codexBlockingReviewsOnHead = reviews.filter(review =>
+                isCodex(review.user) &&
+                review.commit_id === headSha &&
+                isCurrentPrUpdateSignal(review.submitted_at) &&
+                review.state !== "APPROVED"
+              );
+
+              if (codexBlockingReviewsOnHead.length > 0) {
+                core.setFailed(`Codex left ${codexBlockingReviewsOnHead.length} review(s) on HEAD ${headSha}; only a 👍 reaction passes this gate.`);
+                return;
+              }
+
               const reactions = await github.paginate(
                 github.rest.reactions.listForIssue,
                 { owner, repo, issue_number: pull_number, per_page: 100 }
@@ -116,11 +131,6 @@ jobs:
 
               if (thumbsUpAfterPrUpdate) {
                 core.info(`Codex gave 👍 after PR update for HEAD ${headSha}`);
-                return;
-              }
-
-              if (Date.now() - prUpdatedAt.getTime() >= quietPassGraceMs) {
-                core.info(`No new Codex feedback arrived within ${quietPassGraceMs / 60000} minutes of the latest PR update for HEAD ${headSha}; treating the review as clear.`);
                 return;
               }
 
