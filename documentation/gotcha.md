@@ -193,6 +193,111 @@ For more details, refer to the related GitHub issue: [Longhorn GitHub issue][lon
 
 ---
 
+## Encrypted Longhorn Volumes Do Not Reclaim Space After Trim
+
+Encrypted Longhorn volumes can keep consuming backing storage after files are deleted, even when the
+Longhorn `filesystem-trim` recurring job exists.
+
+An earlier workaround used the `cypto-volume-allow-discards` DaemonSet to run the refresh loop on every
+node. That solved the trim flag problem, but it created a worse security posture: an always-running
+privileged pod mounted host `/dev`, mounted the `longhorn-crypto` Secret, installed packages at runtime,
+and logged host `dmsetup table` output including device-mapper state.
+
+### Symptoms: Longhorn Encrypted Trim
+
+- Longhorn volume `actualSize` does not drop after deleting data from a filesystem.
+- The Longhorn `filesystem-trim` recurring job runs, but little or no space is reclaimed.
+- `cryptsetup luksDump /dev/longhorn/<volume>` does not show `allow-discards` in the `Flags` line.
+- A helper pod named `cypto-volume-allow-discards-*` is running in `longhorn-system`, keeping privileged
+  host-device and crypto-key access alive continuously.
+
+### Cause: Missing Dm-Crypt Discard Flag
+
+Longhorn can trim filesystems with the `filesystem-trim` recurring job, but encrypted Longhorn volumes need
+the dm-crypt mapping to allow discards first. Longhorn does not provide a supported StorageClass or chart
+setting for this because upstream treats automatic encrypted discard enablement as a security tradeoff.
+
+Enabling discards can reveal allocation patterns, used space, and deletion activity to a layer that can observe
+the backing device. This repo accepts that tradeoff for selected Longhorn volumes to recover disk space, but
+the operation should be short-lived and explicit.
+
+### Resolution: Enable Persistent Discards
+
+Use `make trim` after creating or restoring encrypted Longhorn volumes. The same idempotent check also runs at
+the end of `make maintenance`.
+
+Do not keep a privileged pod running for this task. The old `cypto-volume-allow-discards` DaemonSet is
+replaced by the `make trim` workflow and should not exist in the chart or cluster.
+
+To target one attached encrypted volume:
+
+```shell
+make trim <longhorn-volume-name>
+```
+
+The target checks matching attached encrypted volumes first. If a volume is missing `allow-discards`, it
+feeds the `longhorn-crypto` key to `cryptsetup` over stdin with `--key-file=-`, runs
+`cryptsetup --allow-discards --persistent refresh`, and verifies the flag. The Ansible path does not write
+the key to a local or remote filesystem.
+
+### Manual Diagnosis
+
+List encrypted Longhorn volumes and the node where each attached volume is currently mounted:
+
+```shell
+kubectl -n longhorn-system get volumes.longhorn.io -o json \
+  | jq -r '
+      .items[]
+      | select(.spec.encrypted == true)
+      | [
+          .metadata.name,
+          .status.state,
+          (.status.robustness // "unknown"),
+          (.status.currentNodeID // "")
+        ]
+      | @tsv' \
+  | sort
+```
+
+Check a target volume:
+
+```shell
+VOLUME=<longhorn-volume-name>
+NODE=<node-name>
+ssh "pi@${NODE}" "sudo cryptsetup luksDump /dev/longhorn/${VOLUME} | awk -F: '/Flags/ {print \$2}'"
+```
+
+If the output already includes `allow-discards`, no refresh is needed for that volume.
+
+### Manual Recovery
+
+If `make trim` is not available, refresh the mapping manually without writing the key to disk:
+
+```shell
+kubectl -n longhorn-system get secret longhorn-crypto \
+  -o jsonpath='{.data.CRYPTO_KEY_VALUE}' \
+  | base64 --decode \
+  | ssh "pi@${NODE}" \
+      "sudo -n cryptsetup --key-file=- --allow-discards --persistent refresh '${VOLUME}'"
+```
+
+Verify the flag:
+
+```shell
+ssh "pi@${NODE}" "sudo cryptsetup luksDump /dev/longhorn/${VOLUME} | awk -F: '/Flags/ {print \$2}'"
+```
+
+Expected output includes:
+
+```text
+allow-discards
+```
+
+The next scheduled Longhorn `filesystem-trim` job should reclaim space where Longhorn can safely unmap
+blocks. Existing snapshots may limit how much space can be recovered.
+
+---
+
 ## Barman Cloud WAL Archiving Failure: `exit status 4`
 
 This error is probably due to running out of disk space.

@@ -76,26 +76,18 @@
       delay: 10
       until: pod_ready_result_5.rc == 0
 
-    - name: Wait for pods in longhorn-system to be running - cypto-volume-allow-discards
-      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l name=longhorn-setup-cypto-discard
+    - name: Wait for pods in longhorn-system to be running - instance-manager
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l longhorn.io/component=instance-manager
       changed_when: false
       register: pod_ready_result_6
       retries: 5
       delay: 10
       until: pod_ready_result_6.rc == 0
 
-    - name: Wait for pods in longhorn-system to be running - instance-manager
-      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l longhorn.io/component=instance-manager
+    - name: Wait for pods in longhorn-system to be running - longhorn-csi-plugin
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=longhorn-csi-plugin
       changed_when: false
       register: pod_ready_result_7
       retries: 5
       delay: 10
       until: pod_ready_result_7.rc == 0
-
-    - name: Wait for pods in longhorn-system to be running - longhorn-csi-plugin
-      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=longhorn-csi-plugin
-      changed_when: false
-      register: pod_ready_result_8
-      retries: 5
-      delay: 10
-      until: pod_ready_result_8.rc == 0
