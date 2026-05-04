@@ -43,7 +43,14 @@ spec:
             periodSeconds: 10
             tcpSocket:
               port: 9090
-          resources: {}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+              ephemeral-storage: 128Mi
+            limits:
+              memory: 128Mi
+              ephemeral-storage: 128Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

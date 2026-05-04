@@ -55,16 +55,6 @@ local _ignoreDifferences = {
   bootstrap: {
     metallb: crdConversionCABundle('bgppeers.metallb.io'),
   },
-  database: {
-    'cloudnative-pg-clusters': [{
-      group: 'postgresql.cnpg.io',
-      kind: 'Cluster',
-      name: 'teslamate-20260412-0619',
-      jqPathExpressions: [
-        '.spec.resources',
-      ],
-    }],
-  },
   scheduling: {
     'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner') + cleanerExcludeDeleted,
     reloader: resourceFieldRefDivisor('reloader-reloader'),
@@ -100,6 +90,22 @@ local _grafanaDashboards = [
 ];
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
+local cnpgHelm = {
+  releaseName: 'cloudnative-pg',
+  valuesObject: {
+    resources: {
+      requests: {
+        cpu: '100m',
+        memory: '128Mi',
+        'ephemeral-storage': '128Mi',
+      },
+      limits: {
+        memory: '128Mi',
+        'ephemeral-storage': '128Mi',
+      },
+    },
+  },
+};
 local cnpgClustersHelm = { parameters: [
   { name: 'backup.b2.bucket', value: std.extVar('CNPG_BACKUP_BUCKET') },
   { name: 'backup.b2.endpoint', value: std.extVar('CNPG_BACKUP_ENDPOINT') },
@@ -157,7 +163,7 @@ local database = [
       repoURL: 'https://cloudnative-pg.io/charts/',
       chart: s.name,
       targetRevision: '0.23.2',
-      helm: { releaseName: s.name },
+      helm: cnpgHelm,
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
@@ -166,8 +172,6 @@ local database = [
     name: 'cloudnative-pg-clusters',
     namespace: 'cnpg-system',
     helm: cnpgClustersHelm,
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: _ignoreDifferences.database['cloudnative-pg-clusters'],
   },
 ];
 

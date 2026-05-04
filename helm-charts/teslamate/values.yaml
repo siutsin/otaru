@@ -51,11 +51,23 @@ service:
   port: 4000
 
 grafana:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 128Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 128Mi
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
           podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: teslamate
+                app.kubernetes.io/name: grafana
             topologyKey: kubernetes.io/hostname
   annotations:
     reloader.stakater.com/auto: "true"
@@ -101,6 +113,14 @@ grafana:
     existingSecret: teslamate-grafana
 
 backup:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 256Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 256Mi
   schedule: "0 10 * * *"
   verify:
     schedule: "0 12 * * *"
