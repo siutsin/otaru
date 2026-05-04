@@ -103,6 +103,47 @@ spec:
 {{- range $config.credentialSecrets }}
                   - {{ . }}
 {{- end }}
+              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.connectionString.name || '' }}` }}"
+                operator: AnyNotIn
+                value:
+                  - ""
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
+              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageAccount.name || '' }}` }}"
+                operator: AnyNotIn
+                value:
+                  - ""
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
+              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageKey.name || '' }}` }}"
+                operator: AnyNotIn
+                value:
+                  - ""
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
+              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageSasToken.name || '' }}` }}"
+                operator: AnyNotIn
+                value:
+                  - ""
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
+              - key: "{{ `{{ request.object.spec.configuration.googleCredentials.applicationCredentials.name || '' }}` }}"
+                operator: AnyNotIn
+                value:
+                  - ""
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
+              - key: "{{ `{{ request.object.spec.instanceSidecarConfiguration.env[].valueFrom.secretKeyRef.name || [] }}` }}"
+                operator: AnyNotIn
+                value:
+{{- range $config.credentialSecrets }}
+                  - {{ . }}
+{{- end }}
 {{- end }}
   validationFailureAction: Audit
 {{- end }}
