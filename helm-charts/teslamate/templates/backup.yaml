@@ -65,4 +65,5 @@ spec:
                     secretKeyRef:
                       name: {{ .Values.backup.database.secretName }}
                       key: dbname
+              resources: {{ toYaml .Values.backup.resources | nindent 16 }}
           restartPolicy: OnFailure

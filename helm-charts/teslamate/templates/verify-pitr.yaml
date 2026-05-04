@@ -158,6 +158,14 @@ spec:
                     namespace: ${VERIFY_NAMESPACE}
                   spec:
                     instances: 1
+                    resources:
+                      requests:
+                        cpu: 250m
+                        memory: 512Mi
+                        ephemeral-storage: 512Mi
+                      limits:
+                        memory: 512Mi
+                        ephemeral-storage: 512Mi
                     storage:
                       size: {{ .Values.backup.verifyPitr.restore.storage.size }}
                       storageClass: {{ .Values.backup.verifyPitr.restore.storage.storageClass }}

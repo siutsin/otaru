@@ -35,7 +35,14 @@ defaults:
       synchronizeReplicas:
         enabled: true
       updateInterval: 30
-    resources: {}
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+        ephemeral-storage: 512Mi
+      limits:
+        memory: 512Mi
+        ephemeral-storage: 512Mi
     smartShutdownTimeout: 180
     startDelay: 3600
     stopDelay: 1800

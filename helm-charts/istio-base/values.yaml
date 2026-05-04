@@ -44,3 +44,10 @@ peerAuthentication:
         matchLabels:
           app.kubernetes.io/instance: amazon-eks-pod-identity-webhook
           app.kubernetes.io/name: pod-identity-webhook
+    - name: cloudnative-pg-webhook
+      namespace: cnpg-system
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: cloudnative-pg
+          app.kubernetes.io/name: cloudnative-pg
