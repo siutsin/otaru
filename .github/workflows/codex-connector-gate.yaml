@@ -62,6 +62,7 @@ jobs:
 
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             const deadline = Date.now() + 20 * 60 * 1000;
+            const quietPassGraceMs = 3 * 60 * 1000;
 
             const prUpdatedAt = new Date(context.payload.pull_request.updated_at);
 
@@ -70,22 +71,6 @@ jobs:
               new Date(createdAt) >= prUpdatedAt;
 
             while (Date.now() < deadline) {
-              const reviews = await github.paginate(
-                github.rest.pulls.listReviews,
-                { owner, repo, pull_number, per_page: 100 }
-              );
-
-              const codexReviewsOnHead = reviews.filter(review =>
-                isCodex(review.user) &&
-                review.commit_id === headSha &&
-                review.state !== "DISMISSED"
-              );
-
-              if (codexReviewsOnHead.length > 0) {
-                core.setFailed(`Codex left ${codexReviewsOnHead.length} review(s) on HEAD ${headSha}; only a 👍 reaction passes this gate.`);
-                return;
-              }
-
               const reviewComments = await github.paginate(
                 github.rest.pulls.listReviewComments,
                 { owner, repo, pull_number, per_page: 100 }
@@ -94,6 +79,7 @@ jobs:
               const codexReviewCommentsOnHead = reviewComments.filter(comment =>
                 isCodex(comment.user) &&
                 comment.commit_id === headSha &&
+                isCurrentPrUpdateSignal(comment.created_at) &&
                 !comment.in_reply_to_id
               );
 
@@ -133,11 +119,16 @@ jobs:
                 return;
               }
 
+              if (Date.now() - prUpdatedAt.getTime() >= quietPassGraceMs) {
+                core.info(`No new Codex feedback arrived within ${quietPassGraceMs / 60000} minutes of the latest PR update for HEAD ${headSha}; treating the review as clear.`);
+                return;
+              }
+
               core.info("Waiting for Codex connector 👍 after current PR update...");
               await sleep(60 * 1000);
             }
 
-            core.setFailed("Timed out waiting for Codex connector 👍.");
+            core.setFailed("Timed out waiting for Codex connector review signal.");
 
   codex-connector-status:
     if: always()

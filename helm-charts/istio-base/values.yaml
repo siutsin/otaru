@@ -1,6 +1,38 @@
 namespace: istio-system
 
 peerAuthentication:
-  # Start permissive while ambient enrollment is rolled out and verified, then
-  # tighten once webhook and system paths are known to tolerate enforcement.
-  mtlsMode: PERMISSIVE
+  # Ambient traffic is strict by default. Known non-mesh ingress and webhook
+  # callers are carved out below until those paths have a mesh-compatible design.
+  mtlsMode: STRICT
+  exceptions:
+    - name: gateway
+      namespace: gateway
+      mtlsMode: PERMISSIVE
+      # TODO: Remove once ingress reaches this gateway over a mesh-native path
+      # that remains compatible with ambient STRICT.
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: proxy
+          gateway.networking.k8s.io/gateway-name: gateway
+    - name: cert-manager-webhook
+      namespace: cert-manager
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: webhook
+          app.kubernetes.io/instance: cert-manager
+          app.kubernetes.io/name: webhook
+    - name: external-secrets-webhook
+      namespace: external-secrets
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: external-secrets
+          app.kubernetes.io/name: external-secrets-webhook
+    - name: amazon-eks-pod-identity-webhook
+      namespace: default
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: amazon-eks-pod-identity-webhook
+          app.kubernetes.io/name: pod-identity-webhook
