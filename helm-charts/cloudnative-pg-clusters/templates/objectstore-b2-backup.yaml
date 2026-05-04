@@ -18,6 +18,8 @@ spec:
         name: b2-backup-credentials
         key: "AWS_SECRET_ACCESS_KEY"
       inheritFromIAMRole: false
+  instanceSidecarConfiguration:
+    resources: {{ toYaml $.Values.defaults.objectStore.instanceSidecarResources | nindent 6 }}
   retentionPolicy: {{ $.Values.defaults.objectStore.retentionPolicy | quote }}
 {{- end }}
 {{- end }}

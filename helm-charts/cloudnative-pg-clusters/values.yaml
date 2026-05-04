@@ -26,7 +26,7 @@ defaults:
       enablePodMonitor: false
     postgresGID: 26
     postgresUID: 26
-    primaryUpdateMethod: restart
+    primaryUpdateMethod: switchover
     primaryUpdateStrategy: unsupervised
     replicationSlots:
       highAvailability:
@@ -95,6 +95,14 @@ defaults:
     schedule: "0 0 */3 * * *"
   objectStore:
     retentionPolicy: 1d
+    instanceSidecarResources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 256Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 256Mi
 
 clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
