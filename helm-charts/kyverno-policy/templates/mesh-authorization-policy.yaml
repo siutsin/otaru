@@ -24,6 +24,9 @@ spec:
           - key: {{ printf "{{ (request.object.spec.selector || `{}`) | length(@) }}" | quote }}
             operator: GreaterThan
             value: 0
+          - key: {{ printf "{{ request.object.spec.ports[?protocol == 'TCP' || protocol == null] | length(@) }}" | quote }}
+            operator: GreaterThan
+            value: 0
       context:
         - name: authorizationPolicyCount
           apiCall:
@@ -38,9 +41,9 @@ spec:
         allowExistingViolations: true
         failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
         message: >-
-          Selector-backed Services in ambient mesh namespaces must have an
-          AuthorizationPolicy in the same namespace with targetRefs pointing at
-          that Service.
+          Selector-backed Services with TCP ports in ambient mesh namespaces must
+          have an AuthorizationPolicy in the same namespace with targetRefs
+          pointing at that Service.
         deny:
           conditions:
             all:
