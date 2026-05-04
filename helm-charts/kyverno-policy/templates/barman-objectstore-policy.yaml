@@ -22,6 +22,8 @@ spec:
       match:
         any:
           - resources:
+              apiGroups:
+                - barmancloud.cnpg.io
               kinds:
                 - ObjectStore
               operations:
@@ -46,6 +48,8 @@ spec:
       match:
         any:
           - resources:
+              apiGroups:
+                - barmancloud.cnpg.io
               kinds:
                 - ObjectStore
               namespaces:
