@@ -3,6 +3,11 @@
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $gatewayPrincipal := printf "cluster.local/ns/%s/sa/%s" $gatewayNamespace $gatewayName -}}
 {{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
+{{- $prometheusPrincipal := printf "cluster.local/ns/%s/sa/monitoring-prometheus-server" .Values.namespace -}}
+{{- $grafanaPrincipal := printf "cluster.local/ns/%s/sa/monitoring-grafana" .Values.namespace -}}
+{{- $fluentBitPrincipal := printf "cluster.local/ns/%s/sa/monitoring-fluent-bit" .Values.namespace -}}
+{{- $lokiPrincipal := printf "cluster.local/ns/%s/sa/monitoring-loki" .Values.namespace -}}
+{{- $lokiCanaryPrincipal := printf "cluster.local/ns/%s/sa/loki-canary" .Values.namespace -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -41,7 +46,7 @@ spec:
         - source:
             principals:
               - {{ $gatewayPrincipal }}
-              - cluster.local/ns/monitoring/sa/monitoring-grafana
+              - {{ $grafanaPrincipal }}
               - cluster.local/ns/kiali/sa/kiali
               - {{ $heartbeatPrincipal }}
       to:
@@ -65,10 +70,211 @@ spec:
         - source:
             principals:
               - {{ $gatewayPrincipal }}
-              - cluster.local/ns/monitoring/sa/monitoring-grafana
-              - cluster.local/ns/monitoring/sa/monitoring-fluent-bit
+              - {{ $grafanaPrincipal }}
+              - {{ $fluentBitPrincipal }}
               - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
               - "3100"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: loki-canary
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: loki-canary
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "3500"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-fluent-bit
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-fluent-bit
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "2020"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-kube-state-metrics
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-kube-state-metrics
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "8080"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-prometheus-node-exporter
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-prometheus-node-exporter
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9100"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-prometheus-pushgateway
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-prometheus-pushgateway
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9091"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: loki-headless
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: loki-headless
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $lokiPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "3100"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-loki-memberlist
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-loki-memberlist
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $lokiPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "7946"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-loki-results-cache
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-loki-results-cache
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $lokiPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "11211"
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9150"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-loki-gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-loki-gateway
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $grafanaPrincipal }}
+              - {{ $fluentBitPrincipal }}
+              - {{ $prometheusPrincipal }}
+              - {{ $lokiCanaryPrincipal }}
+              - {{ $heartbeatPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "80"

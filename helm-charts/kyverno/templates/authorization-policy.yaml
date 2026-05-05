@@ -1,0 +1,30 @@
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $prometheusPrincipal := printf "cluster.local/ns/%s/sa/%s" $prometheusNamespace $prometheusServiceAccount -}}
+{{- $metricsServices := list "kyverno-background-controller-metrics" "kyverno-cleanup-controller-metrics" "kyverno-reports-controller-metrics" "kyverno-svc-metrics" -}}
+{{- range $index, $service := $metricsServices }}
+{{- if $index }}
+---
+{{- end }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ $service }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ $service }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "8000"
+{{- end }}

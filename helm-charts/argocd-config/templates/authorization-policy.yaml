@@ -21,3 +21,50 @@ spec:
         - operation:
             ports:
               - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: argocd-repo-server
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: argocd-repo-server
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-application-controller
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-applicationset-controller
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-server
+      to:
+        - operation:
+            ports:
+              - "8081"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: argocd-redis
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: argocd-redis
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-application-controller
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-applicationset-controller
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-repo-server
+              - cluster.local/ns/{{ .Values.namespace }}/sa/argocd-server
+      to:
+        - operation:
+            ports:
+              - "6379"
