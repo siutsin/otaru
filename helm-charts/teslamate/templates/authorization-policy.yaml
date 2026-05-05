@@ -64,6 +64,7 @@ spec:
               - cluster.local/ns/{{ $.Values.namespace }}/sa/default
               - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $.Values.name }}-grafana
               - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $.Values.name }}-verify-pitr
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $databaseName }}
       to:
         - operation:
             ports:

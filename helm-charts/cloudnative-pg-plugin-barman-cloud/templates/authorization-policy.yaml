@@ -1,0 +1,21 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: barman-cloud
+  namespace: cnpg-system
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: barman-cloud
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/cnpg-system/sa/cloudnative-pg
+              - cluster.local/ns/cnpg-system/sa/plugin-barman-cloud
+      to:
+        - operation:
+            ports:
+              - "9090"
