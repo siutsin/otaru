@@ -1,0 +1,23 @@
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: k3s-apiserver-loadbalancer-controller-manager-metrics-service
+  namespace: k3s-apiserver-loadbalancer-system
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: k3s-apiserver-loadbalancer-controller-manager-metrics-service
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+      to:
+        - operation:
+            ports:
+              - "8443"

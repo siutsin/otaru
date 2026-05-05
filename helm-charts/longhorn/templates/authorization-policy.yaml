@@ -21,3 +21,46 @@ spec:
         - operation:
             ports:
               - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: longhorn-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-backend
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/longhorn-service-account
+              - cluster.local/ns/{{ .Values.namespace }}/sa/longhorn-ui-service-account
+      to:
+        - operation:
+            ports:
+              - "9500"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: longhorn-recovery-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-recovery-backend
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/longhorn-service-account
+      to:
+        - operation:
+            ports:
+              - "9503"
