@@ -251,6 +251,60 @@ kubectl -n longhorn-system get volumes.longhorn.io
 
 ---
 
+## KEDA External Metrics API Fails Through Ambient
+
+KEDA exposes `external.metrics.k8s.io` through a Kubernetes aggregated APIService. The kube-apiserver calls
+the KEDA metrics adapter directly on its HTTPS endpoint, and the adapter calls the KEDA operator gRPC metrics
+service.
+
+### Symptoms: KEDA External Metrics
+
+- The `keda` ArgoCD application stays `Progressing`.
+- The KEDA pods are `Running` and ready, but the APIService is unavailable:
+
+```shell
+kubectl get apiservice v1beta1.external.metrics.k8s.io
+```
+
+Typical failure:
+
+```text
+FailedDiscoveryCheck ... Get "https://<pod-ip>:6443/apis/external.metrics.k8s.io/v1beta1": EOF
+```
+
+The metrics adapter logs can also show gRPC handshake failures when it cannot reach `keda-operator:9666`.
+
+### Resolution: Keep KEDA Outside Ambient
+
+Keep `keda` out of the ambient mesh in `helm-charts/namespaces/values.yaml`:
+
+```yaml
+- name: keda
+  ambient: false
+```
+
+If ArgoCD has already applied ambient labels, remove them and restart the KEDA deployments:
+
+```shell
+kubectl label ns keda \
+  istio.io/dataplane-mode- \
+  istio.io/use-waypoint- \
+  istio.io/use-waypoint-namespace- \
+  istio.io/ingress-use-waypoint-
+kubectl -n keda rollout restart deploy/keda-admission-webhooks deploy/keda-operator deploy/keda-operator-metrics-apiserver
+kubectl -n keda rollout status deploy/keda-admission-webhooks
+kubectl -n keda rollout status deploy/keda-operator
+kubectl -n keda rollout status deploy/keda-operator-metrics-apiserver
+```
+
+After the restart, confirm the external metrics API is available:
+
+```shell
+kubectl get apiservice v1beta1.external.metrics.k8s.io
+```
+
+---
+
 ## Encrypted Longhorn Volumes Do Not Reclaim Space After Trim
 
 Encrypted Longhorn volumes can keep consuming backing storage after files are deleted, even when the

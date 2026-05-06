@@ -17,6 +17,7 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - cluster.local/ns/keda/sa/keda-metrics-server
       to:
         - operation:
             ports:

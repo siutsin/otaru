@@ -28,6 +28,7 @@ namespaces:
   - name: jung2bot-dev
   - name: k8s-cleaner
   - name: keda
+    ambient: false
   - name: kiali
   - name: kubernetes-mcp-server
   - name: kyverno

@@ -42,6 +42,7 @@ Connectivity roles:
 - `kiali`: ambient-enrolled observability namespace
 - `istio-waypoints`: hosts the shared waypoint and stays outside ambient
 - `envoy-gateway-system`: hosts the Envoy Gateway controller and stays outside ambient
+- `keda`: stays outside ambient because the Kubernetes aggregated external metrics API calls the KEDA metrics adapter directly
 - `longhorn-system`: stays outside ambient because Longhorn admission webhook, CSI, and storage control-plane paths must remain direct Kubernetes/Longhorn traffic
 
 Some platform namespaces stay outside ambient when they do not need the ambient traffic path.
