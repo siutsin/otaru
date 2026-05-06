@@ -305,6 +305,54 @@ kubectl get apiservice v1beta1.external.metrics.k8s.io
 
 ---
 
+## Metrics Server API Fails Through Ambient
+
+Metrics Server exposes `metrics.k8s.io` through a Kubernetes aggregated APIService. The kube-apiserver calls
+metrics-server directly on its HTTPS endpoint. In this cluster, metrics-server pods must opt out of ambient
+redirection even though the `monitoring` namespace remains ambient-enrolled.
+
+### Symptoms: Metrics Server API
+
+- `kubectl top nodes` or `kubectl top pods` intermittently returns `ServiceUnavailable`.
+- HPAs show `FailedGetResourceMetric` or `FailedComputeMetricsReplicas`.
+- The metrics APIService is unavailable or flaps:
+
+```shell
+kubectl get apiservice v1beta1.metrics.k8s.io
+```
+
+Typical failure:
+
+```text
+FailedDiscoveryCheck ... Get "https://<pod-ip>:10250/apis/metrics.k8s.io/v1beta1": EOF
+```
+
+### Resolution: Keep Metrics Server Pods Outside Ambient
+
+Keep the metrics-server pod template out of ambient in `helm-charts/metrics-server/values.yaml`:
+
+```yaml
+metrics-server:
+  podLabels:
+    istio.io/dataplane-mode: none
+```
+
+If ArgoCD has already applied ambient labels to running metrics-server pods, restart the deployment:
+
+```shell
+kubectl -n monitoring rollout restart deploy/metrics-server
+kubectl -n monitoring rollout status deploy/metrics-server
+```
+
+After the restart, confirm the metrics API is available and stable:
+
+```shell
+kubectl get apiservice v1beta1.metrics.k8s.io
+kubectl top nodes
+```
+
+---
+
 ## Encrypted Longhorn Volumes Do Not Reclaim Space After Trim
 
 Encrypted Longhorn volumes can keep consuming backing storage after files are deleted, even when the
