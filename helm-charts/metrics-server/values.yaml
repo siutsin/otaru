@@ -1,4 +1,6 @@
 metrics-server:
+  podLabels:
+    istio.io/dataplane-mode: none
   resources:
     requests:
       cpu: 50m
