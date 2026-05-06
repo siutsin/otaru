@@ -42,8 +42,10 @@ Connectivity roles:
 - `kiali`: ambient-enrolled observability namespace
 - `istio-waypoints`: hosts the shared waypoint and stays outside ambient
 - `envoy-gateway-system`: hosts the Envoy Gateway controller and stays outside ambient
+- `longhorn-system`: stays outside ambient because Longhorn admission webhook, CSI, and storage control-plane paths must remain direct Kubernetes/Longhorn traffic
 
 Some platform namespaces stay outside ambient when they do not need the ambient traffic path.
+Non-ambient platform namespaces still rely on Kubernetes RBAC, service-specific TLS where applicable, and Flannel `wireguard-native` for inter-node transport protection.
 
 ## Security Model
 
@@ -199,6 +201,7 @@ Current examples:
 - `istio-system`
 - `istio-waypoints`
 - `kube-system`
+- `longhorn-system`
 - UDP ingress paths such as `blocky` DNS and Home Assistant CoAP
 
 ## Operational Consequences

@@ -32,6 +32,7 @@ namespaces:
   - name: kubernetes-mcp-server
   - name: kyverno
   - name: longhorn-system
+    ambient: false
   - name: monitoring
   - name: onepassword
   - name: reloader

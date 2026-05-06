@@ -193,6 +193,64 @@ For more details, refer to the related GitHub issue: [Longhorn GitHub issue][lon
 
 ---
 
+## Longhorn Webhook Breaks When Enrolled in Ambient Mesh
+
+Longhorn should not run in an ambient-enrolled namespace in this cluster. The Longhorn manager pods serve the
+admission webhook, recovery backend, and storage control-plane APIs that CSI and Longhorn itself call while
+attaching volumes. Routing those paths through the shared waypoint can make volume attach fail even when the
+Longhorn pods are otherwise running.
+
+This removes Istio ambient mTLS and waypoint policy from Longhorn traffic. Longhorn is treated as platform
+infrastructure instead: access is constrained by Kubernetes RBAC and namespace ownership, the webhook uses
+Kubernetes service TLS, and inter-node traffic remains protected by Flannel `wireguard-native`.
+
+### Symptoms: Longhorn Ambient Mesh
+
+- Workload pods stay in `ContainerCreating` while waiting for Longhorn volumes.
+- Pod events show `AttachVolume.Attach failed` for a Longhorn-backed PVC.
+- The error mentions failed calls to `mutator.longhorn.io` or `validator.longhorn.io`.
+- The failing URL points at `https://longhorn-admission-webhook.longhorn-system.svc:9502/...`.
+
+Example event:
+
+```text
+AttachVolume.Attach failed for volume "...": rpc error: code = Internal desc = Bad response statusCode [500].
+message=unable to attach volume ...: failed calling webhook "mutator.longhorn.io":
+Post "https://longhorn-admission-webhook.longhorn-system.svc:9502/v1/webhook/mutation?timeout=10s": EOF
+```
+
+### Resolution: Keep Longhorn Outside Ambient
+
+Keep `longhorn-system` out of the ambient mesh in `helm-charts/namespaces/values.yaml`:
+
+```yaml
+- name: longhorn-system
+  ambient: false
+```
+
+If ArgoCD has already applied ambient labels, remove them and restart Longhorn manager pods so they are created
+without ambient redirection:
+
+```shell
+kubectl label ns longhorn-system \
+  istio.io/dataplane-mode- \
+  istio.io/use-waypoint- \
+  istio.io/use-waypoint-namespace- \
+  istio.io/ingress-use-waypoint-
+kubectl -n longhorn-system delete pod -l app=longhorn-manager
+```
+
+After the restart, confirm Longhorn manager pods no longer have ambient redirection and that affected volumes
+return to `healthy`:
+
+```shell
+kubectl -n longhorn-system get pods -l app=longhorn-manager \
+  -o custom-columns='NAME:.metadata.name,NODE:.spec.nodeName,AMBIENT:.metadata.annotations.ambient\.istio\.io/redirection'
+kubectl -n longhorn-system get volumes.longhorn.io
+```
+
+---
+
 ## Encrypted Longhorn Volumes Do Not Reclaim Space After Trim
 
 Encrypted Longhorn volumes can keep consuming backing storage after files are deleted, even when the

@@ -4,6 +4,23 @@
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
+  name: longhorn-admission-webhook
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-admission-webhook
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "9502"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
   name: longhorn-frontend
   namespace: {{ .Values.namespace }}
 spec:
