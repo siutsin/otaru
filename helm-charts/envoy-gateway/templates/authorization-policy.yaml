@@ -1,0 +1,45 @@
+{{- if .Capabilities.APIVersions.Has "security.istio.io/v1/AuthorizationPolicy" }}
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusPrincipal := printf "cluster.local/ns/%s/sa/%s" $prometheusNamespace $prometheusServiceAccount -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.service.name }}
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"
+              - "80"
+              - "2022"
+              - "53"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: gateway-envoy-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "19001"
+{{- end }}

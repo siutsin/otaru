@@ -28,3 +28,37 @@ spec:
             ports:
               - "8000"
 {{- end }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: kyverno-svc
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: kyverno-svc
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: kyverno-cleanup-controller
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: kyverno-cleanup-controller
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"

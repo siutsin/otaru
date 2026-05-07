@@ -1,0 +1,18 @@
+{{- if .Capabilities.APIVersions.Has "security.istio.io/v1/AuthorizationPolicy" }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: metallb-webhook-service
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: metallb-webhook-service
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"
+{{- end }}

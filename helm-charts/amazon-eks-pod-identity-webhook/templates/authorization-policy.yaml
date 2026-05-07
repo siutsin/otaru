@@ -1,0 +1,19 @@
+{{- if .Capabilities.APIVersions.Has "security.istio.io/v1/AuthorizationPolicy" }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: amazon-eks-pod-identity-webhook
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "8443"
+              - "9999"
+{{- end }}
