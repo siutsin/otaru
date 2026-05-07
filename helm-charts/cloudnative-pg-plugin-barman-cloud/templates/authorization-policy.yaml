@@ -19,3 +19,20 @@ spec:
         - operation:
             ports:
               - "9090"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: cnpg-webhook-service
+  namespace: cnpg-system
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: cnpg-webhook-service
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"

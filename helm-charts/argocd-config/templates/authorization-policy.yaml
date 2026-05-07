@@ -68,3 +68,20 @@ spec:
         - operation:
             ports:
               - "6379"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: argocd-applicationset-controller
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: argocd-applicationset-controller
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "7000"

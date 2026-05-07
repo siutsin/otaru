@@ -1,6 +1,9 @@
 metrics-server:
   podLabels:
     istio.io/dataplane-mode: none
+  service:
+    annotations:
+      mesh.otaru.io/non-ambient-endpoints: "true"
   resources:
     requests:
       cpu: 50m

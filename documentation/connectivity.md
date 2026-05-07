@@ -46,6 +46,10 @@ Connectivity roles:
 - `metrics-server`: pods stay outside ambient because the Kubernetes aggregated resource metrics API calls metrics-server directly
 - `longhorn-system`: stays outside ambient because Longhorn admission webhook, CSI, and storage control-plane paths must remain direct Kubernetes/Longhorn traffic
 
+The mesh AuthorizationPolicy guard checks ambient Services, but it skips explicitly annotated Services whose
+currently selected pods all opt out with `istio.io/dataplane-mode=none`. This covers pod-level platform
+exceptions such as `metrics-server` without requiring a misleading Service policy for non-ambient endpoints.
+
 Some platform namespaces stay outside ambient when they do not need the ambient traffic path.
 Non-ambient platform namespaces still rely on Kubernetes RBAC, service-specific TLS where applicable, and Flannel `wireguard-native` for inter-node transport protection.
 

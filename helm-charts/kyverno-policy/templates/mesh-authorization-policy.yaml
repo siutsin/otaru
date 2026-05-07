@@ -33,7 +33,7 @@ spec:
             method: GET
             urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
             jmesPath: >-
-              items[?spec.targetRefs[?(group == '' || group == 'core') &&
+              items[?spec.targetRefs[?(group == null || group == '' || group == 'core') &&
               kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']] | length(@)
             default: 0
       skipBackgroundRequests: true
@@ -43,13 +43,17 @@ spec:
         message: >-
           Selector-backed Services with TCP ports in ambient mesh namespaces must
           have an AuthorizationPolicy in the same namespace with targetRefs
-          pointing at that Service.
+          pointing at that Service unless explicitly annotated as a
+          non-ambient endpoint Service.
         deny:
           conditions:
             all:
               - key: "{{ `{{ authorizationPolicyCount }}` }}"
                 operator: Equals
                 value: 0
+              - key: {{ printf "{{ request.object.metadata.annotations.\"mesh.otaru.io/non-ambient-endpoints\" || '' }}" | quote }}
+                operator: NotEquals
+                value: "true"
     - name: require-workload-authorization-policy-for-prometheus-scrapes
       match:
         any:
@@ -92,6 +96,44 @@ spec:
             all:
               - key: "{{ `{{ workloadAuthorizationPolicyCount }}` }}"
                 operator: Equals
+                value: 0
+    - name: require-non-ambient-pods-for-non-ambient-service-opt-outs
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              operations:
+                - CREATE
+                - UPDATE
+              namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
+      preconditions:
+        all:
+          - key: {{ printf "{{ request.object.metadata.labels.\"istio.io/dataplane-mode\" || '' }}" | quote }}
+            operator: NotEquals
+            value: none
+      context:
+        - name: selectedNonAmbientEndpointServiceCount
+          apiCall:
+            method: GET
+            urlPath: "/api/v1/namespaces/{{ `{{ request.namespace }}` }}/services"
+            jmesPath: >-
+              items[?metadata.annotations."mesh.otaru.io/non-ambient-endpoints" == 'true' &&
+              label_match(spec.selector, `{{ "{{" }} request.object.metadata.labels || `{}` {{ "}}" }}`)] | length(@)
+            default: 0
+      skipBackgroundRequests: true
+      validate:
+        allowExistingViolations: true
+        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
+        message: >-
+          Services annotated as non-ambient endpoint Services may only select
+          pods with istio.io/dataplane-mode=none.
+        deny:
+          conditions:
+            all:
+              - key: "{{ `{{ selectedNonAmbientEndpointServiceCount }}` }}"
+                operator: GreaterThan
                 value: 0
   validationFailureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
 {{- end }}

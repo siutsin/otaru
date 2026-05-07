@@ -37,6 +37,14 @@ peerAuthentication:
           app.kubernetes.io/component: admission-controller
           app.kubernetes.io/instance: kyverno
           app.kubernetes.io/part-of: kyverno
+    - name: kyverno-cleanup-controller
+      namespace: kyverno
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: cleanup-controller
+          app.kubernetes.io/instance: kyverno
+          app.kubernetes.io/part-of: kyverno
     - name: amazon-eks-pod-identity-webhook
       namespace: default
       mtlsMode: PERMISSIVE
@@ -44,6 +52,14 @@ peerAuthentication:
         matchLabels:
           app.kubernetes.io/instance: amazon-eks-pod-identity-webhook
           app.kubernetes.io/name: pod-identity-webhook
+    - name: metallb-webhook
+      namespace: metallb-system
+      mtlsMode: PERMISSIVE
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: controller
+          app.kubernetes.io/instance: metallb
+          app.kubernetes.io/name: metallb
     - name: cloudnative-pg-webhook
       namespace: cnpg-system
       mtlsMode: PERMISSIVE

@@ -1,0 +1,18 @@
+{{- if .Capabilities.APIVersions.Has "security.istio.io/v1/AuthorizationPolicy" }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: external-secrets-webhook
+  namespace: external-secrets
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: external-secrets-webhook
+  rules:
+    - to:
+        - operation:
+            ports:
+              - "443"
+{{- end }}
