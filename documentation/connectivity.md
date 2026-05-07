@@ -49,6 +49,9 @@ Connectivity roles:
 The mesh AuthorizationPolicy guard checks ambient Services, but it skips explicitly annotated Services whose
 currently selected pods all opt out with `istio.io/dataplane-mode=none`. This covers pod-level platform
 exceptions such as `metrics-server` without requiring a misleading Service policy for non-ambient endpoints.
+The Kyverno admission, background, and reports controllers need read access to Istio `AuthorizationPolicy`
+resources so the guard can count existing Service `targetRefs` and workload selector policies during admission
+and reports scans.
 
 Some platform namespaces stay outside ambient when they do not need the ambient traffic path.
 Non-ambient platform namespaces still rely on Kubernetes RBAC, service-specific TLS where applicable, and Flannel `wireguard-native` for inter-node transport protection.

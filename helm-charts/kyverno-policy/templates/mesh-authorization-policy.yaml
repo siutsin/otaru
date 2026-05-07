@@ -33,8 +33,8 @@ spec:
             method: GET
             urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
             jmesPath: >-
-              items[?spec.targetRefs[?(group == null || group == '' || group == 'core') &&
-              kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']] | length(@)
+              items[?length((spec.targetRefs || `[]`)[?(group == null || group == '' || group == 'core') &&
+              kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']) > `0`] | length(@)
             default: 0
       skipBackgroundRequests: true
       validate:
