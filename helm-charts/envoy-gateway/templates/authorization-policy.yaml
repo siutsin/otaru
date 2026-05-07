@@ -34,6 +34,17 @@ spec:
     matchLabels:
       app.kubernetes.io/name: envoy
   rules:
+    # Ambient mode enforces workload ALLOW policies on the Envoy listener ports.
+    # Keep these in sync with the Gateway Service targetPorts or cloudflared
+    # traffic can be rejected by ztunnel before it reaches Envoy.
+    - to:
+        - operation:
+            ports:
+              - "10443"
+              - "10080"
+              - "2022"
+              - "10053"
+              - "5683"
     - from:
         - source:
             principals:
