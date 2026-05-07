@@ -52,6 +52,8 @@ exceptions such as `metrics-server` without requiring a misleading Service polic
 The Kyverno admission, background, and reports controllers need read access to Istio `AuthorizationPolicy`
 resources so the guard can count existing Service `targetRefs` and workload selector policies during admission
 and reports scans.
+Generated workload checks intentionally skip ReplicaSet history; live Pods and desired-state controllers still
+carry the pod-level opt-out validation without reporting old zero-replica rollout templates.
 
 Some platform namespaces stay outside ambient when they do not need the ambient traffic path.
 Non-ambient platform namespaces still rely on Kubernetes RBAC, service-specific TLS where applicable, and Flannel `wireguard-native` for inter-node transport protection.
