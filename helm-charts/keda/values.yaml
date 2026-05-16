@@ -24,14 +24,7 @@ keda:
       limits:
         memory: 128Mi
         ephemeral-storage: 64Mi
-  operator:
-    affinity:
-      <<: *preferredPodAntiAffinity
-  metricsServer:
-    affinity:
-      <<: *preferredPodAntiAffinity
-  webhooks:
-    resources:
+    webhooks:
       requests:
         cpu: 50m
         memory: 64Mi
@@ -39,6 +32,13 @@ keda:
       limits:
         memory: 64Mi
         ephemeral-storage: 64Mi
+  operator:
+    affinity:
+      <<: *preferredPodAntiAffinity
+  metricsServer:
+    affinity:
+      <<: *preferredPodAntiAffinity
+  webhooks:
     affinity:
       <<: *preferredPodAntiAffinity
   affinity:
