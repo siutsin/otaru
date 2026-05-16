@@ -16,8 +16,10 @@ _shared:
 
 connect:
   connect:
-    connectApiResources: *resources
-    connectSyncResources: *resources
+    api:
+      resources: *resources
+    sync:
+      resources: *resources
     affinity:
       <<: *preferredPodAntiAffinity
   operator:

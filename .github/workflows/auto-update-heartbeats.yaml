@@ -130,6 +130,8 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Create Pull Request
         if: steps.check_changes.outputs.changes == 'true'

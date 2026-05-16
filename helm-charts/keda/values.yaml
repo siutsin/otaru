@@ -24,6 +24,14 @@ keda:
       limits:
         memory: 128Mi
         ephemeral-storage: 64Mi
+    webhooks:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 64Mi
+        ephemeral-storage: 64Mi
   operator:
     affinity:
       <<: *preferredPodAntiAffinity

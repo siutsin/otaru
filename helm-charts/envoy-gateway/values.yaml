@@ -1,3 +1,21 @@
+_shared:
+  envoyGatewayResources: &envoyGatewayResources
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+  envoyProxyResources: &envoyProxyResources
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 128Mi
+    limits:
+      memory: 256Mi
+      ephemeral-storage: 128Mi
+
 name: gateway
 namespace: gateway
 controllerNamespace: envoy-gateway-system
@@ -27,6 +45,9 @@ loadBalancerIPPool:
   cidr: 192.168.10.51/32
 
 envoy-gateway:
+  deployment:
+    envoyGateway:
+      resources: *envoyGatewayResources
   config:
     envoyGateway:
       provider:
@@ -34,3 +55,6 @@ envoy-gateway:
         kubernetes:
           deploy:
             type: GatewayNamespace
+
+envoyProxy:
+  resources: *envoyProxyResources
