@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Claude review
         if: steps.check.outputs.should-run == 'true'
-        uses: anthropics/claude-code-action@9db782c3a17ef2bfc274cd17411bc3e0a5ba1345 # v1.0.115
+        uses: anthropics/claude-code-action@ad67978e5eb3fc76e3c86855adc19db5673fa818 # v1.0.118
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: false
