@@ -1,0 +1,11 @@
+{{- if .Values.config.podIdentityWebhookMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.config.podIdentityWebhookMap.name }}
+  namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+data:
+  config: {{ tpl (.Values.config.podIdentityWebhookMap.data | toYaml) . | fromYaml | toJson | quote }}
+{{- end }}

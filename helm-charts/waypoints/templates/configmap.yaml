@@ -7,6 +7,12 @@ data:
   deployment: |
     spec:
       replicas: {{ .Values.waypoint.deployment.replicas }}
+      template:
+        spec:
+          containers:
+            - name: istio-proxy
+              resources:
+{{ toYaml .Values.waypoint.deployment.resources | indent 16 }}
   podDisruptionBudget: |
     spec:
       minAvailable: {{ .Values.waypoint.podDisruptionBudget.minAvailable }}

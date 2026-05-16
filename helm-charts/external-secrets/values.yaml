@@ -1,4 +1,12 @@
 _shared:
+  resources: &resources
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi
   preferredPodAntiAffinity: &preferredPodAntiAffinity
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -12,20 +20,15 @@ integrations:
 external-secrets:
   affinity:
     <<: *preferredPodAntiAffinity
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-      ephemeral-storage: 64Mi
-    limits:
-      memory: 128Mi
-      ephemeral-storage: 64Mi
+  resources: *resources
   webhook:
     affinity:
       <<: *preferredPodAntiAffinity
+    resources: *resources
   certController:
     affinity:
       <<: *preferredPodAntiAffinity
+    resources: *resources
   global:
     affinity:
       <<: *preferredPodAntiAffinity

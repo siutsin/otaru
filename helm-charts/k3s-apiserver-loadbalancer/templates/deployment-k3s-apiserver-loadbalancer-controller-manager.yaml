@@ -46,11 +46,12 @@ spec:
             periodSeconds: 10
           resources:
             limits:
-              cpu: 500m
               memory: 128Mi
+              ephemeral-storage: 64Mi
             requests:
               cpu: 10m
-              memory: 64Mi
+              memory: 128Mi
+              ephemeral-storage: 64Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

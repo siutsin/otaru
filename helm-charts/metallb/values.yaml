@@ -1,20 +1,34 @@
 namespace: metallb-system
 
 metallb:
+  _speakerResources: &speakerResources
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi
   speaker:
-    resources:
-      requests:
-        cpu: 50m
-        memory: 64Mi
-        ephemeral-storage: 64Mi
-      limits:
-        memory: 128Mi
-        ephemeral-storage: 64Mi
+    resources: *speakerResources
+    frr:
+      resources: *speakerResources
+    reloader:
+      resources: *speakerResources
+    frrMetrics:
+      resources: *speakerResources
+    initContainers:
+      cpFrrFiles:
+        resources: *speakerResources
+      cpReloader:
+        resources: *speakerResources
+      cpMetrics:
+        resources: *speakerResources
   controller:
     resources:
       requests:
         cpu: 50m
-        memory: 64Mi
+        memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
         memory: 128Mi

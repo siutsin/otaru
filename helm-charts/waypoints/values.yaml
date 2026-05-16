@@ -5,5 +5,13 @@ waypoint:
   allowedRoutesFrom: All
   deployment:
     replicas: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 128Mi
   podDisruptionBudget:
     minAvailable: 1

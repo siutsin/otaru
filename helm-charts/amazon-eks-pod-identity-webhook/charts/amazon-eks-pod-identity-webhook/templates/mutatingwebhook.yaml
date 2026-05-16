@@ -1,0 +1,51 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+  {{- if .Values.pki.certManager.enabled }}
+    cert-manager.io/inject-ca-from: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}/{{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+  {{- end }}
+  {{- with .Values.mutatingWebhook.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+webhooks:
+  - name: pod-identity-webhook.amazonaws.com
+    admissionReviewVersions:
+      - v1beta1
+    failurePolicy: {{ .Values.mutatingWebhook.failurePolicy | quote }}
+    clientConfig:
+      {{- if .Values.pki.caBundle }}
+      caBundle: {{ .Values.pki.caBundle | b64enc }}
+      {{- end }}
+      service:
+        name: {{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+        namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+        port: {{ .Values.config.ports.webhook }}
+        path: "/mutate"
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    {{- with .Values.mutatingWebhook.namespaceSelector }}
+    namespaceSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    objectSelector:
+      matchExpressions:
+        - key: "eks.amazonaws.com/skip-pod-identity-webhook"
+          operator: "DoesNotExist"
+          values: []
+        - key: "app.kubernetes.io/name"
+          operator: "NotIn"
+          values:
+            - "{{ include "amazon-eks-pod-identity-webhook.name" . }}"
+      {{- with .Values.mutatingWebhook.objectSelector.matchExpressions }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mutatingWebhook.objectSelector.matchLabels }}
+      matchLabels: {{- toYaml . | nindent 8 }}
+      {{- end }}
+    sideEffects: None

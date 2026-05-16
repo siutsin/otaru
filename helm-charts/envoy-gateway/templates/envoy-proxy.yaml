@@ -7,5 +7,9 @@ spec:
   provider:
     type: Kubernetes
     kubernetes:
+      envoyDeployment:
+        container:
+          resources:
+{{ toYaml .Values.envoyProxy.resources | indent 12 }}
       envoyService:
         name: {{ .Values.service.name }}

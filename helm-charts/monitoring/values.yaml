@@ -89,6 +89,8 @@ grafana:
     limits:
       memory: 512Mi
       ephemeral-storage: 64Mi
+  initChownData:
+    resources: *smallResources
   admin:
     existingSecret: grafana
   datasources:

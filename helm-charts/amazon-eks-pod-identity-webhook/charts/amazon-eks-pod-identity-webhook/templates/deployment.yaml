@@ -1,0 +1,124 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+  namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "amazon-eks-pod-identity-webhook.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "amazon-eks-pod-identity-webhook.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /webhook
+            - --annotation-prefix={{ tpl .Values.config.annotationPrefix . }}
+            - --aws-default-region={{ tpl .Values.config.defaultAwsRegion . }}
+            - --in-cluster=false
+            - --logtostderr
+            - --namespace=$(POD_NAMESPACE)
+            - --metrics-port={{ .Values.config.ports.metrics }}
+            - --port={{ .Values.config.ports.webhook }}
+            - --service-name={{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+            - --sts-regional-endpoint={{ tpl (print .Values.config.stsRegionalEndpoint) . }}
+            - --token-audience={{ tpl .Values.config.tokenAudience . }}
+            - --token-expiration={{ .Values.config.tokenExpiration }}
+            - --token-mount-path={{ .Values.config.tokenMountPath }}
+            - --tls-cert=/etc/webhook/certs/tls.crt
+            - --tls-key=/etc/webhook/certs/tls.key
+            {{- if .Values.config.podIdentityWebhookMap.enabled }}
+            - --watch-config-map
+            {{- end }}
+            {{- if .Values.config.extraArgs }}
+            {{- tpl (toYaml .Values.config.extraArgs) . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: https
+              containerPort: {{ .Values.config.ports.webhook }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.config.ports.metrics }}
+              protocol: TCP
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: cert
+              mountPath: "/etc/webhook/certs"
+              readOnly: true
+      hostNetwork: {{ .Values.hostNetwork }}
+      serviceAccountName: {{ include "amazon-eks-pod-identity-webhook.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- tpl (toYaml .) $  | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- tpl (toYaml .) $  | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: cert
+          secret:
+            {{- if .Values.pki.existingSecret }}
+            secretName: {{ .Values.pki.existingSecret | quote }}
+            {{- else }}
+            secretName: "{{ include "amazon-eks-pod-identity-webhook.fullname" . }}-cert"
+            {{- end }}
