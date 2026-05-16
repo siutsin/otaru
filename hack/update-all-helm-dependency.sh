@@ -13,8 +13,6 @@ MAX_RETRIES="${MAX_RETRIES:-3}"
 RETRY_DELAY_SECONDS="${RETRY_DELAY_SECONDS:-2}"
 TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/helm-update.XXXXXX")
 RESULTS_FILE="${TEMP_DIR}/results"
-COUNTER_FILE="${TEMP_DIR}/counter"
-COUNTER_LOCK_DIR="${TEMP_DIR}/counter.lock"
 
 # Check if helm is installed
 if ! command_exists helm; then
@@ -24,6 +22,14 @@ fi
 # Check if charts directory exists
 if ! directory_exists "$CHARTS_DIR"; then
     exit_with_error "Charts directory '$CHARTS_DIR' does not exist"
+fi
+
+if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    exit_with_error "Jobs must be a positive integer, got '$JOBS'"
+fi
+
+if [[ "$PARALLEL" != "true" && "$PARALLEL" != "false" ]]; then
+    exit_with_error "Parallel mode must be 'true' or 'false', got '$PARALLEL'"
 fi
 
 ensure_helm_repos() {
@@ -46,15 +52,18 @@ cleanup() {
 trap cleanup EXIT
 
 # Find all Chart.yaml files
-chart_files=$(find "$CHARTS_DIR" -name 'Chart.yaml' 2>/dev/null)
+chart_files=()
+while IFS= read -r -d '' chart; do
+    chart_files+=("$chart")
+done < <(find "$CHARTS_DIR" -name 'Chart.yaml' -print0 2>/dev/null)
 
-if [ -z "$chart_files" ]; then
+if [ "${#chart_files[@]}" -eq 0 ]; then
     log_warning "No Chart.yaml files found in $CHARTS_DIR"
     exit 0
 fi
 
 # Count total charts
-total_charts=$(echo "$chart_files" | wc -l)
+total_charts=${#chart_files[@]}
 log_success "Found $total_charts chart(s) to update"
 echo ""
 
@@ -62,16 +71,59 @@ echo ""
 success_count=0
 failure_count=0
 
+should_retry_helm_error() {
+    local helm_output="$1"
+    local normalized_output
+
+    normalized_output=$(printf '%s' "$helm_output" | tr '[:upper:]' '[:lower:]')
+
+    case "$normalized_output" in
+        *"context deadline exceeded"*|\
+        *"tls handshake timeout"*|\
+        *"timeout"*|\
+        *"temporary failure"*|\
+        *"connection reset by peer"*|\
+        *"connection refused"*|\
+        *"unexpected eof"*|\
+        *" eof"*|\
+        *"no such host"*|\
+        *"service unavailable"*|\
+        *"too many requests"*|\
+        *"response status code 429"*|\
+        *"response status code 500"*|\
+        *"response status code 502"*|\
+        *"response status code 503"*|\
+        *"response status code 504"*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+count_results() {
+    success_count=0
+    failure_count=0
+
+    if [ -f "$RESULTS_FILE" ]; then
+        success_count=$(grep -c "^SUCCESS:" "$RESULTS_FILE" || true)
+        failure_count=$(grep -c "^FAILURE:" "$RESULTS_FILE" || true)
+    fi
+}
+
 # Function to update a single chart (works for both sequential and parallel)
 update_chart() {
     local chart="$1"
+    local display_index="${2:-}"
     local chart_dir
     local chart_name
-    local count
     local attempt=1
     local retry_delay="$RETRY_DELAY_SECONDS"
     local helm_output=""
     local helm_exit_code=0
+    local result_msg
+    local progress_prefix=""
 
     chart_dir=$(dirname "$chart")
     chart_name=$(basename "$chart_dir")
@@ -79,10 +131,10 @@ update_chart() {
     while true; do
         # Retry transient repository and download failures instead of failing
         # the full run on a single connection reset.
-        helm_output=$(helm dependency update "$chart_dir" 2>&1)
+        helm_output=$(helm dependency update --skip-refresh "$chart_dir" 2>&1)
         helm_exit_code=$?
 
-        if [ $helm_exit_code -eq 0 ] || [ $attempt -ge "$MAX_RETRIES" ]; then
+        if [ $helm_exit_code -eq 0 ] || [ $attempt -ge "$MAX_RETRIES" ] || ! should_retry_helm_error "$helm_output"; then
             break
         fi
 
@@ -104,55 +156,39 @@ update_chart() {
         result_msg="${RED}Failure: $chart_name${NC}\n${YELLOW}Helm output:${NC}\n$helm_output"
     fi
 
-    # Pure bash lock using mkdir
-    while ! mkdir "$COUNTER_LOCK_DIR" 2>/dev/null; do sleep 0.05; done
-    if [ ! -f "$COUNTER_FILE" ]; then
-        echo 0 > "$COUNTER_FILE"
+    if [ -n "$display_index" ]; then
+        progress_prefix="${YELLOW}[$display_index/$total_charts]${NC} "
     fi
-    count=$(< "$COUNTER_FILE")
-    count=$((count + 1))
-    echo "$count" > "$COUNTER_FILE"
-    rmdir "$COUNTER_LOCK_DIR"
 
-    echo -e "${YELLOW}[$count/$total_charts]${NC} $result_msg"
+    echo -e "${progress_prefix}$result_msg"
 }
 
 # Process charts
 # Temporarily disable exit on error for chart processing
 set +e
 
-# Initialize results and counter files for all modes
-rm -f "$RESULTS_FILE" "$COUNTER_FILE"
+# Initialize results file for all modes
+rm -f "$RESULTS_FILE"
 
 if [ "$PARALLEL" = "true" ]; then
     log_info "Processing charts in parallel mode..."
     export -f update_chart
-    export PARALLEL total_charts GREEN YELLOW RED NC RESULTS_FILE COUNTER_FILE COUNTER_LOCK_DIR MAX_RETRIES RETRY_DELAY_SECONDS
-    echo "$chart_files" | xargs -P "$JOBS" -I {} bash -c 'update_chart "{}"'
-    # Count results from the temporary file
-    if [ -f "$RESULTS_FILE" ]; then
-        success_count=$(grep -c "^SUCCESS:" "$RESULTS_FILE" || echo 0)
-        failure_count=$(grep -c "^FAILURE:" "$RESULTS_FILE" || echo 0)
-    fi
+    export -f should_retry_helm_error
+    export PARALLEL total_charts GREEN YELLOW RED NC RESULTS_FILE MAX_RETRIES RETRY_DELAY_SECONDS
+    printf '%s\0' "${chart_files[@]}" | xargs -0 -n 1 -P "$JOBS" bash -c "update_chart \"\$1\"" _
 else
     log_info "Processing charts sequentially..."
-    while IFS= read -r chart; do
-        update_chart "$chart"
-    done <<< "$chart_files"
+    chart_index=0
+    for chart in "${chart_files[@]}"; do
+        chart_index=$((chart_index + 1))
+        update_chart "$chart" "$chart_index"
+    done
 fi
 
 # Re-enable exit on error
 set -e
 
-# After counting results from the temporary file (in both modes), ensure success_count and failure_count are always integers
-success_count=${success_count:-0}
-failure_count=${failure_count:-0}
-if ! [[ "$failure_count" =~ ^[0-9]+$ ]]; then
-  failure_count=0
-fi
-if ! [[ "$success_count" =~ ^[0-9]+$ ]]; then
-  success_count=0
-fi
+count_results
 
 echo ""
 log_success "=== Summary ==="

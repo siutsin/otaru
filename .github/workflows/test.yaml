@@ -38,7 +38,7 @@ jobs:
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
         with:
-          tofu_version: '1.8.1'
+          tofu_version: '1.12.0'
 
       - name: Setup Terragrunt
         uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
