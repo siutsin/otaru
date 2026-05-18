@@ -26,6 +26,8 @@ clusterSecretStorePolicy:
     monitoring:
       - grafana
       - heartbeats
+    openclaw:
+      - openclaw
     teslamate:
       - b2-secret-cloudnative-pg
       - heartbeats

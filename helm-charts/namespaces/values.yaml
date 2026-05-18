@@ -35,6 +35,7 @@ namespaces:
   - name: longhorn-system
     ambient: false
   - name: monitoring
+  - name: openclaw
   - name: onepassword
   - name: reloader
   - name: teslamate
