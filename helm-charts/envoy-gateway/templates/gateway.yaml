@@ -44,6 +44,7 @@ spec:
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring
+                  - openclaw
                   - teslamate
     - name: http
       protocol: HTTP
@@ -71,6 +72,7 @@ spec:
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring
+                  - openclaw
                   - teslamate
     - name: jellyfin-sftp
       protocol: TCP
