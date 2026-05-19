@@ -5,6 +5,9 @@ integrations:
 argo-cd:
   _shared:
     controllerResources: &controllerResources
+      # Keep memory at 2Gi: sync spikes can queue many repo comparisons at once,
+      # and Argo CD tends to concentrate that work in a single controller pod, so
+      # extra replicas do not materially reduce peak memory on the active pod.
       requests:
         cpu: 250m
         memory: 2Gi

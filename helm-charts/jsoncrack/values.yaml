@@ -19,3 +19,7 @@ deployment:
 service:
   port: 8080
   targetPort: 8080
+
+autoscaling:
+  min: 1
+  max: 1
