@@ -12,7 +12,7 @@ dependencies:
   version: 7.0.0
   repository: https://grafana.github.io/helm-charts
 - name: fluent-bit
-  version: 0.57.3
+  version: 0.57.5
   repository: https://fluent.github.io/helm-charts
 - name: grafana
   version: 10.5.15
