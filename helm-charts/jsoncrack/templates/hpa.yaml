@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  maxReplicas: 5
+  maxReplicas: {{ .Values.autoscaling.max }}
   metrics:
     - resource:
         name: cpu
@@ -19,7 +19,7 @@ spec:
           averageUtilization: 70
           type: Utilization
       type: Resource
-  minReplicas: 2
+  minReplicas: {{ .Values.autoscaling.min }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
