@@ -5,7 +5,11 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
+  {{- if le (int .Values.autoscaling.min) 1 }}
+  minAvailable: 1
+  {{- else }}
   maxUnavailable: 1
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.name }}
