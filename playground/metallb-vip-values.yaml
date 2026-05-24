@@ -1,0 +1,4 @@
+l2AnnouncementPolicy:
+  advertisements:
+    - interfaces:
+        - eth0

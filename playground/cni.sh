@@ -22,7 +22,8 @@ helm upgrade --install k3s-apiserver-loadbalancer helm-charts/k3s-apiserver-load
 
 # Assign dedicated virtual IP to Kubernetes api-server service
 helm upgrade --install metallb-vip helm-charts/metallb-vip \
-  -n default
+  -n default \
+  -f playground/metallb-vip-values.yaml
 
 # Apply Envoy Gateway
 helm upgrade --install envoy-gateway helm-charts/envoy-gateway \
