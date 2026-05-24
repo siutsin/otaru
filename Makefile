@@ -204,7 +204,7 @@ check-markdown: ## Check Markdown files with markdownlint-cli2
 			echo "$(RED)markdownlint-cli2 is required but not installed. Install markdownlint-cli2 and re-run make check-markdown.$(NC)"; \
 			exit 1; \
 		fi; \
-		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**"
+		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**" "#**/.scratchpad/**"
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
 .PHONY: lint-terraform
