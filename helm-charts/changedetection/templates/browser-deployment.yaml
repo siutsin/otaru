@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.browser.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.browser.name }}
+    app.kubernetes.io/part-of: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.browser.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.browser.name }}
+        app.kubernetes.io/part-of: {{ .Values.name }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: {{ .Values.browser.name }}
+          image: {{ .Values.browser.image.repository }}@{{ .Values.browser.image.digest }}
+          imagePullPolicy: {{ .Values.browser.image.pullPolicy }}
+          env:
+            {{- range $name, $value := .Values.browser.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: cdp
+              containerPort: {{ .Values.browser.port }}
+              protocol: TCP
+            - name: stats
+              containerPort: {{ .Values.browser.statsPort }}
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - python3
+                - /usr/src/app/docker-health-check.py
+                - --host
+                - http://localhost
+          readinessProbe:
+            exec:
+              command:
+                - python3
+                - /usr/src/app/docker-health-check.py
+                - --host
+                - http://localhost
+          startupProbe:
+            exec:
+              command:
+                - python3
+                - /usr/src/app/docker-health-check.py
+                - --host
+                - http://localhost
+            failureThreshold: 30
+            periodSeconds: 10
+          resources: {{ toYaml .Values.browser.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: {{ .Values.browser.tmpSizeLimit }}
