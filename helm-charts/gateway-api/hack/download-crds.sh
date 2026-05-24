@@ -25,3 +25,27 @@ popd >/dev/null
 pushd "${TEMPLATE_PATH}" >/dev/null
 echo "${yaml_content}" | yq e 'select(.kind != "CustomResourceDefinition")' | yq --split-exp '.kind + "-" + (.metadata.name | sub("\.", "-")) + ".yaml" | downcase'
 popd >/dev/null
+
+# The apiserver defaults these fields, and Argo CD already owns the live
+# defaults in this cluster. Keep the generated templates explicit so setup's
+# server-side apply can co-own the fields instead of conflicting with Argo.
+POLICY_FILE="${TEMPLATE_PATH}/validatingadmissionpolicy-safe-upgrades-gateway-networking-k8s-io.yaml"
+POLICY_BINDING_FILE="${TEMPLATE_PATH}/validatingadmissionpolicybinding-safe-upgrades-gateway-networking-k8s-io.yaml"
+
+if [[ -f "${POLICY_FILE}" ]]; then
+  yq -i '
+    .spec.matchConstraints.matchPolicy = "Equivalent" |
+    .spec.matchConstraints.namespaceSelector = {} |
+    .spec.matchConstraints.objectSelector = {} |
+    .spec.matchConstraints.resourceRules[].scope = "*"
+  ' "${POLICY_FILE}"
+fi
+
+if [[ -f "${POLICY_BINDING_FILE}" ]]; then
+  yq -i '
+    .spec.matchResources.matchPolicy = "Equivalent" |
+    .spec.matchResources.namespaceSelector = {} |
+    .spec.matchResources.objectSelector = {} |
+    .spec.matchResources.resourceRules[].scope = "*"
+  ' "${POLICY_BINDING_FILE}"
+fi

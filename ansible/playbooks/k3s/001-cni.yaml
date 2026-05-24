@@ -111,8 +111,12 @@
     - name: Apply Envoy Gateway CRDs
       shell: |
         chart_archive="{{ envoy_gateway_chart_archive.files | map(attribute='path') | first }}"
-        tar -tzf "$chart_archive" | \
-          grep '^gateway-helm/crds/generated/gateway\.envoyproxy\.io_.*\.yaml$' | \
+        crd_paths="$(tar -tzf "$chart_archive" | grep -E '^gateway-helm/(crds|charts/crds/crds)/generated/gateway\.envoyproxy\.io_.*\.yaml$')"
+        if [ -z "$crd_paths" ]; then
+          echo "No Envoy Gateway CRDs found in $chart_archive" >&2
+          exit 1
+        fi
+        printf '%s\n' "$crd_paths" | \
           xargs tar -xOf "$chart_archive" | \
           kubectl apply --server-side --force-conflicts -f -
       register: envoy_gateway_crds_result
