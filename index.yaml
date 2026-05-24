@@ -484,6 +484,17 @@ entries:
     version: 0.1.0
   gateway-api:
   - apiVersion: v2
+    appVersion: 1.5.1
+    created: "2026-05-24T07:21:21.422999092Z"
+    description: A Helm chart for Kubernetes
+    digest: 5231c2e807e9c5c6c674a5bfd3004892cfe54af490d6397005609c53e525da51
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: gateway-api
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/gateway-api-1.5.1/gateway-api-1.5.1.tgz
+    version: 1.5.1
+  - apiVersion: v2
     appVersion: 1.4.1
     created: "2025-12-25T23:53:38.609108182Z"
     description: A Helm chart for Kubernetes
@@ -1298,4 +1309,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-02T22:37:46.957296449Z"
+generated: "2026-05-24T07:21:26.077191182Z"
