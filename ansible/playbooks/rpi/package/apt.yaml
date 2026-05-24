@@ -21,9 +21,6 @@
       - parted
       - python3-numpy
       - python3-pip
-      - python3-rpi.gpio
-      - python3-smbus
-      - raspi-config
       - ripgrep
       - slurm
       - tcptrack
@@ -33,6 +30,19 @@
   retries: 3
   delay: 5
   until: apt_install_result is success
+
+- name: Install Raspberry Pi apt packages
+  apt:
+    name:
+      - python3-rpi.gpio
+      - python3-smbus
+      - raspi-config
+    state: present
+  when: "'raspberrypi' in group_names"
+  register: apt_raspberrypi_install_result
+  retries: 3
+  delay: 5
+  until: apt_raspberrypi_install_result is success
 
 - name: Install apt packages for master nodes
   apt:

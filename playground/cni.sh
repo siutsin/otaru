@@ -21,9 +21,8 @@ helm upgrade --install k3s-apiserver-loadbalancer helm-charts/k3s-apiserver-load
   --create-namespace
 
 # Assign dedicated virtual IP to Kubernetes api-server service
-helm upgrade --install gateway-api-kubernetes helm-charts/gateway-api-kubernetes \
-  -n default \
-  --set l2AnnouncementPolicy.interface=eth0
+helm upgrade --install metallb-vip helm-charts/metallb-vip \
+  -n default
 
 # Apply Envoy Gateway
 helm upgrade --install envoy-gateway helm-charts/envoy-gateway \

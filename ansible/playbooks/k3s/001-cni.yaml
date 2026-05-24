@@ -86,12 +86,12 @@
 
     # Assign dedicated virtual IP to Kubernetes api-server service
 
-    - name: Apply gateway-api-kubernetes Helm template
-      shell: "helm template gateway-api-kubernetes ../../../helm-charts/gateway-api-kubernetes -n default | kubectl apply -f -"
-      register: gateway_api_k8s_result
+    - name: Apply metallb-vip Helm template
+      shell: "helm template metallb-vip ../../../helm-charts/metallb-vip -n default | kubectl apply -f -"
+      register: metallb_vip_result
       retries: 5
       delay: 10
-      until: gateway_api_k8s_result.rc == 0
+      until: metallb_vip_result.rc == 0
 
     - name: Update Envoy Gateway dependency
       command: helm dependency build --skip-refresh ../../../helm-charts/envoy-gateway

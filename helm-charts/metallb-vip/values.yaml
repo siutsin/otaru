@@ -1,0 +1,27 @@
+name: metallb-vip
+resourceName: gateway-api-kubernetes
+namespace: default
+metallbNamespace: metallb-system
+
+l2AnnouncementPolicy:
+  advertisements:
+    - interfaces:
+        - eth0
+      nodeSelectors:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - raspberrypi-00
+                - raspberrypi-01
+                - raspberrypi-02
+                - raspberrypi-03
+    - nameSuffix: nuc-00
+      interfaces:
+        - eno1
+      nodeSelectors:
+        - matchLabels:
+            kubernetes.io/hostname: nuc-00
+
+loadBalancerIPPool:
+  cidr: 192.168.10.50/32

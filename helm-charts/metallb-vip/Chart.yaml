@@ -1,6 +1,6 @@
 apiVersion: v2
-name: gateway-api-kubernetes
-description: A Helm chart for Kubernetes
+name: metallb-vip
+description: MetalLB virtual IP configuration
 type: application
 version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg

@@ -139,10 +139,12 @@ local bootstrap = [
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
-  { wave: '20', name: 'gateway-api-kubernetes', namespace: 'default' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
   { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
+  // Keep the Argo CD Application name stable during the chart rename so the
+  // old app finalizer does not prune the live Kubernetes API VIP resources.
+  { wave: '21', name: 'gateway-api-kubernetes', namespace: 'default', path: 'helm-charts/metallb-vip', helm: { releaseName: 'metallb-vip' } },
 ];
 
 local connectivity = [
