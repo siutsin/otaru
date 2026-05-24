@@ -19,6 +19,29 @@ deployment:
       memory: 256Mi
       ephemeral-storage: 100Mi
 
+browser:
+  name: changedetection-browser
+  image:
+    repository: dgtlmoon/sockpuppetbrowser
+    digest: sha256:7116c61ef9cfce3d48a7efd9355d2fbe19f593ea3cfb52a5ded40ecbcb0a3f9d
+    pullPolicy: IfNotPresent
+  port: 3000
+  statsPort: 8080
+  tmpSizeLimit: 1Gi
+  env:
+    SCREEN_WIDTH: "1920"
+    SCREEN_HEIGHT: "1024"
+    SCREEN_DEPTH: "16"
+    MAX_CONCURRENT_CHROME_PROCESSES: "2"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+      ephemeral-storage: 1Gi
+    limits:
+      memory: 1Gi
+      ephemeral-storage: 1Gi
+
 service:
   port: 5000
   targetPort: 5000
