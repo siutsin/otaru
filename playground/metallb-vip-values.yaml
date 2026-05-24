@@ -1,4 +1,4 @@
 l2AnnouncementPolicy:
   advertisements:
     - interfaces:
-        - eth0
+        - enp0s2

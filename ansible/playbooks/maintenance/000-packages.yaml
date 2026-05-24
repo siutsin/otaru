@@ -40,6 +40,17 @@
         - reboot_required_marker.stat.exists
         - luks_enabled | default(false)
 
+    - name: Check existing external load balancer exclusion label
+      delegate_to: localhost
+      become: false
+      shell: |
+        KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl get node {{ node_name }} -o json \
+          | jq -e '.metadata.labels | has("node.kubernetes.io/exclude-from-external-load-balancers")'
+      changed_when: false
+      register: external_lb_excluded_before_result
+      failed_when: external_lb_excluded_before_result.rc not in [0, 1]
+      when: reboot_required_marker.stat.exists
+
     - name: Exclude node from external load balancer candidates
       delegate_to: localhost
       become: false
@@ -152,4 +163,6 @@
       become: false
       shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl label node {{ node_name }} node.kubernetes.io/exclude-from-external-load-balancers-
       changed_when: false
-      when: reboot_required_marker.stat.exists
+      when:
+        - reboot_required_marker.stat.exists
+        - external_lb_excluded_before_result.rc == 1
