@@ -16,6 +16,8 @@ echo "Downloading Gateway API CRDs from ${CRD_URL}."
 # Fetch the YAML content from the URL and remove empty documents.
 yaml_content=$(curl --silent --retry-all-errors --fail --location "${CRD_URL}" | yq e 'select(.)')
 
+find "${CRD_PATH}" "${TEMPLATE_PATH}" -maxdepth 1 -type f -name '*.yaml' -exec rm -f {} +
+
 pushd "${CRD_PATH}" >/dev/null
 echo "${yaml_content}" | yq e 'select(.kind == "CustomResourceDefinition")' | yq --split-exp '.kind + "-" + (.metadata.name | sub("\.", "-")) + ".yaml" | downcase'
 popd >/dev/null
