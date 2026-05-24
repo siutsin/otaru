@@ -32,6 +32,17 @@ Set explicit ephemeral-storage requests and limits with suitable values for the 
 
 **Markdown**: fix linting violations directly, never disable markdownlint rules.
 
+## Cluster Access
+
+Use the Kubernetes MCP tools for live cluster inspection whenever they are
+available. Prefer them for read-only diagnostics such as listing Pods, reading
+events, checking Argo CD Applications, inspecting resources, logs, and metrics
+before falling back to `kubectl`.
+
+For mutating operations, keep GitOps as the source of truth: patch the repo and
+let Argo CD reconcile unless the user explicitly asks for an emergency live
+change.
+
 ## Node Reboot Policy
 
 Some Raspberry Pi nodes use LUKS encrypted root disks and do not return from a
