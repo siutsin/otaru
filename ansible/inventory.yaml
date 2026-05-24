@@ -20,12 +20,27 @@ all:
       hosts:
         raspberrypi-03.local:
           ansible_host: 192.168.10.63
+    node20:
+      hosts:
+        nuc-00.local:
+          ansible_host: 192.168.10.80
+          ansible_ssh_user: ubuntu
+          luks_root_disk: /dev/sda
+          luks_boot_partition: /dev/sda2
+          luks_root_partition: /dev/sda3
+          luks_mapper_name: dm_crypt-0
+          luks_initramfs_iface: eno1
+          luks_initramfs_ip: 192.168.10.80
+          luks_unlock_authorized_keys_src: /home/ubuntu/.ssh/authorized_keys
     # Groups
     master:
       children:
         node00: { }
         node01: { }
         node02: { }
+    rpi4:
+      children:
+        node03: { }
     rpi5:
       children:
         node00: { }
@@ -34,9 +49,11 @@ all:
     worker:
       children:
         node03: { }
-    waveshare_poe_hat:
+        node20: { }
+    k3s_cluster:
       children:
-        node03: { }
+        master: { }
+        worker: { }
     luks_root_nodes:
       vars:
         luks_enabled: true
@@ -55,9 +72,10 @@ all:
         node00: { }
         node01: { }
         node02: { }
+        node20: { }
     raspberrypi:
       vars:
         ansible_ssh_user: pi
       children:
-        master: { }
-        worker: { }
+        rpi4: { }
+        rpi5: { }
