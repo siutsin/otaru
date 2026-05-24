@@ -1,6 +1,6 @@
 ---
-# First play: Update packages on all nodes in parallel
-- hosts: raspberrypi
+# First play: Update packages on all Kubernetes nodes in parallel
+- hosts: k3s_cluster
   become: true
 
   tasks:
@@ -9,8 +9,8 @@
     - include_tasks: ../rpi/package/snap.yaml
     - include_tasks: ../rpi/package/binary.yaml
 
-# Second play: Reboot nodes one by one
-- hosts: raspberrypi
+# Second play: Reboot Kubernetes nodes one by one
+- hosts: k3s_cluster
   become: true
   serial: 1
 
@@ -39,6 +39,40 @@
       when:
         - reboot_required_marker.stat.exists
         - luks_enabled | default(false)
+
+    - name: Check existing external load balancer exclusion label
+      delegate_to: localhost
+      become: false
+      shell: |
+        KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl get node {{ node_name }} -o json \
+          | jq -e '.metadata.labels | has("node.kubernetes.io/exclude-from-external-load-balancers")'
+      changed_when: false
+      register: external_lb_excluded_before_result
+      failed_when: external_lb_excluded_before_result.rc not in [0, 1]
+      when: reboot_required_marker.stat.exists
+
+    - name: Exclude node from external load balancer candidates
+      delegate_to: localhost
+      become: false
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl label node {{ node_name }} node.kubernetes.io/exclude-from-external-load-balancers=true --overwrite
+      changed_when: false
+      when: reboot_required_marker.stat.exists
+
+    - name: Wait for Kubernetes API VIP to move off the node
+      delegate_to: localhost
+      become: false
+      shell: |
+        KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl -n metallb-system get servicel2statuses.metallb.io -o json \
+          | jq -e --arg node {{ node_name | quote }} '
+              [.items[] | select(.status.serviceName == "kubernetes" and .status.serviceNamespace == "default")] as $statuses
+              | ($statuses | length > 0) and all($statuses[]; .status.node != $node)
+            '
+      changed_when: false
+      register: api_vip_move_result
+      retries: 12
+      delay: 5
+      until: api_vip_move_result.rc == 0
+      when: reboot_required_marker.stat.exists
 
     - name: Cordon the node
       delegate_to: localhost
@@ -123,3 +157,12 @@
       shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl uncordon {{ node_name }}
       changed_when: false
       when: reboot_required_marker.stat.exists
+
+    - name: Restore node external load balancer candidacy
+      delegate_to: localhost
+      become: false
+      shell: KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}" kubectl label node {{ node_name }} node.kubernetes.io/exclude-from-external-load-balancers-
+      changed_when: false
+      when:
+        - reboot_required_marker.stat.exists
+        - external_lb_excluded_before_result.rc == 1

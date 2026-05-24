@@ -35,9 +35,10 @@
       delay: 10
       until: deploy_rollout_result.rc == 0
 
-    # trim cron job pod's success status will block the wait. Split it by labels
+    # Completed Longhorn hook or cron pods can share the broad chart label.
+    # Wait only for the long-running components this task cares about.
     - name: Wait for pods in longhorn-system to be running - longhorn-driver-deployer, longhorn-manager, longhorn-ui
-      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app.kubernetes.io/name=longhorn
+      command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l 'app in (longhorn-driver-deployer,longhorn-manager,longhorn-ui)'
       changed_when: false
       register: pod_ready_result_1
       retries: 5
