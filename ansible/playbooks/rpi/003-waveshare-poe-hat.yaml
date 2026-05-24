@@ -1,5 +1,5 @@
 ---
-- hosts: waveshare_poe_hat
+- hosts: rpi4
   become: true
   gather_facts: false
 
