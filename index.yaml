@@ -1014,6 +1014,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/metallb-0.1.1/metallb-0.1.1.tgz
     version: 0.1.1
+  metallb-vip:
+  - apiVersion: v2
+    created: "2026-05-24T17:20:02.592658631Z"
+    description: MetalLB virtual IP configuration
+    digest: 00ce6f818085ae79ffd3fcf5df5920859c2a5a3d742ba7ca465175d96d630e56
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: metallb-vip
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/metallb-vip-0.1.1/metallb-vip-0.1.1.tgz
+    version: 0.1.1
   metrics-server:
   - apiVersion: v2
     created: "2025-07-06T15:50:35.622886778Z"
@@ -1309,4 +1320,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-24T07:21:26.077191182Z"
+generated: "2026-05-24T17:20:02.592817591Z"
