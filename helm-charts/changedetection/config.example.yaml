@@ -1,5 +1,5 @@
 BASE_URL: https://changedetection.example.com
 USE_X_SETTINGS: true
 ALLOW_IANA_RESTRICTED_ADDRESSES: true
-PLAYWRIGHT_DRIVER_URL: ws://changedetection-browser.changedetection.svc.cluster.local:3000
+PLAYWRIGHT_DRIVER_URL: ws://changedetection-browser.changedetection.svc.cluster.local:3000?user-data-dir=/profile/chromium
 FETCH_WORKERS: 2

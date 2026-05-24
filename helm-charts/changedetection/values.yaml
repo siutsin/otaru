@@ -28,6 +28,10 @@ browser:
   port: 3000
   statsPort: 8080
   tmpSizeLimit: 1Gi
+  profile:
+    mountPath: /profile
+    size: 2Gi
+    storageClassName: longhorn-crypto-global
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"
