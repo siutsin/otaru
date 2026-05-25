@@ -154,7 +154,7 @@ spec:
         - name: secret-config
           secret:
             secretName: {{ .Values.secret.name }}
-            defaultMode: 0440
+            defaultMode: 0444
         - name: agents-config
           configMap:
             name: {{ .Values.name }}-config
