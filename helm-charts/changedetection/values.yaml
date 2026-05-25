@@ -28,11 +28,14 @@ browser:
   port: 3000
   statsPort: 8080
   tmpSizeLimit: 1Gi
+  profile:
+    mountPath: /profile
+    claimName: changedetection-browser-profile-pvc
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"
     SCREEN_DEPTH: "16"
-    MAX_CONCURRENT_CHROME_PROCESSES: "2"
+    MAX_CONCURRENT_CHROME_PROCESSES: "1"
   resources:
     requests:
       cpu: 250m

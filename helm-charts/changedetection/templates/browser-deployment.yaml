@@ -68,7 +68,12 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: profile
+              mountPath: {{ .Values.browser.profile.mountPath }}
       volumes:
         - name: tmp
           emptyDir:
             sizeLimit: {{ .Values.browser.tmpSizeLimit }}
+        - name: profile
+          persistentVolumeClaim:
+            claimName: {{ .Values.browser.profile.claimName }}
