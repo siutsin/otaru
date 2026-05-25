@@ -2,10 +2,11 @@
 
 ## Multi-Agent Worktree Policy
 
-Always use a dedicated Git worktree for each agent/session when making changes.
-Do not edit from a shared checkout if another agent may be active there.
+Use a dedicated Git worktree only when another agent may be active in the same
+repository. If no other agent is working in the repo, use the current checkout.
 
-- Create one worktree per agent and per task branch, for example:
+- When a worktree is needed, create one worktree per agent and per task branch,
+  for example:
   `git worktree add -b <branch> /tmp/otaru-<task> origin/master`.
 - Never have two agents edit the same worktree directory.
 - Never intentionally check out the same branch in multiple worktrees.
