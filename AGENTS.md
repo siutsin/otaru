@@ -19,7 +19,10 @@ Do not edit from a shared checkout if another agent may be active there.
 
 ### Worktree Cleanup
 
-Clean up only worktrees and branches that belong to your completed task.
+Clean up worktrees and branches that belong to your completed task before your
+final response. If a worktree you created must remain open because the task is
+not merged, not pushed, or intentionally paused, say so explicitly. Do not clean
+up another agent's worktree unless the user explicitly asks.
 
 1. Inspect current worktrees with `git worktree list`.
 2. Verify the target worktree has no uncommitted work with
@@ -33,7 +36,8 @@ Clean up only worktrees and branches that belong to your completed task.
   explicitly asks for discard: `git push origin --delete <branch>`.
 
 Do not remove a worktree, local branch, or remote branch that another agent may
-still be using.
+still be using. Always report which of your own worktrees were removed and which
+remain open.
 
 ## Testing Protocol
 
