@@ -4,6 +4,6 @@ longhorn-volume-lib:
     openclaw:
       size: "10Gi"
       sizeBytes: "10737418240"
-      fromBackup: ~
+      fromBackup: ""
       enableBackup: true
       enableTrim: true
