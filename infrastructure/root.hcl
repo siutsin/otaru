@@ -13,7 +13,7 @@ locals {
   cloudflare_version   = local.version_vars.cloudflare_version
   cloudflare_api_token = get_env("CLOUDFLARE_API_TOKEN")
 
-  github_token   = get_env("GITHUB_TOKEN")
+  github_token   = trimspace(run_cmd("--terragrunt-quiet", "--terragrunt-global-cache", "gh", "auth", "token"))
   github_version = local.version_vars.github_version
 
   unifi_username = get_env("UNIFI_USERNAME")

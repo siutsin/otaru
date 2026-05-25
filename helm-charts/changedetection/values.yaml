@@ -6,6 +6,17 @@ onepassword:
   property: config.yaml
 
 deployment:
+  env:
+    ALLOW_IANA_RESTRICTED_ADDRESSES: "true"
+    DISABLE_VERSION_CHECK: "true"
+    FETCH_WORKERS: "1"
+    HIDE_REFERER: "true"
+    LANG: C.UTF-8
+    LC_ALL: C.UTF-8
+    MINIMUM_SECONDS_RECHECK_TIME: "60"
+    PLAYWRIGHT_DRIVER_URL: ws://changedetection-browser.changedetection.svc.cluster.local:3000?--user-data-dir=/profile/chromium&headful=true
+    TZ: Europe/London
+    USE_X_SETTINGS: "true"
   image:
     repository: ghcr.io/dgtlmoon/changedetection.io
     tag: latest@sha256:d89d4187221206f7f9f2c7946e7483815db905ca7d122644081aebd5d23ba391
@@ -49,6 +60,11 @@ browser:
 service:
   port: 5000
   targetPort: 5000
+
+route:
+  timeouts:
+    request: 120s
+    backendRequest: 120s
 
 persistence:
   claimName: changedetection-pvc
