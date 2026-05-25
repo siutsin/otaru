@@ -217,6 +217,18 @@ validate-helm-charts: ## Validate all Helm charts
 				printf '%s\n' "$$rendered" | grep -q 'backendRequest: "360s"' || { \
 					echo "OpenClaw route backend request timeout did not render"; exit 1; \
 				}; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--show-only templates/authorization-policy.yaml \
+					--set service.port=443 \
+					--set service.targetPort=18789)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q -- '- "18789"' || { \
+					echo "OpenClaw AuthorizationPolicy does not use service.targetPort"; exit 1; \
+				}; \
+				if printf '%s\n' "$$rendered" | grep -q -- '- "443"'; then \
+					echo "OpenClaw AuthorizationPolicy uses service.port"; exit 1; \
+				fi; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--set route.hostname=openclaw.example.invalid)" || exit 1; \
 				printf '%s\n' "$$rendered" | grep -q 'image: ghcr.io/openclaw/openclaw:.*@sha256:' || { \
 					echo "OpenClaw app image is not digest-pinned"; exit 1; \
 				}; \

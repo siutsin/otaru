@@ -20,4 +20,4 @@ spec:
       to:
         - operation:
             ports:
-              - {{ .Values.service.port | quote }}
+              - {{ .Values.service.targetPort | quote }}
