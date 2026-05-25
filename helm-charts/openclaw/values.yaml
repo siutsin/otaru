@@ -90,7 +90,8 @@ channels:
     groups:
       "*":
         requireMention: true
-    streaming: progress
+    streaming:
+      mode: progress
     replyToMode: first
     linkPreview: false
 
