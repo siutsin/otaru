@@ -21,6 +21,8 @@ deployment:
     repository: ghcr.io/dgtlmoon/changedetection.io
     tag: latest@sha256:d89d4187221206f7f9f2c7946e7483815db905ca7d122644081aebd5d23ba391
     pullPolicy: IfNotPresent
+  # Keep at 1Gi: browser-backed watches stitch screenshots in this app process;
+  # 256Mi caused OOMKilled exit 137 while processing an Amazon watch.
   resources:
     requests:
       cpu: 100m
