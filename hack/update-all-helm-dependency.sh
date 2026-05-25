@@ -65,6 +65,11 @@ ensure_helm_ghcr_auth() {
     fi
 
     if [ -z "${gh_token:-}" ]; then
+        if [ "${CI:-false}" = "true" ]; then
+            log_warning "No GitHub credentials found; continuing without GHCR login"
+            return 0
+        fi
+
         exit_with_error "gh is not authenticated. Run 'gh auth login' before updating Helm dependencies"
     fi
 
