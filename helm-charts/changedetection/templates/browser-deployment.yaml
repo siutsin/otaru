@@ -7,6 +7,8 @@ metadata:
     app.kubernetes.io/name: {{ .Values.browser.name }}
     app.kubernetes.io/part-of: {{ .Values.name }}
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.browser.name }}
