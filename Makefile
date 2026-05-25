@@ -253,7 +253,7 @@ validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
 		--ext-str CNPG_BACKUP_ENDPOINT=https://test.example.com \
 		--ext-str LONGHORN_BACKUP_TARGET=s3://test-bucket@region/ \
 		--ext-str HOME_ASSISTANT_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
-		--ext-str OPENCLAW_CONTROL_UI_HOSTNAME=openclaw-hostname-placeholder \
+		--ext-str OPENCLAW_CONTROL_UI_HOSTNAME= \
 		> /dev/null
 	@echo "$(GREEN)ArgoCD manifest validation passed!$(NC)"
 
