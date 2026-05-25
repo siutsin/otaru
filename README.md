@@ -26,19 +26,22 @@ Current cluster layout:
 ![Raspberry Pi rack setup](assets/rack.jpeg)
 
 <!-- markdownlint-disable MD060 -->
-| Node             | Device                                    | Role           | Boot | Storage                                              |
-|------------------|-------------------------------------------|----------------|------|------------------------------------------------------|
-| `raspberrypi-00` | [Raspberry Pi 5 8GB][rpi5]                | Control plane  | NVMe | [Lexar NM620 256GB][lexar-nm620]                     |
-| `raspberrypi-01` | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro] |
-| `raspberrypi-02` | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Crucial P3 Plus 4TB][crucial-p3-plus]               |
-| `raspberrypi-03` | [Raspberry Pi 4 Model B 8GB][rpi4]        | Worker         | SD   | SanDisk Max Endurance 32 GB                          |
-| `ucg-ultra`      | [UniFi Cloud Gateway Ultra][ucg-ultra]    | Router/Gateway | -    | -                                                    |
-| `usw-ultra`      | [UniFi Switch Ultra][usw-ultra]           | PoE switch     | -    | -                                                    |
-| `rackmate-t1`    | [GeeekPi DeskPi RackMate T1][rackmate-t1] | Rack enclosure | -    | -                                                    |
-| `rack-mount`     | [GeeekPi 10" 2U Rack Mount][rack-mount]   | Pi rack mount  | -    | -                                                    |
+| Node              | Device                                    | Role           | Boot | Storage                                              |
+|-------------------|-------------------------------------------|----------------|------|------------------------------------------------------|
+| `raspberrypi-00`  | [Raspberry Pi 5 8GB][rpi5]                | Control plane  | NVMe | [Lexar NM620 256GB][lexar-nm620]                     |
+| `raspberrypi-01`  | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro] |
+| `raspberrypi-02`  | Raspberry Pi 5 8GB                        | Control plane  | NVMe | [Crucial P3 Plus 4TB][crucial-p3-plus]               |
+| `raspberrypi-03`  | [Raspberry Pi 4 Model B 8GB][rpi4]        | Worker         | SD   | SanDisk Max Endurance 32 GB                          |
+| `nuc-00`[^nuc-00] | Intel NUC                                 | Worker         | -    | -                                                    |
+| `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]    | Router/Gateway | -    | -                                                    |
+| `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]           | PoE switch     | -    | -                                                    |
+| `rackmate-t1`     | [GeeekPi DeskPi RackMate T1][rackmate-t1] | Rack enclosure | -    | -                                                    |
+| `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]   | Pi rack mount  | -    | -                                                    |
 <!-- markdownlint-enable MD060 -->
 
-Three nodes form the control plane. One node remains a worker.
+[^nuc-00]: Temporary worker node.
+
+Three nodes form the control plane. Two nodes remain workers, including temporary `nuc-00`.
 
 ## Network Layout
 
@@ -51,6 +54,7 @@ Three nodes form the control plane. One node remains a worker.
 | `192.168.10.61` | `raspberrypi-01`     |
 | `192.168.10.62` | `raspberrypi-02`     |
 | `192.168.10.63` | `raspberrypi-03`     |
+| `192.168.10.80` | `nuc-00`             |
 
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
