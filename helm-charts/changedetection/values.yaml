@@ -31,6 +31,7 @@ browser:
   profile:
     mountPath: /profile
     claimName: changedetection-browser-profile-pvc
+    fsGroup: 1000
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"
