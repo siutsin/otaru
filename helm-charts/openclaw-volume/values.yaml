@@ -5,3 +5,5 @@ longhorn-volume-lib:
       size: "10Gi"
       sizeBytes: "10737418240"
       fromBackup: ~
+      enableBackup: true
+      enableTrim: true
