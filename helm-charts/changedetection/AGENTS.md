@@ -24,8 +24,3 @@ diagnostics or recovery, then backport the chart change.
 - For workload-only changes, restart the workload or let Argo CD reconcile. Do
   not reboot nodes for this app.
 - Validate focused changes with `helm template`, then run `make test`.
-
-## CI
-
-- Do not add explicit `GH_TOKEN: ${{ github.token }}` env just for Helm
-  dependency updates. Use workflow `permissions` for CI access control.
