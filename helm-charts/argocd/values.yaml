@@ -84,6 +84,8 @@ argo-cd:
               - LONGHORN_BACKUP_TARGET
               - --ext-str
               - HOME_ASSISTANT_VOLUME_FROM_BACKUP
+              - --ext-str
+              - OPENCLAW_CONTROL_UI_HOSTNAME
   dex:
     enabled: false
   notifications:
@@ -206,6 +208,11 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: HOME_ASSISTANT_VOLUME_FROM_BACKUP
+          - name: OPENCLAW_CONTROL_UI_HOSTNAME
+            valueFrom:
+              secretKeyRef:
+                name: argocd-jsonnet-secret
+                key: OPENCLAW_CONTROL_UI_HOSTNAME
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:

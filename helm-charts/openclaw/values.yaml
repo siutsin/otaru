@@ -37,13 +37,14 @@ externalSecret:
   remoteRef:
     key: openclaw
     properties:
-      gatewayToken: OPENCLAW_GATEWAY_TOKEN
-      controlUiHostname: OPENCLAW_CONTROL_UI_HOSTNAME
-      localModelApiKey: LOCAL_MODEL_API_KEY
-      localModelBaseUrl: LOCAL_MODEL_BASE_URL
-      localModelId: LOCAL_MODEL_ID
-      localModelName: LOCAL_MODEL_NAME
-      localModelInputJson: LOCAL_MODEL_INPUT_JSON
+      gatewayToken: openclaw/OPENCLAW_GATEWAY_TOKEN
+      controlUiHostname: openclaw/OPENCLAW_CONTROL_UI_HOSTNAME
+      localModelApiKey: openclaw/LOCAL_MODEL_API_KEY
+      localModelBaseUrl: openclaw/LOCAL_MODEL_BASE_URL
+      localModelId: openclaw/LOCAL_MODEL_ID
+      localModelName: openclaw/LOCAL_MODEL_NAME
+      localModelInputJson: openclaw/LOCAL_MODEL_INPUT_JSON
+      telegramBotToken: telegram/token
 
 secret:
   name: openclaw-secrets
@@ -74,6 +75,24 @@ tools:
       enabled: false
     fetch:
       enabled: false
+
+channels:
+  defaults:
+    groupPolicy: allowlist
+    heartbeat:
+      showOk: false
+      showAlerts: true
+      useIndicator: true
+  telegram:
+    enabled: true
+    dmPolicy: pairing
+    groupPolicy: allowlist
+    groups:
+      "*":
+        requireMention: true
+    streaming: progress
+    replyToMode: first
+    linkPreview: false
 
 localModel:
   providerId: local
