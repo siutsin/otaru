@@ -18,6 +18,8 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
+        fsGroup: {{ .Values.browser.profile.fsGroup }}
+        fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
       containers:
