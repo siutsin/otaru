@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.6+k3s1-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.35.5+k3s1-blue)
 [![Cluster Health](https://img.shields.io/static/v1?label=Cluster%20Health&message=WebGazer&color=brightgreen)](https://www.webgazer.io/s?id=493)
 
 > Over-Engineering at Its Finest
@@ -122,6 +122,7 @@ Three nodes form the control plane. One node remains a worker.
 | Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS service                    |
 | Connectivity | Cloudflare    | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Edge connectivity                            |
 | Connectivity | UniFi         | [Network](https://ui.com/)                                                               | Gateway, VLAN, WLAN, and firewall management |
+| Messaging    | Telegram      | [Bot API](https://core.telegram.org/bots/api)                                            | Bot messaging for OpenClaw and 冗PowerBot     |
 | Monitoring   | Heartbeats    | [Heartbeats Operator](helm-charts/heartbeats)                                            | Kubernetes operator for heartbeat monitoring |
 | Monitoring   | WebGazer      | [Uptime Monitoring](https://www.webgazer.io/)                                            | Health check                                 |
 | Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                 | Secrets automation                           |
@@ -131,7 +132,6 @@ Three nodes form the control plane. One node remains a worker.
 | Storage      | AWS           | [DynamoDB](https://aws.amazon.com/dynamodb/)                                             | Database backend for 冗PowerBot               |
 | Storage      | AWS           | [SQS](https://aws.amazon.com/sqs/)                                                       | Queue backend for 冗PowerBot                  |
 | Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                         | OpenTofu remote state                        |
-| Messaging    | Telegram      | [Bot API](https://core.telegram.org/bots/api)                                            | Bot messaging for OpenClaw and 冗PowerBot     |
 | Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                            | Longhorn and CloudNativePG backups           |
 <!-- markdownlint-enable MD060 -->
 
