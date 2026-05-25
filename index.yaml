@@ -1192,6 +1192,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/onepassword-connect-0.1.0/onepassword-connect-0.1.0.tgz
     version: 0.1.0
+  openclaw:
+  - apiVersion: v2
+    created: "2026-05-25T08:37:53.501799452Z"
+    description: OpenClaw deployment for Kubernetes
+    digest: 886ac5200baaed18a2d3b7a69c760a74a8fe00f016b6f429e47a8ad25c4bf463
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: openclaw
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/openclaw-0.1.0/openclaw-0.1.0.tgz
+    version: 0.1.0
   openclaw-volume:
   - apiVersion: v2
     created: "2026-05-25T01:23:15.303843603Z"
@@ -1335,4 +1346,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-25T01:23:15.303967977Z"
+generated: "2026-05-25T08:37:53.868104303Z"
