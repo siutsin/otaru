@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
   pull-requests: write
 
 # Prevent concurrent runs to avoid race conditions when creating branches/PRs
@@ -76,6 +77,8 @@ jobs:
         run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
 
       - name: Update Helm dependencies
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: make update-helm-deps
 
       - name: Run heartbeats upgrade
