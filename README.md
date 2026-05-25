@@ -1,6 +1,6 @@
 # otaru
 
-![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.34.6+k3s1-blue)
+![Kubernetes Version](https://img.shields.io/badge/Kubernetes-v1.35.5+k3s1-blue)
 [![Cluster Health](https://img.shields.io/static/v1?label=Cluster%20Health&message=WebGazer&color=brightgreen)](https://www.webgazer.io/s?id=493)
 
 > Over-Engineering at Its Finest
@@ -74,6 +74,7 @@ Three nodes form the control plane. One node remains a worker.
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home automation                                                                                                                                                         |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                                                                                  |
 | Application  | [Kubernetes MCP Server](https://github.com/containers/kubernetes-mcp-server)                        | Model Context Protocol server for Kubernetes cluster operations                                                                                                         |
+| Application  | [OpenClaw](helm-charts/openclaw)                                                                    | Self-hosted AI agent runtime with local model integration                                                                                                               |
 | Application  | [TeslaMate](https://github.com/teslamate-org/teslamate/)                                            | Self-hosted data logger for Tesla                                                                                                                                       |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                                                                                      |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                                                                                             |
@@ -121,6 +122,7 @@ Three nodes form the control plane. One node remains a worker.
 | Connectivity | Cloudflare    | [DNS](https://developers.cloudflare.com/dns/)                                            | Authoritative DNS service                    |
 | Connectivity | Cloudflare    | [Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) | Edge connectivity                            |
 | Connectivity | UniFi         | [Network](https://ui.com/)                                                               | Gateway, VLAN, WLAN, and firewall management |
+| Messaging    | Telegram      | [Bot API](https://core.telegram.org/bots/api)                                            | Bot messaging for OpenClaw and 冗PowerBot     |
 | Monitoring   | Heartbeats    | [Heartbeats Operator](helm-charts/heartbeats)                                            | Kubernetes operator for heartbeat monitoring |
 | Monitoring   | WebGazer      | [Uptime Monitoring](https://www.webgazer.io/)                                            | Health check                                 |
 | Security     | 1Password     | [Connect](https://developer.1password.com/docs/connect/)                                 | Secrets automation                           |

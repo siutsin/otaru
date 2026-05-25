@@ -37,14 +37,14 @@ externalSecret:
   remoteRef:
     key: openclaw
     properties:
-      gatewayToken: openclaw/OPENCLAW_GATEWAY_TOKEN
-      controlUiHostname: openclaw/OPENCLAW_CONTROL_UI_HOSTNAME
-      localModelApiKey: openclaw/LOCAL_MODEL_API_KEY
-      localModelBaseUrl: openclaw/LOCAL_MODEL_BASE_URL
-      localModelId: openclaw/LOCAL_MODEL_ID
-      localModelName: openclaw/LOCAL_MODEL_NAME
-      localModelInputJson: openclaw/LOCAL_MODEL_INPUT_JSON
-      telegramBotToken: telegram/token
+      gatewayToken: OPENCLAW_GATEWAY_TOKEN
+      controlUiHostname: OPENCLAW_CONTROL_UI_HOSTNAME
+      localModelApiKey: LOCAL_MODEL_API_KEY
+      localModelBaseUrl: LOCAL_MODEL_BASE_URL
+      localModelId: LOCAL_MODEL_ID
+      localModelName: LOCAL_MODEL_NAME
+      localModelInputJson: LOCAL_MODEL_INPUT_JSON
+      telegramBotToken: TELEGRAM_BOT_TOKEN
 
 secret:
   name: openclaw-secrets
