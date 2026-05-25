@@ -12,6 +12,9 @@ service:
 
 route:
   hostname: ""
+  timeouts:
+    request: 360s
+    backendRequest: 360s
 
 gateway:
   trustedProxies: []

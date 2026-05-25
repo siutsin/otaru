@@ -205,8 +205,17 @@ validate-helm-charts: ## Validate all Helm charts
 				}; \
 				rendered="$$(helm template openclaw "$$chart" -n openclaw \
 					--set route.hostname=openclaw.example.invalid)" || exit 1; \
-				printf '%s\n' "$$rendered" | grep -q 'chmod -R u+rwX,go-rwx "$$state_dir"' || { \
-					echo "OpenClaw init container does not repair file permissions"; exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'chmod u+rwX,go-rwx "$$state_dir" "$$state_dir/workspace" "$$state_dir/config"' || { \
+					echo "OpenClaw init container does not repair top-level directory permissions"; exit 1; \
+				}; \
+				if printf '%s\n' "$$rendered" | grep -q 'chmod -R\|chown -R'; then \
+					echo "OpenClaw init container uses recursive ownership or permission repair"; exit 1; \
+				fi; \
+				printf '%s\n' "$$rendered" | grep -q 'request: "360s"' || { \
+					echo "OpenClaw route request timeout did not render"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'backendRequest: "360s"' || { \
+					echo "OpenClaw route backend request timeout did not render"; exit 1; \
 				}; \
 				printf '%s\n' "$$rendered" | grep -q 'image: ghcr.io/openclaw/openclaw:.*@sha256:' || { \
 					echo "OpenClaw app image is not digest-pinned"; exit 1; \
@@ -284,7 +293,6 @@ validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
 		--ext-str CNPG_BACKUP_ENDPOINT=https://test.example.com \
 		--ext-str LONGHORN_BACKUP_TARGET=s3://test-bucket@region/ \
 		--ext-str HOME_ASSISTANT_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
-		--ext-str OPENCLAW_CONTROL_UI_HOSTNAME=openclaw.example.invalid \
 		> /dev/null
 	@echo "$(GREEN)ArgoCD manifest validation passed!$(NC)"
 

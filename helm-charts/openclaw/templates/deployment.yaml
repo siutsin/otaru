@@ -50,8 +50,8 @@ spec:
             - |
               state_dir={{ $stateDir | quote }}
               mkdir -p "$state_dir/workspace" "$state_dir/config"
-              chown -R 1000:1000 "$state_dir"
-              chmod -R u+rwX,go-rwx "$state_dir"
+              chown 1000:1000 "$state_dir" "$state_dir/workspace" "$state_dir/config"
+              chmod u+rwX,go-rwx "$state_dir" "$state_dir/workspace" "$state_dir/config"
               rm -f "$state_dir/config/openclaw.json"
           securityContext:
             allowPrivilegeEscalation: false
