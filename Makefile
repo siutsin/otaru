@@ -185,7 +185,59 @@ validate-helm-charts: ## Validate all Helm charts
 				} \
 				END { exit bad } \
 			' chart="$$chart" || exit 1; \
-			helm lint "$$chart" --quiet || exit 1; \
+			chart_name="$$(basename "$$chart")"; \
+			if [ "$$chart_name" = "openclaw" ]; then \
+				helm lint "$$chart" --quiet --set route.hostname=openclaw.example.invalid || exit 1; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--show-only templates/external-secret.yaml \
+					--set route.hostname=openclaw.example.invalid \
+					--set persistence.mountPath=/state \
+					--set localModel.request.allowPrivateNetwork=false \
+					--set gateway.auth.rateLimit.exemptLoopback=false)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'allowPrivateNetwork: false' || { \
+					echo "OpenClaw allowPrivateNetwork=false did not render as false"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'exemptLoopback: false' || { \
+					echo "OpenClaw exemptLoopback=false did not render as false"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'workspace: "/state/workspace"' || { \
+					echo "OpenClaw workspace did not render from persistence.mountPath"; exit 1; \
+				}; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--set route.hostname=openclaw.example.invalid)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'chmod u+rwX,go-rwx "$$state_dir" "$$state_dir/workspace" "$$state_dir/config"' || { \
+					echo "OpenClaw init container does not repair top-level directory permissions"; exit 1; \
+				}; \
+				if printf '%s\n' "$$rendered" | grep -q 'chmod -R\|chown -R'; then \
+					echo "OpenClaw init container uses recursive ownership or permission repair"; exit 1; \
+				fi; \
+				printf '%s\n' "$$rendered" | grep -q 'request: "360s"' || { \
+					echo "OpenClaw route request timeout did not render"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'backendRequest: "360s"' || { \
+					echo "OpenClaw route backend request timeout did not render"; exit 1; \
+				}; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--show-only templates/authorization-policy.yaml \
+					--set service.port=443 \
+					--set service.targetPort=18789)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q -- '- "18789"' || { \
+					echo "OpenClaw AuthorizationPolicy does not use service.targetPort"; exit 1; \
+				}; \
+				if printf '%s\n' "$$rendered" | grep -q -- '- "443"'; then \
+					echo "OpenClaw AuthorizationPolicy uses service.port"; exit 1; \
+				fi; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--set route.hostname=openclaw.example.invalid)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'image: ghcr.io/openclaw/openclaw:.*@sha256:' || { \
+					echo "OpenClaw app image is not digest-pinned"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'image: busybox:.*@sha256:' || { \
+					echo "OpenClaw init image is not digest-pinned"; exit 1; \
+				}; \
+			else \
+				helm lint "$$chart" --quiet || exit 1; \
+			fi; \
 		fi; \
 	done
 	@echo "$(GREEN)All Helm charts validated successfully!$(NC)"

@@ -179,6 +179,7 @@
 
   - name: Wait for argocd-jsonnet-secret to be synced
     shell: |
+      set -e
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.AWS_ACCOUNT_ID}' | grep -q .
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.CNPG_BACKUP_BUCKET}' | grep -q .
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.CNPG_BACKUP_ENDPOINT}' | grep -q .

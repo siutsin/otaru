@@ -1,0 +1,41 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $route := .Values.route | default dict -}}
+{{- $timeouts := $route.timeouts | default dict -}}
+{{- if $route.hostname }}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-internal
+  namespace: {{ .Values.namespace }}
+spec:
+  hostnames:
+    - {{ $route.hostname | quote }}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: https
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      {{- if $timeouts }}
+      timeouts:
+        {{- with $timeouts.request }}
+        request: {{ . | quote }}
+        {{- end }}
+        {{- with $timeouts.backendRequest }}
+        backendRequest: {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ .Values.name }}
+          port: {{ .Values.service.port }}
+          weight: 1
+{{- end }}
