@@ -1,0 +1,159 @@
+{{- $version := regexReplaceAll "@sha256:.*$" .Values.image.tag "" -}}
+{{- $stateDir := .Values.persistence.mountPath -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/version: {{ $version | quote }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.name }}
+        app.kubernetes.io/version: {{ $version | quote }}
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ .Values.name }}
+                topologyKey: kubernetes.io/hostname
+      initContainers:
+        - name: init-state
+          image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
+          imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              state_dir={{ $stateDir | quote }}
+              mkdir -p "$state_dir/workspace" "$state_dir/config"
+              chown -R 1000:1000 "$state_dir"
+              chmod -R u+rwX,go-rwx "$state_dir"
+              rm -f "$state_dir/config/openclaw.json"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+          resources:
+            requests:
+              cpu: {{ .Values.initContainer.resources.requests.cpu }}
+              memory: {{ .Values.initContainer.resources.requests.memory }}
+              ephemeral-storage: {{ .Values.initContainer.resources.requests.ephemeralStorage }}
+            limits:
+              memory: {{ .Values.initContainer.resources.limits.memory }}
+              ephemeral-storage: {{ .Values.initContainer.resources.limits.ephemeralStorage }}
+          volumeMounts:
+            - name: state
+              mountPath: {{ $stateDir | quote }}
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: HOME
+              value: {{ $stateDir | quote }}
+            - name: OPENCLAW_HOME
+              value: {{ $stateDir | quote }}
+            - name: OPENCLAW_STATE_DIR
+              value: {{ $stateDir | quote }}
+            - name: OPENCLAW_CONFIG_PATH
+              value: {{ printf "%s/config/openclaw.json" $stateDir | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+              ephemeral-storage: {{ .Values.resources.requests.ephemeralStorage }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              ephemeral-storage: {{ .Values.resources.limits.ephemeralStorage }}
+          volumeMounts:
+            - name: state
+              mountPath: {{ $stateDir | quote }}
+            - name: secret-config
+              mountPath: {{ printf "%s/config/openclaw.json" $stateDir | quote }}
+              subPath: openclaw.json
+              readOnly: true
+            - name: agents-config
+              mountPath: {{ printf "%s/workspace/AGENTS.md" $stateDir | quote }}
+              subPath: AGENTS.md
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}
+        - name: secret-config
+          secret:
+            secretName: {{ .Values.secret.name }}
+        - name: agents-config
+          configMap:
+            name: {{ .Values.name }}-config
+        - name: tmp
+          emptyDir: {}

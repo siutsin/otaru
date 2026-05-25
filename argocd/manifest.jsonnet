@@ -112,6 +112,7 @@ local cnpgClustersHelm = { parameters: [
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
+local openClawHelm = { parameters: [{ name: 'route.hostname', value: std.extVar('OPENCLAW_CONTROL_UI_HOSTNAME') }] };
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
@@ -121,6 +122,7 @@ local application = [
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'openclaw-volume', namespace: 'openclaw' },
+  { wave: '11', name: 'openclaw', namespace: 'openclaw', helm: openClawHelm },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },

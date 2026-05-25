@@ -185,7 +185,38 @@ validate-helm-charts: ## Validate all Helm charts
 				} \
 				END { exit bad } \
 			' chart="$$chart" || exit 1; \
-			helm lint "$$chart" --quiet || exit 1; \
+			chart_name="$$(basename "$$chart")"; \
+			if [ "$$chart_name" = "openclaw" ]; then \
+				helm lint "$$chart" --quiet --set route.hostname=openclaw.example.invalid || exit 1; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--show-only templates/external-secret.yaml \
+					--set route.hostname=openclaw.example.invalid \
+					--set persistence.mountPath=/state \
+					--set localModel.request.allowPrivateNetwork=false \
+					--set gateway.auth.rateLimit.exemptLoopback=false)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'allowPrivateNetwork: false' || { \
+					echo "OpenClaw allowPrivateNetwork=false did not render as false"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'exemptLoopback: false' || { \
+					echo "OpenClaw exemptLoopback=false did not render as false"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'workspace: "/state/workspace"' || { \
+					echo "OpenClaw workspace did not render from persistence.mountPath"; exit 1; \
+				}; \
+				rendered="$$(helm template openclaw "$$chart" -n openclaw \
+					--set route.hostname=openclaw.example.invalid)" || exit 1; \
+				printf '%s\n' "$$rendered" | grep -q 'chmod -R u+rwX,go-rwx "$$state_dir"' || { \
+					echo "OpenClaw init container does not repair file permissions"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'image: ghcr.io/openclaw/openclaw:.*@sha256:' || { \
+					echo "OpenClaw app image is not digest-pinned"; exit 1; \
+				}; \
+				printf '%s\n' "$$rendered" | grep -q 'image: busybox:.*@sha256:' || { \
+					echo "OpenClaw init image is not digest-pinned"; exit 1; \
+				}; \
+			else \
+				helm lint "$$chart" --quiet || exit 1; \
+			fi; \
 		fi; \
 	done
 	@echo "$(GREEN)All Helm charts validated successfully!$(NC)"
@@ -253,6 +284,7 @@ validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
 		--ext-str CNPG_BACKUP_ENDPOINT=https://test.example.com \
 		--ext-str LONGHORN_BACKUP_TARGET=s3://test-bucket@region/ \
 		--ext-str HOME_ASSISTANT_VOLUME_FROM_BACKUP=s3://test-bucket@region/?backup=test\&volume=test \
+		--ext-str OPENCLAW_CONTROL_UI_HOSTNAME=openclaw.example.invalid \
 		> /dev/null
 	@echo "$(GREEN)ArgoCD manifest validation passed!$(NC)"
 
