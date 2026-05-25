@@ -213,6 +213,7 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: OPENCLAW_CONTROL_UI_HOSTNAME
+                optional: true
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:
