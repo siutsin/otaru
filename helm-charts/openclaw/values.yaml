@@ -84,15 +84,18 @@ localModel:
 
 probes:
   startup:
+    path: /healthz
     periodSeconds: 5
     timeoutSeconds: 10
     failureThreshold: 60
   liveness:
+    path: /healthz
     initialDelaySeconds: 90
     periodSeconds: 30
     timeoutSeconds: 10
     failureThreshold: 4
   readiness:
+    path: /readyz
     periodSeconds: 10
     timeoutSeconds: 10
     failureThreshold: 3

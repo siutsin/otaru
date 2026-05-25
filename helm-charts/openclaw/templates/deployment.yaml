@@ -105,14 +105,14 @@ spec:
               protocol: TCP
           startupProbe:
             httpGet:
-              path: /
+              path: {{ .Values.probes.startup.path | quote }}
               port: http
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
           livenessProbe:
             httpGet:
-              path: /
+              path: {{ .Values.probes.liveness.path | quote }}
               port: http
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
@@ -120,7 +120,7 @@ spec:
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /
+              path: {{ .Values.probes.readiness.path | quote }}
               port: http
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
@@ -152,6 +152,7 @@ spec:
         - name: secret-config
           secret:
             secretName: {{ .Values.secret.name }}
+            defaultMode: 0440
         - name: agents-config
           configMap:
             name: {{ .Values.name }}-config
