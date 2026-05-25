@@ -36,8 +36,54 @@ ensure_helm_repos() {
     "${SCRIPT_DIR}/add-helm-repos.sh" "$CHARTS_DIR"
 }
 
+ensure_helm_ghcr_auth() {
+    local ghcr_dependency_count
+    local gh_token
+    local gh_user
+
+    ghcr_dependency_count=$(
+        find "$CHARTS_DIR" -name 'Chart.yaml' -print0 \
+            | xargs -0 yq -r '.dependencies[]?.repository // ""' 2>/dev/null \
+            | grep -c '^oci://ghcr.io/' || true
+    )
+
+    if [ "$ghcr_dependency_count" -eq 0 ]; then
+        return 0
+    fi
+
+    if command_exists gh; then
+        gh_token=$(gh auth token 2>/dev/null || true)
+        gh_user=$(gh api user --jq '.login' 2>/dev/null || true)
+    fi
+
+    if [ -z "${gh_token:-}" ] && [ -n "${GH_TOKEN:-}" ]; then
+        gh_token="$GH_TOKEN"
+    fi
+
+    if [ -z "${gh_token:-}" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
+        gh_token="$GITHUB_TOKEN"
+    fi
+
+    if [ -z "${gh_token:-}" ]; then
+        if [ "${CI:-false}" = "true" ]; then
+            log_warning "No GitHub credentials found; continuing without GHCR login"
+            return 0
+        fi
+
+        exit_with_error "gh is not authenticated. Run 'gh auth login' before updating Helm dependencies"
+    fi
+
+    gh_user="${gh_user:-${GITHUB_ACTOR:-oauth2}}"
+
+    log_info "Authenticating Helm to ghcr.io using GitHub credentials..."
+    if ! printf '%s' "$gh_token" | helm registry login ghcr.io -u "$gh_user" --password-stdin >/dev/null; then
+        exit_with_error "Failed to authenticate Helm to ghcr.io using GitHub credentials"
+    fi
+}
+
 log_info "Ensuring Helm repositories are configured..."
 ensure_helm_repos
+ensure_helm_ghcr_auth
 
 log_info "Updating Helm dependencies..."
 log_info "Charts directory: $CHARTS_DIR"

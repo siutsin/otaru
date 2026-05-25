@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
   pull-requests: write
 
 # Prevent concurrent runs to avoid race conditions when creating branches/PRs
