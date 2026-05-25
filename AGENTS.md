@@ -1,5 +1,40 @@
 # Agent Instructions
 
+## Multi-Agent Worktree Policy
+
+Always use a dedicated Git worktree for each agent/session when making changes.
+Do not edit from a shared checkout if another agent may be active there.
+
+- Create one worktree per agent and per task branch, for example:
+  `git worktree add -b <branch> /tmp/otaru-<task> origin/master`.
+- Never have two agents edit the same worktree directory.
+- Never intentionally check out the same branch in multiple worktrees.
+- Keep commits, tests, and PR loops scoped to that worktree's branch.
+- Avoid destructive shared Git operations while another agent is active,
+  including force-pushes, hard resets, broad branch deletion, and aggressive
+  cleanup.
+- Before touching files in an existing checkout, run `git status --short
+  --branch` and `git worktree list` to understand what branch and worktree are
+  in use.
+
+### Worktree Cleanup
+
+Clean up only worktrees and branches that belong to your completed task.
+
+1. Inspect current worktrees with `git worktree list`.
+2. Verify the target worktree has no uncommitted work with
+  `git -C <worktree-path> status --short --branch`.
+3. If the work is merged or intentionally discarded, remove the worktree with
+  `git worktree remove <worktree-path>`.
+4. Prune stale worktree metadata with `git worktree prune`.
+5. Delete the local task branch only when it is merged or explicitly abandoned:
+  `git branch -d <branch>`.
+6. Delete the remote task branch only after the PR is merged or the user
+  explicitly asks for discard: `git push origin --delete <branch>`.
+
+Do not remove a worktree, local branch, or remote branch that another agent may
+still be using.
+
 ## Testing Protocol
 
 Always run `make test` after making changes and fix any failures immediately.
