@@ -74,6 +74,7 @@ Three nodes form the control plane. One node remains a worker.
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home automation                                                                                                                                                         |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                                                                                  |
 | Application  | [Kubernetes MCP Server](https://github.com/containers/kubernetes-mcp-server)                        | Model Context Protocol server for Kubernetes cluster operations                                                                                                         |
+| Application  | [OpenClaw](helm-charts/openclaw)                                                                    | Self-hosted AI agent runtime with local model integration                                                                                                               |
 | Application  | [TeslaMate](https://github.com/teslamate-org/teslamate/)                                            | Self-hosted data logger for Tesla                                                                                                                                       |
 | Application  | [冗PowerBot](https://github.com/siutsin/telegram-jung2-bot)                                          | Telegram bot tracks and counts individual message counts in groups                                                                                                      |
 | CI/CD        | [Argo CD](https://github.com/argoproj/argo-cd)                                                      | GitOps, drift detection, and reconciliation                                                                                                                             |
@@ -130,6 +131,7 @@ Three nodes form the control plane. One node remains a worker.
 | Storage      | AWS           | [DynamoDB](https://aws.amazon.com/dynamodb/)                                             | Database backend for 冗PowerBot               |
 | Storage      | AWS           | [SQS](https://aws.amazon.com/sqs/)                                                       | Queue backend for 冗PowerBot                  |
 | Storage      | AWS           | [S3](https://aws.amazon.com/s3/)                                                         | OpenTofu remote state                        |
+| Messaging    | Telegram      | [Bot API](https://core.telegram.org/bots/api)                                            | Bot messaging for OpenClaw and 冗PowerBot     |
 | Storage      | Backblaze     | [B2](https://www.backblaze.com/cloud-storage)                                            | Longhorn and CloudNativePG backups           |
 <!-- markdownlint-enable MD060 -->
 
