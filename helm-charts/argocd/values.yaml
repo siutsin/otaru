@@ -70,17 +70,22 @@ argo-cd:
             fileName: manifest.jsonnet
           generate:
             command:
-              - /bin/sh
-              - -ec
+              - jsonnet
             args:
-              - |
-                jsonnet --yaml-stream manifest.jsonnet \
-                  --ext-str AWS_ACCOUNT_ID \
-                  --ext-str CNPG_BACKUP_BUCKET \
-                  --ext-str CNPG_BACKUP_ENDPOINT \
-                  --ext-str LONGHORN_BACKUP_TARGET \
-                  --ext-str HOME_ASSISTANT_VOLUME_FROM_BACKUP \
-                  --ext-str "OPENCLAW_CONTROL_UI_HOSTNAME=${OPENCLAW_CONTROL_UI_HOSTNAME:-}"
+              - --yaml-stream
+              - manifest.jsonnet
+              - --ext-str
+              - AWS_ACCOUNT_ID
+              - --ext-str
+              - CNPG_BACKUP_BUCKET
+              - --ext-str
+              - CNPG_BACKUP_ENDPOINT
+              - --ext-str
+              - LONGHORN_BACKUP_TARGET
+              - --ext-str
+              - HOME_ASSISTANT_VOLUME_FROM_BACKUP
+              - --ext-str
+              - OPENCLAW_CONTROL_UI_HOSTNAME
   dex:
     enabled: false
   notifications:
@@ -208,7 +213,6 @@ argo-cd:
               secretKeyRef:
                 name: argocd-jsonnet-secret
                 key: OPENCLAW_CONTROL_UI_HOSTNAME
-                optional: true
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:

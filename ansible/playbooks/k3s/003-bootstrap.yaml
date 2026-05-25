@@ -185,6 +185,7 @@
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.CNPG_BACKUP_ENDPOINT}' | grep -q .
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.LONGHORN_BACKUP_TARGET}' | grep -q .
       kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.HOME_ASSISTANT_VOLUME_FROM_BACKUP}' | grep -q .
+      kubectl get secret argocd-jsonnet-secret -n argocd -o jsonpath='{.data.OPENCLAW_CONTROL_UI_HOSTNAME}' | grep -q .
     register: argocd_secret_ready_result
     retries: 30
     delay: 10
