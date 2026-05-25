@@ -1,0 +1,10 @@
+apiVersion: v2
+name: openclaw-volume
+description: OpenClaw Longhorn volume
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+dependencies:
+  - name: longhorn-volume-lib
+    version: 0.2.4
+    repository: file://../longhorn-volume-lib

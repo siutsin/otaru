@@ -1,0 +1,10 @@
+longhorn-volume-lib:
+  namespace: openclaw
+  volumes:
+    openclaw:
+      size: "10Gi"
+      sizeBytes: "10737418240"
+      # Longhorn Volume.spec.fromBackup is a string; keep it empty for a new volume.
+      fromBackup: ""
+      enableBackup: true
+      enableTrim: true
