@@ -76,4 +76,4 @@ spec:
             sizeLimit: {{ .Values.browser.tmpSizeLimit }}
         - name: profile
           persistentVolumeClaim:
-            claimName: {{ .Values.browser.name }}-profile
+            claimName: {{ .Values.browser.profile.claimName }}

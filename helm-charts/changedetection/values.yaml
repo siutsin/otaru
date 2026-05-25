@@ -30,8 +30,7 @@ browser:
   tmpSizeLimit: 1Gi
   profile:
     mountPath: /profile
-    size: 2Gi
-    storageClassName: longhorn-crypto-global
+    claimName: changedetection-browser-profile-pvc
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"
