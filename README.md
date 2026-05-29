@@ -39,7 +39,9 @@ Current cluster layout:
 | `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -     | -                                                    |
 <!-- markdownlint-enable MD060 -->
 
-[^nuc-00]: Temporary worker node.
+[^nuc-00]: Yes, yes, I know I said Raspberry Pi only, but have you seen Raspberry
+    Pi 5 prices lately? ¯\\\_(ツ)\_/¯ This is a temporary worker node until the
+    damage-to-wallet ratio improves.
 
 Three nodes form the control plane. Two nodes remain workers, including temporary `nuc-00`.
 
@@ -148,9 +150,10 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
     brew install \
       ansible \
       direnv \
-      editorconfig-checker \
+      gh \
       go-jsonnet \
       helm \
+      jq \
       kubectl \
       markdownlint-cli2 \
       opentofu \
@@ -159,18 +162,27 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
       zizmor
     ```
 
-2. **Add SSH Keys to `known_hosts`**
+2. **Configure Tooling**
+
+    Authenticate the GitHub CLI before Terraform/Terragrunt or Helm OCI
+    dependency updates need GitHub access.
+
+    ```shell
+    gh auth login
+    ```
+
+3. **Add SSH Keys to `known_hosts`**
 
     ```shell
     KH=~/.ssh/known_hosts && touch "$KH" && for ip in 192.168.10.{60..63}; do ssh-keygen -f "$KH" -R "$ip"; ssh-keyscan "$ip" >> "$KH"; done
     ```
 
-3. **Set Up Service Credentials**
+4. **Set Up Service Credentials**
 
     Create the local files documented in [Secrets](documentation/secrets.md)
     before running cluster bootstrap. Keep actual credentials outside this repo.
 
-4. **Bootstrap Cluster**
+5. **Bootstrap Cluster**
 
     ```shell
     make setup
@@ -193,7 +205,7 @@ make upgrade
 Unlock a LUKS node after boot.
 
 ```shell
-make unlock raspberrypi-01
+make unlock <node-name>
 ```
 
 Wipe everything and start from scratch.

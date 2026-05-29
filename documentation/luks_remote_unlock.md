@@ -33,22 +33,16 @@ Preferred path when initramfs is already waiting on `Please unlock disk cryptroo
 printf '%s' '<your LUKS passphrase>' | ./hack/luks-cryptroot-unlock.sh 192.168.10.61 --passfifo
 ```
 
-You can use the Make shortcut:
+You can use the Make shortcut with any LUKS-enabled inventory node:
 
 ```shell
-make unlock raspberrypi-00
+make unlock <node-name>
 ```
 
 If you export the passphrase from the external direnv file, use:
 
 ```shell
 direnv exec . ./hack/luks-cryptroot-unlock.sh 192.168.10.61 1024 --env-passfifo
-```
-
-To target a different node:
-
-```shell
-make unlock raspberrypi-02
 ```
 
 This feeds the exact passphrase bytes into initramfs'

@@ -51,7 +51,6 @@ This executes:
 - Helm chart validation
 - Terraform linting
 - Terragrunt linting
-- EditorConfig compliance
 - Zizmor audit
 
 ## Error Handling Policy
@@ -97,7 +96,7 @@ plain reboot until the initramfs unlock step runs.
   `OTARU_LUKS_PASSWORD` available in the controller environment.
 - For workload-only restarts that do not reboot hosts, use `make restart`.
 - If a LUKS node is already waiting in initramfs after boot, unlock it with the
-  documented make target, for example `make unlock raspberrypi-01`.
+  documented make target, for example `make unlock <node-name>`.
 - For emergency single-node reboot work, first check whether the target is in
   the `luks_root_nodes` inventory group; if it is, do not proceed unless a
   LUKS-aware playbook or `make unlock <node-name>` workflow is used.
