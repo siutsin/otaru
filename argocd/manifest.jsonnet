@@ -167,7 +167,7 @@ local database = [
     source: {
       repoURL: 'https://cloudnative-pg.io/charts/',
       chart: s.name,
-      targetRevision: '0.23.2',
+      targetRevision: '0.28.2',
       helm: cnpgHelm,
     },
   },
