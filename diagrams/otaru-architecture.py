@@ -39,30 +39,30 @@ output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 #
 # Flow                       TfL line
 # -------------------------  -------------------
+# AI Inference               Piccadilly
+# Control Plane              District
+# Database                   Bakerloo
+# GitOps                     London Overground
+# Monitoring                 Metropolitan
+# Node Connectivity          DLR
 # OIDC/IRSA Authentication   Elizabeth
 # Public Traffic             Central
-# GitOps                     Jubilee
+# Secret Management          London Trams
+# Storage                    Liberty
 # TLS/Certificate            Victoria
-# Secret Management          Piccadilly
 # VPN/External Access        Northern
-# Monitoring                 Metropolitan
-# Control Plane              District
-# Node Connectivity          Bakerloo
-# Storage                    Overground
-# Database                   DLR
-# AI Inference               Tramlink
+COLOUR_AI = "#003688"
+COLOUR_CONTROL = "#00782A"
+COLOUR_DATABASE = "#B36305"
+COLOUR_GITOPS = "#EE7C0E"
+COLOUR_MONITORING = "#9B0056"
+COLOUR_NODE = "#00A4A7"
 COLOUR_OIDC = "#7156A5"
 COLOUR_PUBLIC = "#DC241f"
-COLOUR_GITOPS = "#A0A5A9"
+COLOUR_SECRET = "#5FB526"
+COLOUR_STORAGE = "#5D6061"
 COLOUR_TLS = "#0098D4"
-COLOUR_SECRET = "#003688"
 COLOUR_VPN = "#000000"
-COLOUR_MONITORING = "#9B0056"
-COLOUR_CONTROL_PLANE = "#00782A"
-COLOUR_NODE = "#B36305"
-COLOUR_STORAGE = "#EE7C0E"
-COLOUR_DATABASE = "#00A4A7"
-COLOUR_AI = "#84B817"
 
 graph_attr = {
     "concentrate": "true",
@@ -208,8 +208,13 @@ with Diagram(
                     istio = Istio("Istio ambient\nmesh")
 
                 # Core applications
-                argocd = Argocd("ArgoCD")
                 applications = Deployment("Applications")
+
+                with Cluster(
+                    "GitOps",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    argocd = Argocd("ArgoCD")
 
                 with Cluster(
                     "AI",
@@ -295,7 +300,7 @@ with Diagram(
             legend_row(
                 [
                     ("Monitoring", COLOUR_MONITORING),
-                    ("Control Plane", COLOUR_CONTROL_PLANE),
+                    ("Control Plane", COLOUR_CONTROL),
                     ("Node Connectivity", COLOUR_NODE),
                     ("Storage", COLOUR_STORAGE),
                     ("Database", COLOUR_DATABASE),
@@ -379,29 +384,25 @@ with Diagram(
     # API Server
     (
         apiserver_lb_operator
-        >> edge("Maintain API VIP", colour=COLOUR_CONTROL_PLANE)
+        >> edge("Maintain API VIP", colour=COLOUR_CONTROL)
         >> api_server
     )
-    (
-        api_server
-        >> edge("Store cluster\nstate", colour=COLOUR_CONTROL_PLANE)
-        >> embedded_etcd
-    )
+    (api_server >> edge("Store cluster\nstate", colour=COLOUR_CONTROL) >> embedded_etcd)
 
     # Infrastructure
     (
         gateway_api_kubernetes
-        >> edge("API VIP\n192.168.10.50", colour=COLOUR_CONTROL_PLANE)
+        >> edge("API VIP\n192.168.10.50", colour=COLOUR_CONTROL)
         >> metallb
     )
     (
         metallb
-        >> edge("Ingress VIP\n192.168.10.51", colour=COLOUR_CONTROL_PLANE)
+        >> edge("Ingress VIP\n192.168.10.51", colour=COLOUR_CONTROL)
         >> envoy_gateway
     )
     (
         embedded_etcd
-        << edge("Embedded etcd\nmembers", colour=COLOUR_CONTROL_PLANE)
+        << edge("Embedded etcd\nmembers", colour=COLOUR_CONTROL)
         << control_plane_nodes
     )
     (
@@ -416,7 +417,7 @@ with Diagram(
     )
     (
         istio
-        >> edge("Ambient mesh\nservice traffic", colour=COLOUR_CONTROL_PLANE)
+        >> edge("Ambient mesh\nservice traffic", colour=COLOUR_CONTROL)
         >> applications
     )
 
