@@ -41,7 +41,6 @@ Custom icons are stored in `../assets/icons/`.
 | 1password.png        | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | backblaze.png        | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | cert-manager.png     | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
-| cilium.png           | [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)                | [Apache 2.0](https://github.com/homarr-labs/dashboard-icons/blob/main/LICENSE)       |
 | cloudnative-pg.png   | [CNCF Artwork](https://github.com/cncf/artwork/blob/main/projects/cloudnativepg) | [Linux Foundation Trademark](https://github.com/cncf/artwork/blob/master/LICENSE.md) |
 | external-secrets.png | [External Secrets](https://github.com/external-secrets/external-secrets)         | [Apache 2.0](https://github.com/external-secrets/external-secrets/blob/main/LICENSE) |
 | llama-cpp.png        | [Dashboard Icons](https://dashboardicons.com/icons/external/llama-cpp)           | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)                            |
