@@ -166,6 +166,9 @@ spec:
                     exit 1
                   fi
 
+                  kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
+                    psql -d postgres -Atq -c "SELECT pg_logical_emit_message(false, 'teslamate_verify_pitr', 'archive target WAL')" >/dev/null
+
                   VERIFY_TARGET_WAL=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
                     psql -d postgres -Atq -c "SELECT pg_walfile_name(pg_current_wal_lsn())")
                   if [ -z "${VERIFY_TARGET_WAL}" ]; then
