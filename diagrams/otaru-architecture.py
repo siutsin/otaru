@@ -35,18 +35,34 @@ from diagrams.saas.chat import Telegram
 # Get output filename from command line argument, default to architecture
 output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 
-# Semantic colours for logical flow grouping
-COLOUR_OIDC = "#7156A5"  # Elizabeth - OIDC/IRSA Authentication
-COLOUR_PUBLIC = "#DC241f"  # Central - Public Traffic
-COLOUR_GITOPS = "#A0A5A9"  # Jubilee - GitOps
-COLOUR_TLS = "#0098D4"  # Victoria - TLS/Certificate
-COLOUR_SECRET = "#003688"  # Piccadilly - Secret Management
-COLOUR_VPN = "#000000"  # Northern - VPN/External Access
-COLOUR_MONITORING = "#9B0056"  # Metropolitan - Monitoring
-COLOUR_CONTROL_PLANE = "#00782A"  # District - Control Plane
-COLOUR_NODE = "#B36305"  # Bakerloo - Node Connectivity
-COLOUR_STORAGE = "#EE7C0E"  # Overground - Storage
-COLOUR_DATABASE = "#00A4A7"  # DLR - Database
+# Semantic colours for logical flow grouping.
+#
+# Flow                       TfL line
+# -------------------------  -------------------
+# OIDC/IRSA Authentication   Elizabeth
+# Public Traffic             Central
+# GitOps                     Jubilee
+# TLS/Certificate            Victoria
+# Secret Management          Piccadilly
+# VPN/External Access        Northern
+# Monitoring                 Metropolitan
+# Control Plane              District
+# Node Connectivity          Bakerloo
+# Storage                    Overground
+# Database                   DLR
+# AI Inference               Tramlink
+COLOUR_OIDC = "#7156A5"
+COLOUR_PUBLIC = "#DC241f"
+COLOUR_GITOPS = "#A0A5A9"
+COLOUR_TLS = "#0098D4"
+COLOUR_SECRET = "#003688"
+COLOUR_VPN = "#000000"
+COLOUR_MONITORING = "#9B0056"
+COLOUR_CONTROL_PLANE = "#00782A"
+COLOUR_NODE = "#B36305"
+COLOUR_STORAGE = "#EE7C0E"
+COLOUR_DATABASE = "#00A4A7"
+COLOUR_AI = "#84B817"
 
 graph_attr = {
     "concentrate": "true",
@@ -196,6 +212,12 @@ with Diagram(
                 applications = Deployment("Applications")
 
                 with Cluster(
+                    "AI",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    openclaw = icon_node("OpenClaw", "openclaw")
+
+                with Cluster(
                     "Certificate Management",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
@@ -239,6 +261,8 @@ with Diagram(
                     cnpg = icon_node("CloudNativePG", "cloudnative-pg")
                     cnpg_db_cluster = PostgreSQL("CNPG PostgreSQL\nCluster")
 
+            llama_cpp = icon_node("llama.cpp\nLLM inference\nserver", "llama-cpp")
+
             with Cluster("Nodes", graph_attr=cluster_attr):
                 embedded_etcd = ETCD("Embedded etcd\nquorum")
                 control_plane_nodes = Master("Control plane\nnodes")
@@ -275,6 +299,7 @@ with Diagram(
                     ("Node Connectivity", COLOUR_NODE),
                     ("Storage", COLOUR_STORAGE),
                     ("Database", COLOUR_DATABASE),
+                    ("AI Inference", COLOUR_AI),
                 ]
             )
 
@@ -347,6 +372,9 @@ with Diagram(
         >> webgazer
     )
     cloudflare << edge("HTTPS monitor", colour=COLOUR_MONITORING) << webgazer
+
+    # AI
+    (openclaw >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> llama_cpp)
 
     # API Server
     (
