@@ -148,7 +148,6 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
     brew install \
       ansible \
       direnv \
-      editorconfig-checker \
       gh \
       go-jsonnet \
       helm \

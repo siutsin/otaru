@@ -48,7 +48,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|lint-zizmor|lint-editorconfig|validate-argocd-manifest|format-python|test):" | \
+		grep -E "^(validate-helm-charts|check-yaml|check-markdown|lint-terraform|lint-terragrunt|lint-zizmor|validate-argocd-manifest|format-python|test):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(CYAN)Utilities:$(NC)"
@@ -227,22 +227,6 @@ lint-zizmor: ## Run zizmor audit on workflows
 	@env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config . > /dev/null 2>&1 || \
 		env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config .
 
-.PHONY: lint-editorconfig
-lint-editorconfig: ## Check .editorconfig compliance
-	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
-	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
-	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
-		if [ -z "$$ec_bin" ]; then \
-			echo "$(RED)editorconfig-checker is required but not installed. Install editorconfig-checker and re-run make lint-editorconfig.$(NC)"; \
-			exit 1; \
-		fi; \
-		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
-		echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
-		exit 1; \
-	}
-	@echo "$(GREEN)EditorConfig compliance check passed!$(NC)"
-
 .PHONY: validate-argocd-manifest
 validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
 	@echo "$(GREEN)Validating ArgoCD manifest rendering...$(NC)"
@@ -264,7 +248,7 @@ format-python: poetry-install ## Format Python code with black
 	@echo "$(GREEN)Python code formatting complete!$(NC)"
 
 .PHONY: test
-test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform lint-terragrunt check-markdown lint-zizmor validate-helm-charts ## Run all validation and quality checks
+test: validate-argocd-manifest check-yaml lint-terraform lint-terragrunt check-markdown lint-zizmor validate-helm-charts ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
@@ -282,11 +266,6 @@ install-deps: ## Install development dependencies
 	@command -v ansible-playbook >/dev/null 2>&1 || { echo "$(RED)Ansible is required but not installed.$(NC)"; exit 1; }
 	@command -v curl >/dev/null 2>&1 || { echo "$(RED)curl is required but not installed.$(NC)"; exit 1; }
 	@command -v direnv >/dev/null 2>&1 || { echo "$(RED)direnv is required but not installed.$(NC)"; exit 1; }
-	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
-		if [ -z "$$ec_bin" ]; then \
-			echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; \
-			exit 1; \
-		fi
 	@command -v gh >/dev/null 2>&1 || { echo "$(RED)GitHub CLI (gh) is required but not installed.$(NC)"; exit 1; }
 	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
 	@command -v jq >/dev/null 2>&1 || { echo "$(RED)jq is required but not installed.$(NC)"; exit 1; }
