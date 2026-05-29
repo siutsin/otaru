@@ -39,7 +39,9 @@ Current cluster layout:
 | `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -     | -                                                    |
 <!-- markdownlint-enable MD060 -->
 
-[^nuc-00]: Yes, yes, I know I said Raspberry Pi only, but have you seen Raspberry Pi 5 prices lately? ¯\\\_(ツ)\_/¯ This is a temporary worker node until the damage-to-wallet ratio improves.
+[^nuc-00]: Yes, yes, I know I said Raspberry Pi only, but have you seen Raspberry
+    Pi 5 prices lately? ¯\\\_(ツ)\_/¯ This is a temporary worker node until the
+    damage-to-wallet ratio improves.
 
 Three nodes form the control plane. Two nodes remain workers, including temporary `nuc-00`.
 
