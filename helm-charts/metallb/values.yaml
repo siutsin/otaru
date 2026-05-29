@@ -1,6 +1,10 @@
 namespace: metallb-system
 
 metallb:
+  frr-k8s:
+    prometheus:
+      serviceMonitor:
+        enabled: false
   _speakerResources: &speakerResources
     requests:
       cpu: 50m
