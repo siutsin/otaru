@@ -118,8 +118,9 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
+    replicas: 1
     autoscaling:
-      enabled: true
+      enabled: false
       minReplicas: 1
       maxReplicas: 3
       metrics:
