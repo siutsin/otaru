@@ -279,15 +279,32 @@ status: ## Show current project status
 .PHONY: install-deps
 install-deps: ## Install development dependencies
 	@echo "$(GREEN)Installing development dependencies...$(NC)"
-	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
-	@command -v yq >/dev/null 2>&1 || { echo "$(RED)yq is required but not installed.$(NC)"; exit 1; }
 	@command -v ansible-playbook >/dev/null 2>&1 || { echo "$(RED)Ansible is required but not installed.$(NC)"; exit 1; }
+	@command -v curl >/dev/null 2>&1 || { echo "$(RED)curl is required but not installed.$(NC)"; exit 1; }
+	@command -v direnv >/dev/null 2>&1 || { echo "$(RED)direnv is required but not installed.$(NC)"; exit 1; }
+	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
+		if [ -z "$$ec_bin" ]; then \
+			echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; \
+			exit 1; \
+		fi
+	@command -v gh >/dev/null 2>&1 || { echo "$(RED)GitHub CLI (gh) is required but not installed.$(NC)"; exit 1; }
+	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
+	@command -v jq >/dev/null 2>&1 || { echo "$(RED)jq is required but not installed.$(NC)"; exit 1; }
+	@command -v jsonnet >/dev/null 2>&1 || { echo "$(RED)jsonnet is required but not installed.$(NC)"; exit 1; }
+	@command -v kubectl >/dev/null 2>&1 || { echo "$(RED)kubectl is required but not installed.$(NC)"; exit 1; }
+	@markdownlint_cli2="$$(command -v /opt/homebrew/bin/markdownlint-cli2 || command -v /usr/local/bin/markdownlint-cli2 || command -v markdownlint-cli2)"; \
+		if [ -z "$$markdownlint_cli2" ]; then \
+			echo "$(RED)markdownlint-cli2 is required but not installed.$(NC)"; \
+			exit 1; \
+		fi
 	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
 	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
+	@command -v yq >/dev/null 2>&1 || { echo "$(RED)yq is required but not installed.$(NC)"; exit 1; }
+	@command -v zizmor >/dev/null 2>&1 || { echo "$(RED)zizmor is required but not installed.$(NC)"; exit 1; }
 	@echo "$(GREEN)All dependencies are installed!$(NC)"
 
 .PHONY: unlock
-unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock raspberrypi-00)
+unlock: ## Unlock a LUKS node through initramfs SSH (usage: make unlock <node-name>)
 	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
 		echo "$(RED)Usage: make unlock <node-name>$(NC)"; \
 		exit 1; \
