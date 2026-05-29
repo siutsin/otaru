@@ -98,11 +98,11 @@ defaults:
     instanceSidecarResources:
       requests:
         cpu: 50m
-        memory: 128Mi
-        ephemeral-storage: 256Mi
+        memory: 512Mi
+        ephemeral-storage: 512Mi
       limits:
-        memory: 128Mi
-        ephemeral-storage: 256Mi
+        memory: 512Mi
+        ephemeral-storage: 512Mi
 
 clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
