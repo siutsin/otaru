@@ -181,6 +181,7 @@ spec:
                       app.kubernetes.io/managed-by: teslamate-verify-pitr
                   spec:
                     instances: 1
+                    imageName: {{ .Values.backup.database.imageName }}
                     resources:
                       requests:
                         cpu: 250m
