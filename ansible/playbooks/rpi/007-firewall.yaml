@@ -1,0 +1,686 @@
+---
+# Host firewall policy for the k3s nodes.
+#
+# Opened ports:
+# | Port  | Proto   | Scope                      | Use |
+# | 22    | TCP     | management CIDRs           | SSH administration |
+# | 53    | TCP/UDP | 192.168.10.51 from any     | gateway DNS |
+# | 80    | TCP     | 192.168.10.51 from any     | gateway HTTP |
+# | 443   | TCP     | 192.168.10.50 admin CIDRs* | k3s API VIP |
+# | 443   | TCP     | 192.168.10.51 from any     | gateway HTTPS/Home Assistant WebSocket |
+# | 1024  | TCP     | management CIDRs           | LUKS dropbear unlock on encrypted-root nodes |
+# | 2022  | TCP     | 192.168.10.51 from any     | gateway jellyfin-sftp listener |
+# | 2379  | TCP     | master IPs on masters      | embedded etcd client |
+# | 2380  | TCP     | master IPs on masters      | embedded etcd peer |
+# | 5683  | UDP     | 192.168.10.51 from any     | Home Assistant Shelly CoAP |
+# | 6443  | TCP     | node/pod/admin CIDRs       | Kubernetes API on masters |
+# | 7946  | TCP/UDP | node CIDR                  | MetalLB memberlist |
+# | 9100  | TCP     | node/pod CIDRs             | Prometheus node-exporter |
+# | 9120  | TCP     | node/pod CIDRs             | MetalLB speaker metrics |
+# | 9140  | TCP     | node/pod CIDRs             | frr-k8s metrics |
+# | 9141  | TCP     | node/pod CIDRs             | FRR metrics |
+# | 10250 | TCP     | node/pod CIDRs             | kubelet metrics |
+# | 19443 | TCP     | master IPs                 | MetalLB FRR statuscleaner webhook |
+# | 31808 | TCP     | node CIDR                  | gateway healthCheckNodePort |
+# | 51820 | UDP     | node CIDR                  | flannel WireGuard |
+#
+# * Routed default is allow for CNI and Longhorn forwarding. UFW route rules
+#   document intended VIP rules, not a complete pre-DNAT source filter.
+#
+# Not opened by this playbook:
+# | Port | Proto | Scope                    | Reason |
+# | 2623 | TCP   | not managed              | FRR mgmtd had no observed clients |
+# | 3784 | UDP   | `firewall_bfd_peers`     | optional BFD control |
+# | 4784 | UDP   | `firewall_bfd_peers`     | optional BFD echo |
+# | 5353 | UDP   | not managed              | avahi/mDNS on nuc-00 |
+# | 7784 | UDP   | `firewall_bfd_peers`     | optional BFD multi-hop |
+#
+# This playbook is intentionally repetitive. The rule blocks are grouped by
+# purpose so the reason for each open port is visible without decoding a large
+# data structure.
+- hosts: k3s_cluster
+  become: true
+  gather_facts: false
+
+  vars:
+    firewall_node_cidr: 192.168.10.0/24
+    firewall_pod_cidr: 10.42.0.0/16
+
+    # Non-node admin/client networks. UniFi Teleport is included because it is
+    # used as an admin path. Keep the node subnet separate so rules that already
+    # allow `firewall_node_cidr` do not duplicate it.
+    firewall_admin_cidrs:
+      - 192.168.2.0/24  # UniFi Teleport
+      - 192.168.4.0/24
+
+    # SSH and LUKS unlock should work from both admin clients and the node LAN.
+    firewall_management_cidrs: "{{ firewall_admin_cidrs + [firewall_node_cidr] }}"
+
+    # default/kubernetes Service LoadBalancer VIP for the k3s API server.
+    firewall_k3s_api_lb_ip: 192.168.10.50
+    firewall_gateway_lb_ip: 192.168.10.51
+
+    firewall_master_hosts: "{{ groups['master'] | default([]) }}"
+    firewall_master_ips: "{{ firewall_master_hosts | map('extract', hostvars, 'ansible_host') | list }}"
+    firewall_bfd_peers: []
+    firewall_rule_delete_changed_pattern: 'Rule deleted|Rules updated'
+
+  pre_tasks:
+    - include_tasks: pre_tasks/wait-for-ssh.yaml
+
+  tasks:
+    ###########################################################################
+    # Base UFW setup
+    ###########################################################################
+
+    - name: Install UFW
+      apt:
+        name: ufw
+        state: present
+
+    ###########################################################################
+    # Management access
+    ###########################################################################
+
+    - name: Allow SSH from management networks
+      # Examples:
+      # - ufw allow proto tcp from 192.168.2.0/24 to any port 22
+      # - ufw allow proto tcp from 192.168.4.0/24 to any port 22
+      # - ufw allow proto tcp from 192.168.10.0/24 to any port 22
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 22
+        comment "SSH administration"
+      loop: "{{ firewall_management_cidrs }}"
+      register: firewall_allow_ssh_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_ssh_result.stdout"
+
+    - name: Allow LUKS unlock port from management networks on encrypted-root nodes
+      # Examples:
+      # - ufw allow proto tcp from 192.168.2.0/24 to any port 1024
+      # - ufw allow proto tcp from 192.168.4.0/24 to any port 1024
+      # - ufw allow proto tcp from 192.168.10.0/24 to any port 1024
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 1024
+        comment "LUKS dropbear unlock"
+      loop: "{{ firewall_management_cidrs }}"
+      when: "'luks_root_nodes' in group_names"
+      register: firewall_allow_luks_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_luks_result.stdout"
+
+    ###########################################################################
+    # Common traffic on every k3s node
+    ###########################################################################
+
+    - name: Allow flannel WireGuard between nodes
+      # Example:
+      # ufw allow proto udp from 192.168.10.0/24 to any port 51820
+      command: >-
+        ufw allow proto udp from {{ firewall_node_cidr }} to any port 51820
+        comment "flannel wireguard-native"
+      register: firewall_allow_flannel_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_flannel_result.stdout"
+
+    - name: Allow MetalLB memberlist TCP between nodes
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 7946
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 7946
+        comment "MetalLB memberlist TCP"
+      register: firewall_allow_metallb_tcp_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_metallb_tcp_result.stdout"
+
+    - name: Allow MetalLB memberlist UDP between nodes
+      # Example:
+      # ufw allow proto udp from 192.168.10.0/24 to any port 7946
+      command: >-
+        ufw allow proto udp from {{ firewall_node_cidr }} to any port 7946
+        comment "MetalLB memberlist UDP"
+      register: firewall_allow_metallb_udp_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_metallb_udp_result.stdout"
+
+    - name: Allow kubelet from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 10250
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 10250
+        comment "kubelet from nodes"
+      register: firewall_allow_kubelet_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_kubelet_nodes_result.stdout"
+
+    - name: Allow kubelet from pod CIDR
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 10250
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 10250
+        comment "kubelet from pods"
+      register: firewall_allow_kubelet_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_kubelet_pods_result.stdout"
+
+    - name: Allow node-exporter from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 9100
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 9100
+        comment "node-exporter from nodes"
+      register: firewall_allow_node_exporter_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_node_exporter_nodes_result.stdout"
+
+    - name: Allow node-exporter from pod CIDR
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 9100
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 9100
+        comment "node-exporter from pods"
+      register: firewall_allow_node_exporter_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_node_exporter_pods_result.stdout"
+
+    - name: Allow MetalLB speaker metrics from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 9120
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 9120
+        comment "MetalLB speaker metrics from nodes"
+      register: firewall_allow_speaker_metrics_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_speaker_metrics_nodes_result.stdout"
+
+    - name: Allow MetalLB speaker metrics from pod CIDR
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 9120
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 9120
+        comment "MetalLB speaker metrics from pods"
+      register: firewall_allow_speaker_metrics_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_speaker_metrics_pods_result.stdout"
+
+    - name: Allow frr-k8s metrics from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 9140
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 9140
+        comment "frr-k8s metrics from nodes"
+      register: firewall_allow_frr_k8s_metrics_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_frr_k8s_metrics_nodes_result.stdout"
+
+    - name: Allow frr-k8s metrics from pod CIDR
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 9140
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 9140
+        comment "frr-k8s metrics from pods"
+      register: firewall_allow_frr_k8s_metrics_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_frr_k8s_metrics_pods_result.stdout"
+
+    - name: Allow FRR metrics from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 9141
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 9141
+        comment "FRR metrics from nodes"
+      register: firewall_allow_frr_metrics_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_frr_metrics_nodes_result.stdout"
+
+    - name: Allow FRR metrics from pod CIDR
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 9141
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 9141
+        comment "FRR metrics from pods"
+      register: firewall_allow_frr_metrics_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_frr_metrics_pods_result.stdout"
+
+    ###########################################################################
+    # Control-plane-only traffic
+    ###########################################################################
+
+    - name: Allow Kubernetes API from node subnet on control-plane nodes
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 6443
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 6443
+        comment "Kubernetes API from nodes"
+      when: "'master' in group_names"
+      register: firewall_allow_api_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_api_nodes_result.stdout"
+
+    - name: Allow Kubernetes API from pod CIDR on control-plane nodes
+      # Example:
+      # ufw allow proto tcp from 10.42.0.0/16 to any port 6443
+      command: >-
+        ufw allow proto tcp from {{ firewall_pod_cidr }} to any port 6443
+        comment "Kubernetes API from pods"
+      when: "'master' in group_names"
+      register: firewall_allow_api_pods_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_api_pods_result.stdout"
+
+    - name: Allow Kubernetes API from admin networks on control-plane nodes
+      # Examples:
+      # ufw allow proto tcp from 192.168.2.0/24 to any port 6443
+      # ufw allow proto tcp from 192.168.4.0/24 to any port 6443
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 6443
+        comment "Kubernetes API from admin networks"
+      loop: "{{ firewall_admin_cidrs }}"
+      when: "'master' in group_names"
+      register: firewall_allow_api_admin_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_api_admin_result.stdout"
+
+    - name: Allow etcd client traffic between control-plane nodes
+      # Example:
+      # ufw allow proto tcp from 192.168.10.60 to any port 2379
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 2379
+        comment "etcd client traffic"
+      loop: "{{ firewall_master_ips }}"
+      when: "'master' in group_names"
+      register: firewall_allow_etcd_client_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_etcd_client_result.stdout"
+
+    - name: Allow etcd peer traffic between control-plane nodes
+      # Example:
+      # ufw allow proto tcp from 192.168.10.60 to any port 2380
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 2380
+        comment "etcd peer traffic"
+      loop: "{{ firewall_master_ips }}"
+      when: "'master' in group_names"
+      register: firewall_allow_etcd_peer_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_etcd_peer_result.stdout"
+
+    ###########################################################################
+    # Host-networked singleton services
+    ###########################################################################
+
+    - name: Allow MetalLB FRR statuscleaner webhook from control-plane nodes
+      # Example:
+      # ufw allow proto tcp from 192.168.10.60 to any port 19443
+      command: >-
+        ufw allow proto tcp from {{ item }} to any port 19443
+        comment "MetalLB FRR statuscleaner webhook"
+      loop: "{{ firewall_master_ips }}"
+      register: firewall_allow_statuscleaner_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_statuscleaner_result.stdout"
+
+    ###########################################################################
+    # LoadBalancer VIPs and health checks
+    ###########################################################################
+
+    - name: Allow gateway LoadBalancer health check from node subnet
+      # Example:
+      # ufw allow proto tcp from 192.168.10.0/24 to any port 31808
+      command: >-
+        ufw allow proto tcp from {{ firewall_node_cidr }} to any port 31808
+        comment "gateway LoadBalancer health check"
+      register: firewall_allow_gateway_health_nodes_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_health_nodes_result.stdout"
+
+    - name: Allow routed k3s API LoadBalancer VIP traffic from admin networks
+      # Examples:
+      # - ufw route allow proto tcp from 192.168.2.0/24 to 192.168.10.50 port 443
+      # - ufw route allow proto tcp from 192.168.4.0/24 to 192.168.10.50 port 443
+      # Routed default remains allow for CNI and Longhorn forwarding; enforce
+      # strict pre-DNAT VIP source filtering upstream if required.
+      command: >-
+        ufw route allow proto tcp from {{ item }} to {{ firewall_k3s_api_lb_ip }}
+        port 443 comment "k3s API LoadBalancer VIP from admin networks"
+      loop: "{{ firewall_admin_cidrs }}"
+      register: firewall_allow_api_vip_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_api_vip_route_result.stdout"
+
+    - name: Allow routed gateway HTTPS VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto tcp from any to 192.168.10.51 port 443
+      command: >-
+        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
+        port 443 comment "gateway HTTPS VIP"
+      register: firewall_allow_gateway_https_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_https_route_result.stdout"
+
+    - name: Allow routed gateway HTTP VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto tcp from any to 192.168.10.51 port 80
+      command: >-
+        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
+        port 80 comment "gateway HTTP VIP"
+      register: firewall_allow_gateway_http_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_http_route_result.stdout"
+
+    - name: Allow routed gateway jellyfin-sftp VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto tcp from any to 192.168.10.51 port 2022
+      command: >-
+        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
+        port 2022 comment "gateway jellyfin-sftp VIP"
+      register: firewall_allow_gateway_2022_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_2022_route_result.stdout"
+
+    - name: Allow routed gateway DNS TCP VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto tcp from any to 192.168.10.51 port 53
+      command: >-
+        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
+        port 53 comment "gateway DNS TCP VIP"
+      register: firewall_allow_gateway_dns_tcp_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_dns_tcp_route_result.stdout"
+
+    - name: Allow routed gateway DNS UDP VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto udp from any to 192.168.10.51 port 53
+      command: >-
+        ufw route allow proto udp from any to {{ firewall_gateway_lb_ip }}
+        port 53 comment "gateway DNS UDP VIP"
+      register: firewall_allow_gateway_dns_udp_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_dns_udp_route_result.stdout"
+
+    - name: Allow routed Home Assistant Shelly CoAP UDP VIP traffic from anywhere
+      # Example:
+      # ufw route allow proto udp from any to 192.168.10.51 port 5683
+      command: >-
+        ufw route allow proto udp from any to {{ firewall_gateway_lb_ip }}
+        port 5683 comment "Home Assistant Shelly CoAP UDP VIP"
+      register: firewall_allow_gateway_coap_route_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_coap_route_result.stdout"
+
+    ###########################################################################
+    # Optional BFD peers
+    ###########################################################################
+
+    - name: Allow optional BFD control port from configured peers
+      # Example when firewall_bfd_peers contains 192.168.10.10:
+      # ufw allow proto udp from 192.168.10.10 to any port 3784
+      command: >-
+        ufw allow proto udp from {{ item }} to any port 3784
+        comment "optional BFD control peer"
+      loop: "{{ firewall_bfd_peers }}"
+      when: firewall_bfd_peers | length > 0
+      register: firewall_allow_bfd_control_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_control_result.stdout"
+
+    - name: Allow optional BFD echo port from configured peers
+      # Example when firewall_bfd_peers contains 192.168.10.10:
+      # ufw allow proto udp from 192.168.10.10 to any port 4784
+      command: >-
+        ufw allow proto udp from {{ item }} to any port 4784
+        comment "optional BFD echo peer"
+      loop: "{{ firewall_bfd_peers }}"
+      when: firewall_bfd_peers | length > 0
+      register: firewall_allow_bfd_echo_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_echo_result.stdout"
+
+    - name: Allow optional BFD multi-hop port from configured peers
+      # Example when firewall_bfd_peers contains 192.168.10.10:
+      # ufw allow proto udp from 192.168.10.10 to any port 7784
+      command: >-
+        ufw allow proto udp from {{ item }} to any port 7784
+        comment "optional BFD multi-hop peer"
+      loop: "{{ firewall_bfd_peers }}"
+      when: firewall_bfd_peers | length > 0
+      register: firewall_allow_bfd_multihop_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_multihop_result.stdout"
+
+    ###########################################################################
+    # Prune legacy broad rules
+    ###########################################################################
+
+    - name: Read UFW added rules before pruning broad rules
+      command: ufw show added
+      register: firewall_added_rules_before_prune
+      changed_when: false
+
+    - name: Remove broad SSH rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 22/tcp
+      command: ufw delete allow 22/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 22/tcp( |$)')
+      register: firewall_delete_broad_ssh_result
+      changed_when: firewall_delete_broad_ssh_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad LUKS unlock rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 1024/tcp
+      command: ufw delete allow 1024/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 1024/tcp( |$)')
+      register: firewall_delete_broad_luks_result
+      changed_when: firewall_delete_broad_luks_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad etcd client rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 2379/tcp
+      command: ufw delete allow 2379/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 2379/tcp( |$)')
+      register: firewall_delete_broad_etcd_client_result
+      changed_when: firewall_delete_broad_etcd_client_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad etcd peer rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 2380/tcp
+      command: ufw delete allow 2380/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 2380/tcp( |$)')
+      register: firewall_delete_broad_etcd_peer_result
+      changed_when: firewall_delete_broad_etcd_peer_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad Kubernetes API rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 6443/tcp
+      command: ufw delete allow 6443/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 6443/tcp( |$)')
+      register: firewall_delete_broad_api_result
+      changed_when: firewall_delete_broad_api_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad flannel WireGuard rule after scoped replacement exists
+      # Example:
+      # ufw delete allow 51820/udp
+      command: ufw delete allow 51820/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 51820/udp( |$)')
+      register: firewall_delete_broad_flannel_result
+      changed_when: firewall_delete_broad_flannel_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad MetalLB memberlist TCP rule after scoped replacement exists
+      # Example:
+      # ufw delete allow 7946/tcp
+      command: ufw delete allow 7946/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 7946/tcp( |$)')
+      register: firewall_delete_broad_metallb_tcp_result
+      changed_when: firewall_delete_broad_metallb_tcp_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad MetalLB memberlist UDP rule after scoped replacement exists
+      # Example:
+      # ufw delete allow 7946/udp
+      command: ufw delete allow 7946/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 7946/udp( |$)')
+      register: firewall_delete_broad_metallb_udp_result
+      changed_when: firewall_delete_broad_metallb_udp_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad node-exporter rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 9100/tcp
+      command: ufw delete allow 9100/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 9100/tcp( |$)')
+      register: firewall_delete_broad_node_exporter_result
+      changed_when: firewall_delete_broad_node_exporter_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad MetalLB speaker metrics rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 9120/tcp
+      command: ufw delete allow 9120/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 9120/tcp( |$)')
+      register: firewall_delete_broad_speaker_metrics_result
+      changed_when: firewall_delete_broad_speaker_metrics_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad frr-k8s metrics rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 9140/tcp
+      command: ufw delete allow 9140/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 9140/tcp( |$)')
+      register: firewall_delete_broad_frr_k8s_metrics_result
+      changed_when: firewall_delete_broad_frr_k8s_metrics_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad FRR metrics rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 9141/tcp
+      command: ufw delete allow 9141/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 9141/tcp( |$)')
+      register: firewall_delete_broad_frr_metrics_result
+      changed_when: firewall_delete_broad_frr_metrics_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad kubelet rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 10250/tcp
+      command: ufw delete allow 10250/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 10250/tcp( |$)')
+      register: firewall_delete_broad_kubelet_result
+      changed_when: firewall_delete_broad_kubelet_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad statuscleaner webhook rule after scoped replacement exists
+      # Example:
+      # ufw delete allow 19443/tcp
+      command: ufw delete allow 19443/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 19443/tcp( |$)')
+      register: firewall_delete_broad_statuscleaner_result
+      changed_when: firewall_delete_broad_statuscleaner_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway health check rule after scoped replacement exists
+      # Example:
+      # ufw delete allow 31808/tcp
+      command: ufw delete allow 31808/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 31808/tcp( |$)')
+      register: firewall_delete_broad_gateway_health_result
+      changed_when: firewall_delete_broad_gateway_health_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway DNS TCP host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 53/tcp
+      command: ufw delete allow 53/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 53/tcp( |$)')
+      register: firewall_delete_broad_gateway_dns_tcp_result
+      changed_when: firewall_delete_broad_gateway_dns_tcp_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway DNS UDP host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 53/udp
+      command: ufw delete allow 53/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 53/udp( |$)')
+      register: firewall_delete_broad_gateway_dns_udp_result
+      changed_when: firewall_delete_broad_gateway_dns_udp_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway HTTP host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 80/tcp
+      command: ufw delete allow 80/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 80/tcp( |$)')
+      register: firewall_delete_broad_gateway_http_result
+      changed_when: firewall_delete_broad_gateway_http_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway HTTPS host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 443/tcp
+      command: ufw delete allow 443/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 443/tcp( |$)')
+      register: firewall_delete_broad_gateway_https_result
+      changed_when: firewall_delete_broad_gateway_https_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad gateway jellyfin-sftp host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 2022/tcp
+      command: ufw delete allow 2022/tcp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 2022/tcp( |$)')
+      register: firewall_delete_broad_gateway_jellyfin_sftp_result
+      changed_when: firewall_delete_broad_gateway_jellyfin_sftp_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad Home Assistant Shelly CoAP host rule after routed replacement exists
+      # Example:
+      # ufw delete allow 5683/udp
+      command: ufw delete allow 5683/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 5683/udp( |$)')
+      register: firewall_delete_broad_gateway_coap_result
+      changed_when: firewall_delete_broad_gateway_coap_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad routed k3s API VIP rule after scoped replacement exists
+      # Example:
+      # ufw route delete allow proto tcp from any to 192.168.10.50 port 443
+      command: >-
+        ufw route delete allow proto tcp from any to {{ firewall_k3s_api_lb_ip }}
+        port 443
+      when: >-
+        firewall_added_rules_before_prune.stdout is search(
+          '(?m)^ufw route allow (proto tcp from any to '
+          ~ firewall_k3s_api_lb_ip ~ ' port 443|to '
+          ~ firewall_k3s_api_lb_ip ~ ' port 443 proto tcp)( |$)'
+        )
+      register: firewall_delete_broad_api_vip_route_result
+      changed_when: firewall_delete_broad_api_vip_route_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    ###########################################################################
+    # Final defaults and enablement
+    ###########################################################################
+
+    - name: Read UFW default incoming policy
+      command: grep '^DEFAULT_INPUT_POLICY=' /etc/default/ufw
+      register: firewall_default_incoming_policy_result
+      changed_when: false
+      failed_when: firewall_default_incoming_policy_result.rc not in [0, 1]
+
+    - name: Set UFW default incoming policy
+      # Example:
+      # ufw default deny incoming
+      command: ufw default deny incoming
+      when: firewall_default_incoming_policy_result.stdout is not search('DEFAULT_INPUT_POLICY="?DROP"?')
+      register: firewall_default_incoming_result
+      changed_when: true
+
+    - name: Read UFW default outgoing policy
+      command: grep '^DEFAULT_OUTPUT_POLICY=' /etc/default/ufw
+      register: firewall_default_outgoing_policy_result
+      changed_when: false
+      failed_when: firewall_default_outgoing_policy_result.rc not in [0, 1]
+
+    - name: Set UFW default outgoing policy
+      # Example:
+      # ufw default allow outgoing
+      command: ufw default allow outgoing
+      when: firewall_default_outgoing_policy_result.stdout is not search('DEFAULT_OUTPUT_POLICY="?ACCEPT"?')
+      register: firewall_default_outgoing_result
+      changed_when: true
+
+    - name: Read UFW default routed policy
+      command: grep '^DEFAULT_FORWARD_POLICY=' /etc/default/ufw
+      register: firewall_default_forward_policy_result
+      changed_when: false
+      failed_when: firewall_default_forward_policy_result.rc not in [0, 1]
+
+    - name: Set UFW default routed policy for Kubernetes pod networking
+      # Example:
+      # ufw default allow routed
+      # Keep routed traffic allowed for CNI and Longhorn pod/service forwarding.
+      # Host INPUT remains denied by default. UFW route rules are not a closed
+      # allowlist while routed default is allow.
+      command: ufw default allow routed
+      when: firewall_default_forward_policy_result.stdout is not search('DEFAULT_FORWARD_POLICY="?ACCEPT"?')
+      register: firewall_default_routed_result
+      changed_when: true
+
+    - name: Read UFW log level
+      command: grep '^LOGLEVEL=' /etc/ufw/ufw.conf
+      register: firewall_log_level_result
+      changed_when: false
+      failed_when: firewall_log_level_result.rc not in [0, 1]
+
+    - name: Enable low-volume UFW logging
+      # Example:
+      # ufw logging low
+      command: ufw logging low
+      when: firewall_log_level_result.stdout != 'LOGLEVEL=low'
+      register: firewall_logging_result
+      changed_when: true
+
+    - name: Read UFW status before enabling
+      command: ufw status
+      register: firewall_status_before_enable
+      changed_when: false
+
+    - name: Enable UFW when inactive
+      # Example:
+      # ufw --force enable
+      command: ufw --force enable
+      when: "'Status: active' not in firewall_status_before_enable.stdout"
+      register: firewall_enable_result
+      changed_when: true
