@@ -9,6 +9,7 @@
 - import_playbook: rpi/004-networking.yaml
 - import_playbook: rpi/005-cgroup.yaml
 - import_playbook: rpi/006-brcmfmac-options.yaml
+- import_playbook: rpi/007-firewall.yaml
 # k3s
 - import_playbook: k3s/000-init-cluster.yaml
 - import_playbook: k3s/001-cni.yaml

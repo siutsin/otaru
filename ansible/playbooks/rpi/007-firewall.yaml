@@ -12,6 +12,7 @@
 # | 2022  | TCP     | 192.168.10.51 from any     | gateway jellyfin-sftp listener |
 # | 2379  | TCP     | master IPs on masters      | embedded etcd client |
 # | 2380  | TCP     | master IPs on masters      | embedded etcd peer |
+# | 5353  | UDP     | 192.168.0.0/16             | avahi/mDNS |
 # | 5683  | UDP     | 192.168.10.51 from any     | Home Assistant Shelly CoAP |
 # | 6443  | TCP     | node/pod/admin CIDRs       | Kubernetes API on masters |
 # | 7946  | TCP/UDP | node CIDR                  | MetalLB memberlist |
@@ -32,7 +33,6 @@
 # | 2623 | TCP   | not managed              | FRR mgmtd had no observed clients |
 # | 3784 | UDP   | `firewall_bfd_peers`     | optional BFD control |
 # | 4784 | UDP   | `firewall_bfd_peers`     | optional BFD echo |
-# | 5353 | UDP   | not managed              | avahi/mDNS on nuc-00 |
 # | 7784 | UDP   | `firewall_bfd_peers`     | optional BFD multi-hop |
 #
 # This playbook is intentionally repetitive. The rule blocks are grouped by
@@ -45,6 +45,7 @@
   vars:
     firewall_node_cidr: 192.168.10.0/24
     firewall_pod_cidr: 10.42.0.0/16
+    firewall_local_network_cidr: 192.168.0.0/16
 
     # Non-node admin/client networks. UniFi Teleport is included because it is
     # used as an admin path. Keep the node subnet separate so rules that already
@@ -137,6 +138,15 @@
         comment "MetalLB memberlist UDP"
       register: firewall_allow_metallb_udp_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_metallb_udp_result.stdout"
+
+    - name: Allow avahi/mDNS from local LANs
+      # Example:
+      # ufw allow proto udp from 192.168.0.0/16 to any port 5353
+      command: >-
+        ufw allow proto udp from {{ firewall_local_network_cidr }} to any port 5353
+        comment "avahi mDNS from local LANs"
+      register: firewall_allow_mdns_result
+      changed_when: "'Skipping adding existing rule' not in firewall_allow_mdns_result.stdout"
 
     - name: Allow kubelet from node subnet
       # Example:
