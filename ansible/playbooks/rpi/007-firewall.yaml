@@ -62,7 +62,7 @@
 
     firewall_master_hosts: "{{ groups['master'] | default([]) }}"
     firewall_master_ips: "{{ firewall_master_hosts | map('extract', hostvars, 'ansible_host') | list }}"
-    firewall_bfd_peers: []
+    firewall_bfd_peer_list: "{{ firewall_bfd_peers | default([]) }}"
     firewall_rule_delete_changed_pattern: 'Rule deleted|Rules updated'
 
   pre_tasks:
@@ -390,8 +390,8 @@
       command: >-
         ufw allow proto udp from {{ item }} to any port 3784
         comment "optional BFD control peer"
-      loop: "{{ firewall_bfd_peers }}"
-      when: firewall_bfd_peers | length > 0
+      loop: "{{ firewall_bfd_peer_list }}"
+      when: firewall_bfd_peer_list | length > 0
       register: firewall_allow_bfd_control_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_control_result.stdout"
 
@@ -401,8 +401,8 @@
       command: >-
         ufw allow proto udp from {{ item }} to any port 4784
         comment "optional BFD echo peer"
-      loop: "{{ firewall_bfd_peers }}"
-      when: firewall_bfd_peers | length > 0
+      loop: "{{ firewall_bfd_peer_list }}"
+      when: firewall_bfd_peer_list | length > 0
       register: firewall_allow_bfd_echo_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_echo_result.stdout"
 
@@ -412,8 +412,8 @@
       command: >-
         ufw allow proto udp from {{ item }} to any port 7784
         comment "optional BFD multi-hop peer"
-      loop: "{{ firewall_bfd_peers }}"
-      when: firewall_bfd_peers | length > 0
+      loop: "{{ firewall_bfd_peer_list }}"
+      when: firewall_bfd_peer_list | length > 0
       register: firewall_allow_bfd_multihop_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_bfd_multihop_result.stdout"
 
@@ -424,6 +424,36 @@
     - name: Read UFW added rules before pruning broad rules
       command: ufw show added
       register: firewall_added_rules_before_prune
+      changed_when: false
+
+    - name: Find stale BFD control peers before pruning
+      set_fact:
+        firewall_stale_bfd_control_peers: >-
+          {{
+            firewall_added_rules_before_prune.stdout
+            | regex_findall('(?m)^ufw allow proto udp from ([^ ]+) to any port 3784(?: |$)')
+            | difference(firewall_bfd_peer_list)
+          }}
+      changed_when: false
+
+    - name: Find stale BFD echo peers before pruning
+      set_fact:
+        firewall_stale_bfd_echo_peers: >-
+          {{
+            firewall_added_rules_before_prune.stdout
+            | regex_findall('(?m)^ufw allow proto udp from ([^ ]+) to any port 4784(?: |$)')
+            | difference(firewall_bfd_peer_list)
+          }}
+      changed_when: false
+
+    - name: Find stale BFD multi-hop peers before pruning
+      set_fact:
+        firewall_stale_bfd_multihop_peers: >-
+          {{
+            firewall_added_rules_before_prune.stdout
+            | regex_findall('(?m)^ufw allow proto udp from ([^ ]+) to any port 7784(?: |$)')
+            | difference(firewall_bfd_peer_list)
+          }}
       changed_when: false
 
     - name: Remove broad SSH rule after scoped replacements exist
@@ -593,6 +623,57 @@
       when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 5683/udp( |$)')
       register: firewall_delete_broad_gateway_coap_result
       changed_when: firewall_delete_broad_gateway_coap_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad BFD control rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 3784/udp
+      command: ufw delete allow 3784/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 3784/udp( |$)')
+      register: firewall_delete_broad_bfd_control_result
+      changed_when: firewall_delete_broad_bfd_control_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad BFD echo rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 4784/udp
+      command: ufw delete allow 4784/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 4784/udp( |$)')
+      register: firewall_delete_broad_bfd_echo_result
+      changed_when: firewall_delete_broad_bfd_echo_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove broad BFD multi-hop rule after scoped replacements exist
+      # Example:
+      # ufw delete allow 7784/udp
+      command: ufw delete allow 7784/udp
+      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 7784/udp( |$)')
+      register: firewall_delete_broad_bfd_multihop_result
+      changed_when: firewall_delete_broad_bfd_multihop_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove stale BFD control peers
+      # Example when 192.168.10.10 was removed from firewall_bfd_peers:
+      # ufw delete allow proto udp from 192.168.10.10 to any port 3784
+      command: >-
+        ufw delete allow proto udp from {{ item }} to any port 3784
+      loop: "{{ firewall_stale_bfd_control_peers }}"
+      register: firewall_delete_stale_bfd_control_result
+      changed_when: firewall_delete_stale_bfd_control_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove stale BFD echo peers
+      # Example when 192.168.10.10 was removed from firewall_bfd_peers:
+      # ufw delete allow proto udp from 192.168.10.10 to any port 4784
+      command: >-
+        ufw delete allow proto udp from {{ item }} to any port 4784
+      loop: "{{ firewall_stale_bfd_echo_peers }}"
+      register: firewall_delete_stale_bfd_echo_result
+      changed_when: firewall_delete_stale_bfd_echo_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove stale BFD multi-hop peers
+      # Example when 192.168.10.10 was removed from firewall_bfd_peers:
+      # ufw delete allow proto udp from 192.168.10.10 to any port 7784
+      command: >-
+        ufw delete allow proto udp from {{ item }} to any port 7784
+      loop: "{{ firewall_stale_bfd_multihop_peers }}"
+      register: firewall_delete_stale_bfd_multihop_result
+      changed_when: firewall_delete_stale_bfd_multihop_result.stdout is search(firewall_rule_delete_changed_pattern)
 
     - name: Remove broad routed k3s API VIP rule after scoped replacement exists
       # Example:
