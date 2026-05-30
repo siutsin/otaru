@@ -5,12 +5,11 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: heartbeats-operator
-    app.kubernetes.io/version: v0.166.0
+    app.kubernetes.io/version: v0.169.0
     control-plane: controller-manager
   name: heartbeats-operator-controller-manager
   namespace: heartbeats-operator-system
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: heartbeats-operator
@@ -21,7 +20,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         app.kubernetes.io/name: heartbeats-operator
-        app.kubernetes.io/version: v0.166.0
+        app.kubernetes.io/version: v0.169.0
         control-plane: controller-manager
     spec:
       containers:
@@ -31,7 +30,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/heartbeats:v0.166.0
+          image: ghcr.io/siutsin/heartbeats:v0.169.0
           livenessProbe:
             httpGet:
               path: /healthz
@@ -39,30 +38,27 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
           name: manager
-          ports: []
           readinessProbe:
             httpGet:
               path: /readyz
               port: 8081
             initialDelaySeconds: 5
-            periodSeconds: 10
           resources:
             limits:
-              cpu: 500m
+              ephemeral-storage: 64Mi
               memory: 128Mi
             requests:
               cpu: 10m
-              memory: 64Mi
+              ephemeral-storage: 64Mi
+              memory: 128Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
-          volumeMounts: []
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       serviceAccountName: heartbeats-operator-controller-manager
       terminationGracePeriodSeconds: 10
-      volumes: []
