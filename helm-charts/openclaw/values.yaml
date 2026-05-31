@@ -135,7 +135,7 @@ resources:
 initContainer:
   image:
     repository: busybox
-    tag: 1.36.1@sha256:bd44eb136a95dcc8dc58995e43abc40a413f2e8e3d4a2aae6bccbe94686acb05
+    tag: 1.38.0@sha256:8f2ffdcb46f1b83e46665954ec130e497b979db766854f79ca9eee43242b7e4c
     pullPolicy: IfNotPresent
   resources:
     requests:
