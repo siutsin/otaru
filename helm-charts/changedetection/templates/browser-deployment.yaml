@@ -25,6 +25,32 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: cleanup-browser-metrics
+          image: {{ .Values.browser.cleanup.image.repository }}:{{ .Values.browser.cleanup.image.tag }}
+          imagePullPolicy: {{ .Values.browser.cleanup.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              metrics_dir={{ printf "%s/chromium/DeferredBrowserMetrics" .Values.browser.profile.mountPath | quote }}
+              if [ -d "$metrics_dir" ]; then
+                find "$metrics_dir" -type f -name '*.pma' -delete
+              fi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: {{ .Values.browser.profile.fsGroup }}
+            runAsGroup: {{ .Values.browser.profile.fsGroup }}
+            runAsNonRoot: true
+          resources: {{ toYaml .Values.browser.cleanup.resources | nindent 12 }}
+          volumeMounts:
+            - name: profile
+              mountPath: {{ .Values.browser.profile.mountPath }}
       containers:
         - name: {{ .Values.browser.name }}
           image: {{ .Values.browser.image.repository }}@{{ .Values.browser.image.digest }}
@@ -73,6 +99,34 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: profile
+              mountPath: {{ .Values.browser.profile.mountPath }}
+        - name: cleanup-browser-metrics-loop
+          image: {{ .Values.browser.cleanup.image.repository }}:{{ .Values.browser.cleanup.image.tag }}
+          imagePullPolicy: {{ .Values.browser.cleanup.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              metrics_dir={{ printf "%s/chromium/DeferredBrowserMetrics" .Values.browser.profile.mountPath | quote }}
+              while true; do
+                if [ -d "$metrics_dir" ]; then
+                  find "$metrics_dir" -type f -name '*.pma' -mmin +{{ .Values.browser.cleanup.minAgeMinutes }} -delete
+                fi
+                sleep {{ .Values.browser.cleanup.intervalSeconds }}
+              done
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: {{ .Values.browser.profile.fsGroup }}
+            runAsGroup: {{ .Values.browser.profile.fsGroup }}
+            runAsNonRoot: true
+          resources: {{ toYaml .Values.browser.cleanup.resources | nindent 12 }}
+          volumeMounts:
             - name: profile
               mountPath: {{ .Values.browser.profile.mountPath }}
       volumes:
