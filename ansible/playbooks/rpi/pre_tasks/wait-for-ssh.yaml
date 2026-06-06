@@ -11,21 +11,46 @@
 - name: Ensure local SSH known_hosts file exists
   delegate_to: localhost
   become: false
-  file:
-    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
-    state: touch
+  copy:
+    dest: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
+    content: ""
+    force: false
     mode: "0600"
-  changed_when: false
 
-- name: Remove stale SSH host key from local known_hosts
+- name: Scan current SSH host key
+  delegate_to: localhost
+  become: false
+  command: ssh-keyscan -T 5 -t ed25519 {{ ansible_host | default(inventory_hostname, true) }}
+  register: ssh_host_keyscan
+  changed_when: false
+  failed_when: >-
+    ssh_host_keyscan.rc != 0 or
+    (ssh_host_keyscan.stdout_lines | select('search', ' ssh-ed25519 ') | list | length) == 0
+
+- name: Share current SSH host key
+  set_fact:
+    current_ssh_host_key: "{{ ssh_host_keyscan.stdout_lines | select('search', ' ssh-ed25519 ') | first }}"
+
+- name: Check for stale SSH host keys
+  delegate_to: localhost
+  become: false
+  shell: |
+    set -o pipefail
+    ssh-keygen -F {{ ansible_host | default(inventory_hostname, true) | quote }} -f {{ (lookup('ansible.builtin.env', 'HOME') ~ '/.ssh/known_hosts') | quote }} 2>/dev/null \
+      | awk '!/^#/ { print }' \
+      | grep -Fvx -- {{ current_ssh_host_key | quote }} >/dev/null
+  args:
+    executable: /bin/bash
+  register: stale_ssh_host_keys
+  changed_when: false
+  failed_when: false
+
+- name: Remove stale SSH host keys
   delegate_to: localhost
   become: false
   throttle: 1
-  known_hosts:
-    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
-    name: "{{ ansible_host | default(inventory_hostname, true) }}"
-    state: absent
-  changed_when: false
+  command: ssh-keygen -R {{ ansible_host | default(inventory_hostname, true) }} -f {{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts
+  when: stale_ssh_host_keys.rc == 0
 
 - name: Add current SSH host key to local known_hosts
   delegate_to: localhost
@@ -34,9 +59,8 @@
   known_hosts:
     path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
     name: "{{ ansible_host | default(inventory_hostname, true) }}"
-    key: "{{ lookup('ansible.builtin.pipe', 'ssh-keyscan -H ' ~ (ansible_host | default(inventory_hostname, true)) ~ ' 2>/dev/null') }}"
+    key: "{{ current_ssh_host_key }}"
     state: present
-  changed_when: false
 
 - name: Wait for SSH connection to become usable
   wait_for_connection:

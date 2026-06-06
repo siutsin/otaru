@@ -120,6 +120,9 @@ grafana:
 loki:
   deploymentMode: SingleBinary
   lokiCanary:
+    podLabels:
+      # loki-canary performs direct Loki health checks and should not be intercepted by ambient mesh.
+      istio.io/dataplane-mode: none
     resources: *smallResources
   gateway:
     resources: *smallResources
@@ -208,6 +211,9 @@ loki:
     replicas: 0
 
 fluent-bit:
+  podLabels:
+    # fluent-bit runs host log collection on every node; keep host-facing log shipping outside ambient mesh interception.
+    istio.io/dataplane-mode: none
   resources: *smallResources
   tolerations:
     - key: node-role.kubernetes.io/control-plane

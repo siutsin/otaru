@@ -38,14 +38,12 @@ all:
         node00: { }
         node01: { }
         node02: { }
-    rpi4:
-      children:
-        node03: { }
     rpi5:
       children:
         node00: { }
         node01: { }
         node02: { }
+        node03: { }
     worker:
       children:
         node03: { }
@@ -77,5 +75,4 @@ all:
       vars:
         ansible_ssh_user: pi
       children:
-        rpi4: { }
         rpi5: { }

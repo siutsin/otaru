@@ -4,6 +4,7 @@
   gather_facts: false
   vars:
     append_text: "cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1"
+    node_name: "{{ inventory_hostname | regex_replace('\\.local$', '') }}"
 
   pre_tasks:
     - include_tasks: pre_tasks/wait-for-ssh.yaml
@@ -69,11 +70,9 @@
     - name: Unlock LUKS node through initramfs passfifo
       delegate_to: localhost
       become: false
-      shell: >-
-        {{ playbook_dir }}/../../hack/luks-cryptroot-unlock.sh
-        {{ ansible_host | default(inventory_hostname, true) }}
-        {{ luks_dropbear_port | string }}
-        --env-passfifo
+      command: make LUKS_UNLOCK_PORT={{ luks_dropbear_port | string }} unlock {{ node_name }}
+      args:
+        chdir: "{{ inventory_dir }}/.."
       register: luks_unlock_result
       retries: 3
       delay: 10

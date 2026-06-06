@@ -21,5 +21,17 @@
 
   handlers:
     - name: Reload brcmfmac
-      shell: modprobe -r brcmfmac_wcc brcmfmac && modprobe brcmfmac
-      changed_when: true
+      shell: |
+        brcmfmac_users="$(lsmod | awk '$1 == "brcmfmac" { print $3; exit }')"
+        if [ -z "$brcmfmac_users" ]; then
+          modprobe brcmfmac
+          echo loaded
+        elif [ "$brcmfmac_users" = "0" ]; then
+          modprobe -r brcmfmac_wcc brcmfmac
+          modprobe brcmfmac
+          echo reloaded
+        else
+          echo "brcmfmac is in use; module options will apply after the next reboot"
+        fi
+      register: brcmfmac_reload
+      changed_when: brcmfmac_reload.stdout is search('^(loaded|reloaded)$', multiline=True)

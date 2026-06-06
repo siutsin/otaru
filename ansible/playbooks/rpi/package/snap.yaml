@@ -3,3 +3,4 @@
   snap:
     name:
       - yq
+  when: "'raspberrypi' in group_names"

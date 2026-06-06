@@ -58,6 +58,8 @@
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
       retries: 5
       delay: 10
+      register: k3s_master_install
+      changed_when: k3s_master_install.stdout is not search('No change detected so skipping service start')
       when:
         - "'master' in group_names"
         - inventory_hostname != groups['master'][0]
@@ -106,6 +108,8 @@
           sh -
       retries: 5
       delay: 10
+      register: k3s_worker_install
+      changed_when: k3s_worker_install.stdout is not search('No change detected so skipping service start')
       when: "'worker' in group_names"
 
     - name: Ensure k3s CNI plugin path resolves istio-cni binary
