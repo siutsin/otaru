@@ -208,7 +208,7 @@
         shell: /bin/bash
         sudo: ALL=(ALL) NOPASSWD:ALL
         ssh_authorized_keys:
-{{ rescue_authorized_keys.content | b64decode | regex_replace('(?m)^', '          - ') }}
+    {{ rescue_authorized_keys.content | b64decode | regex_replace('(?m)^', '          - ') }}
     USERDATA
 
     cat > "$dst_root/boot/firmware/network-config" <<NETCFG
@@ -252,7 +252,7 @@
 
     mkdir -p "$dst_root/etc/dropbear/initramfs"
     cat > "$dst_root/etc/dropbear/initramfs/authorized_keys" <<AUTHKEYS
-{{ rescue_authorized_keys.content | b64decode }}
+    {{ rescue_authorized_keys.content | b64decode }}
     AUTHKEYS
     chmod 600 "$dst_root/etc/dropbear/initramfs/authorized_keys"
 
