@@ -18,6 +18,44 @@ A custom operator, `k3s-apiserver-loadbalancer`, was created to monitor and upda
 
 ---
 
+## Reused K3s Node Name Cannot Join After Hardware Replacement
+
+When replacing a node in place, the new host may reuse the same Kubernetes node name. K3s stores a per-node
+password secret in `kube-system`, so a fresh install with the same node name can fail to join if the old
+password secret is still present.
+
+This was observed when replacing `raspberrypi-03` hardware. The new RPi5 came up with the same hostname, but
+`k3s-agent` failed until the stale password secret was removed.
+
+### Symptoms: Stale K3s Node Password
+
+- `make setup` reaches the worker install step, but the replacement worker does not become Ready.
+- `k3s-agent` logs on the replacement node mention a rejected node password.
+- The cluster still has a secret named after the old node:
+
+```shell
+kubectl -n kube-system get secret raspberrypi-03.node-password.k3s
+```
+
+### Resolution: Delete the Stale Node Password Secret
+
+Confirm the old physical node is gone and the replacement host is the intended machine. Then delete the stale
+secret and rerun setup:
+
+```shell
+kubectl -n kube-system delete secret raspberrypi-03.node-password.k3s
+make setup
+```
+
+After the agent joins successfully, K3s recreates the secret for the replacement node. Verify the node and secret:
+
+```shell
+kubectl get node raspberrypi-03 -o wide
+kubectl -n kube-system get secret raspberrypi-03.node-password.k3s
+```
+
+---
+
 ## Atlantis Is Unsafe for This Public Repo
 
 Atlantis is not a safe fit for this repository while it remains public.
