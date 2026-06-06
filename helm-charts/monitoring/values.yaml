@@ -121,6 +121,7 @@ loki:
   deploymentMode: SingleBinary
   lokiCanary:
     podLabels:
+      # loki-canary performs direct Loki health checks and should not be intercepted by ambient mesh.
       istio.io/dataplane-mode: none
     resources: *smallResources
   gateway:
@@ -211,6 +212,7 @@ loki:
 
 fluent-bit:
   podLabels:
+    # fluent-bit runs host log collection on every node; keep host-facing log shipping outside ambient mesh interception.
     istio.io/dataplane-mode: none
   resources: *smallResources
   tolerations:

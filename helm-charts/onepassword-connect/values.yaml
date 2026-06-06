@@ -14,8 +14,17 @@ _shared:
           podAffinityTerm:
             topologyKey: kubernetes.io/hostname
 
+commonLabels:
+  # External Secrets talks to 1Password Connect as a bootstrap dependency; bypass the namespace waypoint so secret sync works before mesh policy is ready.
+  istio.io/use-waypoint: none
+
 connect:
   connect:
+    serviceAnnotations:
+      mesh.otaru.io/non-ambient-endpoints: "true"
+    podLabels:
+      # 1Password Connect is a bootstrap secret backend; keep its local API/sync peer traffic outside ambient interception.
+      istio.io/dataplane-mode: none
     api:
       resources: *resources
     sync:

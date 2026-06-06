@@ -5,4 +5,5 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Delete=false,Prune=false
   labels:
+    # Waypoint proxies terminate ambient L7 traffic for other namespaces; the waypoint namespace itself must not be ambient-enrolled.
     istio.io/dataplane-mode: none

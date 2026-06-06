@@ -1,5 +1,6 @@
 metrics-server:
   podLabels:
+    # metrics-server is scraped directly by the Kubernetes API aggregation path; keep its Pod IP outside ambient interception.
     istio.io/dataplane-mode: none
   service:
     annotations:

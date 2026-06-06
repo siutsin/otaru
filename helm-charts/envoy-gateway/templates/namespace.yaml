@@ -4,6 +4,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Delete=false,Prune=false
   labels:
+    # The Envoy Gateway controller manages ingress dataplanes and webhooks; keep the controller namespace outside ambient mesh interception.
     istio.io/dataplane-mode: none
   name: {{ .Values.controllerNamespace }}
 ---
