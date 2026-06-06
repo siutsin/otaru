@@ -45,6 +45,21 @@ browser:
     mountPath: /profile
     claimName: changedetection-browser-profile-pvc
     fsGroup: 1000
+  cleanup:
+    intervalSeconds: 3600
+    minAgeMinutes: 60
+    image:
+      repository: busybox
+      tag: 1.38.0@sha256:8f2ffdcb46f1b83e46665954ec130e497b979db766854f79ca9eee43242b7e4c
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+        ephemeral-storage: 16Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 16Mi
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"

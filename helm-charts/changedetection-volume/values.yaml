@@ -6,6 +6,6 @@ longhorn-volume-lib:
       sizeBytes: "10737418240"
       fromBackup: ""
     changedetection-browser-profile:
-      size: "2Gi"
-      sizeBytes: "2147483648"
+      size: "10Gi"
+      sizeBytes: "10737418240"
       fromBackup: ""
