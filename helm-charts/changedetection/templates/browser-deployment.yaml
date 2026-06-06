@@ -34,7 +34,9 @@ spec:
             - -ec
           args:
             - |
+              profile_dir={{ printf "%s/chromium" .Values.browser.profile.mountPath | quote }}
               metrics_dir={{ printf "%s/chromium/DeferredBrowserMetrics" .Values.browser.profile.mountPath | quote }}
+              rm -f "$profile_dir"/SingletonCookie "$profile_dir"/SingletonLock "$profile_dir"/SingletonSocket
               if [ -d "$metrics_dir" ]; then
                 find "$metrics_dir" -type f -name '*.pma' -delete
               fi
