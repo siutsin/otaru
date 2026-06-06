@@ -17,6 +17,40 @@
     force: false
     mode: "0600"
 
+- name: Scan current SSH host key
+  delegate_to: localhost
+  become: false
+  command: ssh-keyscan -T 5 -t ed25519 {{ ansible_host | default(inventory_hostname, true) }}
+  register: ssh_host_keyscan
+  changed_when: false
+  failed_when: >-
+    ssh_host_keyscan.rc != 0 or
+    (ssh_host_keyscan.stdout_lines | select('search', ' ssh-ed25519 ') | list | length) == 0
+
+- name: Share current SSH host key
+  set_fact:
+    current_ssh_host_key: "{{ ssh_host_keyscan.stdout_lines | select('search', ' ssh-ed25519 ') | first }}"
+
+- name: Check for stale SSH host keys
+  delegate_to: localhost
+  become: false
+  shell: |
+    set -o pipefail
+    ssh-keygen -F {{ ansible_host | default(inventory_hostname, true) | quote }} -f {{ (lookup('ansible.builtin.env', 'HOME') ~ '/.ssh/known_hosts') | quote }} 2>/dev/null \
+      | awk '!/^#/ { print }' \
+      | grep -Fvx -- {{ current_ssh_host_key | quote }} >/dev/null
+  args:
+    executable: /bin/bash
+  register: stale_ssh_host_keys
+  changed_when: false
+  failed_when: false
+
+- name: Remove stale SSH host keys
+  delegate_to: localhost
+  become: false
+  command: ssh-keygen -R {{ ansible_host | default(inventory_hostname, true) }} -f {{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts
+  when: stale_ssh_host_keys.rc == 0
+
 - name: Add current SSH host key to local known_hosts
   delegate_to: localhost
   become: false
@@ -24,7 +58,7 @@
   known_hosts:
     path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/known_hosts"
     name: "{{ ansible_host | default(inventory_hostname, true) }}"
-    key: "{{ lookup('ansible.builtin.pipe', 'ssh-keyscan -T 5 -t ed25519 ' ~ (ansible_host | default(inventory_hostname, true) | quote) ~ ' 2>/dev/null | grep \" ssh-ed25519 \" | head -n 1') }}"
+    key: "{{ current_ssh_host_key }}"
     state: present
 
 - name: Wait for SSH connection to become usable
