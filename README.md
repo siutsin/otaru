@@ -26,17 +26,17 @@ Current cluster layout:
 ![Raspberry Pi rack setup](assets/rack.jpeg)
 
 <!-- markdownlint-disable MD060 -->
-| Node              | Device                                                         | Role           | Boot  | Storage                                              |
-|-------------------|----------------------------------------------------------------|----------------|-------|------------------------------------------------------|
-| `raspberrypi-00`  | [Raspberry Pi 5 8GB][rpi5]                                     | Control plane  | NVMe  | [Lexar NM620 256GB][lexar-nm620]                     |
-| `raspberrypi-01`  | Raspberry Pi 5 8GB                                             | Control plane  | NVMe  | [Samsung 980 PRO 2TB (MZ-V8P2T0BW)][samsung-980-pro] |
-| `raspberrypi-02`  | Raspberry Pi 5 8GB                                             | Control plane  | NVMe  | [Crucial P3 Plus 4TB][crucial-p3-plus]               |
-| `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | SD    | SanDisk Max Endurance 32 GB                          |
-| `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | mSATA | 64 GB SSD                                            |
-| `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -     | -                                                    |
-| `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -     | -                                                    |
-| `rackmate-t1`     | [GeeekPi DeskPi RackMate T1][rackmate-t1]                      | Rack enclosure | -     | -                                                    |
-| `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -     | -                                                    |
+| Node              | Device                                                         | Role           | Storage                                |
+|-------------------|----------------------------------------------------------------|----------------|----------------------------------------|
+| `raspberrypi-00`  | [Raspberry Pi 5 8GB][rpi5]                                     | Control plane  | [Lexar NM620 256GB][lexar-nm620]       |
+| `raspberrypi-01`  | Raspberry Pi 5 8GB                                             | Control plane  | [Crucial P3 Plus 4TB][crucial-p3-plus] |
+| `raspberrypi-02`  | Raspberry Pi 5 8GB                                             | Control plane  | Crucial P3 Plus 4TB                    |
+| `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | SanDisk Max Endurance 32 GB            |
+| `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 64 GB SSD                              |
+| `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
+| `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -                                      |
+| `rackmate-t1`     | [GeeekPi DeskPi RackMate T1][rackmate-t1]                      | Rack enclosure | -                                      |
+| `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -                                      |
 <!-- markdownlint-enable MD060 -->
 
 [^nuc-00]: Yes, yes, I know I said Raspberry Pi only, but have you seen Raspberry
@@ -61,7 +61,6 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
 [intel-nuc-8gb]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
-[samsung-980-pro]: https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-2tb-nvme-pcie-gen-4-mz-v8p2t0bw/
 [rackmate-t1]: https://www.amazon.co.uk/dp/B0CS6MHCY8
 [rack-mount]: https://www.amazon.co.uk/dp/B0DRGF68Z9
 [ucg-ultra]: https://uk.store.ui.com/uk/en/category/cloud-gateways-compact/products/ucg-ultra
