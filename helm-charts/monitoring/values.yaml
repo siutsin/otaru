@@ -120,6 +120,8 @@ grafana:
 loki:
   deploymentMode: SingleBinary
   lokiCanary:
+    podLabels:
+      istio.io/dataplane-mode: none
     resources: *smallResources
   gateway:
     resources: *smallResources
@@ -208,6 +210,8 @@ loki:
     replicas: 0
 
 fluent-bit:
+  podLabels:
+    istio.io/dataplane-mode: none
   resources: *smallResources
   tolerations:
     - key: node-role.kubernetes.io/control-plane
