@@ -112,6 +112,30 @@
       changed_when: k3s_worker_install.stdout is not search('No change detected so skipping service start')
       when: "'worker' in group_names"
 
+    - name: Keep packaged local-storage manifest from becoming default StorageClass
+      replace:
+        path: /var/lib/rancher/k3s/server/manifests/local-storage.yaml
+        regexp: 'storageclass\.kubernetes\.io/is-default-class: "true"'
+        replace: 'storageclass.kubernetes.io/is-default-class: "false"'
+      when: "'master' in group_names"
+
+    - name: Reconcile live local-path default storage class annotation
+      shell: |
+        set -euo pipefail
+        current="$(k3s kubectl get storageclass local-path -o jsonpath='{.metadata.annotations.storageclass\.kubernetes\.io/is-default-class}')"
+        if [ "$current" != "false" ]; then
+          k3s kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=false --overwrite
+          echo "updated"
+        fi
+      args:
+        executable: /bin/bash
+      register: local_path_default_annotation
+      changed_when: "'updated' in local_path_default_annotation.stdout"
+      retries: 5
+      delay: 10
+      until: local_path_default_annotation.rc == 0
+      when: inventory_hostname == groups['master'][0]
+
     - name: Ensure k3s CNI plugin path resolves istio-cni binary
       file:
         src: /opt/cni/bin/istio-cni
