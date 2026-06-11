@@ -36,8 +36,12 @@
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
       shell: |
         curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
+          {% if inventory_hostname == groups['master'][0] %}
+          --cluster-init \
+          {% else %}
           --token {{ hostvars['localhost']['k3s_master_token'] }} \
           --server https://{{ hostvars[groups['master'][0]]['ansible_host'] }}:6443 \
+          {% endif %}
           --disable coredns \
           --disable local-storage \
           --disable metrics-server \
@@ -61,9 +65,7 @@
       delay: 10
       register: k3s_master_install
       changed_when: k3s_master_install.stdout is not search('No change detected so skipping service start')
-      when:
-        - "'master' in group_names"
-        - inventory_hostname != groups['master'][0]
+      when: "'master' in group_names"
 
     - name: Check if serving cert contains required TLS SANs
       shell: |
