@@ -20,8 +20,15 @@ jobs:
     steps:
       - name: Check PR author
         id: check
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          echo "should-review=false" >> "$GITHUB_OUTPUT"
+          should_review=false
+          if [ "$PR_AUTHOR" = "$REPO_OWNER" ]; then
+            should_review=true
+          fi
+          echo "should-review=$should_review" >> "$GITHUB_OUTPUT"
 
   claude:
     needs: check-author
