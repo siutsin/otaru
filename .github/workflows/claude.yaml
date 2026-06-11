@@ -8,6 +8,10 @@ on:
       - reopened
       - ready_for_review
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
@@ -20,8 +24,15 @@ jobs:
     steps:
       - name: Check PR author
         id: check
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          echo "should-review=false" >> "$GITHUB_OUTPUT"
+          should_review=false
+          if [ "$PR_AUTHOR" = "$REPO_OWNER" ]; then
+            should_review=true
+          fi
+          echo "should-review=$should_review" >> "$GITHUB_OUTPUT"
 
   claude:
     needs: check-author
@@ -29,6 +40,7 @@ jobs:
       needs.check-author.outputs.should-review == 'true' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: automation
     permissions:
       contents: read
@@ -63,7 +75,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: false
           claude_args: |
-            --model sonnet --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
+            --model claude-sonnet-4-6 --max-turns 5 --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
           prompt: |
             Review only. Do not push commits, edit PR metadata, change labels, write repository content, or run code from the PR.
 
