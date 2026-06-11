@@ -18,6 +18,7 @@ namespaces:
   - name: descheduler
   - name: excalidraw
   - name: external-secrets
+  - name: happy
   - name: home-assistant
   - name: httpbin
   - name: istio-system

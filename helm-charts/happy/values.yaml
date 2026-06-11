@@ -1,0 +1,59 @@
+name: happy
+namespace: happy
+
+image:
+  repository: ghcr.io/siutsin/images/happy
+  tag: 1.1.11-202606110135@sha256:c479025bb4b8d1ebaf1b82c39a0257c74da803cd023281d03cff01b24f325099
+  pullPolicy: IfNotPresent
+
+happyServer:
+  packageVersion: 1.1.11
+
+masterSecret:
+  existingSecret: ""
+  key: HANDY_MASTER_SECRET
+
+externalSecret:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  remoteRef:
+    key: happy
+    property: HANDY_MASTER_SECRET
+
+publicUrl: https://happy.internal.siutsin.com
+
+service:
+  port: 3005
+  targetPort: 3005
+
+persistence:
+  enabled: true
+  claimName: happy-pvc
+  storageClassName: longhorn-crypto-global
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+  mountPath: /data
+
+deployment:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 2Gi
+      ephemeral-storage: 512Mi
+    limits:
+      memory: 2Gi
+      ephemeral-storage: 512Mi
+
+route:
+  hostname: happy.internal.siutsin.com
+  timeouts:
+    request: 300s
+    backendRequest: 300s
+
+gateway:
+  name: gateway
+  namespace: gateway
