@@ -34,24 +34,6 @@
     delay: 10
     until: coredns_ready_result.rc == 0
 
-  # Set local-path not to be the default storage class
-
-  - name: Reconcile local-path storage class default annotation
-    shell: |
-      cat <<'EOF' | kubectl apply -f -
-      apiVersion: storage.k8s.io/v1
-      kind: StorageClass
-      metadata:
-        name: local-path
-        annotations:
-          storageclass.kubernetes.io/is-default-class: "false"
-      EOF
-    register: local_path_result
-    retries: 5
-    delay: 10
-    until: local_path_result.rc == 0
-    changed_when: "'unchanged' not in local_path_result.stdout"
-
   # 1Password Connect
 
   - name: Verify local 1Password Connect secret files exist
