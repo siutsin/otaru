@@ -567,6 +567,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/gateway-api-kubernetes-0.1.0/gateway-api-kubernetes-0.1.0.tgz
     version: 0.1.0
+  happy:
+  - apiVersion: v2
+    appVersion: 1.1.11
+    created: "2026-06-11T03:17:33.808115454Z"
+    description: Self-hosted Happy server for encrypted Claude Code and Codex sync
+    digest: 39190d68f20fd998c6573e6989185394492d91b753b739eef1747d15746b17ad
+    name: happy
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/happy-0.1.0/happy-0.1.0.tgz
+    version: 0.1.0
   healthcheck-io:
   - apiVersion: v2
     created: "2024-10-04T23:15:03.462059793Z"
@@ -1346,4 +1357,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-25T08:37:53.868104303Z"
+generated: "2026-06-11T03:17:38.363690896Z"
