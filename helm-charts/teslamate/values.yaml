@@ -89,7 +89,7 @@ grafana:
     failureThreshold: 10
   image:
     repository: teslamate/grafana
-    tag: 3.0.0@sha256:e02d1f036dd10771ea04db2bafc483067a9dbb874d0b5137dda5a6fe539b77dc
+    tag: 3.1.0@sha256:8d7287f44b1eefb39e649175aa14615df648c04a3162da9461d07c8a9ea1c7e9
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
