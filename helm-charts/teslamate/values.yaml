@@ -18,7 +18,7 @@ deployment:
             topologyKey: kubernetes.io/hostname
   image:
     repository: teslamate/teslamate
-    tag: 3.1.0@sha256:b7b8b21869d789d043f62b404dd689f55c601ef7d02222e92c0f5d596d0b1044
+    tag: 4.0.0@sha256:1c4f03e1c8a8e43269ac24c78a2f4a4a021637bbedf600d4b951ec1223889a4e
   envFrom:
     - secretRef:
         name: teslamate
@@ -90,7 +90,7 @@ grafana:
     failureThreshold: 10
   image:
     repository: teslamate/grafana
-    tag: 3.1.0@sha256:8d7287f44b1eefb39e649175aa14615df648c04a3162da9461d07c8a9ea1c7e9
+    tag: 4.0.0@sha256:5b974c82b7684fbe071778e5e5e5f542dc9caffc2cacafb750edf8bf92124beb
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
