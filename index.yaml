@@ -1284,6 +1284,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/teslamate-0.1.1/teslamate-0.1.1.tgz
     version: 0.1.1
+  umami:
+  - apiVersion: v2
+    created: "2026-06-14T18:00:55.605170978Z"
+    description: A Helm chart for Umami analytics
+    digest: 3a6f43613b0d8ce00c67ec7aa107e1e4e9f200025c111b8a279783ec645bba74
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: umami
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/umami-0.1.0/umami-0.1.0.tgz
+    version: 0.1.0
   waypoints:
   - apiVersion: v2
     created: "2026-05-02T22:37:46.957172853Z"
@@ -1357,4 +1368,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-06-11T03:17:38.363690896Z"
+generated: "2026-06-14T18:00:55.605299773Z"
