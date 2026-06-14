@@ -23,7 +23,7 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: node.siutsin.com/storage-tier
-                    operator: NotIn
+                    operator: In
                     values:
                       - sd-card
         podAntiAffinity:
@@ -37,6 +37,11 @@ spec:
                       values:
                         - {{ .Values.name }}
                 topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: node.siutsin.com/storage-tier
+          operator: Equal
+          value: sd-card
+          effect: PreferNoSchedule
       serviceAccountName: {{ .Values.name }}
       containers:
         - name: {{ .Values.name }}
