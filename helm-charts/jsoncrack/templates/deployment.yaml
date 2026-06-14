@@ -40,7 +40,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: node.siutsin.com/storage-tier
+                  - key: node.otaru.io/storage-tier
                     operator: In
                     values:
                       - sd-card
@@ -53,7 +53,7 @@ spec:
                     app.kubernetes.io/name: {{ .Values.name }}
                 topologyKey: kubernetes.io/hostname
       tolerations:
-        - key: node.siutsin.com/storage-tier
+        - key: node.otaru.io/storage-tier
           operator: Equal
           value: sd-card
           effect: PreferNoSchedule

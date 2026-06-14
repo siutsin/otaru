@@ -92,7 +92,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: node.siutsin.com/storage-tier
+                  - key: node.otaru.io/storage-tier
                     operator: NotIn
                     values:
                       - sd-card

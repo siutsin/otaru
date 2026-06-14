@@ -15,7 +15,7 @@ defaults:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: node.siutsin.com/storage-tier
+                - key: node.otaru.io/storage-tier
                   operator: NotIn
                   values:
                     - sd-card
@@ -25,7 +25,7 @@ defaults:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: node.siutsin.com/storage-tier
+                - key: node.otaru.io/storage-tier
                   operator: In
                   values:
                     - sd-card
