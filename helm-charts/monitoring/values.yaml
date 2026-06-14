@@ -2,6 +2,15 @@ name: monitoring
 namespace: monitoring
 
 _shared:
+  excludeSdCardNodeAffinity: &excludeSdCardNodeAffinity
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.siutsin.com/storage-tier
+                operator: NotIn
+                values:
+                  - sd-card
   smallResources: &smallResources
     requests:
       cpu: 50m
@@ -30,6 +39,7 @@ prometheus:
     prometheus:
       resources: *smallResources
   server:
+    affinity: *excludeSdCardNodeAffinity
     resources:
       # Keep memory at 3Gi: Grafana dashboard queries pushed Prometheus close to the previous 2Gi limit.
       requests:
@@ -80,6 +90,7 @@ prometheus:
                 )
 
 grafana:
+  affinity: *excludeSdCardNodeAffinity
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
     requests:
@@ -128,6 +139,7 @@ loki:
     resources: *smallResources
   singleBinary:
     replicas: 1
+    affinity: *excludeSdCardNodeAffinity
     resources:
       requests:
         cpu: 100m
