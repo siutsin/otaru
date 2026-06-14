@@ -111,6 +111,10 @@ clusters:
 
   teslamate:
     clusterName: teslamate-20260412-0619
+    storage:
+      resizeInUseVolumes: true
+      size: 15Gi
+      storageClass: longhorn-crypto-global
     affinity:
       podAntiAffinityType: required
     instances: 2
