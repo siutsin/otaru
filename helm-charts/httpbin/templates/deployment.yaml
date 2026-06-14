@@ -20,7 +20,7 @@ spec:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 80
+            - weight: 100
               preference:
                 matchExpressions:
                   - key: node.siutsin.com/storage-tier
@@ -38,6 +38,11 @@ spec:
                       values:
                         - {{ .Values.name }}
                 topologyKey: "kubernetes.io/hostname"
+      tolerations:
+        - key: node.siutsin.com/storage-tier
+          operator: Equal
+          value: sd-card
+          effect: PreferNoSchedule
       automountServiceAccountToken: false
       containers:
         - name: {{ .Values.name }}
