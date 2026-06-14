@@ -21,7 +21,7 @@ clusterSecretStorePolicy:
     happy:
       - happy
     umami:
-      - umami
+      - Umami
       - b2-secret-cloudnative-pg
     home-assistant:
       - heartbeats
