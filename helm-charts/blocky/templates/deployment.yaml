@@ -24,6 +24,14 @@ spec:
         prometheus.io/scrape: "true"
     spec:
       affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node.siutsin.com/storage-tier
+                    operator: NotIn
+                    values:
+                      - sd-card
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100

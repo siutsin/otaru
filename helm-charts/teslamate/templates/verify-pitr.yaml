@@ -213,6 +213,15 @@ spec:
                     labels:
                       app.kubernetes.io/managed-by: teslamate-verify-pitr
                   spec:
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: node.siutsin.com/storage-tier
+                                  operator: NotIn
+                                  values:
+                                    - sd-card
                     instances: 1
                     imageName: {{ .Values.backup.database.imageName }}
                     resources:
