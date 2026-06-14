@@ -25,8 +25,12 @@ deployment:
                 app.kubernetes.io/name: teslamate
             topologyKey: kubernetes.io/hostname
   image:
-    repository: teslamate/teslamate
-    tag: 4.0.0@sha256:1c4f03e1c8a8e43269ac24c78a2f4a4a021637bbedf600d4b951ec1223889a4e
+    # Temporary hotfix for Tesla Owner API 403 after v4.0.0 (teslamate-org/teslamate#5399).
+    # GHCR main@6a9a33b includes merged PR #5406 (TLS 1.3 + HTTP/2 for auth.tesla.com).
+    # The pr-5406 tag is purged post-merge; main is the equivalent build.
+    # Revert to a stable release tag once 4.0.1+ is published on Docker Hub.
+    repository: ghcr.io/teslamate-org/teslamate
+    tag: main@sha256:2c518518b17ea68d5a4fbf149b92e968d3c1a659bcda1e1794bba5c5d02c6d01
   envFrom:
     - secretRef:
         name: teslamate
