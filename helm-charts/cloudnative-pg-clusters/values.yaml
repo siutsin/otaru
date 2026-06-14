@@ -19,6 +19,16 @@ defaults:
                   operator: NotIn
                   values:
                     - sd-card
+    affinitySdCard: &sdCardClusterAffinity
+      podAntiAffinityType: preferred
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node.siutsin.com/storage-tier
+                  operator: In
+                  values:
+                    - sd-card
     instances: 1
     enablePDB: true
     failoverDelay: 0
@@ -173,7 +183,7 @@ clusters:
       size: 2Gi
       storageClass: longhorn-crypto-global
     affinity:
-      <<: *excludeSdCardClusterAffinity
+      <<: *sdCardClusterAffinity
     postgresql:
       <<: *postgresql
       pg_hba:

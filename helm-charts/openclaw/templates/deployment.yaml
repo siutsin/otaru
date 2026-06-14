@@ -36,7 +36,7 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: node.siutsin.com/storage-tier
-                    operator: NotIn
+                    operator: In
                     values:
                       - sd-card
         podAntiAffinity:
@@ -47,6 +47,11 @@ spec:
                   matchLabels:
                     app.kubernetes.io/name: {{ .Values.name }}
                 topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: node.siutsin.com/storage-tier
+          operator: Equal
+          value: sd-card
+          effect: PreferNoSchedule
       initContainers:
         - name: init-state
           image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}

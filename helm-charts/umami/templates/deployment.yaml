@@ -59,10 +59,9 @@ spec:
             secretName: {{ .Values.database.caSecretName }}
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
                   - key: node.siutsin.com/storage-tier
                     operator: In
                     values:
