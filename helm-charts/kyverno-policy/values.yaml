@@ -20,6 +20,8 @@ clusterSecretStorePolicy:
       - heartbeats
     happy:
       - happy
+    umami:
+      - umami
     home-assistant:
       - heartbeats
     jung2bot:
