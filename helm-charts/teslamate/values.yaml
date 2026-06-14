@@ -52,12 +52,13 @@ service:
 
 grafana:
   resources:
+    # Keep memory at 512Mi: TeslaMate dashboard usage pushed Grafana against the 128Mi limit and caused OOMKills.
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 512Mi
       ephemeral-storage: 128Mi
     limits:
-      memory: 128Mi
+      memory: 512Mi
       ephemeral-storage: 128Mi
   affinity:
     podAntiAffinity:
