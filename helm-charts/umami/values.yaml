@@ -17,7 +17,7 @@ appSecret:
       kind: ClusterSecretStore
       name: onepassword-secret-store
     remoteRef:
-      key: umami
+      key: Umami
       property: APP_SECRET
 
 service:
