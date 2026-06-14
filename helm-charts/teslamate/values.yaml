@@ -63,6 +63,9 @@ service:
   port: 4000
 
 grafana:
+  testFramework:
+    # Helm test hooks are not run under Argo CD and leave orphaned resources that degrade app health.
+    enabled: false
   resources:
     # Keep memory at 512Mi: TeslaMate dashboard usage pushed Grafana against the 128Mi limit and caused OOMKills.
     requests:
