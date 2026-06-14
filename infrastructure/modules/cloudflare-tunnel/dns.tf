@@ -19,3 +19,12 @@ resource "cloudflare_dns_record" "oidc" {
   ttl     = 1
   type    = "CNAME"
 }
+
+resource "cloudflare_dns_record" "analytics" {
+  zone_id = var.zone_id
+  content = local.tunnel_hostname
+  name    = "analytics"
+  proxied = true
+  ttl     = 1
+  type    = "CNAME"
+}

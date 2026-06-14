@@ -48,6 +48,10 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
         service  = var.gateway_service
       },
       {
+        hostname = "analytics.${var.zone}"
+        service  = var.gateway_service
+      },
+      {
         service = "http_status:404"
       }
     ]
