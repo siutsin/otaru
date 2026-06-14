@@ -34,7 +34,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
         with:
-          version: '3.21.0' # Pending on bugfix: https://github.com/helm/helm/issues/31148
+          version: '4.2.1'
 
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@847eaa4afeb791b06daa46e8eafa8b1b68d7cfb4 # v2
