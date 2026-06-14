@@ -1,0 +1,47 @@
+name: umami
+namespace: umami
+
+image:
+  repository: ghcr.io/umami-software/umami
+  tag: postgresql-latest@sha256:e3f80c0625aad7179b49da27d475357cabb1068b8cacd9a792cfd6966888b123
+  pullPolicy: IfNotPresent
+
+database:
+  secretName: umami-20260614-0001
+  caSecretName: umami-20260614-0001-ca
+
+appSecret:
+  externalSecret:
+    refreshInterval: 24h
+    secretStoreRef:
+      kind: ClusterSecretStore
+      name: onepassword-secret-store
+    remoteRef:
+      key: umami
+      property: APP_SECRET
+
+service:
+  port: 3000
+  targetPort: 3000
+
+deployment:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+      ephemeral-storage: 256Mi
+    limits:
+      memory: 512Mi
+      ephemeral-storage: 512Mi
+
+routes:
+  collect:
+    hostname: analytics.siutsin.com
+
+gateway:
+  name: gateway
+  namespace: gateway
+
+env:
+  TZ: Europe/London
