@@ -49,6 +49,15 @@ spec:
               memory: 100Mi
               ephemeral-storage: 100Mi
       affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 80
+              preference:
+                matchExpressions:
+                  - key: node.siutsin.com/storage-tier
+                    operator: In
+                    values:
+                      - sd-card
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
