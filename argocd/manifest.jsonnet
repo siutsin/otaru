@@ -51,6 +51,21 @@ local cleanerExcludeDeleted = [{
   jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
 }];
 
+local cnpgClusterOperatorDefaults = [{
+  group: 'postgresql.cnpg.io',
+  kind: 'Cluster',
+  jqPathExpressions: [
+    '.metadata.annotations["kubectl.kubernetes.io/restartedAt"]',
+    '.metadata.annotations["cnpg.io/reloadedAt"]',
+    '.spec.bootstrap.initdb.encoding',
+    '.spec.bootstrap.initdb.localeCType',
+    '.spec.bootstrap.initdb.localeCollate',
+    '.spec.managed.roles[].inherit',
+    '.spec.probes',
+    '.spec.storage.resizeInUseVolumes',
+  ],
+}];
+
 local _ignoreDifferences = {
   bootstrap: {
     metallb: crdConversionCABundle('bgppeers.metallb.io'),
@@ -179,6 +194,8 @@ local database = [
     name: 'cloudnative-pg-clusters',
     namespace: 'cnpg-system',
     helm: cnpgClustersHelm,
+    syncOptions: ['RespectIgnoreDifferences=true'],
+    ignoreDifferences: cnpgClusterOperatorDefaults,
   },
 ];
 
