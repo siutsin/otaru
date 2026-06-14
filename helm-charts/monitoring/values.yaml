@@ -141,12 +141,13 @@ loki:
     replicas: 1
     affinity: *excludeSdCardNodeAffinity
     resources:
+      # Keep the single-binary pod (plus 128Mi sidecar) schedulable on memory-tight Pi nodes.
       requests:
         cpu: 100m
-        memory: 768Mi
+        memory: 512Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 768Mi
+        memory: 512Mi
         ephemeral-storage: 128Mi
   minio:
     enabled: false
@@ -226,6 +227,31 @@ fluent-bit:
   podLabels:
     # fluent-bit runs host log collection on every node; keep host-facing log shipping outside ambient mesh interception.
     istio.io/dataplane-mode: none
+  initContainers:
+    - name: remove-legacy-tail-db
+      image: busybox:1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
+      command:
+        - rm
+        - -f
+        - /var/log/fluent-bit-tail.db
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+          ephemeral-storage: 16Mi
+        limits:
+          memory: 16Mi
+          ephemeral-storage: 16Mi
+      volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+  extraVolumes:
+    - name: fluent-bit-state
+      emptyDir:
+        sizeLimit: 64Mi
+  extraVolumeMounts:
+    - name: fluent-bit-state
+      mountPath: /var/fluent-bit-state
   resources: *smallResources
   tolerations:
     - key: node-role.kubernetes.io/control-plane
@@ -237,7 +263,7 @@ fluent-bit:
       [INPUT]
           Name tail
           Path /var/log/containers/*.log
-          DB /var/log/fluent-bit-tail.db
+          DB /var/fluent-bit-state/fluent-bit-tail.db
           multiline.parser docker, cri
           Tag kube.*
           Mem_Buf_Limit 5MB
@@ -263,7 +289,7 @@ fluent-bit:
           Labels job=fluent-bit
           Label_Map_Path /fluent-bit/etc/conf/loki-labels.json
           buffer_size 1M
-          Retry_Limit False
+          Retry_Limit 5
 
     extraFiles:
       loki-labels.json: |
