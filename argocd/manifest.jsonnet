@@ -125,6 +125,7 @@ local application = [
   { wave: '10', name: 'openclaw-volume', namespace: 'openclaw' },
   { wave: '11', name: 'openclaw', namespace: 'openclaw', helm: openClawHelm },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
+  { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
   { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
