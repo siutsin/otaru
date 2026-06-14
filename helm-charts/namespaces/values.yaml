@@ -40,3 +40,4 @@ namespaces:
   - name: onepassword
   - name: reloader
   - name: teslamate
+  - name: umami

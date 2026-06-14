@@ -164,3 +164,34 @@ clusters:
           parameters:
             barmanObjectName: b2-backup
             serverName: teslamate-20251024-0015
+
+  umami:
+    clusterName: umami-20260614-0001
+    namespace: umami
+    instances: 1
+    storage:
+      size: 2Gi
+      storageClass: longhorn-crypto-global
+    affinity:
+      <<: *excludeSdCardClusterAffinity
+    postgresql:
+      <<: *postgresql
+      pg_hba:
+        - hostssl all all 0.0.0.0/0 scram-sha-256
+        - hostssl all all ::0/0 scram-sha-256
+    enableSuperuserAccess: false
+    managed:
+      roles:
+        - name: app
+          ensure: present
+          login: true
+          connectionLimit: -1
+    bootstrap:
+      initdb:
+        database: umami
+        owner: app
+        secret:
+          name: umami-20260614-0001
+    test:
+      enabled: true
+      query: SELECT 1;
