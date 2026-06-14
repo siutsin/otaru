@@ -12,7 +12,7 @@ reloader:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 80
+            - weight: 100
               preference:
                 matchExpressions:
                   - key: node.siutsin.com/storage-tier
@@ -24,3 +24,8 @@ reloader:
             - weight: 100
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
+        tolerations:
+          - key: node.siutsin.com/storage-tier
+            operator: Equal
+            value: sd-card
+            effect: PreferNoSchedule
