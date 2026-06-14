@@ -139,6 +139,9 @@ loki:
     resources: *smallResources
   singleBinary:
     replicas: 1
+    podLabels:
+      # Loki is written to directly by non-ambient fluent-bit; keep ingestion off the ambient dataplane.
+      istio.io/dataplane-mode: none
     affinity: *excludeSdCardNodeAffinity
     resources:
       # Keep the single-binary pod (plus 128Mi sidecar) schedulable on memory-tight Pi nodes.
