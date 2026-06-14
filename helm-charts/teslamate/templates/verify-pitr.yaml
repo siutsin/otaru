@@ -123,9 +123,8 @@ spec:
                   VERIFY_BACKUP_META=$(
                     kubectl get backups.postgresql.cnpg.io \
                       -n "${VERIFY_NAMESPACE}" \
-                      -l cnpg.io/cluster="${VERIFY_SOURCE_CLUSTER}" \
-                      -o jsonpath='{range .items[*]}{.status.stoppedAt}{"|"}{.status.backupId}{"|"}{.status.phase}{"|"}{.status.pluginMetadata.timeline}{"\n"}{end}' |
-                      awk -F'|' '$3=="completed"{print}' |
+                      -o jsonpath='{range .items[*]}{.spec.cluster.name}{"|"}{.status.stoppedAt}{"|"}{.status.backupId}{"|"}{.status.phase}{"|"}{.status.pluginMetadata.timeline}{"\n"}{end}' |
+                      awk -F'|' -v cluster="${VERIFY_SOURCE_CLUSTER}" '$1 == cluster && $4 == "completed" { print $2 "|" $3 "|" $5 }' |
                       sort |
                       tail -n1
                   )
