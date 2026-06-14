@@ -22,6 +22,7 @@ clusterSecretStorePolicy:
       - happy
     umami:
       - umami
+      - b2-secret-cloudnative-pg
     home-assistant:
       - heartbeats
     jung2bot:
@@ -58,6 +59,11 @@ barmanObjectStorePolicy:
   enabled: true
   allowedNamespaces:
     teslamate:
+      objectStores:
+        - b2-backup
+      credentialSecrets:
+        - b2-backup-credentials
+    umami:
       objectStores:
         - b2-backup
       credentialSecrets:
