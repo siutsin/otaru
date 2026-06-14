@@ -24,8 +24,8 @@ reloader:
             - weight: 100
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
-        tolerations:
-          - key: node.siutsin.com/storage-tier
-            operator: Equal
-            value: sd-card
-            effect: PreferNoSchedule
+      tolerations:
+        - key: node.siutsin.com/storage-tier
+          operator: Equal
+          value: sd-card
+          effect: PreferNoSchedule
