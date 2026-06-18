@@ -1,5 +1,11 @@
 # Agent Instructions
 
+## EditorConfig
+
+Before editing any files, read `.editorconfig` at the repository root and
+follow its formatting rules for charset, line endings, indentation, trailing
+whitespace, final newlines, and line length.
+
 ## Multi-Agent Worktree Policy
 
 Use a dedicated Git worktree only when another agent may be active in the same
