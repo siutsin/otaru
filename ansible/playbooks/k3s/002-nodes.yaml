@@ -27,6 +27,22 @@
       run_once: true
       no_log: true
 
+    - name: Get k3s release version from master
+      shell: set -o pipefail && k3s --version | awk '/k3s version/ { print $3 }'
+      args:
+        executable: /bin/bash
+      register: k3s_release_version
+      run_once: true
+      delegate_to: "{{ groups['master'][0] }}"
+      changed_when: false
+
+    - name: Share k3s release version with subsequent tasks
+      set_fact:
+        k3s_release_version: "{{ k3s_release_version.stdout }}"
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+
     - name: Install k3s on master nodes with LB_API_SERVER_IP
       # Enable anonymous authentication
       # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
@@ -104,6 +120,7 @@
     - name: Install k3s on workers
       shell: |
         curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_VERSION={{ hostvars['localhost']['k3s_release_version'] }} \
           INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} \
           INSTALL_K3S_SKIP_DOWNLOAD=false \
           K3S_TOKEN={{ hostvars['localhost']['k3s_master_token'] }} \

@@ -31,7 +31,7 @@ Current cluster layout:
 | `raspberrypi-00`  | [Raspberry Pi 5 8GB][rpi5]                                     | Control plane  | [Lexar NM620 256GB][lexar-nm620]       |
 | `raspberrypi-01`  | Raspberry Pi 5 8GB                                             | Control plane  | [Crucial P3 Plus 4TB][crucial-p3-plus] |
 | `raspberrypi-02`  | Raspberry Pi 5 8GB                                             | Control plane  | Crucial P3 Plus 4TB                    |
-| `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | SanDisk Max Endurance 32 GB            |
+| `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | [Crucial P2 500GB][crucial-p2]         |
 | `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 64 GB SSD                              |
 | `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
 | `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -                                      |
@@ -60,6 +60,7 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
 
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
+[crucial-p2]: https://www.crucial.com/ssd/p2/ct500p2ssd8
 [intel-nuc-8gb]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
 [rackmate-t1]: https://www.amazon.co.uk/dp/B0CS6MHCY8
 [rack-mount]: https://www.amazon.co.uk/dp/B0DRGF68Z9

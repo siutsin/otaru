@@ -2,15 +2,6 @@ name: monitoring
 namespace: monitoring
 
 _shared:
-  excludeSdCardNodeAffinity: &excludeSdCardNodeAffinity
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: node.otaru.io/storage-tier
-                operator: NotIn
-                values:
-                  - sd-card
   smallResources: &smallResources
     requests:
       cpu: 50m
@@ -39,7 +30,6 @@ prometheus:
     prometheus:
       resources: *smallResources
   server:
-    affinity: *excludeSdCardNodeAffinity
     resources:
       # Keep memory at 3Gi: Grafana dashboard queries pushed Prometheus close to the previous 2Gi limit.
       requests:
@@ -90,7 +80,6 @@ prometheus:
                 )
 
 grafana:
-  affinity: *excludeSdCardNodeAffinity
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
     requests:
@@ -142,7 +131,6 @@ loki:
     podLabels:
       # Loki is written to directly by non-ambient fluent-bit; keep ingestion off the ambient dataplane.
       istio.io/dataplane-mode: none
-    affinity: *excludeSdCardNodeAffinity
     resources:
       # Keep the single-binary pod (plus 128Mi sidecar) schedulable on memory-tight Pi nodes.
       requests:
