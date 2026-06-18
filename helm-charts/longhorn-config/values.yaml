@@ -1,2 +1,36 @@
 name: longhorn
 namespace: longhorn-system
+
+# Per-node Longhorn disk settings. storageReserved is in bytes; set per SSD size
+# instead of using the global storage-reserved-percentage-for-default-disk default.
+nodes:
+  raspberrypi-00:
+    allowScheduling: true
+    disks:
+      default-disk-a6c00bbc1be864c4:
+        path: /var/lib/longhorn/
+        storageReserved: 26843545600 # 25 GiB — Lexar NM620 256 GB
+  raspberrypi-01:
+    allowScheduling: true
+    disks:
+      default-disk-a6c00bbc1be864c4:
+        path: /var/lib/longhorn/
+        storageReserved: 53687091200 # 50 GiB — Crucial P3 Plus 4 TB
+  raspberrypi-02:
+    allowScheduling: true
+    disks:
+      default-disk-d5f6014c34560435:
+        path: /var/lib/longhorn/
+        storageReserved: 53687091200 # 50 GiB — Crucial P3 Plus 4 TB
+  raspberrypi-03:
+    allowScheduling: true
+    disks:
+      default-disk-a6c00bbc1be864c4:
+        path: /var/lib/longhorn/
+        storageReserved: 32212254720 # 30 GiB — Crucial P2 500 GB
+  nuc-00:
+    allowScheduling: true
+    disks:
+      default-disk-f4e96f872342ff3:
+        path: /var/lib/longhorn/
+        storageReserved: 10737418240 # 10 GiB — 64 GB SSD
