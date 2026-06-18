@@ -60,7 +60,7 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
 
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
 [crucial-p3-plus]: https://www.crucial.com/ssd/p3-plus/ct4000p3pssd8
-[crucial-p2]: https://www.crucial.com/ssd/p2/ct500p2ssd8
+[crucial-p2]: https://www.ssdwiki.com/m-2-pci-express/crucial-p2/
 [intel-nuc-8gb]: https://www.intel.com/content/www/us/en/products/sku/71275/intel-nuc-kit-dc3217iye/specifications.html
 [rackmate-t1]: https://www.amazon.co.uk/dp/B0CS6MHCY8
 [rack-mount]: https://www.amazon.co.uk/dp/B0DRGF68Z9
