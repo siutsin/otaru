@@ -75,7 +75,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: false
           claude_args: |
-            --model claude-sonnet-4-6 --max-turns 10 --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
+            --model claude-opus-4-8 --max-turns 10 --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*)"
           prompt: |
             Review only. Do not push commits, edit PR metadata, change labels, write repository content, or run code from the PR.
 
