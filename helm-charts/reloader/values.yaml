@@ -10,22 +10,9 @@ reloader:
           memory: 64Mi
           ephemeral-storage: 64Mi
       affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: node.otaru.io/storage-tier
-                    operator: In
-                    values:
-                      - sd-card
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
-      tolerations:
-        - key: node.otaru.io/storage-tier
-          operator: Equal
-          value: sd-card
-          effect: PreferNoSchedule
+

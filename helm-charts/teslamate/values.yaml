@@ -8,14 +8,6 @@ database:
 
 deployment:
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: node.otaru.io/storage-tier
-                operator: NotIn
-                values:
-                  - sd-card
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
@@ -76,14 +68,6 @@ grafana:
       memory: 512Mi
       ephemeral-storage: 128Mi
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: node.otaru.io/storage-tier
-                operator: NotIn
-                values:
-                  - sd-card
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100

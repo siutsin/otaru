@@ -4,5 +4,5 @@ metadata:
   name: raspberrypi-03
   namespace: {{ .Values.namespace }}
 spec:
-  allowScheduling: false
+  allowScheduling: true
   name: raspberrypi-03

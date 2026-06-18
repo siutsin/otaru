@@ -4,6 +4,7 @@
   gather_facts: false
 
   vars:
+    otaru_repo_root: "{{ playbook_dir }}/../.."
     target_node: "{{ target_node | default('', true) }}"
     expected_disk_model_substring: "{{ expected_disk_model_substring | default('', true) }}"
     luks_rescue_host: "{{ luks_rescue_host | default('192.168.10.40', true) }}"

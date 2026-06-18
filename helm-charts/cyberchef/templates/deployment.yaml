@@ -49,14 +49,6 @@ spec:
               memory: 100Mi
               ephemeral-storage: 100Mi
       affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: node.otaru.io/storage-tier
-                    operator: In
-                    values:
-                      - sd-card
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
@@ -65,8 +57,4 @@ spec:
                   matchLabels:
                     app.kubernetes.io/name: {{ .Values.name }}
                 topologyKey: kubernetes.io/hostname
-      tolerations:
-        - key: node.otaru.io/storage-tier
-          operator: Equal
-          value: sd-card
-          effect: PreferNoSchedule
+
