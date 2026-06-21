@@ -57,6 +57,7 @@ This executes:
 - Helm chart validation
 - Terraform linting
 - Terragrunt linting
+- EditorConfig compliance
 - Zizmor audit
 
 ## Error Handling Policy
