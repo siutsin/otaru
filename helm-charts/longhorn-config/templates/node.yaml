@@ -15,7 +15,8 @@ spec:
       diskType: filesystem
       evictionRequested: false
       path: {{ $disk.path }}
-      storageReserved: {{ int $disk.storageReserved }}
+      # Longhorn expects bytes; values.yaml stores human-readable GiB per SSD.
+      storageReserved: {{ mul (int $disk.storageReservedGiB) 1073741824 }}
       tags: []
     {{- end }}
 {{- end }}

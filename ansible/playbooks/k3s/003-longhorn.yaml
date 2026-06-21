@@ -1,0 +1,23 @@
+---
+# Annotate Kubernetes nodes so Longhorn registers the stable disk name "default"
+# on first join, before Argo syncs longhorn-config.
+- hosts: k3s_cluster
+  gather_facts: false
+
+  vars:
+    # 1 GiB in bytes; used when converting inventory storageReservedGiB values.
+    longhorn_gib_bytes: 1073741824
+
+  tasks:
+    - name: Annotate Kubernetes node with Longhorn default disk config
+      delegate_to: localhost
+      vars:
+        k8s_node_name: "{{ inventory_hostname | regex_replace('\\.local$', '') }}"
+        longhorn_storage_reserved_bytes: "{{ longhorn_storage_reserved_gib | int * longhorn_gib_bytes | int }}"
+        longhorn_disk_config: >-
+          [{"path":"/var/lib/longhorn/","name":"default","allowScheduling":true,"storageReserved":{{ longhorn_storage_reserved_bytes }}}]
+      shell: |
+        kubectl annotate node "{{ k8s_node_name }}" \
+          node.longhorn.io/default-disks-config='{{ longhorn_disk_config }}' \
+          --overwrite
+      changed_when: true

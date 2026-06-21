@@ -1,36 +1,45 @@
 name: longhorn
 namespace: longhorn-system
 
-# Per-node Longhorn disk settings. storageReserved is in bytes; set per SSD size
-# instead of using the global storage-reserved-percentage-for-default-disk default.
+# Per-node Longhorn disk settings. Use a stable disk name (`default`) so rebuilds
+# get the same Node CR shape from Git instead of FSID-derived default-disk-<hex>.
+#
+# storageReservedGiB: space held back on each node for the OS, kubelet, container
+# images, and logs. Longhorn subtracts this from schedulable capacity. Tune per
+# physical SSD size rather than using the global percentage default.
 nodes:
   raspberrypi-00:
     allowScheduling: true
     disks:
-      default-disk-a6c00bbc1be864c4:
+      default:
         path: /var/lib/longhorn/
-        storageReserved: 26843545600 # 25 GiB — Lexar NM620 256 GB
+        # 256 GB Lexar NM620; smaller disk needs a larger share reserved for the OS.
+        storageReservedGiB: 25
   raspberrypi-01:
     allowScheduling: true
     disks:
-      default-disk-a6c00bbc1be864c4:
+      default:
         path: /var/lib/longhorn/
-        storageReserved: 53687091200 # 50 GiB — Crucial P3 Plus 4 TB
+        # 4 TB Crucial P3 Plus; fixed OS headroom on a large data disk.
+        storageReservedGiB: 50
   raspberrypi-02:
     allowScheduling: true
     disks:
-      default-disk-d5f6014c34560435:
+      default:
         path: /var/lib/longhorn/
-        storageReserved: 53687091200 # 50 GiB — Crucial P3 Plus 4 TB
+        # 4 TB Crucial P3 Plus; fixed OS headroom on a large data disk.
+        storageReservedGiB: 50
   raspberrypi-03:
     allowScheduling: true
     disks:
-      default-disk-a6c00bbc1be864c4:
+      default:
         path: /var/lib/longhorn/
-        storageReserved: 32212254720 # 30 GiB — Crucial P2 500 GB
+        # 500 GB Crucial P2 worker NVMe.
+        storageReservedGiB: 30
   nuc-00:
     allowScheduling: true
     disks:
-      default-disk-f4e96f872342ff3:
+      default:
         path: /var/lib/longhorn/
-        storageReserved: 10737418240 # 10 GiB — 64 GB SSD
+        # 64 GB SSD; keep a generous slice for Ubuntu and kubelet on a tiny disk.
+        storageReservedGiB: 10
