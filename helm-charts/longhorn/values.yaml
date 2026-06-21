@@ -12,6 +12,7 @@ longhorn:
     defaultReplicaCount: 2
     replicaSoftAntiAffinity: false
     replicaAutoBalance: best-effort
+    storageReservedPercentageForDefaultDisk: "0"
     snapshotMaxCount: "250"
     autoCleanupSnapshotWhenDeleteBackup: true
   defaultBackupStore:

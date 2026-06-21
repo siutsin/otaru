@@ -1,8 +1,22 @@
+{{- range $name, $node := .Values.nodes }}
+---
 apiVersion: longhorn.io/v1beta2
 kind: Node
 metadata:
-  name: raspberrypi-03
-  namespace: {{ .Values.namespace }}
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
 spec:
-  allowScheduling: true
-  name: raspberrypi-03
+  allowScheduling: {{ $node.allowScheduling }}
+  name: {{ $name }}
+  disks:
+    {{- range $diskId, $disk := $node.disks }}
+    {{ $diskId }}:
+      allowScheduling: {{ $disk.allowScheduling | default true }}
+      diskType: filesystem
+      evictionRequested: false
+      path: {{ $disk.path }}
+      # Longhorn expects bytes; values.yaml stores human-readable GiB per SSD.
+      storageReserved: {{ mul (int $disk.storageReservedGiB) 1073741824 }}
+      tags: []
+    {{- end }}
+{{- end }}

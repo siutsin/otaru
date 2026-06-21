@@ -8,22 +8,32 @@ all:
       hosts:
         raspberrypi-00.local:
           ansible_host: 192.168.10.60
+          # Longhorn disk reserve (GiB) for 256 GB Lexar NM620.
+          longhorn_storage_reserved_gib: 25
     node01:
       hosts:
         raspberrypi-01.local:
           ansible_host: 192.168.10.61
+          # Longhorn disk reserve (GiB) for 4 TB Crucial P3 Plus.
+          longhorn_storage_reserved_gib: 50
     node02:
       hosts:
         raspberrypi-02.local:
           ansible_host: 192.168.10.62
+          # Longhorn disk reserve (GiB) for 4 TB Crucial P3 Plus.
+          longhorn_storage_reserved_gib: 50
     node03:
       hosts:
         raspberrypi-03.local:
           ansible_host: 192.168.10.63
+          # Longhorn disk reserve (GiB) for 500 GB Crucial P2.
+          longhorn_storage_reserved_gib: 30
     node20:
       hosts:
         nuc-00.local:
           ansible_host: 192.168.10.80
+          # Longhorn disk reserve (GiB) for 64 GB SSD.
+          longhorn_storage_reserved_gib: 10
           ansible_ssh_user: ubuntu
           luks_root_disk: /dev/sda
           luks_boot_partition: /dev/sda2
