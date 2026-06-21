@@ -1,0 +1,9 @@
+{{- range $name, $value := .Values.settings }}
+---
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+value: {{ $value | quote }}
+{{- end }}
