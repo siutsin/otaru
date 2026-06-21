@@ -51,9 +51,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install editorconfig-checker
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -fsSL -o /tmp/ec.tar.gz \
-            https://github.com/editorconfig-checker/editorconfig-checker/releases/download/v3.6.1/ec-linux-amd64.tar.gz
+          gh release download v3.6.1 --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
           tar -xzf /tmp/ec.tar.gz -C /tmp bin/ec-linux-amd64
           chmod +x /tmp/bin/ec-linux-amd64
           sudo mv /tmp/bin/ec-linux-amd64 /usr/local/bin/ec
