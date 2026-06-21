@@ -26,7 +26,10 @@ jobs:
           node-version: 'lts/*'
 
       - name: Install markdownlint-cli2
-        run: npm install -g markdownlint-cli2
+        run: npm ci
+
+      - name: Add node_modules/.bin to PATH
+        run: echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "${GITHUB_PATH}"
 
       - name: Setup yq
         uses: vegardit/gha-setup-yq@95fc563100306ca9918e9d18f38e85430ba285bc # 1.1.1
