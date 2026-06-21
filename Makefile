@@ -224,8 +224,8 @@ lint-terragrunt: ## Lint and format Terragrunt files with terragrunt hcl format
 .PHONY: lint-zizmor
 lint-zizmor: ## Run zizmor audit on workflows
 	@echo "$(GREEN)Running zizmor audit...$(NC)"
-	@env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config . > /dev/null 2>&1 || \
-		env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config .
+	@env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config .github/workflows > /dev/null 2>&1 || \
+		env -u GITHUB_TOKEN -u GH_TOKEN -u ZIZMOR_GITHUB_TOKEN zizmor --offline --no-config .github/workflows
 
 .PHONY: validate-argocd-manifest
 validate-argocd-manifest: ## Validate ArgoCD manifest rendering with jsonnet
