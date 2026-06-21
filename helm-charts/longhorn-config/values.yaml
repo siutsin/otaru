@@ -1,6 +1,9 @@
 name: longhorn
 namespace: longhorn-system
 
+settings:
+  allow-collecting-longhorn-usage-metrics: "false"
+
 # Per-node Longhorn disk settings. Use a stable disk name (`default`) so rebuilds
 # get the same Node CR shape from Git instead of FSID-derived default-disk-<hex>.
 #
