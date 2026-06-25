@@ -3,7 +3,7 @@ namespace: umami
 
 image:
   repository: ghcr.io/umami-software/umami
-  tag: postgresql-latest@sha256:e3f80c0625aad7179b49da27d475357cabb1068b8cacd9a792cfd6966888b123
+  tag: postgresql-latest@sha256:8edfe4beaef13f9d1300619fa264ef250a3688df9cc54d24ca830ca31cb475ec
   pullPolicy: IfNotPresent
 
 database:
