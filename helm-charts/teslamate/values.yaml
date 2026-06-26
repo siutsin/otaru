@@ -98,7 +98,7 @@ grafana:
   image:
     registry: ghcr.io
     repository: teslamate-org/teslamate/grafana
-    tag: main@sha256:fa38f71286e0bdad64abc42fe00ea1e648234b529f230de32043939b938b5868
+    tag: main@sha256:d76dfbf5d1a5ab5bb0c2b8f2e7fedfc63dd29f2421753eeed3ac8bcd55cdc934
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
