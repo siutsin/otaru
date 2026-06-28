@@ -25,7 +25,7 @@ kyvernoHookJobs:
   namespace: kyverno
 
 k8s-cleaner:
-  deployment:
+  controller:
     resources:
       requests:
         cpu: 50m
