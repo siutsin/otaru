@@ -29,9 +29,14 @@
 
   handlers:
     - name: Reapply udev link settings for eno1
-      # Toggling offload features does not bounce the carrier, so this is safe
-      # to apply live without dropping the node's only network path.
+      # Reload the .link file for the durable path (applied at device init on
+      # boot), then set the offloads explicitly with ethtool. A hot udev
+      # re-trigger on an already-initialised device does not reliably apply
+      # TCPSegmentationOffload, so a live run (e.g. make setup without a reboot)
+      # would otherwise leave tso on. Toggling these features does not bounce
+      # the carrier, so this is safe on the node's only network path.
       shell: |
         udevadm control --reload
         udevadm trigger --action=add /sys/class/net/eno1
+        ethtool -K eno1 tso off gso off gro off
       changed_when: true
