@@ -621,6 +621,76 @@ filesystem.
     when the node is otherwise healthy. Remove the old key for both the hostname and IP, or
     temporarily disable host key checking for that one rejoin run.
 
+---
+
+## e1000e Detected Hardware Unit Hang
+
+The `nuc-00` worker uses an onboard Intel 82579V Gigabit NIC (`eno1`, PCI
+`8086:1503`) driven by `e1000e`. This chipset can stall its transmit queue and
+log `Detected Hardware Unit Hang` repeatedly, after which the driver never
+recovers. The host stays up but loses all network, so the kubelet cannot reach
+the API server and the node goes NotReady while the box appears alive.
+
+### Symptoms: e1000e Hang
+
+- A node goes NotReady but its power light stays on and it keeps logging locally.
+- `ping` and the initramfs dropbear port are both unreachable.
+- The previous boot's kernel log shows repeated entries like:
+
+```text
+e1000e 0000:00:19.0 eno1: Detected Hardware Unit Hang:
+  TDH <f8>  TDT <e0>  next_to_use <e0>  next_to_clean <f6>
+```
+
+The TX descriptor head (`TDH`) and tail (`TDT`) never advance for the duration of
+the hang.
+
+### Cause: TX Offload Stall on 82579
+
+The hang is triggered by the NIC's TCP/generic segmentation offload path on this
+silicon. It is a long-standing `e1000e`/82579 hardware quirk, not a Kubernetes or
+k3s fault.
+
+### Resolution: Disable Segmentation and Receive Offloads
+
+Persist offload-disabling link settings with a systemd-networkd `.link` file. The
+`nuc/000-e1000e-offload.yaml` play (run by `make setup`) writes
+`/etc/systemd/network/10-eno1-offload.link`:
+
+```ini
+[Match]
+OriginalName=eno1
+
+[Link]
+TCPSegmentationOffload=false
+GenericSegmentationOffload=false
+GenericReceiveOffload=false
+```
+
+systemd-udevd applies these at device initialisation. To apply live without a
+reboot (toggling offloads does not bounce the carrier):
+
+```shell
+sudo udevadm control --reload
+sudo udevadm trigger --action=add /sys/class/net/eno1
+ethtool -k eno1 | grep -E 'segmentation-offload|generic-receive'
+```
+
+If the hang recurs after offloads are disabled, the cause is likely deeper:
+disable PCIe ASPM (`pcie_aspm=off` or BIOS C-states) or treat the NIC as failing
+hardware.
+
+### Recovery After a Hang
+
+`nuc-00` is a LUKS-root node. A hung NIC means a power cycle is required, then a
+LUKS unlock before it rejoins:
+
+```shell
+make unlock nuc-00
+```
+
+Once booted, Longhorn re-attaches its volumes automatically.
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
