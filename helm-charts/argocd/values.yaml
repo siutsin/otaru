@@ -119,6 +119,13 @@ argo-cd:
       enabled: false
   repoServer:
     replicas: 1
+    # The jsonnet-with-secret CMP sidecar (ghcr.io/siutsin/images/go-jsonnet)
+    # ships an arm64-only binary. On the amd64 nuc-00 node the jsonnet binary
+    # fails with "exec format error", which breaks manifest generation for the
+    # bootstrap and private apps. Pin the repo-server to arm64 nodes so the
+    # sidecar architecture always matches.
+    nodeSelector:
+      kubernetes.io/arch: arm64
     autoscaling:
       enabled: false
       minReplicas: 1
