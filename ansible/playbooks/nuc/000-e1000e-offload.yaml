@@ -1,0 +1,37 @@
+---
+- hosts: node20
+  become: true
+  gather_facts: false
+
+  # Disable segmentation and receive offloads on the Intel 82579V NIC to work
+  # around the e1000e "Detected Hardware Unit Hang" TX-queue stall. The hang
+  # took nuc-00 NotReady on 2026-06-28: the NIC stopped transmitting while the
+  # OS kept running, so the kubelet could not reach the API server.
+  # See documentation/gotcha.md - e1000e Detected Hardware Unit Hang.
+  tasks:
+    - name: Configure e1000e offload link options
+      copy:
+        dest: /etc/systemd/network/10-eno1-offload.link
+        content: |
+          # Work around the e1000e "Detected Hardware Unit Hang" on Intel 82579V.
+          # See documentation/gotcha.md - e1000e Detected Hardware Unit Hang.
+          [Match]
+          OriginalName=eno1
+
+          [Link]
+          TCPSegmentationOffload=false
+          GenericSegmentationOffload=false
+          GenericReceiveOffload=false
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reapply udev link settings for eno1
+
+  handlers:
+    - name: Reapply udev link settings for eno1
+      # Toggling offload features does not bounce the carrier, so this is safe
+      # to apply live without dropping the node's only network path.
+      shell: |
+        udevadm control --reload
+        udevadm trigger --action=add /sys/class/net/eno1
+      changed_when: true
