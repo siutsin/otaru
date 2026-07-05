@@ -87,6 +87,14 @@ prometheus:
         mountPath: /etc/secrets/alertmanager
         secretName: alertmanager-telegram-config
         readOnly: true
+    extraVolumes:
+      - name: alertmanager-telegram-templates
+        configMap:
+          name: alertmanager-telegram-templates
+    extraVolumeMounts:
+      - name: alertmanager-telegram-templates
+        mountPath: /etc/alertmanager/templates
+        readOnly: true
   kube-state-metrics:
     resources: *smallResources
   prometheus-node-exporter:
@@ -129,48 +137,54 @@ prometheus:
               labels:
                 severity: warning
               annotations:
-                summary: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has unavailable replicas
-                description: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} reports {{ $value }} unavailable replica(s) for more than 10 minutes.
+                title: Deployment has unavailable replicas
+                summary: "{{ $labels.deployment }} in {{ $labels.namespace }}"
+                description: "{{ $value | humanize }} replica(s) have been unavailable for over 10 minutes. Check pod status and events."
             - alert: PodNotReady
               expr: kube_pod_status_ready{condition="true"} == 0 and on(namespace, pod) kube_pod_status_phase{phase="Running"} == 1
               for: 15m
               labels:
                 severity: warning
               annotations:
-                summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is not ready
-                description: Pod {{ $labels.namespace }}/{{ $labels.pod }} has been running but not ready for more than 15 minutes.
+                title: Pod stuck not ready
+                summary: "{{ $labels.pod }} in {{ $labels.namespace }}"
+                description: "The pod is running but failing readiness checks for over 15 minutes. Check container logs and probe settings."
             - alert: ScrapeTargetDown
               expr: up == 0
               for: 10m
               labels:
                 severity: warning
               annotations:
-                summary: Prometheus scrape target {{ $labels.job }} is down
-                description: Target {{ $labels.instance }} in job {{ $labels.job }} has been unreachable for more than 10 minutes.
+                title: Metrics scrape failing
+                summary: "{{ $labels.job }} — {{ $labels.instance }}"
+                description: "Prometheus has been unable to collect metrics from this target for over 10 minutes."
             - alert: NodeNotReady
               expr: kube_node_status_condition{condition="Ready",status="true"} == 0
               for: 5m
               labels:
                 severity: critical
               annotations:
-                summary: Node {{ $labels.node }} is not ready
-                description: Node {{ $labels.node }} has been NotReady for more than 5 minutes.
+                title: Cluster node not ready
+                summary: "{{ $labels.node }}"
+                description: "This node has been NotReady for over 5 minutes. Workloads on it may be evicted."
             - alert: CertificateExpiringSoon
               expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 7 * 24 * 3600
               for: 1h
               labels:
                 severity: warning
               annotations:
-                summary: Certificate {{ $labels.name }} in {{ $labels.namespace }} expires soon
-                description: Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in less than 7 days.
+                title: TLS certificate expiring soon
+                summary: "{{ $labels.name }} in {{ $labels.namespace }}"
+                description: "This certificate expires in less than 7 days. Plan renewal before it lapses."
             - alert: BlackboxProbeFailed
               expr: probe_success{job="blackbox-https"} == 0
               for: 5m
               labels:
                 severity: warning
               annotations:
-                summary: Blackbox probe failed for {{ $labels.instance }}
-                description: HTTPS probe to {{ $labels.instance }} has been failing for more than 5 minutes.
+                title: External endpoint health check failing
+                summary: "{{ $labels.instance }}"
+                description: "The HTTPS health probe has failed for over 5 minutes. Check the service, ingress, and TLS."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox

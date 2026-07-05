@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-telegram-templates
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/component: alertmanager
+data:
+  otaru-telegram.tmpl: |
+    {{`{{ define "otaru.telegram.message" }}`}}
+    {{`{{- $status := .Status -}}`}}
+    {{`{{- $severity := .CommonLabels.severity -}}`}}
+    {{`{{- $alertname := .CommonLabels.alertname -}}`}}
+    {{`{{- if eq $status "firing" -}}`}}
+    {{`{{- if eq $severity "critical" -}}`}}
+    {{`🔴 <b>{{ $alertname }}</b>`}}
+    {{`{{- else -}}`}}
+    {{`⚠️ <b>{{ $alertname }}</b>`}}
+    {{`{{- end -}}`}}
+    {{`{{- else -}}`}}
+    {{`✅ <b>Resolved: {{ $alertname }}</b>`}}
+    {{`{{- end -}}`}}
+    {{`{{- if $severity }} ({{ $severity }}){{ end }}`}}
+
+    {{`{{ range $index, $alert := .Alerts }}`}}
+    {{`{{- if gt $index 0 }}`}}
+
+    ──────────────
+    {{`{{- end }}`}}
+    {{`{{- with $alert.Annotations.title }}`}}
+    {{`<b>{{ . }}</b>`}}
+    {{`{{- end }}`}}
+    {{`{{- with $alert.Annotations.summary }}`}}
+    {{`{{ . }}`}}
+    {{`{{- end }}`}}
+    {{`{{- with $alert.Annotations.description }}`}}
+
+    {{`<i>{{ . }}</i>`}}
+    {{`{{- end }}`}}
+    {{`{{- if or $alert.Labels.namespace $alert.Labels.pod $alert.Labels.deployment $alert.Labels.node }}`}}
+    {{`{{- if and $alert.Labels.namespace $alert.Labels.pod }}`}}
+
+    {{`📦 {{ $alert.Labels.namespace }}/{{ $alert.Labels.pod }}{{- if $alert.Labels.node }} · {{ $alert.Labels.node }}{{ end }}`}}
+    {{`{{- else if and $alert.Labels.namespace $alert.Labels.deployment }}`}}
+
+    {{`📦 {{ $alert.Labels.namespace }}/{{ $alert.Labels.deployment }}`}}
+    {{`{{- else if $alert.Labels.node }}`}}
+
+    {{`🖥 {{ $alert.Labels.node }}`}}
+    {{`{{- end }}`}}
+    {{`{{ end }}`}}
+    {{`{{ end }}`}}
