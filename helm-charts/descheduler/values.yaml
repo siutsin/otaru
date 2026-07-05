@@ -1,12 +1,13 @@
 descheduler:
   kind: Deployment
   resources:
+    # KRR 2026-07-05: live peak ~100Mi working set; 256Mi request was never approached.
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 50m
+      memory: 128Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 256Mi
+      memory: 128Mi
       ephemeral-storage: 64Mi
   deschedulerPolicy:
     profiles:

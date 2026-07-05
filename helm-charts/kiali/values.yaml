@@ -12,12 +12,13 @@ kiali-server:
       - "**"
     view_only_mode: true
     resources:
+      # KRR 2026-07-05: live peak ~124Mi working set; 256Mi request was ~2x actual usage.
       requests:
         cpu: 50m
-        memory: 256Mi
+        memory: 160Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 256Mi
+        memory: 160Mi
         ephemeral-storage: 64Mi
   external_services:
     grafana:

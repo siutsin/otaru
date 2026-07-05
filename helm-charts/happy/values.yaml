@@ -40,12 +40,13 @@ persistence:
 deployment:
   replicas: 1
   resources:
+    # KRR 2026-07-05: live peak ~561Mi working set; 2Gi reserved ~3.5x headroom with no OOM history.
     requests:
-      cpu: 100m
-      memory: 2Gi
+      cpu: 50m
+      memory: 640Mi
       ephemeral-storage: 512Mi
     limits:
-      memory: 2Gi
+      memory: 640Mi
       ephemeral-storage: 512Mi
 
 route:
