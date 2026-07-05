@@ -97,27 +97,11 @@ change.
 
 ## KRR (Kubernetes Resource Recommender)
 
-Use Robusta KRR (`robusta-krr`, CLI `krr`) for live CPU and memory recommendations
-before right-sizing workload requests.
-
-- Install if missing: `pip install robusta-krr`
-- Run a cluster scan: `krr simple -p <prometheus-url>`
-- Resolve `<prometheus-url>` from the monitoring chart ingress config in
-  `helm-charts/monitoring/values.yaml` (`httpRoutes.prometheus`) and
-  `helm-charts/monitoring/templates/route-internal.yaml`. Use the HTTPS base URL
-  for that route. Do not hardcode cluster-specific hostnames in committed docs.
-- Prefer the ingress URL from the controller host. Do not use `kubectl
-  port-forward` for KRR when that ingress is reachable; reserve port-forward
-  only as a fallback when ingress is unavailable.
-- Do not point KRR at `*.svc.cluster.local` service URLs from a Mac or other
-  off-cluster host. Cluster DNS is not reachable there.
-- Bare `krr simple` without `-p` may fail when KRR auto-detection hits the
-  Kubernetes API proxy (for example HTTP 403). Pass `-p` explicitly.
-- Before downsizing, cross-check inline resource comments and recent incident
-  PRs. Do not cut workloads with documented OOM, probe-failure, or scheduling
-  history.
-- When applying KRR-driven request changes, add inline comments with the scan
-  date and observed peak usage, per the Helm Charts policy above.
+- Install: `pip install robusta-krr`
+- Prometheus URL: HTTPS ingress for `httpRoutes.prometheus` in
+  `helm-charts/monitoring/values.yaml` (see `route-internal.yaml` for the
+  hostname pattern). Do not hardcode cluster hostnames here.
+- Run: `krr simple -p <prometheus-url>`
 
 ## Node Reboot Policy
 
