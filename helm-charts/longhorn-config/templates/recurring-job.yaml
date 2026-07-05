@@ -8,7 +8,11 @@ spec:
   task: backup
   groups:
     - backup
-  retain: 1
+  # Keep four weekly backups (~1 month of restore points). With retain: 1 a
+  # single bad state, such as a filesystem reformat on attach, is captured by
+  # the next weekly run and immediately overwrites the last good copy, leaving
+  # no way back. Backups are incremental to S3, so the extra copies are cheap.
+  retain: 4
   concurrency: 1
 ---
 apiVersion: longhorn.io/v1beta2
