@@ -2,6 +2,7 @@
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -19,10 +20,33 @@ spec:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
               - {{ $heartbeatPrincipal }}
+              - {{ $waypointPrincipal }}
       to:
         - operation:
             ports:
               - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: argocd-server-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+              - {{ $heartbeatPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "8080"
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy

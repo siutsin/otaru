@@ -89,6 +89,7 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
