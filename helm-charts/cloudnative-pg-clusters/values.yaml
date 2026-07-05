@@ -51,7 +51,7 @@ defaults:
     switchoverDelay: 3600
     backup:
       target: primary
-      retentionPolicy: 1d
+      retentionPolicy: 30d
     plugins:
       - enabled: true
         isWALArchiver: false
@@ -92,7 +92,7 @@ defaults:
     enabled: true
     schedule: "0 0 */3 * * *"
   objectStore:
-    retentionPolicy: 1d
+    retentionPolicy: 30d
     instanceSidecarResources:
       requests:
         cpu: 50m
