@@ -97,8 +97,8 @@ change.
 
 ## KRR (Kubernetes Resource Recommender)
 
-- Run: `krr simple -p <prometheus-url>`
-- Prometheus URL: HTTPS ingress for `httpRoutes.prometheus` in
+- Run: `krr simple -p <prometheus-url-via-ingress>`
+- `<prometheus-url-via-ingress>`: HTTPS ingress for `httpRoutes.prometheus` in
   `helm-charts/monitoring/values.yaml` (see `route-internal.yaml`).
 - When building the report and recommendations, read inline resource comments
   for past incidents (OOM, probe failures, scheduling pressure) and exclude
