@@ -25,6 +25,10 @@ gateway:
       lockoutMs: 300000
       exemptLoopback: true
 
+# Pin to arm64: busybox and openclaw images are arm64-only; rollout to nuc-00 (amd64) failed init with exec format error.
+nodeSelector:
+  kubernetes.io/arch: arm64
+
 persistence:
   claimName: openclaw-pvc
   mountPath: /var/lib/openclaw
