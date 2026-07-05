@@ -51,12 +51,6 @@ local cleanerExcludeDeleted = [{
   jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
 }];
 
-// Bound PV CSI volumeAttributes are immutable; replica count lives on the Volume CR.
-local longhornVolumePvAttributes = [{
-  kind: 'PersistentVolume',
-  jsonPointers: ['/spec/csi/volumeAttributes/numberOfReplicas'],
-}];
-
 local cnpgClusterOperatorDefaults = [{
   group: 'postgresql.cnpg.io',
   kind: 'Cluster',
@@ -136,33 +130,14 @@ local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volu
 local openClawHelm = { parameters: [{ name: 'route.hostname', value: std.extVar('OPENCLAW_CONTROL_UI_HOSTNAME') }] };
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
-  {
-    wave: '10',
-    name: 'changedetection-volume',
-    namespace: 'changedetection',
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: longhornVolumePvAttributes,
-  },
+  { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '11', name: 'happy', namespace: 'happy' },
-  {
-    wave: '10',
-    name: 'home-assistant-volume',
-    namespace: 'home-assistant',
-    helm: homeAssistantVolumeHelm,
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: longhornVolumePvAttributes,
-  },
+  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
-  {
-    wave: '10',
-    name: 'openclaw-volume',
-    namespace: 'openclaw',
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: longhornVolumePvAttributes,
-  },
+  { wave: '10', name: 'openclaw-volume', namespace: 'openclaw' },
   { wave: '11', name: 'openclaw', namespace: 'openclaw', helm: openClawHelm },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
