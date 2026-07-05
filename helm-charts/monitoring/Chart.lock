@@ -14,5 +14,8 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 10.5.15
-digest: sha256:fc8978f306721e4b2ab2a166194685c56e64c1217894df58e805052caaa01c24
-generated: "2026-07-05T22:32:34.2314+01:00"
+- name: k8s-ephemeral-storage-metrics
+  repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
+  version: 1.19.2
+digest: sha256:0f02f98037949dcba8e515e791dea03c6e8c703b8d3b982916d869c784a996b1
+generated: "2026-07-05T22:36:20.913853+01:00"
