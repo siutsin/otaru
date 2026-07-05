@@ -51,12 +51,35 @@ local cleanerExcludeDeleted = [{
   jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
 }];
 
-local alertmanagerSubPathNull = [{
+local alertmanagerSsaDefaults = [{
   group: 'apps',
   kind: 'StatefulSet',
   name: 'monitoring-alertmanager',
+  namespace: 'monitoring',
   jqPathExpressions: [
+    '.spec.minReadySeconds',
+    '.spec.persistentVolumeClaimRetentionPolicy',
+    '.spec.podManagementPolicy',
+    '.spec.updateStrategy',
+    '.spec.volumeClaimTemplates[]?.status',
     '.spec.template.spec.containers[].volumeMounts[]?.subPath',
+    '.spec.template.spec.containers[].livenessProbe.failureThreshold',
+    '.spec.template.spec.containers[].livenessProbe.periodSeconds',
+    '.spec.template.spec.containers[].livenessProbe.successThreshold',
+    '.spec.template.spec.containers[].livenessProbe.timeoutSeconds',
+    '.spec.template.spec.containers[].livenessProbe.httpGet.scheme',
+    '.spec.template.spec.containers[].readinessProbe.failureThreshold',
+    '.spec.template.spec.containers[].readinessProbe.periodSeconds',
+    '.spec.template.spec.containers[].readinessProbe.successThreshold',
+    '.spec.template.spec.containers[].readinessProbe.timeoutSeconds',
+    '.spec.template.spec.containers[].readinessProbe.httpGet.scheme',
+    '.spec.template.spec.containers[].terminationMessagePath',
+    '.spec.template.spec.containers[].terminationMessagePolicy',
+    '.spec.template.spec.dnsPolicy',
+    '.spec.template.spec.restartPolicy',
+    '.spec.template.spec.schedulerName',
+    '.spec.template.spec.terminationGracePeriodSeconds',
+    '.spec.template.spec.serviceAccount',
   ],
 }];
 
@@ -88,8 +111,8 @@ local _ignoreDifferences = {
     istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
   },
   monitoring: {
-    // prometheus-community alertmanager chart always renders subPath: null for extraSecretMounts.
-    alertmanager: alertmanagerSubPathNull,
+    // alertmanager subchart + ServerSideApply: kube defaults and subPath: null differ from rendered manifest.
+    alertmanager: alertmanagerSsaDefaults,
   },
   security: {
     // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
