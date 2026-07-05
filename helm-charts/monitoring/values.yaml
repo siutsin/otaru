@@ -60,8 +60,28 @@ prometheus:
     # Live 2026-07-05: ~8.3GiB on disk at 7d retention (~1.2GiB/day). 30d ≈ 36GiB TSDB; 100GB cap matches PVC budget.
     retentionSize: 100GB
     retention: 30d
+    extraSecretMounts:
+      - name: blackbox-scrape-config
+        mountPath: /etc/prometheus/secrets/blackbox
+        secretName: blackbox-scrape-config
+        readOnly: true
+    scrapeConfigFiles:
+      - /etc/prometheus/secrets/blackbox/blackbox-scrape-config.yml
   alertmanager:
-    enabled: false
+    enabled: true
+    resources: *smallResources
+    persistence:
+      enabled: true
+      size: 1Gi
+    config:
+      enabled: false
+    extraArgs:
+      config.file: /etc/secrets/alertmanager/alertmanager.yml
+    extraSecretMounts:
+      - name: alertmanager-config
+        mountPath: /etc/secrets/alertmanager
+        secretName: alertmanager-telegram-config
+        readOnly: true
   kube-state-metrics:
     resources: *smallResources
   prometheus-node-exporter:
@@ -94,6 +114,62 @@ prometheus:
                 sum by (namespace, pod) (
                   container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
                 )
+    alerting_rules.yml:
+      groups:
+        - name: cluster-health
+          rules:
+            - alert: DeploymentUnavailable
+              expr: kube_deployment_status_replicas_unavailable > 0
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has unavailable replicas
+                description: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} reports {{ $value }} unavailable replica(s) for more than 10 minutes.
+            - alert: PodNotReady
+              expr: kube_pod_status_ready{condition="true"} == 0 and on(namespace, pod) kube_pod_status_phase{phase="Running"} == 1
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is not ready
+                description: Pod {{ $labels.namespace }}/{{ $labels.pod }} has been running but not ready for more than 15 minutes.
+            - alert: ScrapeTargetDown
+              expr: up == 0
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: Prometheus scrape target {{ $labels.job }} is down
+                description: Target {{ $labels.instance }} in job {{ $labels.job }} has been unreachable for more than 10 minutes.
+            - alert: NodeNotReady
+              expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: Node {{ $labels.node }} is not ready
+                description: Node {{ $labels.node }} has been NotReady for more than 5 minutes.
+            - alert: CertificateExpiringSoon
+              expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 7 * 24 * 3600
+              for: 1h
+              labels:
+                severity: warning
+              annotations:
+                summary: Certificate {{ $labels.name }} in {{ $labels.namespace }} expires soon
+                description: Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in less than 7 days.
+            - alert: BlackboxProbeFailed
+              expr: probe_success{job="blackbox-https"} == 0
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: Blackbox probe failed for {{ $labels.instance }}
+                description: HTTPS probe to {{ $labels.instance }} has been failing for more than 5 minutes.
+
+prometheus-blackbox-exporter:
+  fullnameOverride: blackbox
+  resources: *smallResources
 
 grafana:
   resources:

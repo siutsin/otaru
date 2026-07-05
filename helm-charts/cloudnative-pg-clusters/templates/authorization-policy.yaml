@@ -1,0 +1,24 @@
+{{- $prometheusPrincipal := "cluster.local/ns/monitoring/sa/monitoring-prometheus-server" -}}
+{{- range $k, $clusterConfig := .Values.clusters }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ $clusterConfig.clusterName }}-postgres-metrics
+  namespace: {{ $clusterConfig.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      cnpg.io/cluster: {{ $clusterConfig.clusterName }}
+      cnpg.io/podRole: instance
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9187"
+{{- end }}

@@ -77,3 +77,43 @@ spec:
     - min: 200
       max: 299
   interval: 5m
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+  data:
+{{- $grafanaEndpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $grafanaEndpointTypes }}
+    - secretKey: grafana-{{ . }}-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        key: heartbeats
+        metadataPolicy: None
+        property: grafana-{{ . }}-endpoint
+{{- end }}
+---
+apiVersion: monitoring.siutsin.com/v1alpha1
+kind: Heartbeat
+metadata:
+  name: grafana-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  endpointsSecret:
+    name: grafana-heartbeat
+    targetEndpointKey: grafana-target-endpoint
+    healthyEndpointKey: grafana-healthy-endpoint
+    unhealthyEndpointKey: grafana-unhealthy-endpoint
+  expectedStatusCodeRanges:
+    - min: 200
+      max: 299
+  interval: 5m

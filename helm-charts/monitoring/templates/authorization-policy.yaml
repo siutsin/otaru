@@ -166,6 +166,27 @@ spec:
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
+  name: blackbox
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: blackbox
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9115"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
   name: monitoring-prometheus-pushgateway
   namespace: {{ .Values.namespace }}
 spec:
