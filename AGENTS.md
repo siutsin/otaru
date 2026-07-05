@@ -95,6 +95,15 @@ For mutating operations, keep GitOps as the source of truth: patch the repo and
 let Argo CD reconcile unless the user explicitly asks for an emergency live
 change.
 
+## KRR (Kubernetes Resource Recommender)
+
+- Run: `krr simple -p <prometheus-url-via-ingress>`
+- `<prometheus-url-via-ingress>`: HTTPS ingress for `httpRoutes.prometheus` in
+  `helm-charts/monitoring/values.yaml` (see `route-internal.yaml`).
+- When building the report and recommendations, read inline resource comments
+  for past incidents (OOM, probe failures, scheduling pressure) and exclude
+  downsizing past those guardrails.
+
 ## Node Reboot Policy
 
 Some Raspberry Pi nodes use LUKS encrypted root disks and do not return from a
