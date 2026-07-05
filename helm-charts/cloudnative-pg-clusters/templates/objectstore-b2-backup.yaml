@@ -19,7 +19,11 @@ spec:
         key: "AWS_SECRET_ACCESS_KEY"
       inheritFromIAMRole: false
   instanceSidecarConfiguration:
-    resources: {{ toYaml $.Values.defaults.objectStore.instanceSidecarResources | nindent 6 }}
+    {{- $sidecarResources := $.Values.defaults.objectStore.instanceSidecarResources }}
+    {{- if and $clusterConfig.objectStore $clusterConfig.objectStore.instanceSidecarResources }}
+    {{- $sidecarResources = $clusterConfig.objectStore.instanceSidecarResources }}
+    {{- end }}
+    resources: {{ toYaml $sidecarResources | nindent 6 }}
   retentionPolicy: {{ $.Values.defaults.objectStore.retentionPolicy | quote }}
 {{- end }}
 {{- end }}

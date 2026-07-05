@@ -1,0 +1,13 @@
+{{- if .Values.prometheusLonghornVolume.enabled }}
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: {{ .Values.prometheusLonghornVolume.name }}
+  namespace: longhorn-system
+  labels:
+    app.kubernetes.io/name: prometheus
+    recurring-job-group.longhorn.io/backup: enabled
+    recurring-job-group.longhorn.io/trim: enabled
+spec:
+  numberOfReplicas: {{ .Values.prometheusLonghornVolume.numberOfReplicas }}
+{{- end }}

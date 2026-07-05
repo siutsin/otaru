@@ -1,0 +1,13 @@
+{{- if .Values.lokiLonghornVolume.enabled }}
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: {{ .Values.lokiLonghornVolume.name }}
+  namespace: longhorn-system
+  labels:
+    app.kubernetes.io/name: loki
+    recurring-job-group.longhorn.io/backup: enabled
+    recurring-job-group.longhorn.io/trim: enabled
+spec:
+  numberOfReplicas: {{ .Values.lokiLonghornVolume.numberOfReplicas }}
+{{- end }}

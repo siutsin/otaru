@@ -1,0 +1,22 @@
+{{- if .Values.lokiLonghornVolume.enabled }}
+# StatefulSet volumeClaimTemplates are immutable; label the bound PVC directly for Longhorn recurring jobs.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-monitoring-loki-0
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/component: single-binary
+    app.kubernetes.io/instance: monitoring
+    app.kubernetes.io/name: loki
+    recurring-job-group.longhorn.io/backup: enabled
+    recurring-job-group.longhorn.io/trim: enabled
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn-crypto-global
+  volumeName: {{ .Values.lokiLonghornVolume.name }}
+{{- end }}

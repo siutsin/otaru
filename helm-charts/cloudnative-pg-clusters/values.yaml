@@ -157,7 +157,28 @@ clusters:
   umami:
     clusterName: umami-20260614-0001
     namespace: umami
-    instances: 1
+    affinity:
+      podAntiAffinityType: required
+    instances: 2
+    # Light analytics DB: live usage ~10m CPU / 74Mi; keep headroom for failover and vacuum.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+        ephemeral-storage: 512Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 512Mi
+    objectStore:
+      # Barman sidecar live usage ~44Mi; match plugin-barman-cloud controller sizing.
+      instanceSidecarResources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+          ephemeral-storage: 128Mi
+        limits:
+          memory: 128Mi
+          ephemeral-storage: 128Mi
     storage:
       size: 2Gi
       storageClass: longhorn-crypto-global

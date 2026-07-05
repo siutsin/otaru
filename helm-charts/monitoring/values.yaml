@@ -1,6 +1,19 @@
 name: monitoring
 namespace: monitoring
 
+# Longhorn Volume CR for the dynamically provisioned Prometheus PVC (name = bound PV).
+# Lookup: kubectl -n monitoring get pvc monitoring-prometheus-server -o jsonpath='{.spec.volumeName}'
+prometheusLonghornVolume:
+  enabled: true
+  name: pvc-429394f8-4469-42bd-913a-9952629d36d1
+  numberOfReplicas: 2
+
+# Lookup: kubectl -n monitoring get pvc storage-monitoring-loki-0 -o jsonpath='{.spec.volumeName}'
+lokiLonghornVolume:
+  enabled: true
+  name: pvc-40c3f449-86c7-4d7f-83ec-0912076a2d7b
+  numberOfReplicas: 2
+
 _shared:
   smallResources: &smallResources
     requests:
@@ -40,10 +53,13 @@ prometheus:
         memory: 3Gi
         ephemeral-storage: 256Mi
     persistentVolume:
-      size: 50Gi
-    # One day currently uses about 2.3G; cap at 40GB on the 50Gi PVC to leave WAL/headroom and growth space.
-    retentionSize: 40GB
-    retention: 7d
+      size: 100Gi
+      labels:
+        recurring-job-group.longhorn.io/backup: enabled
+        recurring-job-group.longhorn.io/trim: enabled
+    # Live 2026-07-05: ~8.3GiB on disk at 7d retention (~1.2GiB/day). 30d ≈ 36GiB TSDB; 100GB cap matches PVC budget.
+    retentionSize: 100GB
+    retention: 30d
   alertmanager:
     enabled: false
   kube-state-metrics:
@@ -130,6 +146,10 @@ loki:
     resources: *smallResources
   singleBinary:
     replicas: 1
+    persistence:
+      labels:
+        recurring-job-group.longhorn.io/backup: enabled
+        recurring-job-group.longhorn.io/trim: enabled
     podLabels:
       # Loki is written to directly by non-ambient fluent-bit; keep ingestion off the ambient dataplane.
       istio.io/dataplane-mode: none
