@@ -39,6 +39,13 @@ httpRoutes:
       port: 80
 
 prometheus:
+  scrapeConfigFiles:
+    - /etc/prometheus/secrets/blackbox/blackbox-scrape-config.yml
+  extraScrapeConfigs: |
+    - job_name: k8s-ephemeral-storage-metrics
+      static_configs:
+        - targets:
+            - k8s-ephemeral-storage-metrics.monitoring.svc.cluster.local:9100
   configmapReload:
     prometheus:
       resources: *smallResources
@@ -65,13 +72,6 @@ prometheus:
         mountPath: /etc/prometheus/secrets/blackbox
         secretName: blackbox-scrape-config
         readOnly: true
-    scrapeConfigFiles:
-      - /etc/prometheus/secrets/blackbox/blackbox-scrape-config.yml
-    extraScrapeConfigs: |
-      - job_name: k8s-ephemeral-storage-metrics
-        static_configs:
-          - targets:
-              - k8s-ephemeral-storage-metrics.monitoring.svc.cluster.local:9100
   alertmanager:
     enabled: true
     resources: *smallResources
