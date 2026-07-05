@@ -40,13 +40,13 @@ persistence:
 deployment:
   replicas: 1
   resources:
-    # KRR 2026-07-05: live peak ~561Mi working set; 2Gi reserved ~3.5x headroom with no OOM history.
+    # OOMKill exit 137 at 640Mi on 2026-07-05 rollout; PGLite startup spike exceeds KRR steady-state peak.
     requests:
       cpu: 50m
-      memory: 640Mi
+      memory: 896Mi
       ephemeral-storage: 512Mi
     limits:
-      memory: 640Mi
+      memory: 896Mi
       ephemeral-storage: 512Mi
 
 route:
