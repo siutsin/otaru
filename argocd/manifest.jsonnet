@@ -108,6 +108,9 @@ local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extV
 local cnpgHelm = {
   releaseName: 'cloudnative-pg',
   valuesObject: {
+    podLabels: {
+      'istio.io/dataplane-mode': 'none',
+    },
     resources: {
       requests: {
         cpu: '100m',

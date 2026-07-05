@@ -26,6 +26,9 @@ defaults:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9187"
+      labels:
+        # CNPG operator scrapes instance status over direct pod HTTPS; keep DB pods off the ambient dataplane.
+        istio.io/dataplane-mode: none
     postgresGID: 26
     postgresUID: 26
     primaryUpdateMethod: switchover
