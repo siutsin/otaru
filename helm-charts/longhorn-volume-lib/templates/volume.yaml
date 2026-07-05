@@ -1,5 +1,6 @@
 {{- range $key, $value := .Values.volumes }}
 {{- $replicas := default 1 $value.numberOfReplicas }}
+{{- $nodeSelector := default (list) $value.nodeSelector }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -28,7 +29,8 @@ spec:
     driver: driver.longhorn.io
     fsType: ext4
     volumeAttributes:
-      numberOfReplicas: {{ $replicas | quote }}
+      # Immutable on bound PVs; replica count is driven by the Longhorn Volume CR.
+      numberOfReplicas: "1"
       dataLocality: disabled
       replicaAutoBalance: best-effort
       encrypted: "true"
@@ -85,5 +87,7 @@ spec:
   frontend: blockdev
   size: {{ $value.sizeBytes | quote }}
   numberOfReplicas: {{ $replicas }}
+  nodeSelector:
+{{ toYaml $nodeSelector | indent 4 }}
   fromBackup: {{ $value.fromBackup | quote }}
 {{- end }}

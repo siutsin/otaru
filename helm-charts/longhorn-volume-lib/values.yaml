@@ -10,6 +10,7 @@ volumes: {}
   #   size: "2Gi"
   #   sizeBytes: "2147483648"
   #   fromBackup: "s3://bucket@region/?backup=backup-id&volume=vol-name"
-  #   numberOfReplicas: 1  # optional, defaults to 1
+  #   numberOfReplicas: 1  # optional, defaults to 1 (Volume CR only; PV stays 1)
+  #   nodeSelector: []     # optional, defaults to [] (no replica placement restriction)
   #   enableBackup: true  # optional, defaults to true
   #   enableTrim: true    # optional, defaults to true
