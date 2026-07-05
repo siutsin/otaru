@@ -100,9 +100,9 @@ change.
 - Run: `krr simple -p <prometheus-url>`
 - Prometheus URL: HTTPS ingress for `httpRoutes.prometheus` in
   `helm-charts/monitoring/values.yaml` (see `route-internal.yaml`).
-- Before changing requests, read inline resource comments for past incidents
-  (OOM, probe failures, scheduling pressure) and do not downsize past those
-  guardrails.
+- When building the report and recommendations, read inline resource comments
+  for past incidents (OOM, probe failures, scheduling pressure) and exclude
+  downsizing past those guardrails.
 
 ## Node Reboot Policy
 
