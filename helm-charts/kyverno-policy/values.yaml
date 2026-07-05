@@ -7,6 +7,7 @@ clusterSecretStorePolicy:
   allowedNamespaces:
     argocd:
       - argocd-secret
+      - heartbeats
       - openclaw
       - Otaru - GitHub Private
     blocky:
