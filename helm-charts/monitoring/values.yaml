@@ -67,6 +67,11 @@ prometheus:
         readOnly: true
     scrapeConfigFiles:
       - /etc/prometheus/secrets/blackbox/blackbox-scrape-config.yml
+    extraScrapeConfigs: |
+      - job_name: k8s-ephemeral-storage-metrics
+        static_configs:
+          - targets:
+              - k8s-ephemeral-storage-metrics.monitoring.svc.cluster.local:9100
   alertmanager:
     enabled: true
     resources: *smallResources
@@ -170,6 +175,29 @@ prometheus:
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
   resources: *smallResources
+
+k8s-ephemeral-storage-metrics:
+  deploy_type: Deployment
+  pod_labels:
+    istio.io/dataplane-mode: none
+  prometheus:
+    enable: true
+    rules:
+      enable: false
+  serviceMonitor:
+    enable: false
+  image:
+    repository: ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics
+    tag: 1.19.2
+    imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 64Mi
 
 grafana:
   resources:

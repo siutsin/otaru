@@ -166,6 +166,27 @@ spec:
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
+  name: k8s-ephemeral-storage-metrics
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: k8s-ephemeral-storage-metrics
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9100"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
   name: blackbox
   namespace: {{ .Values.namespace }}
 spec:
