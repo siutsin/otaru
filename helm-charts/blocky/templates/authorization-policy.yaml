@@ -5,6 +5,7 @@
 {{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
 {{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
 {{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -35,6 +36,7 @@ spec:
             principals:
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
               - {{ $heartbeatPrincipal }}
+              - {{ $waypointPrincipal }}
       to:
         - operation:
             methods:
@@ -90,6 +92,7 @@ spec:
             principals:
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
               - {{ $heartbeatPrincipal }}
+              - {{ $waypointPrincipal }}
       to:
         - operation:
             ports:
