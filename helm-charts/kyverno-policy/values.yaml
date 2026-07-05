@@ -12,6 +12,7 @@ clusterSecretStorePolicy:
       - Otaru - GitHub Private
     blocky:
       - blocky
+      - heartbeats
     changedetection:
       - changedetection
     cloudflare-tunnel:
@@ -24,6 +25,7 @@ clusterSecretStorePolicy:
     umami:
       - Umami
       - b2-secret-cloudnative-pg
+      - heartbeats
     home-assistant:
       - heartbeats
     jung2bot:
