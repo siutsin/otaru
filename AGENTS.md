@@ -75,6 +75,12 @@ create missing values.yaml files, resolve template rendering issues.
 Set memory requests equal to memory limits unless the user explicitly asks otherwise.
 Do not set CPU limits unless the user explicitly asks for them.
 Set explicit ephemeral-storage requests and limits with suitable values for the workload.
+Whenever you change a resource request or limit, add an inline comment in the
+resource block stating the observed symptom and the reason for the new value.
+This covers CPU, memory, and ephemeral-storage bumps, whether triggered by an
+OOMKill, CPU throttling, disk-pressure eviction, or capacity headroom. Record
+the trigger, for example the exit code and the workload that caused it, and why
+the previous value was too low.
 
 **Markdown**: fix linting violations directly, never disable markdownlint rules.
 
