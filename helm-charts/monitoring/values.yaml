@@ -146,10 +146,6 @@ loki:
     resources: *smallResources
   singleBinary:
     replicas: 1
-    persistence:
-      labels:
-        recurring-job-group.longhorn.io/backup: enabled
-        recurring-job-group.longhorn.io/trim: enabled
     podLabels:
       # Loki is written to directly by non-ambient fluent-bit; keep ingestion off the ambient dataplane.
       istio.io/dataplane-mode: none
