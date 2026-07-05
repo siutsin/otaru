@@ -6,5 +6,6 @@ longhorn-volume-lib:
       sizeBytes: "10737418240"
       # Longhorn Volume.spec.fromBackup is a string; keep it empty for a new volume.
       fromBackup: ""
+      numberOfReplicas: 2
       enableBackup: true
       enableTrim: true
