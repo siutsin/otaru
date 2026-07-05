@@ -33,6 +33,7 @@ clusterSecretStorePolicy:
     monitoring:
       - grafana
       - heartbeats
+      - monitoring
     openclaw:
       - openclaw
     teslamate:
