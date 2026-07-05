@@ -1,27 +1,3 @@
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: {{ .Values.name }}-heartbeat
-  namespace: {{ .Values.namespace }}
-spec:
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: onepassword-secret-store
-  target:
-    creationPolicy: Owner
-  data:
-{{- $endpointTypes := list "target" "healthy" "unhealthy" }}
-{{- range $endpointTypes }}
-    - secretKey: {{ $.Values.name }}-{{ . }}-endpoint
-      remoteRef:
-        conversionStrategy: Default
-        decodingStrategy: None
-        nullBytePolicy: Ignore
-        key: heartbeats
-        metadataPolicy: None
-        property: {{ $.Values.name }}-{{ . }}-endpoint
-{{- end }}
----
 apiVersion: monitoring.siutsin.com/v1alpha1
 kind: Heartbeat
 metadata:
@@ -37,3 +13,4 @@ spec:
     - min: 200
       max: 299
   interval: 5m
+

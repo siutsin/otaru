@@ -50,6 +50,8 @@ prometheus:
     prometheus:
       resources: *smallResources
   server:
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: blackbox-scrape-config
     resources:
       # KRR 2026-07-05: live peak ~3.16Gi working set; prior 3Gi bump (#2309) was still ~40Mi short.
       requests:
