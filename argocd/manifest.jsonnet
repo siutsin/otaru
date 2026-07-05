@@ -51,6 +51,15 @@ local cleanerExcludeDeleted = [{
   jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
 }];
 
+local alertmanagerSubPathNull = [{
+  group: 'apps',
+  kind: 'StatefulSet',
+  name: 'monitoring-alertmanager',
+  jqPathExpressions: [
+    '.spec.template.spec.containers[].volumeMounts[]?.subPath',
+  ],
+}];
+
 local cnpgClusterOperatorDefaults = [{
   group: 'postgresql.cnpg.io',
   kind: 'Cluster',
@@ -77,6 +86,10 @@ local _ignoreDifferences = {
   serviceMesh: {
     'istio-base': webhookCaBundleAndFailurePolicy('istiod-default-validator'),
     istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
+  },
+  monitoring: {
+    // prometheus-community alertmanager chart always renders subPath: null for extraSecretMounts.
+    alertmanager: alertmanagerSubPathNull,
   },
   security: {
     // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
@@ -206,7 +219,14 @@ local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
   { wave: '05', name: 'kiali', namespace: 'kiali' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
-  { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: { valueFiles: _grafanaDashboards } },
+  {
+    wave: '10',
+    name: 'monitoring',
+    namespace: 'monitoring',
+    helm: { valueFiles: _grafanaDashboards },
+    syncOptions: ['RespectIgnoreDifferences=true'],
+    ignoreDifferences: _ignoreDifferences.monitoring.alertmanager,
+  },
 ];
 
 local scheduling = [
