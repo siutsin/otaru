@@ -80,6 +80,10 @@ local alertmanagerSsaDefaults = [{
     '.spec.template.spec.schedulerName',
     '.spec.template.spec.terminationGracePeriodSeconds',
     '.spec.template.spec.serviceAccount',
+    '.spec.template.spec.volumes[].secret.defaultMode',
+    '.spec.volumeClaimTemplates[]?.apiVersion',
+    '.spec.volumeClaimTemplates[]?.kind',
+    '.spec.volumeClaimTemplates[]?.spec.volumeMode',
   ],
 }];
 
@@ -247,6 +251,7 @@ local monitoring = [
     name: 'monitoring',
     namespace: 'monitoring',
     helm: { valueFiles: _grafanaDashboards },
+    serverSideDiff: 'true',
     syncOptions: ['RespectIgnoreDifferences=true'],
     ignoreDifferences: _ignoreDifferences.monitoring.alertmanager,
   },
