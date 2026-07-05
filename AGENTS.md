@@ -46,6 +46,18 @@ Do not remove a worktree, local branch, or remote branch that another agent may
 still be using. Always report which of your own worktrees were removed and which
 remain open.
 
+## GitHub CLI
+
+When waiting on pull requests or CI, use `gh` watch commands instead of `sleep`
+loops or manual polling.
+
+- PR checks: `gh pr checks <number> --watch --fail-fast`
+- Workflow run: `gh run watch <run-id> --exit-status`
+- One-shot status: `gh pr checks <number>` or `gh pr view <number> --json statusCheckRollup`
+
+For cluster or workload readiness, prefer `kubectl wait`, `kubectl rollout
+status`, or `kubectl get <resource> -w` rather than `sleep`.
+
 ## Testing Protocol
 
 Always run `make test` after making changes and fix any failures immediately.
