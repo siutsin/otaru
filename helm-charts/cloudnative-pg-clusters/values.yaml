@@ -22,11 +22,10 @@ defaults:
           key: queries
       disableDefaultQueries: false
       enablePodMonitor: false
-    podTemplate:
-      metadata:
-        annotations:
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "9187"
+    inheritedMetadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
     postgresGID: 26
     postgresUID: 26
     primaryUpdateMethod: switchover
