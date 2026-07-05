@@ -44,13 +44,13 @@ prometheus:
       resources: *smallResources
   server:
     resources:
-      # Keep memory at 3Gi: Grafana dashboard queries pushed Prometheus close to the previous 2Gi limit.
+      # KRR 2026-07-05: live peak ~3.16Gi working set; prior 3Gi bump (#2309) was still ~40Mi short.
       requests:
-        cpu: 100m
-        memory: 3Gi
+        cpu: 800m
+        memory: 3264Mi
         ephemeral-storage: 256Mi
       limits:
-        memory: 3Gi
+        memory: 3264Mi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 100Gi
@@ -150,13 +150,13 @@ loki:
       # Loki is written to directly by non-ambient fluent-bit; keep ingestion off the ambient dataplane.
       istio.io/dataplane-mode: none
     resources:
-      # Keep the single-binary pod (plus 128Mi sidecar) schedulable on memory-tight Pi nodes.
+      # KRR 2026-07-05: live peak ~583Mi working set; 512Mi request (#2567) left ~70Mi headroom.
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 608Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 512Mi
+        memory: 608Mi
         ephemeral-storage: 128Mi
   minio:
     enabled: false
@@ -165,12 +165,13 @@ loki:
   resultsCache:
     allocatedMemory: 128
     resources:
+      # KRR 2026-07-05: live peak ~100Mi working set; 154Mi request was never approached.
       requests:
         cpu: 100m
-        memory: 154Mi
+        memory: 128Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 154Mi
+        memory: 128Mi
         ephemeral-storage: 64Mi
   memcachedExporter:
     resources: *smallResources
