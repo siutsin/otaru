@@ -1,5 +1,6 @@
 namespace: argocd
 integrations:
+  certManager: true
   externalSecrets: true
 
 argo-cd:
@@ -94,6 +95,8 @@ argo-cd:
     enabled: false
   controller:
     replicas: 1
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: argocd-repo-server-tls
     metrics:
       enabled: true
     resources: *controllerResources
@@ -126,6 +129,8 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: argocd-repo-server-tls
     metrics:
       enabled: true
     replicas: 1
