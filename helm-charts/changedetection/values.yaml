@@ -57,12 +57,13 @@ browser:
       tag: 1.38.0@sha256:8f2ffdcb46f1b83e46665954ec130e497b979db766854f79ca9eee43242b7e4c
       pullPolicy: IfNotPresent
     resources:
+      # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during hourly prune runs.
       requests:
         cpu: 10m
-        memory: 32Mi
+        memory: 128Mi
         ephemeral-storage: 16Mi
       limits:
-        memory: 32Mi
+        memory: 128Mi
         ephemeral-storage: 16Mi
   env:
     SCREEN_WIDTH: "1920"
@@ -70,12 +71,13 @@ browser:
     SCREEN_DEPTH: "16"
     MAX_CONCURRENT_CHROME_PROCESSES: "1"
   resources:
+    # KRR 2026-07-05: Playwright browser peaked at ~1.08Gi during Amazon watch fetches; 1Gi left ~6Mi headroom.
     requests:
-      cpu: 250m
-      memory: 1Gi
+      cpu: 50m
+      memory: 1152Mi
       ephemeral-storage: 1Gi
     limits:
-      memory: 1Gi
+      memory: 1152Mi
       ephemeral-storage: 1Gi
 
 service:

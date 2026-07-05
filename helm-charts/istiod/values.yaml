@@ -6,10 +6,11 @@ istiod:
     env:
       ENABLE_INGRESS_WAYPOINT_ROUTING: "true"
     resources:
+      # KRR 2026-07-05: live peak ~182Mi working set; 256Mi request was ~1.4x actual usage.
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 192Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 256Mi
+        memory: 192Mi
         ephemeral-storage: 128Mi

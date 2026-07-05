@@ -124,12 +124,13 @@ probes:
     failureThreshold: 3
 
 resources:
+  # KRR 2026-07-05: live peak ~763Mi working set; 1Gi request reserved ~1.3x actual usage.
   requests:
-    cpu: 500m
-    memory: 1Gi
+    cpu: 320m
+    memory: 768Mi
     ephemeralStorage: 1Gi
   limits:
-    memory: 1Gi
+    memory: 768Mi
     ephemeralStorage: 1Gi
 
 initContainer:
