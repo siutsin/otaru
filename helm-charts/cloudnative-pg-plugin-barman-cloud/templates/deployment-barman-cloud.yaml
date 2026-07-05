@@ -17,6 +17,8 @@ spec:
     metadata:
       labels:
         app: barman-cloud
+        # CNPG operator reaches the plugin over direct gRPC; keep it off the ambient dataplane.
+        istio.io/dataplane-mode: none
     spec:
       containers:
         - args:
