@@ -2,20 +2,20 @@ apiVersion: v2
 name: monitoring
 description: A Helm chart for Kubernetes
 type: application
-version: 0.1.4
+version: 0.1.5
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: prometheus
-  version: 29.13.0
+  version: 29.14.0
   repository: https://prometheus-community.github.io/helm-charts
 - name: prometheus-blackbox-exporter
-  version: 11.12.0
+  version: 11.15.1
   repository: https://prometheus-community.github.io/helm-charts
 - name: loki
   version: 7.0.0
   repository: https://grafana.github.io/helm-charts
 - name: fluent-bit
-  version: 0.57.7
+  version: 0.57.8
   repository: https://fluent.github.io/helm-charts
 - name: grafana
   version: 10.5.15
