@@ -4,6 +4,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ .Values.persistence.claimName }}
   namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.name }}
+    recurring-job-group.longhorn.io/backup: enabled
+    recurring-job-group.longhorn.io/trim: enabled
 spec:
   accessModes:
     {{- toYaml .Values.persistence.accessModes | nindent 4 }}
