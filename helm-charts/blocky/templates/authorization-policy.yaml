@@ -4,6 +4,7 @@
 {{- $monitoring := .Values.monitoring | default dict -}}
 {{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
 {{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -33,6 +34,7 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             methods:

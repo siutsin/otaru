@@ -2,6 +2,7 @@
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $gatewayPrincipal := printf "cluster.local/ns/%s/sa/%s" $gatewayNamespace $gatewayName -}}
+{{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
 {{- $databaseName := regexReplaceAll "-rw\\..*$" .Values.database.host "" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -19,6 +20,7 @@ spec:
         - source:
             principals:
               - {{ $gatewayPrincipal }}
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
