@@ -102,6 +102,9 @@ change.
   `helm-charts/monitoring/values.yaml` (see `route-internal.yaml` for the
   hostname pattern). Do not hardcode cluster hostnames here.
 - Run: `krr simple -p <prometheus-url>`
+- Before changing requests, read inline resource comments for past incidents
+  (OOM, probe failures, scheduling pressure) and do not downsize past those
+  guardrails.
 
 ## Node Reboot Policy
 
