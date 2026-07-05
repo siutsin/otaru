@@ -1,6 +1,5 @@
 namespace: argocd
 integrations:
-  certManager: true
   externalSecrets: true
 
 argo-cd:
@@ -60,10 +59,12 @@ argo-cd:
       reposerver.parallelism.limit: 2
       # Allow cold-cache manifest generation queues to drain before controllers mark comparison as Unknown.
       controller.repo.server.timeout.seconds: 180
-      # cert-manager maintains argocd-repo-server-tls; enable strict verification now that
-      # the Secret exists (Helm only presets this when certificateSecret.enabled is true).
-      controller.repo.server.strict.tls: true
-      server.repo.server.strict.tls: true
+      # Ambient HBONE encrypts east-west traffic; app-layer TLS on repo-server:8081 conflicts
+      # with waypoint interception and caused handshake EOF when argocd-repo-server-tls existed.
+      reposerver.disable.tls: true
+      controller.repo.server.plaintext: true
+      server.repo.server.plaintext: true
+      applicationsetcontroller.repo.server.plaintext: true
       server.repo.server.timeout.seconds: 180
       applicationsetcontroller.repo.server.timeout.seconds: 180
       server.insecure: true
@@ -99,8 +100,6 @@ argo-cd:
     enabled: false
   controller:
     replicas: 1
-    statefulsetAnnotations:
-      secret.reloader.stakater.com/reload: argocd-repo-server-tls
     metrics:
       enabled: true
     resources: *controllerResources
@@ -133,15 +132,6 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
-    deploymentAnnotations:
-      secret.reloader.stakater.com/reload: argocd-repo-server-tls
-    # Ambient mesh HBONE intercepts port 8081 and breaks repo-server gRPC TLS; keep
-    # manifest-generation traffic on direct pod networking like onepassword-connect.
-    podLabels:
-      istio.io/dataplane-mode: none
-    service:
-      annotations:
-        mesh.otaru.io/non-ambient-endpoints: "true"
     metrics:
       enabled: true
     replicas: 1
