@@ -3,6 +3,8 @@ integrations:
   externalSecrets: true
 
 argo-cd:
+  global:
+    addPrometheusAnnotations: true
   _shared:
     controllerResources: &controllerResources
       # Keep memory at 2Gi: sync spikes can queue many repo comparisons at once,
@@ -92,10 +94,14 @@ argo-cd:
     enabled: false
   controller:
     replicas: 1
+    metrics:
+      enabled: true
     resources: *controllerResources
     readinessProbe: *readinessProbe
     pdb: *singletonPdb
   server:
+    metrics:
+      enabled: true
     autoscaling:
       enabled: true
       minReplicas: 2
@@ -104,6 +110,8 @@ argo-cd:
     livenessProbe: *livenessProbe
     pdb: *haPdb
   applicationSet:
+    metrics:
+      enabled: true
     resources: *componentResources
     readinessProbe:
       <<: *readinessProbe
@@ -118,6 +126,8 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
+    metrics:
+      enabled: true
     replicas: 1
     # The jsonnet-with-secret CMP sidecar (ghcr.io/siutsin/images/go-jsonnet)
     # ships an arm64-only binary. On the amd64 nuc-00 node the jsonnet binary

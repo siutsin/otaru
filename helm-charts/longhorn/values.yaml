@@ -2,6 +2,10 @@ name: longhorn
 namespace: longhorn-system
 
 longhorn:
+  longhornManager:
+    serviceAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9500"
   preUpgradeChecker:
     jobEnabled: false
   persistence:

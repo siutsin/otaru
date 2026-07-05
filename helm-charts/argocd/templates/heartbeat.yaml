@@ -1,0 +1,39 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: argocd-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  target:
+    creationPolicy: Owner
+  data:
+{{- $endpointTypes := list "target" "healthy" "unhealthy" }}
+{{- range $endpointTypes }}
+    - secretKey: argocd-{{ . }}-endpoint
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        key: heartbeats
+        metadataPolicy: None
+        property: argocd-{{ . }}-endpoint
+{{- end }}
+---
+apiVersion: monitoring.siutsin.com/v1alpha1
+kind: Heartbeat
+metadata:
+  name: argocd-heartbeat
+  namespace: {{ .Values.namespace }}
+spec:
+  endpointsSecret:
+    name: argocd-heartbeat
+    targetEndpointKey: argocd-target-endpoint
+    healthyEndpointKey: argocd-healthy-endpoint
+    unhealthyEndpointKey: argocd-unhealthy-endpoint
+  expectedStatusCodeRanges:
+    - min: 200
+      max: 299
+  interval: 5m

@@ -1,6 +1,7 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $prometheusPrincipal := "cluster.local/ns/monitoring/sa/monitoring-prometheus-server" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -56,6 +57,7 @@ spec:
             principals:
               - cluster.local/ns/{{ .Values.namespace }}/sa/longhorn-service-account
               - cluster.local/ns/{{ .Values.namespace }}/sa/longhorn-ui-service-account
+              - {{ $prometheusPrincipal }}
       to:
         - operation:
             ports:

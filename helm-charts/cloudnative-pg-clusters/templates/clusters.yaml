@@ -108,6 +108,12 @@ spec:
   monitoring: {{ toYaml $.Values.defaults.cluster.monitoring | nindent 4 }}
   {{- end }}
 
+  {{- if $clusterConfig.podTemplate }}
+  podTemplate: {{ toYaml $clusterConfig.podTemplate | nindent 4 }}
+  {{- else if $.Values.defaults.cluster.podTemplate }}
+  podTemplate: {{ toYaml $.Values.defaults.cluster.podTemplate | nindent 4 }}
+  {{- end }}
+
   # Bootstrap configuration for initial database setup (optional)
   {{- if $clusterConfig.bootstrap }}
   bootstrap: {{ toYaml $clusterConfig.bootstrap | nindent 4 }}

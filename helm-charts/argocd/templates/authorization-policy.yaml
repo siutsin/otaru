@@ -1,0 +1,32 @@
+{{- $prometheusPrincipal := "cluster.local/ns/monitoring/sa/monitoring-prometheus-server" -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
+{{- $components := list
+  (dict "name" "argocd-application-controller" "port" "8082")
+  (dict "name" "argocd-server" "port" "8083")
+  (dict "name" "argocd-repo-server" "port" "8084")
+  (dict "name" "argocd-applicationset-controller" "port" "8080")
+  (dict "name" "argocd-redis" "port" "9121")
+-}}
+{{- range $components }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .name }}-metrics
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - {{ .port | quote }}
+{{- end }}
