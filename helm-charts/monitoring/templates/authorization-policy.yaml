@@ -25,6 +25,7 @@ spec:
             principals:
               - {{ $gatewayPrincipal }}
               - cluster.local/ns/kiali/sa/kiali
+              - {{ $heartbeatPrincipal }}
       to:
         - operation:
             ports:
