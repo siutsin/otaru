@@ -97,11 +97,10 @@ change.
 
 ## KRR (Kubernetes Resource Recommender)
 
-- Install: `pip install robusta-krr`
+- Run: `krr simple -p <prometheus-url>`
 - Prometheus URL: HTTPS ingress for `httpRoutes.prometheus` in
   `helm-charts/monitoring/values.yaml` (see `route-internal.yaml` for the
   hostname pattern). Do not hardcode cluster hostnames here.
-- Run: `krr simple -p <prometheus-url>`
 - Before changing requests, read inline resource comments for past incidents
   (OOM, probe failures, scheduling pressure) and do not downsize past those
   guardrails.
