@@ -19,7 +19,11 @@ deployment:
     USE_X_SETTINGS: "true"
   image:
     repository: ghcr.io/dgtlmoon/changedetection.io
-    tag: latest@sha256:736331d2787f94d3201b64aa641e090f67e28577ba505bd7ba5d7c1841e1e0ca
+    # Pin to a specific version, not the mutable `latest` tag. An uncontrolled
+    # `latest` bump can ship a datastore migration that resets watches on
+    # restart. 0.55.7 resolves to the same digest `latest` currently points to,
+    # so this pin is a no-op for the running pod. See GOTCHA.md.
+    tag: 0.55.7@sha256:736331d2787f94d3201b64aa641e090f67e28577ba505bd7ba5d7c1841e1e0ca
     pullPolicy: IfNotPresent
   # Keep at 1Gi: browser-backed watches stitch screenshots in this app process;
   # 256Mi caused OOMKilled exit 137 while processing an Amazon watch.
