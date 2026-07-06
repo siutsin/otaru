@@ -252,10 +252,11 @@ argo-cd:
           requests:
             cpu: 100m
             memory: 128Mi
-            ephemeral-storage: 256Mi
+            # ephemeral-storage 2026-07-06: 14d pod peak ~286Mi exceeded the 256Mi limit (96.6% via ephemeral_storage_container_limit_percentage) — bump to 512Mi for headroom.
+            ephemeral-storage: 512Mi
           limits:
             memory: 128Mi
-            ephemeral-storage: 256Mi
+            ephemeral-storage: 512Mi
         volumeMounts:
           - mountPath: /var/run/argocd
             name: var-files
