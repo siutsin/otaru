@@ -5,7 +5,6 @@
 # | Port  | Proto   | Scope                      | Use |
 # | 22    | TCP     | management CIDRs           | SSH administration |
 # | 53    | TCP/UDP | 192.168.10.51 from any     | gateway DNS |
-# | 80    | TCP     | 192.168.10.51 from any     | gateway HTTP |
 # | 443   | TCP     | 192.168.10.50 admin CIDRs* | k3s API VIP |
 # | 443   | TCP     | 192.168.10.51 from any     | gateway HTTPS/Home Assistant WebSocket |
 # | 1024  | TCP     | management CIDRs           | LUKS dropbear unlock on encrypted-root nodes |
@@ -344,15 +343,6 @@
         port 443 comment "gateway HTTPS VIP"
       register: firewall_allow_gateway_https_route_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_https_route_result.stdout"
-
-    - name: Allow routed gateway HTTP VIP traffic from anywhere
-      # Example:
-      # ufw route allow proto tcp from any to 192.168.10.51 port 80
-      command: >-
-        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
-        port 80 comment "gateway HTTP VIP"
-      register: firewall_allow_gateway_http_route_result
-      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_http_route_result.stdout"
 
     - name: Allow routed gateway jellyfin-sftp VIP traffic from anywhere
       # Example:
@@ -699,6 +689,21 @@
         )
       register: firewall_delete_broad_api_vip_route_result
       changed_when: firewall_delete_broad_api_vip_route_result.stdout is search(firewall_rule_delete_changed_pattern)
+
+    - name: Remove routed gateway HTTP VIP rule after cleartext listener removal
+      # Example:
+      # ufw route delete allow proto tcp from any to 192.168.10.51 port 80
+      command: >-
+        ufw route delete allow proto tcp from any to {{ firewall_gateway_lb_ip }}
+        port 80
+      when: >-
+        firewall_added_rules_before_prune.stdout is search(
+          '(?m)^ufw route allow (proto tcp from any to '
+          ~ firewall_gateway_lb_ip ~ ' port 80|to '
+          ~ firewall_gateway_lb_ip ~ ' port 80 proto tcp)( |$)'
+        )
+      register: firewall_delete_gateway_http_vip_route_result
+      changed_when: firewall_delete_gateway_http_vip_route_result.stdout is search(firewall_rule_delete_changed_pattern)
 
     ###########################################################################
     # Final defaults and enablement
