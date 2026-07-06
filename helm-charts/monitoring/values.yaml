@@ -218,13 +218,14 @@ k8s-ephemeral-storage-metrics:
 grafana:
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
+    # ephemeral-storage 2026-07-06: 14d peak ~50Mi against a 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) — bump to 128Mi for headroom.
     requests:
       cpu: 50m
       memory: 512Mi
-      ephemeral-storage: 64Mi
+      ephemeral-storage: 128Mi
     limits:
       memory: 512Mi
-      ephemeral-storage: 64Mi
+      ephemeral-storage: 128Mi
   downloadDashboards:
     resources: *smallResources
   initChownData:
