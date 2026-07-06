@@ -177,15 +177,18 @@ clusters:
         memory: 256Mi
         ephemeral-storage: 512Mi
     objectStore:
-      # Barman sidecar live usage ~44Mi; match plugin-barman-cloud controller sizing.
+      # 2026-07-06: 128Mi only covered idle WAL-archiving usage (~44Mi); every
+      # scheduled backup upload OOMKilled the sidecar (exit 137), failing 5
+      # consecutive backups over ~15h. Bump to 512Mi to match teslamate's
+      # equivalent sidecar, which has zero restarts and all backups completing.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 128Mi
-          ephemeral-storage: 128Mi
+          memory: 512Mi
+          ephemeral-storage: 512Mi
         limits:
-          memory: 128Mi
-          ephemeral-storage: 128Mi
+          memory: 512Mi
+          ephemeral-storage: 512Mi
     storage:
       size: 2Gi
       storageClass: longhorn-crypto-global
