@@ -47,16 +47,16 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
         hostname = "${var.name}.${var.zone}"
         service  = var.gateway_service
         origin_request = {
-          match_sni_to_host = true
-          http2_origin      = true
+          origin_server_name = "${var.name}.${var.zone}"
+          http2_origin       = true
         }
       },
       {
         hostname = "analytics.${var.zone}"
         service  = var.gateway_service
         origin_request = {
-          match_sni_to_host = true
-          http2_origin      = true
+          origin_server_name = "analytics.${var.zone}"
+          http2_origin       = true
         }
       },
       {
