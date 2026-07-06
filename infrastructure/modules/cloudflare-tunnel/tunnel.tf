@@ -46,10 +46,18 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
       {
         hostname = "${var.name}.${var.zone}"
         service  = var.gateway_service
+        origin_request = {
+          origin_server_name = "${var.name}.${var.zone}"
+          http2_origin       = true
+        }
       },
       {
         hostname = "analytics.${var.zone}"
         service  = var.gateway_service
+        origin_request = {
+          origin_server_name = "analytics.${var.zone}"
+          http2_origin       = true
+        }
       },
       {
         service = "http_status:404"
