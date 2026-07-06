@@ -100,21 +100,14 @@ defaults:
     schedule: "0 0 */3 * * *"
   objectStore:
     retentionPolicy: 30d
-    # 2026-07-06: 512Mi covers backup uploads and WAL archiving fine, but the
-    # teslamate verify-pitr pipeline's plugin-barman-cloud sidecar kept dying
-    # (8 consecutive attempts) while restoring an 852Mi database at 512Mi.
-    # A full restore needs more headroom than incremental backup/archive
-    # traffic. Bumped to 1Gi for every cluster using this shared default
-    # (applies to teslamate directly; umami keeps its own explicit override
-    # below since it never performs a restore in production).
     instanceSidecarResources:
       requests:
         cpu: 50m
-        memory: 1Gi
-        ephemeral-storage: 1Gi
+        memory: 512Mi
+        ephemeral-storage: 512Mi
       limits:
-        memory: 1Gi
-        ephemeral-storage: 1Gi
+        memory: 512Mi
+        ephemeral-storage: 512Mi
 
 clusters:
   # https://cloudnative-pg.io/documentation/current/recovery/#restoring-into-a-cluster-with-a-backup-section
@@ -135,6 +128,24 @@ clusters:
     labels:
       cnpg.io/reload: "true"
       cnpg.io/skipEmptyWalArchiveCheck: "true"
+    objectStore:
+      # 2026-07-06: the shared 512Mi default is fine for backup uploads and
+      # WAL archiving, but the teslamate verify-pitr pipeline's
+      # plugin-barman-cloud sidecar kept dying (8 consecutive attempts)
+      # while restoring an 852Mi database at 512Mi. A full restore needs
+      # more headroom than incremental traffic. Scoped to teslamate only,
+      # not the shared default, since umami never performs a restore in
+      # production and stays lean at 512Mi. This also bumps teslamate's two
+      # always-on production sidecars, since they share this same
+      # ObjectStore with the verify-pitr recovery path.
+      instanceSidecarResources:
+        requests:
+          cpu: 50m
+          memory: 1Gi
+          ephemeral-storage: 1Gi
+        limits:
+          memory: 1Gi
+          ephemeral-storage: 1Gi
     namespace: teslamate
     postgresql:
       <<: *postgresql
