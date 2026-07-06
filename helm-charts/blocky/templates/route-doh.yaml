@@ -14,7 +14,6 @@ spec:
       kind: Gateway
       name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
-      sectionName: https
   rules:
     - matches:
         - path:
