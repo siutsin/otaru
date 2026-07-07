@@ -8,8 +8,12 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
+        replicas: {{ .Values.envoyProxy.replicas }}
         container:
           resources:
 {{ toYaml .Values.envoyProxy.resources | indent 12 }}
+        pod:
+          affinity:
+{{ toYaml .Values.envoyProxy.affinity | indent 12 }}
       envoyService:
         name: {{ .Values.service.name }}

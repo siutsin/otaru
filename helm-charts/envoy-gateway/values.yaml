@@ -62,4 +62,19 @@ envoy-gateway:
             type: GatewayNamespace
 
 envoyProxy:
+  # 2026-07-07: single-replica Envoy data plane meant every public request
+  # (including WebGazer/blackbox uptime probes) depended on one pod with no
+  # failover. Bumped to 2 with anti-affinity so a brief hiccup on one node
+  # does not cause a visible gap for any app behind this shared gateway.
+  replicas: 2
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: envoy
+                gateway.networking.k8s.io/gateway-name: gateway
+            topologyKey: kubernetes.io/hostname
   resources: *envoyProxyResources
