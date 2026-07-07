@@ -58,13 +58,16 @@ browser:
       pullPolicy: IfNotPresent
     resources:
       # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during hourly prune runs.
+      # ephemeral-storage 2026-07-07: container_limit_percentage reported 100% at 16Mi
+      # (shared /profile/chromium volume usage attributed against this container's own
+      # tiny limit); pod-level peak is only ~20Mi. Bump to 64Mi for headroom.
       requests:
         cpu: 10m
         memory: 128Mi
-        ephemeral-storage: 16Mi
+        ephemeral-storage: 64Mi
       limits:
         memory: 128Mi
-        ephemeral-storage: 16Mi
+        ephemeral-storage: 64Mi
   env:
     SCREEN_WIDTH: "1920"
     SCREEN_HEIGHT: "1024"
