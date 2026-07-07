@@ -258,6 +258,15 @@ spec:
                   spec:
                     instances: 1
                     imageName: {{ .Values.backup.database.imageName }}
+                    inheritedMetadata:
+                      labels:
+                        # 2026-07-07: CNPG operator scrapes instance status over direct
+                        # pod HTTPS. Without this, the ephemeral recovery pod sits on
+                        # the ambient Istio dataplane (unlike production clusters, which
+                        # get this label via cloudnative-pg-clusters' inheritedMetadata
+                        # default) and the operator cannot reach it, leaving the cluster
+                        # permanently stuck in "Instance Status Extraction Error".
+                        istio.io/dataplane-mode: none
                     resources:
                       requests:
                         cpu: 250m
