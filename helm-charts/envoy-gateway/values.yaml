@@ -37,9 +37,33 @@ tls:
 serviceAllocation:
   selectorLabel: gateway.envoyproxy.io/owning-gateway-name
 
+# 2026-07-09: nuc-00's speaker logged "the specified interfaces used to
+# announce LB IP don't exist" for 192.168.10.51 whenever nuc-00 became the
+# announcing node, because nuc-00's NIC is eno1, not eth0 (Intel NUC naming
+# differs from the Raspberry Pis). The gateway VIP then had no working ARP
+# announcement from that node, making it unreachable from off-cluster clients
+# until leadership moved elsewhere. Split into per-node interfaces, mirroring
+# the working pattern already used for the API server VIP in
+# helm-charts/metallb-vip/values.yaml.
 l2AnnouncementPolicy:
-  interface:
-    - eth0
+  advertisements:
+    - interfaces:
+        - eth0
+      nodeSelectors:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - raspberrypi-00
+                - raspberrypi-01
+                - raspberrypi-02
+                - raspberrypi-03
+    - nameSuffix: nuc-00
+      interfaces:
+        - eno1
+      nodeSelectors:
+        - matchLabels:
+            kubernetes.io/hostname: nuc-00
 
 loadBalancerIPPool:
   cidr: 192.168.10.51/32
