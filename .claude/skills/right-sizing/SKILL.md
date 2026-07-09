@@ -14,7 +14,20 @@ Right-size cluster workloads on the otaru home-lab. The cluster is memory-tight 
 apply **both** downsizes and upsizes in the same PR when safe.
 
 Invoke as `/right-sizing`. Called from the hourly self-heal loop when healthy and
-no pass ran in the last 24 hours.
+no pass ran in the last 24 hours, or run it directly.
+
+## Prerequisites
+
+Confirm before starting; stop and tell the user if any are missing:
+
+- Cluster reachability: always prefer the Kubernetes MCP tools for cluster
+  interaction in this skill; fall back to `kubectl` only if MCP is
+  unavailable or errors (`kubectl cluster-info` reaching the otaru API VIP
+  `192.168.10.50`).
+- `krr` on PATH (`krr --help`) — used for Part 1.
+- `gh` authenticated (`gh auth status`) — used for Part 2.
+- `helm` on PATH — `make test` needs it to render charts.
+- Repo checkout at `~/projects/github/siutsin/otaru`.
 
 ## When to run
 
@@ -62,11 +75,18 @@ KRR covers **CPU and memory only** — not ephemeral-storage.
 1. Branch from `master`, edit only in-scope chart values/templates.
 2. Run `make test` and fix failures.
 3. Open one PR covering all safe changes for that pass (KRR + ephemeral-storage).
-4. Run `/pr-autofix` — `auto_merge=false` on unattended cron fires; merge when the user is present and the PR is green.
+4. Push the branch, watch CI to green, and address any review feedback. A
+    right-sizing PR may merge automatically once green when it is only
+    resource requests/limits/replicas on non-secret Helm values, `make test`
+    already passed, and no chart/template structural change, CRD change, or
+    secret-adjacent key is touched. Otherwise stop at green and leave the
+    merge to the user — for example CNPG/Longhorn topology or storage class
+    changes, multi-app bulk rewrites, or anything not confidently low-risk.
 
 ## Part 3 — Verify rollout
 
-After merge:
+After merge (always prefer Kubernetes MCP tools; fall back to `kubectl` only
+if MCP is unavailable or errors):
 
 - Confirm Argo CD apps sync to the new revision for touched workloads.
 - Inspect pod `resources` and `lastState.terminated.reason` for OOMKill.
@@ -94,12 +114,12 @@ Query via the same `<prometheus-url-via-ingress>` as KRR (HTTP API or Grafana).
 
 ### Key metrics
 
-| Metric | Use |
-| ------ | --- |
-| `ephemeral_storage_pod_usage` | Peak bytes per pod |
-| `ephemeral_storage_container_volume_usage` | Per-container emptyDir / writable layers |
-| `ephemeral_storage_container_limit_percentage` | Usage vs configured limit |
-| `ephemeral_storage_node_percentage` | Node-level disk pressure context |
+| Metric                                         | Use                                      |
+|------------------------------------------------|------------------------------------------|
+| `ephemeral_storage_pod_usage`                  | Peak bytes per pod                       |
+| `ephemeral_storage_container_volume_usage`     | Per-container emptyDir / writable layers |
+| `ephemeral_storage_container_limit_percentage` | Usage vs configured limit                |
+| `ephemeral_storage_node_percentage`            | Node-level disk pressure context         |
 
 Compare configured limits with kube-state-metrics:
 
