@@ -691,6 +691,46 @@ make unlock nuc-00
 
 Once booted, Longhorn re-attaches its volumes automatically.
 
+## MetalLB LoadBalancer VIP Unreachable When nuc-00 Announces It
+
+### Symptoms: LoadBalancer VIP Unreachable
+
+An off-cluster client can reach the k3s API server VIP (`192.168.10.50`) but
+gets no response at all from another MetalLB LoadBalancer VIP on the same
+`192.168.10.0/24` subnet (for example the `gateway` Service at
+`192.168.10.51`). `traceroute` to the working VIP shows the router forwarding
+the packet onto the cluster segment and getting an answer; `traceroute` to
+the broken VIP shows the router itself returning `!H` (host unreachable) at
+the first hop, meaning nothing ever answered ARP for that IP.
+
+### Cause: L2Advertisement Interface Name Does Not Exist on nuc-00
+
+`nuc-00`'s onboard NIC is named `eno1`, not `eth0` (see the e1000e entry
+above). An `L2Advertisement` that specifies `interfaces: [eth0]` with no
+node restriction works fine while a Raspberry Pi is announcing the VIP, but
+the moment MetalLB elects `nuc-00` as the announcing node for that IP, its
+speaker cannot find an interface named `eth0` and logs:
+
+```text
+"the specified interfaces used to announce LB IP don't exist","localIfs":["eno1"]
+```
+
+No local interface then answers ARP for the VIP, so it goes dark for every
+off-cluster client until leadership moves to a different node — which can
+take hours or days, since MetalLB does not fail over an already-announced IP
+just because the interface list is wrong.
+
+### Resolution: Split the L2Advertisement Per Node
+
+Give `nuc-00` its own `L2Advertisement` for the same `IPAddressPool`, scoped
+to `nodeSelectors: [{matchLabels: {kubernetes.io/hostname: nuc-00}}]` with
+`interfaces: [eno1]`, and restrict the original `eth0` advertisement to the
+four Raspberry Pi nodes. `helm-charts/metallb-vip/values.yaml` already used
+this pattern for the API server VIP; `helm-charts/envoy-gateway` did not,
+which is why only the `gateway` VIP was affected. Check any other
+`L2Advertisement` in the repo for the same single-interface, no-node-split
+shape before it bites the same way.
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
