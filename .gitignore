@@ -304,3 +304,6 @@ cython_debug/
 
 # Local coordination notes
 planning/
+
+# Agent / self-healing local journal and session scratch (do not commit)
+.scratchpad/
