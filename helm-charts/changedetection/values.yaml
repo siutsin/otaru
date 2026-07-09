@@ -75,12 +75,13 @@ browser:
     MAX_CONCURRENT_CHROME_PROCESSES: "1"
   resources:
     # KRR 2026-07-05: Playwright browser peaked at ~1.08Gi during Amazon watch fetches; 1Gi left ~6Mi headroom.
+    # KRR 2026-07-09: 14-day peak grew to ~1.28Gi, exceeding the 1152Mi limit set above. Bumped to 1408Mi for headroom.
     requests:
       cpu: 50m
-      memory: 1152Mi
+      memory: 1408Mi
       ephemeral-storage: 1Gi
     limits:
-      memory: 1152Mi
+      memory: 1408Mi
       ephemeral-storage: 1Gi
 
 service:
