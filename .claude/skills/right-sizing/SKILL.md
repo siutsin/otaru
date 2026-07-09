@@ -3,7 +3,8 @@ name: "right-sizing"
 description: >-
   Right-size otaru workloads via KRR (CPU/memory) and Prometheus ephemeral-storage
   metrics. Read incident comments as guardrails, apply downsizes and upsizes in one
-  GitOps PR, verify rollout. Invoke as /right-sizing from self-heal loops or manually.
+  GitOps PR, verify rollout. Invoke as /right-sizing from /self-healing when
+  healthy (including scheduled fires from /self-healing-loop), or manually.
 metadata:
   short-description: "KRR and ephemeral-storage right-sizing for otaru"
 ---
@@ -13,8 +14,9 @@ metadata:
 Right-size cluster workloads on the otaru home-lab. The cluster is memory-tight —
 apply **both** downsizes and upsizes in the same PR when safe.
 
-Invoke as `/right-sizing`. Called from the hourly self-heal loop when healthy and
-no pass ran in the last 24 hours, or run it directly.
+Invoke as `/right-sizing`. Called by `/self-healing` when the pass is healthy
+and the 24h / merge-only gates allow (including fires from `/self-healing-loop`),
+or run it directly.
 
 ## Prerequisites
 
@@ -40,7 +42,7 @@ Missing:
   and a `pr:` URL: continue that branch (Parts 3–4 only; skip Parts 1–2).
 - Sooner (full pass) when workloads show OOMKills, probe failures, scheduling
   pressure, or ephemeral-storage evictions / `DiskPressure` — may run even if
-  self-heal is not fully green, if the user or a manual invoke asks.
+  `/self-healing` is not fully green, if the user or a manual invoke asks.
 - Skip guarded workloads (see below) even when metrics suggest downsizing.
 
 ## Part 1 — CPU and memory (KRR)

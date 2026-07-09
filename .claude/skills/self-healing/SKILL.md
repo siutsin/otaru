@@ -4,9 +4,11 @@ description: >-
   Investigate the otaru k3s home-lab cluster for unhealthy nodes, GitOps
   reconciliation, workloads, storage, data plane, platform, ingress/mesh,
   policy, and CI health; fix safe issues via GitOps PRs; escalate destructive
-  or database work. Invoke as /self-healing, including hourly loop schedules.
+  or database work. Invoke as /self-healing for manual or scheduled
+  investigation runs. To start or renew the hourly session schedule, use
+  /self-healing-loop.
 metadata:
-  short-description: "otaru cluster self-healing runbooks and loop"
+  short-description: "otaru cluster self-healing investigation and fixes"
 ---
 
 # Otaru Self-Healing
@@ -15,13 +17,20 @@ metadata:
 > under `references/`. Read a runbook only when its category is reached in
 > the investigation order below; read a reference file only when relevant.
 
+**Role:** one-off investigation and safe fixes — one pass of cluster checks,
+GitOps PRs, journal, merge-policy, and optional `/right-sizing` when healthy.
+**Not this skill:** creating or renewing the hourly schedule (`/loop`, job
+TTL, single-job cleanup). That is `.claude/skills/self-healing-loop`
+(`/self-healing-loop`).
+
 Requires a kubeconfig reaching the cluster's API VIP over the local
 network — not usable from a machine without that network path (for example
 a CI runner or a remote devserver). Investigate the otaru home-lab `k3s`
-cluster, fix safe issues, and journal findings. Designed for hourly
-scheduled runs as well as manual invocation.
+cluster, fix safe issues, and journal findings. Usable as a manual one-shot
+or as the body of each scheduled fire from `/self-healing-loop`.
 
-Invoke as `/self-healing`.
+Invoke as `/self-healing`. To start or renew the hourly schedule, use
+`/self-healing-loop`.
 
 ## Scope
 
@@ -30,8 +39,9 @@ Invoke as `/self-healing`.
 - **GitOps repo:** this repo — the reconciler syncs from it; durable fixes
   belong here, not as orphaned live edits.
 - **Journal:** `.scratchpad/SELF_HEALING.md` at the repo root.
-- **Out of scope:** any machine without a kubeconfig reaching the API VIP.
-  If kubeconfig or the repo checkout is missing, stop and tell the user.
+- **Out of scope:** schedule bootstrap/renew, multi-session durable cron, and
+  any machine without a kubeconfig reaching the API VIP. If kubeconfig or the
+  repo checkout is missing, stop and tell the user.
 
 ## Runtime gate
 
@@ -178,14 +188,16 @@ secret rotation, or Application/resource deletes with prune.
 Log these as `result: escalated` with a clear symptom and recommended next
 step. Do not patch the repo or run destructive commands.
 
-## Loop mode
+## One-pass behaviour (manual or scheduled fire)
 
-When a scheduled run invokes this skill:
+Each invocation is **one** investigation pass — whether the user ran
+`/self-healing` or the orchestrator scheduled a fire.
 
-- **Re-entrancy:** if a prior fire in this session is still running, skip
-  this fire (do not start a second investigation/PR loop in parallel).
-- Run the full investigation each time, including journal closure for
-  `open` / `escalated` entries.
+- **Re-entrancy:** if a prior `/self-healing` or `/right-sizing` run in this
+  session is still running, skip (do not start a second investigation/PR
+  loop in parallel).
+- Record local **start** datetime; run the full investigation, including
+  journal closure for `open` / `escalated` entries.
 - If healthy, report that the cluster is healthy: nodes Ready, no
   reconciler apps degraded, no lingering out-of-sync state without an
   in-flight PR, no open journal issues (escalated items waiting on the
@@ -198,14 +210,22 @@ When a scheduled run invokes this skill:
   the same root cause and run `gh pr list --state open`; continue that
   branch/PR when one is already in flight.
 - Always end with `runbooks/branch-cleanup.md`.
+- **End of every pass:** report local **start** and **end** datetime for
+  this investigation. Schedule job expiry / time-until-expire is owned by
+  `/self-healing-loop` (reported by the fire wrapper or orchestrator
+  bootstrap/renew run), not this skill.
+- **Unattended fires:** when invoked from the schedule (no user mid-turn),
+  classify and merge every GitOps fix — including right-sizing — per
+  `runbooks/merge-policy.md`. Escalation-list issues get no PR.
 
-To bootstrap the hourly scheduled loop itself, see
-`runbooks/loop-bootstrap.md`.
+Schedule bootstrap/renew: `.claude/skills/self-healing-loop`
+(`/self-healing-loop`).
 
 ## Right-sizing
 
 Workload right-sizing is `.claude/skills/right-sizing` (`/right-sizing`).
-When the cluster is healthy:
+When this pass finds the cluster healthy, this skill (not the orchestrator)
+decides whether to invoke it:
 
 - **Full pass** (KRR + ephemeral + PR): if no `### right-sizing pass` in the
   last 24 hours.
@@ -227,12 +247,15 @@ structure is designed to grow). Prefer short pointers into
 Keep runbook and reference file names and headings capability-based rather
 than tied to the current product name (for example
 `gitops-reconciliation.md`, not `argocd.md`) so swapping a tool later is a
-content edit, not a restructure.
+content edit, not a restructure. Schedule/bootstrap changes belong in
+`.claude/skills/self-healing-loop`, not under `runbooks/`.
 
 ## References
 
 - `references/cluster.md` — paths, network, namespaces.
 - `references/escalation.md` — safe vs escalate boundaries.
-- `runbooks/` — one file per investigation category, plus merge policy,
-  branch cleanup, and loop bootstrap.
+- `runbooks/` — one file per investigation category, plus merge policy and
+  branch cleanup.
+- `.claude/skills/self-healing-loop` (`/self-healing-loop`) — bootstrap/renew
+  the hourly schedule.
 - `documentation/gotcha.md` — known issues and workarounds.
