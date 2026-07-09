@@ -18,22 +18,29 @@ no pass ran in the last 24 hours, or run it directly.
 
 ## Prerequisites
 
-Confirm before starting; stop and tell the user if any are missing:
+Confirm before starting. On failure: journal
+`### right-sizing pass` with `result: failed`, then stop and tell the user.
+Missing:
 
-- Cluster reachability: always prefer the Kubernetes MCP tools for cluster
-  interaction in this skill; fall back to `kubectl` only if MCP is
-  unavailable or errors (`kubectl cluster-info` reaching the otaru API VIP
+- Cluster reachability: prefer Kubernetes MCP; fall back to `kubectl` only if
+  MCP is unavailable or errors (`kubectl cluster-info` reaching VIP
   `192.168.10.50`).
-- `krr` on PATH (`krr --help`) — used for Part 1.
-- `gh` authenticated (`gh auth status`) — used for Part 2.
-- `helm` on PATH — `make test` needs it to render charts.
-- Repo checkout at `~/projects/github/siutsin/otaru`.
+- Prometheus ingress reachable (same URL as KRR below). Do not use
+  `*.svc.cluster.local` from off-cluster.
+- `krr` on PATH (`krr --help`) — Part 1.
+- `gh` authenticated (`gh auth status`) — Part 3.
+- `helm` on PATH — `make test` needs it.
+- Repo checkout present (work from it).
 
 ## When to run
 
-- Cluster healthy and journal has no right-sizing pass in the last 24 hours.
-- Sooner when workloads show OOMKills, probe failures, scheduling pressure, or
-  ephemeral-storage evictions / `DiskPressure`.
+- **Full pass** when the cluster is healthy and the journal has no
+  `### right-sizing pass` in the last 24 hours (see Journal).
+- **Merge-only resume** when the latest pass in 24 hours has `result: open`
+  and a `pr:` URL: continue that branch (Parts 3–4 only; skip Parts 1–2).
+- Sooner (full pass) when workloads show OOMKills, probe failures, scheduling
+  pressure, or ephemeral-storage evictions / `DiskPressure` — may run even if
+  self-heal is not fully green, if the user or a manual invoke asks.
 - Skip guarded workloads (see below) even when metrics suggest downsizing.
 
 ## Part 1 — CPU and memory (KRR)
@@ -41,14 +48,13 @@ Confirm before starting; stop and tell the user if any are missing:
 ### Collect recommendations
 
 Resolve `<prometheus-url-via-ingress>` from `httpRoutes.prometheus` in
-`helm-charts/monitoring/values.yaml` (hostname pattern in
-`templates/route-internal.yaml`: `https://<route-key>.internal.siutsin.com`).
-Do not use `*.svc.cluster.local` from off-cluster; use the ingress URL.
+`helm-charts/monitoring/values.yaml` and the hostname pattern in
+`helm-charts/monitoring/templates/route-internal.yaml` (HTTPS ingress for
+the prometheus route key). Do not hardcode the domain.
 
 ```bash
 krr simple -p <prometheus-url-via-ingress> -f json -q > /tmp/krr-otaru-$(date +%F).json
 ```
-
 ### Build the change set
 
 For each candidate workload in `helm-charts/**/values.yaml` (and chart templates
@@ -61,50 +67,13 @@ when resources live there):
 
 ### Helm chart rules
 
-See `AGENTS.md`:
-
-- Set memory requests equal to memory limits.
-- Do not set CPU limits unless the user explicitly asks.
-- Set explicit ephemeral-storage requests and limits.
-- Add an inline `# KRR YYYY-MM-DD:` comment for CPU/memory changes stating the observed peak/symptom and why the previous value was wrong.
+See `AGENTS.md`: memory request = limit; no CPU limits unless asked; explicit
+ephemeral-storage; add `# KRR YYYY-MM-DD:` on CPU/memory changes with peak and
+why the old value was wrong.
 
 KRR covers **CPU and memory only** — not ephemeral-storage.
 
-## Part 2 — GitOps PR
-
-1. Branch from `master`, edit only in-scope chart values/templates.
-2. Run `make test` and fix failures.
-3. Open one PR covering all safe changes for that pass (KRR + ephemeral-storage).
-4. Push the branch, watch CI to green, and address any review feedback. A
-    right-sizing PR may merge automatically once green when it is only
-    resource requests/limits/replicas on non-secret Helm values, `make test`
-    already passed, and no chart/template structural change, CRD change, or
-    secret-adjacent key is touched. Otherwise stop at green and leave the
-    merge to the user — for example CNPG/Longhorn topology or storage class
-    changes, multi-app bulk rewrites, or anything not confidently low-risk.
-
-## Part 3 — Verify rollout
-
-After merge (always prefer Kubernetes MCP tools; fall back to `kubectl` only
-if MCP is unavailable or errors):
-
-- Confirm Argo CD apps sync to the new revision for touched workloads.
-- Inspect pod `resources` and `lastState.terminated.reason` for OOMKill.
-- Watch upsized workloads for 24h (prometheus CPU/memory, browser, umami, etc.).
-
-### Hotfix regressions
-
-Open a follow-up PR immediately if rollout breaks a workload:
-
-- **OOM after downsize** — bump memory above the failing limit; comment exit code
-  and workload (for example happy OOMKill exit 137 at 640Mi → 896Mi).
-- **Init/exec format error on nuc-00** — arm64-only images on amd64; pin
-  `nodeSelector: kubernetes.io/arch: arm64` when charts use arm64-only digests.
-
-Journal each pass in `.scratchpad/SELF_HEALING.md` with KRR score, workloads
-changed, PR URL, and rollout result.
-
-## Part 4 — Ephemeral-storage (Prometheus)
+## Part 2 — Ephemeral-storage (Prometheus)
 
 KRR does not recommend ephemeral-storage. Use metrics from
 `k8s-ephemeral-storage-metrics` (subchart of `helm-charts/monitoring`) scraped
@@ -121,7 +90,8 @@ Query via the same `<prometheus-url-via-ingress>` as KRR (HTTP API or Grafana).
 | `ephemeral_storage_container_limit_percentage` | Usage vs configured limit                |
 | `ephemeral_storage_node_percentage`            | Node-level disk pressure context         |
 
-Compare configured limits with kube-state-metrics:
+Compare configured limits with kube-state-metrics (example namespace filter;
+replace `happy` with the workload under review):
 
 ```promql
 kube_pod_container_resource_limits{resource="ephemeral_storage", namespace="happy"}
@@ -160,3 +130,47 @@ topk(20, max_over_time(ephemeral_storage_pod_usage[14d]))
 - Exporter does not monitor generic ephemeral volumes (CSI-backed).
 - No CLI recommender — interpret PromQL peaks manually with headroom (~20–30%).
 - Combine ephemeral changes with KRR CPU/memory in the same PR when both apply.
+
+## Part 3 — GitOps PR
+
+1. Before opening, check journal `### right-sizing pass` `pr:` fields and
+  `gh pr list --state open` for an in-flight right-sizing PR; continue that
+  branch when one exists.
+2. Branch from `master` only when no in-flight PR; edit only in-scope chart
+  values/templates (KRR + ephemeral-storage from Parts 1–2).
+3. Run `make test` and fix failures (re-run after further commits on the same
+  branch).
+4. Open **one** PR for all safe changes this pass (or push to the continued
+  branch).
+5. Classify and merge per
+  `.claude/skills/self-healing/runbooks/merge-policy.md` only — no separate
+  matrix. After outcome, run
+  `.claude/skills/self-healing/runbooks/branch-cleanup.md`.
+
+## Part 4 — Verify rollout
+
+After merge (prefer Kubernetes MCP; fall back to `kubectl`):
+
+- Confirm Argo CD apps sync to the new revision for touched workloads.
+- Inspect pod `resources` and `lastState.terminated.reason` for OOMKill.
+- Note upsized workloads for a later cycle (prometheus CPU/memory, browser,
+  umami, etc.) — do **not** block the unattended run for 24 hours.
+
+### Hotfix regressions
+
+Open a follow-up PR immediately if rollout breaks a workload:
+
+- **OOM after downsize** — bump memory above the failing limit; comment exit code
+  and workload (for example happy OOMKill exit 137 at 640Mi → 896Mi).
+- **Init/exec format error on nuc-00** — arm64-only images on amd64; pin
+  `nodeSelector: kubernetes.io/arch: arm64` when charts use arm64-only digests.
+
+## Journal
+
+Always append a `### right-sizing pass` marker to
+`.scratchpad/SELF_HEALING.md` (even on prereq failure, no-op, or no chart
+changes) using the template in
+`.claude/skills/self-healing/SKILL.md` **Journal**. Allowed
+`result` values: `applied` | `no-op` | `held` | `open` | `failed`
+(`open` = PR in flight / CI re-check next cycle). Same redaction and
+no-commit rules as self-healing.
