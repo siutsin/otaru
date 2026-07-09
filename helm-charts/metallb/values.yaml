@@ -9,25 +9,9 @@ metallb:
     limits:
       memory: 128Mi
       ephemeral-storage: 64Mi
-  frr-k8s:
-    prometheus:
-      serviceMonitor:
-        enabled: false
-    # Kyverno require-workload-resources (background scan) flagged the
-    # frr-k8s daemonset containers and the statuscleaner Deployment as
-    # missing resource requests/limits. No KRR data yet for these
-    # containers, so reuse the existing speaker sizing for consistency;
-    # revisit via /right-sizing once usage data is available.
-    frrk8s:
-      resources: *speakerResources
-      frr:
-        resources: *speakerResources
-      reloader:
-        resources: *speakerResources
-      frrMetrics:
-        resources: *speakerResources
-      frrStatus:
-        resources: *speakerResources
+  # No BGP peers configured (L2Advertisement only) -- BGP backend unused.
+  frrk8s:
+    enabled: false
   speaker:
     resources: *speakerResources
     frr:
