@@ -14,7 +14,7 @@ Right-size cluster workloads on the otaru home-lab. The cluster is memory-tight 
 apply **both** downsizes and upsizes in the same PR when safe.
 
 Invoke as `/right-sizing`. Called from the hourly self-heal loop when healthy and
-no pass ran in the last 24 hours (see `.claude/commands/otaru-self-heal-loop.md`).
+no pass ran in the last 24 hours.
 
 ## When to run
 
