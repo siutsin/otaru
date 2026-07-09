@@ -55,6 +55,7 @@ the prometheus route key). Do not hardcode the domain.
 ```bash
 krr simple -p <prometheus-url-via-ingress> -f json -q > /tmp/krr-otaru-$(date +%F).json
 ```
+
 ### Build the change set
 
 For each candidate workload in `helm-charts/**/values.yaml` (and chart templates
