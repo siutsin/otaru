@@ -19,6 +19,8 @@ longhorn:
     jobEnabled: false
   persistence:
     defaultClass: false
+    # No PVC references this class -- everything uses longhorn-crypto-global.
+    createStorageClass: false
   defaultSettings:
     allowCollectingLonghornUsageMetrics: false
     defaultReplicaCount: 2
