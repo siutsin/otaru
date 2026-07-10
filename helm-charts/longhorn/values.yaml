@@ -6,6 +6,15 @@ longhorn:
     serviceAnnotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "9500"
+    # KRR 2026-07-10: peak ~115m cpu / 403Mi mem over 14d; was unset.
+    resources:
+      requests:
+        cpu: 150m
+        memory: 512Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 512Mi
+        ephemeral-storage: 64Mi
   preUpgradeChecker:
     jobEnabled: false
   persistence:
