@@ -90,12 +90,22 @@ longhorn:
     # is single-digit-Gi). With no smarter lever available, raised to 2Gi,
     # sized for this cluster's actual heaviest workload rather than another
     # blind doubling.
+    # 2026-07-11 (seventh bump): still OOMKilled at 2Gi -- and fast (16s from
+    # start to kill, not a slow leak). Found the actual mechanism: every
+    # jellyfin PVC uses LUKS with the argon2i KDF, and `cryptsetup luksDump`
+    # on a live volume shows `Memory: 66264` (~65MiB) per unlock. With 13
+    # volumes unlocking concurrently on pod start, that alone is ~845MiB of
+    # memory-hard KDF cost stacked in the same container's cgroup, on top of
+    # per-volume gRPC/goroutine overhead and page-cache pressure from probing
+    # several 100+Gi filesystems at once (one PVC is 320Gi). This is a real,
+    # measured floor, not a guess -- raised to 4Gi to give solid margin above
+    # the ~845MiB KDF baseline plus overhead.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"2Gi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"32Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
