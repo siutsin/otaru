@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: {{ .Values.namespace }}
+spec:
+  orphanedResources:
+    warn: true
+    ignore:
+      # Every namespace's implicit service-account root CA bundle, recreated
+      # by the API server rather than tracked in git.
+      - group: ""
+        kind: ConfigMap
+        name: kube-root-ca.crt
+      # Kyverno background-scan output, regenerated continuously per
+      # namespace/cluster and never git-tracked.
+      - group: wgpolicyk8s.io
+        kind: PolicyReport
+      - group: wgpolicyk8s.io
+        kind: ClusterPolicyReport
+      # cert-manager's transient ACME workflow objects: a CertificateRequest
+      # is created per issuance/renewal, an Order/Challenge per ACME
+      # handshake. Only the parent Certificate is git-tracked.
+      - group: cert-manager.io
+        kind: CertificateRequest
+      - group: cert-manager.io
+        kind: Order
+      - group: cert-manager.io
+        kind: Challenge
+      # Longhorn's internal per-volume runtime state, created and destroyed
+      # by longhorn-manager as volumes attach/detach/rebuild. Only the
+      # higher-level Node/Setting/RecurringJob CRs are git-tracked.
+      - group: longhorn.io
+        kind: Engine
+      - group: longhorn.io
+        kind: Replica
+      - group: longhorn.io
+        kind: Volume
+      - group: longhorn.io
+        kind: InstanceManager
+      - group: longhorn.io
+        kind: ShareManager
+      - group: longhorn.io
+        kind: BackingImageManager
