@@ -19,7 +19,20 @@ mutations (see `references/escalation.md`).
 
 - CNPG healthy → continue.
 - Backup failing, replica lag, or instance down → journal and
-  **escalate** (no CNPG mutations).
+  **escalate** (no CNPG mutations) — unless the user explicitly approves
+  a live fix (see `references/escalation.md`'s interim-fix exception).
+- **Instance `CrashLoopBackOff` on a faulted/unrecoverable PVC:** first
+  check `kubectl get cluster.postgresql.cnpg.io <name> -n <ns> -o
+  jsonpath='{.status.currentPrimary} {.status.instancesStatus}'` — if the
+  cluster already failed over to a healthy primary and
+  `ContinuousArchiving`/`LastBackupSucceeded` conditions are `True`, the
+  database service itself is not down, only that one instance. With user
+  approval, `kubectl cnpg destroy <cluster> <instance-number> -n <ns>`
+  removes the broken instance's pod and PVC together and lets the
+  operator recreate it fresh, streaming from the healthy primary — this
+  is the CNPG-native recovery path, not a manual PVC/pod delete. The
+  operator may recreate it under a new, higher instance number rather
+  than reusing the destroyed one.
 - **Barman / WAL archiving `exit status 4`:** often disk full on the
   instance PVC. Recovery paths that delete DB PVCs or pods are
   **escalate** only — never unattended. See `documentation/gotcha.md`.
