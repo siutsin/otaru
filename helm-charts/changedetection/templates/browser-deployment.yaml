@@ -63,6 +63,10 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           securityContext:
+            # Image already defaults to the non-root "chrome" user (uid 1000, matches
+            # browser.profile.fsGroup); verified locally it still starts under
+            # cap-drop ALL with this enforced explicitly.
+            runAsNonRoot: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
