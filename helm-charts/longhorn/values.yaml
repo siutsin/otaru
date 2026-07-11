@@ -76,12 +76,26 @@ longhorn:
     # reservation, raised the ceiling generously to 1Gi to cover this
     # cluster's worst-case concurrent-mount workload rather than
     # incrementally re-testing smaller numbers again.
+    # 2026-07-11 (sixth bump): still OOMKilled at 1Gi. Investigated upstream
+    # before bumping again: Longhorn has no setting to throttle concurrent
+    # mount/attach operations (checked the full values.yaml schema -- the
+    # only concurrency limits are for replica rebuilds, backups, and engine
+    # upgrades), and there is no official per-volume memory sizing formula
+    # for this container (Longhorn's docs cite ~256Mi/TB for a different
+    # component's in-memory read index; two related upstream issues,
+    # longhorn/longhorn#12225 and #6645, confirm CSI/manager memory scaling
+    # is a known, unresolved, undocumented area). jellyfin's combined PVC
+    # size is ~1.4TB (13 volumes, one at 320Gi, six at 120Gi) -- by far the
+    # largest single-node volume footprint in this cluster (everything else
+    # is single-digit-Gi). With no smarter lever available, raised to 2Gi,
+    # sized for this cluster's actual heaviest workload rather than another
+    # blind doubling.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"1Gi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"2Gi","ephemeral-storage":"32Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
