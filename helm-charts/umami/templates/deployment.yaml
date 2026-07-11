@@ -27,6 +27,14 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             runAsNonRoot: true
+            # ghcr.io/umami-software/umami's non-root user ("nextjs") is
+            # named, not numeric, in the image metadata. Kubelet cannot
+            # verify runAsNonRoot from a named user alone, so without an
+            # explicit numeric runAsUser the rollout got stuck in
+            # CreateContainerConfigError. UID confirmed via `kubectl exec ...
+            # -- id` on a still-running pre-hardening pod.
+            runAsUser: 1001
+            runAsGroup: 65533
             allowPrivilegeEscalation: false
             capabilities:
               drop:
