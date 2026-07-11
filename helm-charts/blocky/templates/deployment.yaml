@@ -43,6 +43,15 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              # blocky's binary carries a cap_net_bind_service file capability so it
+              # can bind DNS port 53 as uid 100; verified locally that dropping this
+              # too makes `exec /app/blocky` fail with "operation not permitted".
+              add:
+                - NET_BIND_SERVICE
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
           ports:
             - name: dns-tcp
