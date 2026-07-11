@@ -44,6 +44,11 @@ merge).
   or object-storage backups.
 - **Jobs** — failed CronJob, backup Job, or Job whose command touches data or
   secrets.
+- **Unused-resource findings** (`runbooks/unused-resources.md`, `kor`) —
+  never auto-delete or open an unattended removal PR, even for a candidate
+  that looks clearly safe. The scanner has a demonstrated high
+  false-positive rate (see `documentation/gotcha.md`); always escalate to
+  the user first.
 
 ## GitOps reminder
 

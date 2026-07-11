@@ -61,8 +61,10 @@ are handled in `runbooks/access-and-nodes.md` — do not treat them as a gate
 failure.
 
 **Tooling (soft):** the Postgres-operator CLI plugin (`kubectl cnpg version`)
-is required only for `runbooks/data-plane.md`. If it is missing, skip
-CNPG-specific checks, journal a note, and continue other categories.
+is required only for `runbooks/data-plane.md`. The `kor` CLI (`kor
+version`) is required only for `runbooks/unused-resources.md`. If either
+is missing, skip that runbook's checks, journal a note, and continue other
+categories.
 
 ## Cluster inspection
 
@@ -104,6 +106,17 @@ healthy and no chart changes — used for the 24h gate):
 - **workloads:** list changed or `none`
 - **pr:** URL or `none`
 - **result:** `applied` | `no-op` | `held` | `open` | `failed`
+```
+
+Unused-resources pass marker (always write when `runbooks/unused-
+resources.md` runs — used for its 7-day gate):
+
+```markdown
+### unused-resources pass
+
+- **kor:** kinds scanned and raw counts, or path to saved output
+- **new-genuine-candidates:** list or `none`
+- **result:** `no-op` | `escalated`
 ```
 
 Rules:
@@ -148,6 +161,9 @@ Prerequisites: otaru repo checkout, kubeconfig reaching API VIP
     service mesh.
 8. `runbooks/policy.md` — admission policy failures.
 9. `runbooks/ci-cd.md` — scheduled workflow health.
+10. `runbooks/unused-resources.md` — orphan ConfigMaps, Secrets,
+    ServiceAccounts, StorageClasses. Lowest priority; cadence-gated, most
+    passes skip this category entirely (see the runbook).
 
 Prioritise: node NotReady → reconciler degraded → data-loss risk →
 user-facing app down → everything else.
@@ -254,8 +270,8 @@ content edit, not a restructure. Schedule/bootstrap changes belong in
 
 - `references/cluster.md` — paths, network, namespaces.
 - `references/escalation.md` — safe vs escalate boundaries.
-- `runbooks/` — one file per investigation category, plus merge policy and
-  branch cleanup.
+- `runbooks/` — one file per investigation category, plus merge policy,
+  branch cleanup, and unused-resource detection.
 - `.claude/skills/self-healing-loop` (`/self-healing-loop`) — bootstrap/renew
   the hourly schedule.
 - `documentation/gotcha.md` — known issues and workarounds.
