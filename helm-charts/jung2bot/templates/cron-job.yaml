@@ -15,6 +15,12 @@ spec:
           containers:
             - name: off-work
               image: {{ .Values.cron.image.repository }}:{{ .Values.cron.image.tag }}
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               env:
                 - name: CRON_INTERVAL
                   value: {{ .Values.cron.offWork.env.cronInterval | quote }}
@@ -57,6 +63,12 @@ spec:
           containers:
             - name: scale-up-database
               image: curlimages/curl:8.21.0
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               command: [ "curl" ]
               args:
                 - "-v"
