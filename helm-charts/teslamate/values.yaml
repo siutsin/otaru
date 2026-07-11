@@ -22,7 +22,7 @@ deployment:
     # main@6a9a33b includes merged PR #5406 (TLS 1.3 + HTTP/2 for auth.tesla.com).
     # Pin to a stable GHCR release tag once 4.0.1+ is published.
     repository: ghcr.io/teslamate-org/teslamate
-    tag: main@sha256:11c54cc43515ebe2d5fe725b6efceb48dd9f8e52f7e627d573747c997c25350e
+    tag: main@sha256:4fffa8d57422a29f47a23a5d0fdd545b93f33c21959ae678ec7abf8d9b0f889e
   envFrom:
     - secretRef:
         name: teslamate
