@@ -1,0 +1,80 @@
+{{- if .Values.requireContainerHardeningPolicy.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-container-hardening
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  rules:
+    - name: require-allow-privilege-escalation-false
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+{{- with .Values.requireContainerHardeningPolicy.excludedNamespaces }}
+      exclude:
+        any:
+          - resources:
+              namespaces:
+{{- range . }}
+                - {{ . }}
+{{- end }}
+          - resources:
+              namespaces:
+                - monitoring
+              selector:
+                matchLabels:
+                  app.kubernetes.io/name: prometheus-node-exporter
+{{- end }}
+      validate:
+        allowExistingViolations: true
+        failureAction: Audit
+        message: Containers must set allowPrivilegeEscalation to false.
+        pattern:
+          spec:
+            =(initContainers):
+              - securityContext:
+                  allowPrivilegeEscalation: "false"
+            containers:
+              - securityContext:
+                  allowPrivilegeEscalation: "false"
+    - name: require-drop-all-capabilities
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+{{- with .Values.requireContainerHardeningPolicy.excludedNamespaces }}
+      exclude:
+        any:
+          - resources:
+              namespaces:
+{{- range . }}
+                - {{ . }}
+{{- end }}
+          - resources:
+              namespaces:
+                - monitoring
+              selector:
+                matchLabels:
+                  app.kubernetes.io/name: prometheus-node-exporter
+{{- end }}
+      validate:
+        allowExistingViolations: true
+        failureAction: Audit
+        message: Containers must drop the ALL capability.
+        foreach:
+          - list: request.object.spec.[initContainers, containers][]
+            deny:
+              conditions:
+                all:
+                  - key: ALL
+                    operator: AnyNotIn
+                    value: "{{ "{{" }} element.securityContext.capabilities.drop[] || `[]` {{ "}}" }}"
+  validationFailureAction: Audit
+{{- end }}

@@ -80,3 +80,11 @@ requireImageTagPolicy:
     - kube-public
     - kube-system
     - kyverno
+
+requireContainerHardeningPolicy:
+  enabled: true
+  excludedNamespaces:
+    - longhorn-system
+    - istio-system
+    - metallb-system
+    - kube-system
