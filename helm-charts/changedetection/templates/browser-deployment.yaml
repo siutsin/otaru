@@ -63,10 +63,14 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           securityContext:
-            # Image already defaults to the non-root "chrome" user (uid 1000, matches
-            # browser.profile.fsGroup); verified locally it still starts under
-            # cap-drop ALL with this enforced explicitly.
+            # The image's config User field is the name "chrome", not a
+            # numeric UID, so kubelet cannot verify runAsNonRoot without an
+            # explicit runAsUser -- without it the container gets stuck in
+            # CreateContainerConfigError. uid 1000 confirmed via
+            # `docker image inspect` and `docker run --entrypoint id`;
+            # matches browser.profile.fsGroup.
             runAsNonRoot: true
+            runAsUser: {{ .Values.browser.profile.fsGroup }}
             allowPrivilegeEscalation: false
             capabilities:
               drop:
