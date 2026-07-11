@@ -10,6 +10,11 @@
 - `kubectl get deploy,sts,ds -A` — not fully available?
 - **Jobs:** `kubectl get jobs -A` — any `Failed` or `Running` beyond
   expected duration?
+- **Alerts:** `curl -s <prometheus-url-via-ingress>/api/v1/alerts` (same
+  URL resolution as `right-sizing`'s KRR step) — any `firing` alerts. A
+  pod stuck `CrashLoopBackOff` still reports phase `Running` and can look
+  fine at a glance if this step is skipped, especially on an abbreviated
+  hourly check; run it every pass, not just on a full sweep.
 
 ## Triage
 
