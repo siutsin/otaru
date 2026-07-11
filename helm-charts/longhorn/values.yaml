@@ -40,12 +40,16 @@ longhorn:
     # lightweight sidecar reuses the same size as the gateway chart's
     # shutdown-manager sidecar; longhorn-csi-plugin itself (does actual
     # mount/format work) gets a slightly larger allowance.
+    # 2026-07-11: longhorn-csi-plugin OOMKilled (exit 137) on nuc-00, the node
+    # with by far the most attached volumes (jellyfin + sftpgo). The 64Mi
+    # limit only covered steady-state (~11-15Mi observed on other nodes) with
+    # no headroom for mount/format-time spikes. Doubled to 128Mi.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"64Mi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"128Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"128Mi","ephemeral-storage":"32Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
