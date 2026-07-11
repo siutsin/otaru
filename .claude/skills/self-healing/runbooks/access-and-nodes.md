@@ -50,6 +50,22 @@ node alone often fails. Escalate; see `documentation/gotcha.md`.
 **Otherwise** journal symptoms (conditions, events, last heartbeat) and
 escalate with a recommended next step.
 
+## After a Node Rejoins: Check for Corrupted Image Pulls
+
+A node that came back from an unclean shutdown or outage can have an
+incomplete multi-arch image pull sitting in containerd's content store —
+the top-level manifest-list metadata looks intact, but a child platform
+manifest is silently missing, so every subsequent pod on that node using
+that image resolves to the wrong architecture and fails with
+`exec /path/to/binary: exec format error`, isolated to that one image on
+that one node. `kubectl delete pod` alone does not fix it (the replacement
+lands on the same node with the same broken cache). See
+`documentation/gotcha.md` ("Missing Child Manifest After Interrupted Pull
+Causes `exec format error`") for the diagnosis and fix (`k3s ctr -n k8s.io
+content rm` on the actual content blob, not just `images rm`). Worth a
+quick check for any pod that starts crash-looping specifically on a node
+that just rejoined.
+
 ## Pressure
 
 - Any pressure condition **True** → journal and treat as P0
