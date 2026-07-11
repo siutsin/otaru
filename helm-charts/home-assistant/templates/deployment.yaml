@@ -27,6 +27,16 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          # No runAsNonRoot here: the upstream image's s6-overlay init needs to run
+          # as root (verified locally, it fails with "unable to setgid to root" and
+          # "unable to mkdir /run/s6" as a non-root user). allowPrivilegeEscalation
+          # and dropping capabilities are still safe on top of root, confirmed the
+          # container still starts and serves HTTP.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           env:
             # https://www.home-assistant.io/installation/linux#optimizations
             - name: DISABLE_JEMALLOC
