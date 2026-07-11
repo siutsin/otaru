@@ -1,0 +1,64 @@
+{{- if .Values.requireImageTagPolicy.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-image-tag
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  rules:
+    - name: require-container-image-tag
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+{{- with .Values.requireImageTagPolicy.excludedNamespaces }}
+      exclude:
+        any:
+          - resources:
+              namespaces:
+{{- range . }}
+                - {{ . }}
+{{- end }}
+{{- end }}
+      validate:
+        allowExistingViolations: true
+        failureAction: Audit
+        message: Containers must use an explicit image tag rather than an implicit latest.
+        pattern:
+          spec:
+            =(initContainers):
+              - image: "*:*"
+            containers:
+              - image: "*:*"
+    - name: disallow-latest-image-tag
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+{{- with .Values.requireImageTagPolicy.excludedNamespaces }}
+      exclude:
+        any:
+          - resources:
+              namespaces:
+{{- range . }}
+                - {{ . }}
+{{- end }}
+{{- end }}
+      validate:
+        allowExistingViolations: true
+        failureAction: Audit
+        message: Containers must not use the mutable latest image tag.
+        pattern:
+          spec:
+            =(initContainers):
+              - image: "!*:latest"
+            containers:
+              - image: "!*:latest"
+  validationFailureAction: Audit
+{{- end }}

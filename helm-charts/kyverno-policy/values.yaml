@@ -72,3 +72,11 @@ barmanObjectStorePolicy:
         - b2-backup
       credentialSecrets:
         - b2-backup-credentials
+
+requireImageTagPolicy:
+  enabled: true
+  excludedNamespaces:
+    - kube-node-lease
+    - kube-public
+    - kube-system
+    - kyverno
