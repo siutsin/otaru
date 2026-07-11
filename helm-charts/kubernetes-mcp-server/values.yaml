@@ -2,6 +2,10 @@ name: k8s-mcp
 namespace: kubernetes-mcp-server
 
 kubernetes-mcp-server:
+  image:
+    registry: quay.io
+    repository: containers/kubernetes_mcp_server
+    version: v0.0.63
   ingress:
     enabled: false
   service:
