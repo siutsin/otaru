@@ -29,6 +29,25 @@ longhorn:
     storageReservedPercentageForDefaultDisk: "0"
     snapshotMaxCount: "250"
     autoCleanupSnapshotWhenDeleteBackup: true
+    # Kyverno require-workload-resources (background scan) flagged
+    # Deployment/csi-attacher, csi-provisioner, csi-resizer, csi-snapshotter,
+    # and the longhorn-csi-plugin/node-driver-registrar/longhorn-liveness-probe
+    # containers of the longhorn-csi-plugin DaemonSet as missing memory and
+    # ephemeral-storage requests/limits. These are system-managed components
+    # created directly by longhorn-manager, not by this Helm chart's
+    # templates, so this Longhorn Setting (a JSON object keyed by component
+    # name) is the only supported way to size them. No KRR data yet, so each
+    # lightweight sidecar reuses the same size as the gateway chart's
+    # shutdown-manager sidecar; longhorn-csi-plugin itself (does actual
+    # mount/format work) gets a slightly larger allowance.
+    systemManagedCSIComponentsResourceLimits: >-
+      {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"64Mi","ephemeral-storage":"32Mi"}},
+      "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
     backupTarget: ~
     backupTargetCredentialSecret: b2-secret
