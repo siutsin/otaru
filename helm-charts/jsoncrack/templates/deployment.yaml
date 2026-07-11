@@ -25,6 +25,10 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
           ports:
             - name: http
