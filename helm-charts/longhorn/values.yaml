@@ -55,15 +55,26 @@ longhorn:
     # teslamate CNPG replica landed there at the same time during the
     # post-rejoin reattach storm), then started failing on raspberrypi-02 too
     # as load shifted. Given two consecutive doublings both failed under
-    # concurrent-mount conditions, stopped incrementally guessing and moved to
-    # a more generous fixed 512Mi -- still a small fraction of these nodes'
-    # 8GB total memory, so the headroom cost is negligible even if unused.
+    # concurrent-mount conditions, moved to a more generous 512Mi -- initially
+    # matching request to limit per this repo's usual convention.
+    # 2026-07-11 (fourth change, requests decoupled from limits): every node
+    # in this cluster already runs at 91-99% memory *requests* committed, so
+    # reserving the full 512Mi spike allowance as a *request* on every node
+    # (a DaemonSet, so this multiplies across all 5) immediately caused a
+    # real scheduling failure elsewhere (a teslamate CNPG replica pod could
+    # not schedule on any node: "0/5 nodes are available: 5 Insufficient
+    # memory"). longhorn-csi-plugin's actual steady-state usage is ~11-22Mi;
+    # the 512Mi is only needed as a ceiling for rare concurrent-mount spikes,
+    # not a permanent reservation. Departs from this repo's usual
+    # requests-equal-limits convention deliberately for this one spiky
+    # sidecar, confirmed with the user, to stop wasting ~2.2Gi of falsely
+    # reserved cluster memory.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"512Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"512Mi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"512Mi","ephemeral-storage":"32Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
