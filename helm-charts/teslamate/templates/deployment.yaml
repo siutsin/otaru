@@ -26,6 +26,12 @@ spec:
       containers:
         - name: teslamate
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           env: {{ toYaml .Values.deployment.env | nindent 12 }}
           envFrom: {{ toYaml .Values.deployment.envFrom | nindent 12 }}
           ports:
