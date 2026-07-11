@@ -15,5 +15,20 @@ spec:
         pod:
           affinity:
 {{ toYaml .Values.envoyProxy.affinity | indent 12 }}
+        # Envoy Gateway v1.8 has no first-class field for the
+        # shutdown-manager sidecar's resources (only its container image is
+        # configurable directly); a StrategicMerge patch on the rendered
+        # Deployment is the documented way to reach it.
+        # https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              template:
+                spec:
+                  containers:
+                    - name: shutdown-manager
+                      resources:
+{{ toYaml .Values.envoyProxy.shutdownManagerResources | indent 24 }}
       envoyService:
         name: {{ .Values.service.name }}

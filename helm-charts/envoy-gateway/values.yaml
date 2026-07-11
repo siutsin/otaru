@@ -15,6 +15,21 @@ _shared:
     limits:
       memory: 256Mi
       ephemeral-storage: 128Mi
+  # Kyverno require-workload-resources (background scan) flagged the
+  # shutdown-manager sidecar in the gateway Deployment as missing memory
+  # and ephemeral-storage requests/limits (only a CPU request is applied
+  # by envoy-gateway's own hardcoded default). No KRR data yet for this
+  # container, so reuse its existing 10m CPU request and pair it with a
+  # memory/ephemeral-storage size similar to envoyGatewayResources above,
+  # since both are lightweight Go control-plane sidecars.
+  shutdownManagerResources: &shutdownManagerResources
+    requests:
+      cpu: 10m
+      memory: 32Mi
+      ephemeral-storage: 32Mi
+    limits:
+      memory: 32Mi
+      ephemeral-storage: 32Mi
 
 name: gateway
 namespace: gateway
@@ -102,3 +117,4 @@ envoyProxy:
                 gateway.networking.k8s.io/gateway-name: gateway
             topologyKey: kubernetes.io/hostname
   resources: *envoyProxyResources
+  shutdownManagerResources: *shutdownManagerResources
