@@ -50,12 +50,20 @@ longhorn:
     # stayed ~11-22Mi throughout, confirming this is a startup/reattach memory
     # spike, not a steady leak. Raised to 256Mi for real headroom under
     # concurrent reattach load rather than guessing again incrementally.
+    # 2026-07-11 (third bump): 256Mi still OOMKilled on raspberrypi-03 when
+    # two volumes needed mounting on it concurrently (home-assistant and a
+    # teslamate CNPG replica landed there at the same time during the
+    # post-rejoin reattach storm), then started failing on raspberrypi-02 too
+    # as load shifted. Given two consecutive doublings both failed under
+    # concurrent-mount conditions, stopped incrementally guessing and moved to
+    # a more generous fixed 512Mi -- still a small fraction of these nodes'
+    # 8GB total memory, so the headroom cost is negligible even if unused.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"256Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"256Mi","ephemeral-storage":"32Mi"}},
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"512Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"512Mi","ephemeral-storage":"32Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
   defaultBackupStore:
