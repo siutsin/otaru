@@ -33,6 +33,18 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              # kong/httpbin's python3 binary carries a cap_net_bind_service file
+              # capability so its non-root "httpbin" user can bind port 80; verified
+              # locally that dropping this too breaks exec with "operation not
+              # permitted".
+              add:
+                - NET_BIND_SERVICE
           ports:
             - containerPort: 80
           resources:
