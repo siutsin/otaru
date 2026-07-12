@@ -22,6 +22,17 @@ external-secrets:
     <<: *preferredPodAntiAffinity
   resources: *resources
   webhook:
+    # 2026-07-12: ArgoCD ExternalSecret syncs failed with "no endpoints
+    # available for service external-secrets-webhook" during a night of
+    # cluster-wide pod restarts -- a single replica has zero redundancy for
+    # a validating webhook that gates every ExternalSecret apply. The
+    # anti-affinity above already spreads replicas across nodes, so a
+    # second replica gives real resilience against a single pod/node
+    # disruption.
+    replicaCount: 2
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
     affinity:
       <<: *preferredPodAntiAffinity
     resources: *resources
