@@ -17,6 +17,8 @@ clusterSecretStorePolicy:
       - changedetection
     cloudflare-tunnel:
       - cloudflare-tunnel-credentials
+    external-secrets:
+      - 1Password Token
     gateway:
       - cloudflare-acme-verification-secret
       - heartbeats
