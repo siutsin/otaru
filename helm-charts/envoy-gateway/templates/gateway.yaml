@@ -34,7 +34,6 @@ spec:
                   - cyberchef
                   - excalidraw
                   - gateway
-                  - happy
                   - home-assistant
                   - httpbin
                   - istio-system

@@ -1,6 +1,0 @@
-apiVersion: v2
-name: happy
-description: Self-hosted Happy server for encrypted Claude Code and Codex sync
-type: application
-version: 0.1.0
-appVersion: 1.1.11

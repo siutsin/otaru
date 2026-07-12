@@ -20,8 +20,6 @@ clusterSecretStorePolicy:
     gateway:
       - cloudflare-acme-verification-secret
       - heartbeats
-    happy:
-      - happy
     umami:
       - Umami
       - b2-secret-cloudnative-pg

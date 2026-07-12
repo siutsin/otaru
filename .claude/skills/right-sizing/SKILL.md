@@ -94,10 +94,10 @@ Query via the same `<prometheus-url-via-ingress>` as KRR (HTTP API or Grafana).
 | `ephemeral_storage_node_percentage`            | Node-level disk pressure context         |
 
 Compare configured limits with kube-state-metrics (example namespace filter;
-replace `happy` with the workload under review):
+replace `teslamate` with the workload under review):
 
 ```promql
-kube_pod_container_resource_limits{resource="ephemeral_storage", namespace="happy"}
+kube_pod_container_resource_limits{resource="ephemeral_storage", namespace="teslamate"}
 ```
 
 ### Example queries
@@ -105,7 +105,7 @@ kube_pod_container_resource_limits{resource="ephemeral_storage", namespace="happ
 Peak pod ephemeral usage over 14 days:
 
 ```promql
-max_over_time(ephemeral_storage_pod_usage{pod_namespace="happy"}[14d])
+max_over_time(ephemeral_storage_pod_usage{pod_namespace="teslamate"}[14d])
 ```
 
 Workloads approaching their limit (>80%):
@@ -164,7 +164,7 @@ After merge (prefer Kubernetes MCP; fall back to `kubectl`):
 Open a follow-up PR immediately if rollout breaks a workload:
 
 - **OOM after downsize** — bump memory above the failing limit; comment exit code
-  and workload (for example happy OOMKill exit 137 at 640Mi → 896Mi).
+  and workload (for example changedetection OOMKill exit 137 at 256Mi → 1Gi).
 - **Init/exec format error on nuc-00** — arm64-only images on amd64; pin
   `nodeSelector: kubernetes.io/arch: arm64` when charts use arm64-only digests.
 
