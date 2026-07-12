@@ -96,6 +96,15 @@ replace-with-connect-token
 
 Keep this as a single token value.
 
+Only needed once for the very first bootstrap of a cluster. After that,
+`onepassword-connect-token` (namespace `external-secrets`) is managed by an
+`ExternalSecret` that reads `op://github-otaru/1Password Token/credential`
+via the same `ClusterSecretStore` it authenticates — rotate by updating that
+1Password item, not by re-running the bootstrap `kubectl create secret`
+step. If the live token is ever invalidated before the new value is synced
+(revoked, expired, leaked), this self-referential sync breaks and the
+Secret needs the manual bootstrap step again to re-seed it.
+
 ## `etcd/ca.pem`
 
 Example:
