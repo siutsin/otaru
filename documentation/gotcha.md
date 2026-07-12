@@ -698,6 +698,36 @@ ssh pi@<node-ip> "sudo k3s ctr -n k8s.io images rm <image>:<tag> <image>@<manife
 kubectl delete pod -n <namespace> <pod>
 ```
 
+### Variant: Corruption in the Unpacked Snapshot, Not the Content Blob
+
+The same `exec format error` symptom can also occur when the
+manifest-list and every content blob (including all layers) check out as
+present and intact, but the extracted overlayfs snapshot on disk is
+corrupt -- for example a 0-byte file where an entrypoint script should
+be. An empty file triggers `ENOEXEC` on `exec`, surfacing as the same
+"exec format error".
+
+Confirm by locating the container's snapshot chain and checking the
+suspect file directly:
+
+```shell
+ssh pi@<node-ip> "sudo k3s crictl inspect <container-id>" # get the SnapshotKey / container id
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io c info <container-id>" # get lowerdir snapshot ids
+ssh pi@<node-ip> "sudo file /var/lib/rancher/k3s/agent/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/<id>/fs/<path-to-entrypoint>"
+```
+
+Fix the same way as the missing-child-manifest case -- remove the CRI
+image record, the image name mapping, and **every** content blob for the
+image (manifest-list, platform manifest, config, all layers), then
+delete the pod to force a fully fresh pull and re-extraction:
+
+```shell
+ssh pi@<node-ip> "sudo k3s crictl rmi <resolved-image-sha>"
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io images rm <image>@<manifest-list-digest>"
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io content rm <manifest-list-digest> <platform-manifest-digest> <config-digest> <layer-digest-1> ..."
+kubectl delete pod -n <namespace> <pod>
+```
+
 ---
 
 ## e1000e Detected Hardware Unit Hang
