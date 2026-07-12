@@ -50,6 +50,25 @@
   deleting the source replica object, so a manual `kubectl delete
   replicas.longhorn.io <old-replica>` may still be needed to finish
   vacating it. The consuming pod does not need to restart.
+- **Workload stuck `ContainerCreating`, every one of its volumes fails to
+  mount at the same instant** (`connection refused` or `error reading from
+  server: EOF` against the CSI socket): the symptom lives on the pod, but
+  the cause is `longhorn-csi-plugin` itself crash-looping on that node —
+  check `kubectl get pod -n longhorn-system -l app=longhorn-csi-plugin
+  --field-selector spec.nodeName=<node>` before touching the workload.
+  `CrashLoopBackOff` with `OOMKilled` there, especially for a pod with many
+  PVCs (LUKS-encrypted volumes cost real memory per concurrent unlock — see
+  `documentation/gotcha.md`), means raising
+  `helm-charts/longhorn/values.yaml`'s
+  `systemManagedCSIComponentsResourceLimits.longhorn-csi-plugin.limits.memory`
+  is the fix, not restarting the workload's own pod repeatedly. Confirm
+  with `cryptsetup luksDump` before picking a number rather than doubling
+  blind. Keep `.requests.memory` low and decoupled from the limit — this
+  is a startup spike, not steady state, and a DaemonSet-wide request bump
+  reserves that amount on every node permanently, which can itself cause
+  an unrelated scheduling failure on a busy cluster. Check cluster-wide
+  `kubectl describe node` memory-request percentages before and after any
+  such bump.
 - **Faulted single-replica volume with zero live replicas:** eviction
   needs a live source and does not apply. Check
   `auto-salvage` (`kubectl get settings.longhorn.io auto-salvage -n

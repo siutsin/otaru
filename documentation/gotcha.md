@@ -625,6 +625,81 @@ filesystem.
 
 ---
 
+## Missing Child Manifest After Interrupted Pull Causes `exec format error`
+
+**Problem:** After `raspberrypi-03` (arm64) came back from an unrelated
+outage and rejoined the cluster, three of the four `istiod` replicas that
+landed on it went into `CrashLoopBackOff` with:
+
+```text
+exec /usr/local/bin/pilot-discovery: exec format error
+```
+
+The fourth replica, on an amd64 node, ran fine. Every other pod already
+running on `raspberrypi-03` was unaffected -- this was isolated to one
+image. Deleting the pods did not help: the replacements landed on the same
+node and hit the same error immediately.
+
+**Why it happens:** `exec format error` means the runtime executed a
+binary built for the wrong CPU architecture. The image
+(`registry.istio.io/release/pilot:1.30.2-distroless`) is a correctly
+published multi-arch manifest list (`linux/amd64,linux/arm64`), so the
+image itself is fine. The node's pull was interrupted mid-transfer during
+its earlier instability: `k3s ctr -n k8s.io content ls` showed the
+top-level manifest-list object present and intact, but one of its two
+child platform manifests (found via its
+`containerd.io/gc.ref.content.m.*` labels) was **entirely missing** --
+`ctr content get <child-digest>` returned `content digest ... not found`.
+Since the manifest-list metadata itself looked complete, containerd never
+identified the pull as broken and never re-fetched, so every platform
+resolution silently fell back to whichever single child manifest actually
+existed on disk -- the amd64 one.
+
+A plain `k3s ctr -n k8s.io images rm <ref>` was not enough to fix this: it
+only removes the name-to-digest mapping, not the actual content-addressed
+blobs, so a fresh pull under the same digest kept resolving against the
+same incomplete on-disk content. Restarting `k3s-agent` (which restarts
+containerd) also did not help, since the corruption was on disk, not just
+an in-memory cache.
+
+### Symptoms: Missing Child Manifest
+
+- `CrashLoopBackOff` with `exec format error` in the pod's log, but only on
+  one node, and only for one image.
+- Other pods on the same node, including ones using other multi-arch
+  images, are unaffected.
+- Coincides with that node having recently rejoined the cluster after an
+  outage or reboot (an unclean shutdown mid-pull is the likely trigger).
+- Deleting the pod, or even restarting `k3s-agent`, does not clear it --
+  the replacement pod hits the same error on the same node.
+
+### Resolution: Remove the Content Blob Directly, Not Just the Image Reference
+
+SSH to the affected node. First confirm the diagnosis by checking whether
+a child manifest referenced by the top-level manifest-list is actually
+missing (k3s bundles its own containerd, so the plain `ctr` binary will
+not see the right namespace -- use `k3s ctr`):
+
+```shell
+kubectl get pod -n <namespace> <pod> -o jsonpath='{.spec.containers[0].image}{"\n"}{.status.containerStatuses[0].imageID}{"\n"}'
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io content ls | grep <manifest-list-digest>"
+# note the containerd.io/gc.ref.content.m.* digests in the label column, then:
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io content get <child-digest>"
+# "not found" confirms the missing-child-manifest failure mode
+```
+
+Remove the actual content blob (not just the image name), then the
+now-dangling image reference, then delete the pod so its controller
+recreates it and pulls genuinely fresh content:
+
+```shell
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io content rm <manifest-list-digest> <the-present-child-digest>"
+ssh pi@<node-ip> "sudo k3s ctr -n k8s.io images rm <image>:<tag> <image>@<manifest-list-digest>"
+kubectl delete pod -n <namespace> <pod>
+```
+
+---
+
 ## e1000e Detected Hardware Unit Hang
 
 The `nuc-00` worker uses an onboard Intel 82579V Gigabit NIC (`eno1`, PCI
@@ -769,7 +844,166 @@ bad state.
 
 ---
 
+## `kor` unused-resource scanner has a high false-positive rate
+
+**Problem:** `kor all` flags dozens of ConfigMaps, Secrets,
+RoleBindings, and ClusterRoleBindings as "unused" that are, in fact, all
+in active use.
+
+**Why it happens:** `kor` only detects a resource as "used" if a pod
+mounts it as a volume or pulls it in via `env`/`envFrom`. It cannot see
+several other legitimate reference styles that are common in this
+cluster:
+
+- **Read via the Kubernetes API by a controller, never mounted.** Istio
+  ambient mesh distributes `istio-ca-crl` and `istio-ca-root-cert`
+  ConfigMaps into every namespace for `ztunnel`/`istiod` to read directly
+  via the API — this alone accounted for ~74 of 93 flagged ConfigMaps in
+  one scan. The same pattern explains flagged leader-election ConfigMaps
+  (`kyverno`, `istio-leader`, `istio-namespace-controller-election`,
+  `cnpg-controller-manager-config`), heartbeat-operator Secrets
+  (`*-heartbeat`), and webhook TLS Secrets
+  (`cert-manager-webhook-ca`, `longhorn-webhook-ca`, `envoy*`).
+- **Referenced by a CRD's spec field, not a pod.** cert-manager
+  `Issuer`/`Certificate` objects reference Secrets
+  (`letsencrypt`, `tls-certificate`,
+  `cloudflare-acme-verification-secret`) by name in their own CRD spec —
+  `kor` has no notion of this.
+- **Cross-namespace RoleBinding subjects.** A `RoleBinding` in
+  `kube-system` binding a ServiceAccount that lives in a *different*
+  namespace (for example `cert-manager-cainjector:leaderelection` binds
+  `cert-manager/cert-manager-cainjector`) is reported as "references a
+  non-existing ServiceAccount". The subject exists; `kor` does not
+  correctly resolve the subject's own `namespace` field for this check.
+- **A separate live bug** can poison the `ClusterRoleBinding` check
+  entirely: `Failed to get clusterRoles: couldn't convert string to bool
+  strconv.ParseBool: parsing "kyverno": invalid syntax` (seen on v0.6.8).
+  When this error fires, every `ClusterRoleBinding` in the scan may be
+  reported as referencing a non-existing `ClusterRole` even when the role
+  exists — verify with `kubectl get clusterrole <name>` before trusting
+  any `ClusterRoleBinding` finding from a scan where this error appeared.
+- `ReplicaSet` and `Crd` findings are expected noise, not orphans: old
+  ReplicaSets are normal `revisionHistoryLimit` retention, and "unused"
+  CRDs are bundled platform schema (Istio, Gateway API, external-secrets,
+  Kyverno, Longhorn, KEDA) with zero instances of that particular kind
+  created yet, not something to remove.
+
+**Fix:** Never act on a raw `kor` finding. Cross-check with `kubectl get
+<kind> <name>` (for RBAC) or trace the actual consumer (controller
+logs/spec references) before treating anything as a genuine orphan.
+Confirmed genuine finds so far: the leftover `monitoring-grafana-test`
+ConfigMap/ServiceAccount pair (also flagged separately by `popeye`'s
+`POP-400`), and the unused `longhorn`/`longhorn-static` StorageClasses
+(every PVC in the cluster uses `longhorn-crypto-global` instead).
+
+---
+
+## `runAsNonRoot: true` Needs a Numeric `runAsUser` for Named-User Images
+
+**Problem:** A container-hardening pass added `securityContext.
+runAsNonRoot: true` to several apps' charts without also setting
+`runAsUser`, leaving each new ReplicaSet stuck in
+`CreateContainerConfigError`. The old ReplicaSet kept running each time, so
+there was no outage, but the rollout could not complete. Hit repeatedly
+across unrelated apps in the same change: `httpbin`, `teslamate`, `umami`,
+and `changedetection`'s browser sidecar.
+
+**Why it happens:** Each image's non-root user is a named user in the
+image's config (`httpbin`, `nonroot`, `nextjs`, `chrome` respectively), not
+a numeric UID. Kubelet can only verify `runAsNonRoot` against a numeric
+UID; it cannot resolve a named user from the image, so it refuses to start
+the container rather than risk running as root. A plain `docker run` with
+the same `securityContext` does not reproduce this, since Docker does not
+enforce Kubernetes' stricter numeric-UID check — verifying a hardening
+change via Docker alone is not sufficient.
+
+**Detection before rollout:** Check the image's config `User` field
+directly rather than trusting a `docker run ... id` resolution (that
+resolves a name to a UID at runtime and looks fine either way):
+`docker image inspect <image>@<digest> --format '{{.Config.User}}'`. If the
+result is a name rather than a number, an explicit numeric `runAsUser` is
+required.
+
+**Fix:** Set an explicit numeric `runAsUser` (and `runAsGroup` where the
+image's group is also named) alongside `runAsNonRoot: true`. Find the
+correct UID/GID from a still-running pre-hardening pod: `kubectl exec <pod>
+-- id`, or from the image directly: `docker run --rm --entrypoint id
+<image>@<digest>`.
+
+---
+
+## `longhorn-csi-plugin` OOMKilled Mounting Many LUKS Volumes Concurrently
+
+**Problem:** A pod requesting many Longhorn PVCs at once (`jellyfin`, with
+13 volumes including one 320Gi volume) got stuck in `ContainerCreating`
+indefinitely. `longhorn-csi-plugin` on the node it landed on repeatedly
+crashed with `OOMKilled` (exit 137), dying within 16 seconds of starting
+each time, even after its memory limit was raised several times (64Mi up
+through 2Gi). Every one of the pod's volumes failed to mount at once with
+`rpc error: code = Unavailable desc = error reading from server: EOF` or
+`connection refused` to the CSI socket, since the whole plugin process
+(handling every volume on that node, not just this pod's) was down.
+
+**Why it happens:** Every PVC on this cluster uses the `longhorn-crypto-
+global` StorageClass, which is LUKS-encrypted. `cryptsetup luksDump
+/dev/longhorn/<volume>` shows the key-derivation function is `argon2i`,
+deliberately memory-hard, with a `Memory` cost of ~65MiB *per unlock*.
+When a single pod's volumes are all mounted at pod-start, `longhorn-csi-
+plugin` runs `NodeStageVolume` for all of them concurrently in the same
+container, so the KDF memory cost multiplies by the number of volumes:
+13 volumes x ~65MiB is already ~845MiB, before the plugin's own per-volume
+gRPC/goroutine overhead and page-cache pressure from probing several
+100+Gi filesystems at once. There is no Longhorn setting to throttle or
+serialise concurrent mount/attach operations (checked the full Helm values
+schema -- the only concurrency limits are for replica rebuilds, backups,
+and engine upgrades), and there is no official per-volume memory sizing
+formula for this container. Two related upstream issues,
+[longhorn/longhorn#12225][longhorn-12225] and
+[longhorn/longhorn#6645][longhorn-6645], confirm this class of memory
+scaling is a known, unresolved, undocumented area.
+
+### Symptoms: LUKS Concurrent-Mount OOM
+
+- A pod with many PVCs sits in `ContainerCreating` indefinitely.
+- `kubectl get pod -n longhorn-system -l app=longhorn-csi-plugin
+  --field-selector spec.nodeName=<node>` shows `CrashLoopBackOff` with
+  `OOMKilled`, often within seconds of each restart.
+- Every volume the stuck pod needs fails to mount at the same instant with
+  `connection refused` or `error reading from server: EOF` against the CSI
+  socket -- because the plugin process itself is down, not because of a
+  problem with any individual volume.
+- Other pods with only one or two volumes on the same node are unaffected
+  until the crash-loop is bad enough to take the whole node's CSI plugin
+  down for everyone.
+- Raising `systemManagedCSIComponentsResourceLimits.longhorn-csi-
+  plugin.limits.memory` in steps (doubling) keeps getting further before
+  crashing but does not resolve on the first few attempts, since the real
+  requirement scales with volume count, not a fixed baseline.
+
+### Resolution: Confirm the KDF Cost, Then Size for the Worst Case
+
+Confirm the mechanism before assuming a fixed number will work:
+
+```shell
+ssh <user>@<node-ip> "sudo cryptsetup luksDump /dev/longhorn/<a-volume> | grep -iE 'PBKDF|Memory'"
+```
+
+Multiply the reported `Memory` (in KiB) by the worst-case number of
+volumes any single pod in the cluster requests concurrently, then size
+`helm-charts/longhorn/values.yaml`'s
+`systemManagedCSIComponentsResourceLimits.longhorn-csi-plugin.limits.memory`
+with solid margin above that (this cluster settled on 4Gi for a 13-volume,
+~845MiB-KDF-floor workload). Keep the matching `.requests.memory` low
+(e.g. 64Mi) and decoupled from the limit -- this is a rare startup spike,
+not a steady-state need, and reserving the full limit as a request on
+every node (it is a DaemonSet) will itself cause scheduling failures on an
+already busy cluster.
+
+---
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
+[longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
+[longhorn-6645]: https://github.com/longhorn/longhorn/issues/6645
