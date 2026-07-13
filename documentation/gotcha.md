@@ -1037,3 +1037,145 @@ already busy cluster.
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
 [longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
 [longhorn-6645]: https://github.com/longhorn/longhorn/issues/6645
+
+---
+
+## Multi-Container Pods Fail to Schedule Despite "Enough" Free Cluster Memory
+
+**Problem:** `teslamate-verify-pitr`'s daily PITR (point-in-time-recovery)
+verification Job repeatedly got stuck `Pending` for hours, failing with
+`0/5 nodes are available: 5 Insufficient memory`, even though the cluster
+had roughly 2-3GiB of memory free in aggregate at the time. The obvious
+assumption -- "the job barely needs any memory, why is this failing?" --
+was also wrong: the visible CronJob controller container only requests
+128Mi, but it spins up a separate, dynamically-created recovery pod with
+**three** containers (`bootstrap-controller` 512Mi,
+`plugin-barman-cloud` 1Gi, `full-recovery` 512Mi) totalling **2Gi**, and
+all three must land on the same node. Manually re-running the job
+(`kubectl create job --from=cronjob/teslamate-verify-pitr ...`) confirmed
+it failing live, ruling out a one-off fluke.
+
+**Why it happens:** free memory was real but scattered -- every node
+individually had less than 2GiB free, even though summed together there
+was enough. This is a distribution problem, not a capacity problem, and
+it's made structurally worse by two Kubernetes defaults fighting each
+other:
+
+- `kube-scheduler`'s default `NodeResourcesFit` scoring strategy is
+  `LeastAllocated`, which always prefers placing new pods on the
+  emptiest node.
+- Descheduler's `LowNodeUtilization` strategy (this cluster's original
+  config) is a no-op once every node is simultaneously above its
+  `targetThresholds` -- it needs an already-underutilized node to land
+  evicted pods on, and a cluster running hot everywhere never has one.
+- Even after adding descheduler's `HighNodeUtilization` strategy (which
+  *does* evict pods off the least-loaded node to grow contiguous free
+  space there), the default `LeastAllocated` scheduler bias immediately
+  refills that same node with new pods, since it's still the emptiest
+  choice available. Confirmed live: evicting several pods from the
+  least-loaded node only netted a partial, temporary improvement before
+  the scheduler placed replacements straight back onto it.
+
+### Symptoms: Scattered-Memory Scheduling Failures
+
+- `FailedScheduling` events citing `Insufficient memory` (or `cpu`/`pods`)
+  across **all** nodes, for a Job or Deployment that "shouldn't" need
+  that much.
+- `kubectl describe node <node>` shows meaningful free memory on
+  individual nodes, but always less than the failing pod's *combined*
+  container requests -- check every container in the pod spec, not just
+  the one you expect, since sidecars/init containers add up.
+- Descheduler logs (`kubectl logs -n descheduler -l
+  app.kubernetes.io/name=descheduler`) show `HighNodeUtilization`
+  evicting pods, but the same or similar pods reappear on the same node
+  shortly after in `kubectl get pods -A -o wide`.
+- Node memory-request percentages sit in a narrow, uniformly-high band
+  (e.g. 83-97%) across every node -- no single node is meaningfully more
+  free than the rest.
+
+### Resolution: Pair Descheduler's HighNodeUtilization With a MostAllocated Scheduler
+
+Two changes, both required -- one alone just causes eviction churn
+without net progress:
+
+1. **`helm-charts/descheduler/values.yaml`** -- add a second profile
+    (`HighNodeUtilization` cannot share a profile with
+    `LowNodeUtilization`; they have opposite goals) that evicts pods from
+    whichever node is below a memory threshold, to be rescheduled
+    elsewhere:
+
+    ```yaml
+    - name: consolidate
+      pluginConfig:
+        - name: DefaultEvictor
+          args:
+            podProtections:
+              defaultDisabled:
+                - PodsWithLocalStorage
+        - name: HighNodeUtilization
+          args:
+            thresholds:
+              cpu: 100
+              memory: 90
+              pods: 100
+      plugins:
+        balance:
+          enabled:
+            - HighNodeUtilization
+    ```
+
+2. **`kube-scheduler` config** -- flip the default `LeastAllocated`
+    scoring to `MostAllocated`, so newly-scheduled pods actively prefer
+    already-fuller nodes instead of refilling whatever descheduler just
+    freed up:
+
+    ```yaml
+    apiVersion: kubescheduler.config.k8s.io/v1
+    kind: KubeSchedulerConfiguration
+    clientConnection:
+      kubeconfig: /var/lib/rancher/k3s/server/cred/scheduler.kubeconfig
+    profiles:
+      - schedulerName: default-scheduler
+        pluginConfig:
+          - name: NodeResourcesFit
+            args:
+              scoringStrategy:
+                type: MostAllocated
+                resources:
+                  - name: memory
+                    weight: 1
+                  - name: cpu
+                    weight: 1
+    ```
+
+    On k3s, this file must exist on disk on every control-plane node
+    *before* the server starts, referenced via
+    `--kube-scheduler-arg --config=<path>` on the `curl ... | sh -s -`
+    install command (see `ansible/playbooks/k3s/000-init-cluster.yaml`
+    and `002-nodes.yaml`). Applying it means restarting the k3s server
+    process (scheduler is embedded in the same binary as the API server)
+    on every control-plane node -- roll out **one node at a time**, not
+    all at once, and confirm each one starts cleanly
+    (`journalctl -u k3s`, look for `"Starting Kubernetes Scheduler"` with
+    no immediately-following fatal errors) before moving to the next.
+
+Applied together, node memory usage stops being uniform: the
+least-loaded node keeps getting emptier (consolidation actually sticks)
+while the rest absorb the difference. Verified live in this incident --
+the previously-failing Job's pod scheduled and completed successfully
+immediately after rollout, with no other change needed.
+
+### Gotcha During Rollout: Transient API VIP Blip
+
+Restarting all 3 control-plane nodes' k3s processes (even one at a time)
+can briefly disrupt the cluster's API VIP if it is itself backed by a
+MetalLB-announced `LoadBalancer` Service (see
+[k3s-apiserver-loadbalancer][k3s-apiserver-loadbalancer]) rather than a
+static IP -- `metallb-controller`'s L2 announcement election can lag by
+under a minute while it re-settles after a node it was scheduled on
+restarts. Confirmed via direct `https://<node-ip>:6443/livez` checks on
+every master that the cluster itself was never actually down, only the
+VIP's announcement was briefly stale. No action needed; it resolves on
+its own once MetalLB's speakers re-converge.
+
+[k3s-apiserver-loadbalancer]: https://github.com/siutsin/k3s-apiserver-loadbalancer

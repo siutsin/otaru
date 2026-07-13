@@ -27,6 +27,14 @@
   CronJob child (see `runbooks/merge-policy.md` and
   `references/escalation.md`).
 - CronJob or backup Job failures → GitOps-fix or escalate.
+- Pod `Pending` with `Insufficient memory` on every node, even when
+  `kubectl describe node` shows real free memory somewhere: check every
+  container's request in the pod spec (multi-container pods must fit
+  entirely on one node) before assuming a real capacity shortfall — this
+  cluster runs a paired descheduler `HighNodeUtilization` +
+  kube-scheduler `MostAllocated` fix for exactly this scattered-memory
+  case. See `documentation/gotcha.md` ("Multi-Container Pods Fail to
+  Schedule Despite \"Enough\" Free Cluster Memory").
 
 ## Known data-durability gotchas
 

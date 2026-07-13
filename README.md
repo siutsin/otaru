@@ -20,6 +20,10 @@ Current cluster layout:
 - Flannel `wireguard-native` for pod networking
 - MetalLB + Envoy Gateway for service and ingress virtual IPs, with the Envoy Gateway controller in `envoy-gateway-system` and the ingress proxy in `gateway`
 - Istio ambient mesh with Kiali for service mesh observability
+- `kube-scheduler` bin-packs via `NodeResourcesFit`/`MostAllocated`,
+  paired with Descheduler's `HighNodeUtilization` profile, to
+  concentrate free memory onto one node instead of spreading it too
+  thin for larger pods to fit anywhere (see `documentation/gotcha.md`)
 
 ## Hardware
 
@@ -103,7 +107,7 @@ Three nodes form the control plane. Two nodes remain workers, including temporar
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines                                                                  |
 | Monitoring   | [Loki](helm-charts/monitoring)                                                                      | Log aggregation and query backend                                                                                                                                       |
 | Monitoring   | [Prometheus](helm-charts/monitoring)                                                                | Metrics collection and query backend                                                                                                                                    |
-| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation                                                                                                                        |
+| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation; runs a `HighNodeUtilization` profile to consolidate the least-loaded node's pods elsewhere                           |
 | Scheduling   | [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)                                           | Automated failed pod cleanup and periodic workload repaving                                                                                                             |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                                                                                 |
 | Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                                                                                                           |
