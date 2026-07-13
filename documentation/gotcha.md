@@ -627,6 +627,15 @@ filesystem.
 
 ## Missing Child Manifest After Interrupted Pull Causes `exec format error`
 
+**Note:** `exec format error` has at least two unrelated root causes in
+this cluster -- this entry (a corrupted local pull, isolated to one
+node) and a completely different one where the pinned digest itself is
+wrong (see "A Pinned Digest Can Silently Be Single-Arch, Not Multi-Arch"
+below). Diagnose which one first: if the same digest works fine on
+other nodes of the *same* architecture, it's this entry; if it fails on
+every node of one architecture consistently, check the digest itself
+next.
+
 **Problem:** After `raspberrypi-03` (arm64) came back from an unrelated
 outage and rejoined the cluster, three of the four `istiod` replicas that
 landed on it went into `CrashLoopBackOff` with:
@@ -1179,3 +1188,76 @@ VIP's announcement was briefly stale. No action needed; it resolves on
 its own once MetalLB's speakers re-converge.
 
 [k3s-apiserver-loadbalancer]: https://github.com/siutsin/k3s-apiserver-loadbalancer
+
+---
+
+## A Pinned Digest Can Silently Be Single-Arch, Not Multi-Arch
+
+**Problem:** `changedetection-browser`'s pinned `busybox:1.38.0` digest
+(`sha256:8f2ffdcb...`) worked fine for months, then both containers using
+it (`cleanup-browser-metrics` init container and the
+`cleanup-browser-metrics-loop` sidecar) suddenly hit `exec /bin/sh: exec
+format error` the moment the pod first landed on `nuc-00` (amd64) --
+descheduler's `PodLifeTime` plugin repaved it there for the first time
+after it had spent its whole life on arm64 raspberrypi nodes. Only one
+replica exists, so this was real, immediate user-facing impact.
+
+**Why it happens:** the pinned digest was never actually a multi-arch
+manifest -- it was the **arm64-specific child manifest** of the
+`busybox:1.38.0` tag, not the top-level multi-arch index. This is an easy
+mistake when copying a digest from `docker inspect`, a registry UI, or a
+CI log on an arm64 machine: several of those paths report the
+platform-specific manifest digest, not the index digest, and nothing
+about the digest string itself reveals which one you have. It works
+perfectly forever as long as the pod only ever schedules onto nodes of
+that one architecture -- which is exactly what happened here until
+`PodLifeTime` started deliberately reshuffling pods across the whole
+fleet.
+
+This is a different failure mode from "Missing Child Manifest After
+Interrupted Pull" above: there, a *correct* multi-arch digest becomes
+locally corrupted on one node. Here, the digest itself was wrong from
+the start, cluster-wide, on every node -- it just never got exercised on
+the "wrong" architecture before.
+
+### Symptoms: Wrong-Architecture Pinned Digest
+
+- `exec format error` for a pinned-digest image, but -- unlike the
+  corrupted-pull case -- it fails the **same way on every node of one
+  architecture**, not just one specific node.
+- Coincides with a pod landing on an architecture it has never run on
+  before (a manual reschedule, a new descheduler policy, a node taken
+  out of rotation, etc.) rather than a node outage/rejoin.
+- `kubectl describe pod` shows no scheduling errors -- the pod scheduled
+  fine, pulled fine, and only fails at container start.
+
+### Resolution: Verify and Re-Pin the Index Digest
+
+Confirm what a pinned digest actually resolves to before trusting it,
+directly against a node's own containerd (k3s bundles its own, so use
+`k3s ctr`, not plain `ctr`):
+
+```shell
+ssh <user>@<node-ip> "sudo k3s ctr -n k8s.io images ls | grep <image>"
+```
+
+The `PLATFORMS` column tells the truth: a real multi-arch index lists
+several platforms (`linux/amd64,linux/arm64,...`); a single-arch child
+manifest lists exactly one. If a pinned digest shows one platform, it is
+wrong regardless of how long it has worked.
+
+Get the correct index digest from the registry directly (works for any
+public Docker Hub image, no `docker` daemon required):
+
+```shell
+TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/<image>:pull" \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+curl -s -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+  -I "https://registry-1.docker.io/v2/library/<image>/manifests/<tag>" \
+  | grep -i docker-content-digest
+```
+
+Re-pin the chart to that digest. Cross-check it matches what a node of
+each architecture actually has cached as a multi-platform index before
+considering it confirmed.

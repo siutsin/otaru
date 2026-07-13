@@ -66,6 +66,15 @@ content rm` on the actual content blob, not just `images rm`). Worth a
 quick check for any pod that starts crash-looping specifically on a node
 that just rejoined.
 
+If instead a pod hits `exec format error` the same way on **every** node
+of one architecture (not just one specific node), the pinned digest
+itself may be the arm64-only (or amd64-only) child manifest rather than
+the multi-arch index — a different root cause with a different fix. See
+`documentation/gotcha.md` ("A Pinned Digest Can Silently Be Single-Arch,
+Not Multi-Arch"). Worth checking whenever a pod is scheduled onto an
+architecture it has never run on before (a manual reschedule, a new
+descheduler policy) and immediately fails at container start.
+
 ## Pressure
 
 - Any pressure condition **True** → journal and treat as P0
