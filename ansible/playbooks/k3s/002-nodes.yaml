@@ -43,6 +43,38 @@
       delegate_facts: true
       run_once: true
 
+    - name: Configure kube-scheduler to bin-pack via MostAllocated
+      # Default LeastAllocated scoring keeps refilling whatever node
+      # descheduler's HighNodeUtilization just freed up, since it always
+      # prefers the emptiest node. MostAllocated flips that bias so freed
+      # headroom actually stays free. See documentation/gotcha.md and
+      # helm-charts/descheduler/values.yaml (added 2026-07-13 alongside
+      # this change) for the teslamate-verify-pitr scheduling incident
+      # that prompted this.
+      copy:
+        dest: /etc/rancher/k3s/scheduler-config.yaml
+        content: |
+          apiVersion: kubescheduler.config.k8s.io/v1
+          kind: KubeSchedulerConfiguration
+          clientConnection:
+            kubeconfig: /var/lib/rancher/k3s/server/cred/scheduler.kubeconfig
+          profiles:
+            - schedulerName: default-scheduler
+              pluginConfig:
+                - name: NodeResourcesFit
+                  args:
+                    scoringStrategy:
+                      type: MostAllocated
+                      resources:
+                        - name: memory
+                          weight: 1
+                        - name: cpu
+                          weight: 1
+        owner: root
+        group: root
+        mode: '0644'
+      when: "'master' in group_names"
+
     - name: Install k3s on master nodes with LB_API_SERVER_IP
       # Enable anonymous authentication
       # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
@@ -76,7 +108,9 @@
           --kube-apiserver-arg \
           --api-audiences=oidc.siutsin.com \
           --kube-apiserver-arg \
-          --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks
+          --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks \
+          --kube-scheduler-arg \
+          --config=/etc/rancher/k3s/scheduler-config.yaml
       retries: 5
       delay: 10
       register: k3s_master_install
