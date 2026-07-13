@@ -65,6 +65,13 @@ spec:
               image: curlimages/curl:8.21.0
               securityContext:
                 runAsNonRoot: true
+                # curlimages/curl's non-root user ("curl_user") is named, not
+                # numeric, in the image metadata. Kubelet cannot verify
+                # runAsNonRoot from a named user alone, so without an
+                # explicit numeric runAsUser the Job got stuck in
+                # CreateContainerConfigError. UID 100 is curlimages/curl's
+                # documented curl_user.
+                runAsUser: 100
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop:
