@@ -39,6 +39,37 @@ descheduler:
           deschedule:
             enabled:
               - RemovePodsHavingTooManyRestarts
+      # Added 2026-07-13: LowNodeUtilization is a no-op when every node sits
+      # above its 50% targetThreshold at once (our steady state -- all 5
+      # nodes run 83-97% memory requests), since it needs an already-
+      # underutilized node to land evicted pods on. HighNodeUtilization
+      # solves the actual problem this cluster hits: combined free memory
+      # exists (~2-3GiB) but is spread too thin across all 5 nodes for a
+      # single multi-container pod's request to fit anywhere (confirmed
+      # live: teslamate-verify-pitr's 2Gi combined request failed to
+      # schedule despite nuc-00 alone showing ~1GiB free). This
+      # consolidates lightly-loaded nodes' pods onto busier ones, growing
+      # contiguous free space on whichever node is currently least
+      # utilized (usually nuc-00) instead of leaving slack scattered.
+      # HighNodeUtilization and LowNodeUtilization cannot share one
+      # profile (opposite goals), hence the separate profile here.
+      - name: consolidate
+        pluginConfig:
+          - name: DefaultEvictor
+            args:
+              podProtections:
+                defaultDisabled:
+                  - PodsWithLocalStorage
+          - name: HighNodeUtilization
+            args:
+              thresholds:
+                cpu: 100
+                memory: 90
+                pods: 100
+        plugins:
+          balance:
+            enabled:
+              - HighNodeUtilization
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
