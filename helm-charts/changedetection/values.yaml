@@ -54,7 +54,14 @@ browser:
     minAgeMinutes: 60
     image:
       repository: busybox
-      tag: 1.38.0@sha256:8f2ffdcb46f1b83e46665954ec130e497b979db766854f79ca9eee43242b7e4c
+      # 2026-07-14: the previous digest (sha256:8f2ffdcb...) was the
+      # arm64-only child manifest, not the multi-arch index -- worked by
+      # accident while this pod only ever landed on arm64 nodes, then hit
+      # "exec format error" the first time descheduler's new PodLifeTime
+      # repave scheduled it onto amd64 nuc-00. This digest is the actual
+      # multi-arch index (verified via registry API and against nuc-00's
+      # own containerd image list).
+      tag: 1.38.0@sha256:fd8d9aa63ba2f0982b5304e1ee8d3b90a210bc1ffb5314d980eb6962f1a9715d
       pullPolicy: IfNotPresent
     resources:
       # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during hourly prune runs.
