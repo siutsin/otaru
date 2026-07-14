@@ -1261,3 +1261,55 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 Re-pin the chart to that digest. Cross-check it matches what a node of
 each architecture actually has cached as a multi-platform index before
 considering it confirmed.
+
+---
+
+## ArgoCD Sync Fails on Large CRDs Even With `ServerSideApply=true`
+
+**Problem:** forcing a fresh sync of the `external-secrets` Application
+reproducibly failed with:
+
+```text
+CustomResourceDefinition.apiextensions.k8s.io
+"clustersecretstores.external-secrets.io" is invalid:
+metadata.annotations: Too long: may not be more than 262144 bytes
+```
+
+Live objects were small and healthy (tens of bytes of annotations,
+nowhere near the 256KiB cap), and a plain `kubectl apply --server-side`
+of the identical rendered manifest succeeded cleanly every time. The
+Application already had `ServerSideApply=true` in `syncOptions` (the
+repo default for every app), which made this doubly confusing --
+Server-Side Apply is the documented fix for exactly this class of
+"CRD too large for `last-applied-configuration`" error.
+
+**Why it happens:** `ServerSideApply` and `ServerSideDiff` are two
+separate ArgoCD settings. `ServerSideApply=true` only changes how the
+final *apply* is performed. ArgoCD's *diffing/comparison* step --
+run to decide whether a sync is even needed, and to render the diff
+view -- still uses the old client-side method by default, which
+internally computes a `last-applied-configuration`-equivalent
+structure regardless of the apply strategy. `external-secrets` ships
+CRDs with unusually large embedded OpenAPI schemas
+(`clustersecretstores.external-secrets.io`,
+`secretstores.external-secrets.io`), and that diff-time computation
+is what overflows the 256KiB annotation limit -- not the actual apply,
+and not the live object.
+
+### Resolution: Enable ServerSideDiff, Not Just ServerSideApply
+
+Add the `argocd.argoproj.io/compare-options: ServerSideDiff=true`
+annotation to the Application (in this repo,
+`argocd/manifest.jsonnet`'s `ArgoCDApplication` library already wires
+this up via a `serverSideDiff` config key -- just set
+`serverSideDiff: 'true'` on the app entry):
+
+```jsonnet
+{ wave: '20', name: 'external-secrets', namespace: 'external-secrets', serverSideDiff: 'true' },
+```
+
+This is a per-Application annotation, not a global setting -- only
+apply it where needed rather than enabling it everywhere by default,
+since Server-Side Diff has its own tradeoffs (documented in ArgoCD's
+own diff-strategies guide, e.g. excluding mutation-webhook changes
+from the diff unless separately opted in).
