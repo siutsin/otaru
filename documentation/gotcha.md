@@ -1264,7 +1264,7 @@ considering it confirmed.
 
 ---
 
-## ArgoCD Cannot Sync Some Large CRDs No Matter Which Apply Strategy Is Used
+## ArgoCD Cannot Sync Some Large CRDs -- No Safe Fix Found, Accepted As-Is
 
 **Problem:** forcing a fresh sync of the `external-secrets` Application
 reproducibly failed with:
@@ -1278,51 +1278,61 @@ metadata.annotations: Too long: may not be more than 262144 bytes
 Live objects were small and healthy (tens of bytes of annotations,
 nowhere near the 256KiB cap), and a plain `kubectl apply --server-side`
 or `kubectl replace` of the identical rendered manifest succeeded
-cleanly every time run directly. Only ArgoCD's own sync failed.
+cleanly every time run directly. **Only ArgoCD's own sync attempt for
+these two specific CRDs fails -- there is no live impact.** The CRDs
+stay `Synced` and functional; the `onepassword-secret-store`
+`ClusterSecretStore` and every `ExternalSecret` in the cluster keep
+working throughout.
 
-**Two documented ArgoCD fixes for exactly this error class were tried
-live and both failed identically:**
+**Four fixes were tried and investigated; none were safe/effective:**
 
-- `ServerSideApply=true` in `syncOptions` -- already the repo default
-  for every Application, did not help.
-- `argocd.argoproj.io/compare-options: ServerSideDiff=true` -- a
-  separate setting from `ServerSideApply` (the former governs the
-  *diff* step, the latter the *apply* step); added it, forced a fresh
-  sync, same failure.
-- `Replace=true` in `syncOptions` -- ArgoCD's own docs describe this as
-  the fix for "resource specifications too large for the standard
-  last-applied-configuration annotation" and note it takes precedence
-  over Server-Side Apply. Tested live (with automated sync disabled so
-  `selfHeal` couldn't revert the test config first). `argocd-
-  application-controller` logs showed it was still choosing
-  `serverSideApply:false` and still hit the identical annotation-size
-  error -- `Replace=true` was not actually honored for this resource in
-  this ArgoCD version.
+1. `ServerSideApply=true` in `syncOptions` -- already the repo default
+    for every Application. No effect.
+2. `argocd.argoproj.io/compare-options: ServerSideDiff=true` -- a
+    separate setting from `ServerSideApply` (the former governs the
+    *diff* step, the latter the *apply* step). Tested live with a fresh
+    forced sync: identical failure.
+3. `Replace=true` in `syncOptions` -- ArgoCD's own docs describe this
+    as the fix for "resource specifications too large for the standard
+    last-applied-configuration annotation" and say it takes precedence
+    over Server-Side Apply. Tested live (automated sync disabled first
+    so `selfHeal` couldn't silently revert the test config).
+    `argocd-application-controller` logs still showed
+    `serverSideApply:false` and the identical error -- not actually
+    honored for this resource in this ArgoCD version.
+4. `helm.skipCrds: true` -- has no effect here because these CRDs are
+    rendered via a normal Helm *template*
+    (`templates/crds/clustersecretstore.yaml`), not the dedicated Helm
+    `crds/` directory convention that `skipCrds` actually targets.
+    Confirmed live: identical failure, and the CRDs correctly stayed
+    `Synced`/not-pruned throughout (this option would have been
+    dangerous if it *had* worked as originally assumed -- removing a
+    still-referenced CRD from the desired manifest with `prune: true`
+    enabled marks it for deletion, cascading to delete every live
+    custom resource of that kind).
+5. **Considered, ruled out without testing:** the upstream chart does
+    expose `crds.createClusterSecretStore`/`processClusterStore` (and
+    the `SecretStore` equivalents) to disable these CRDs entirely at
+    the chart level. Not used -- disabling `processClusterStore` stops
+    the operator from reconciling `ClusterSecretStore` at all, which
+    would break the `onepassword-secret-store` this entire cluster's
+    secret-fetching depends on. A real fix for the sync error, but with
+    consequences far worse than the problem it solves.
 
 **Why it happens:** not fully root-caused at the ArgoCD-internals
-level -- despite three different documented configuration knobs, this
-specific combination of a very large CRD (external-secrets' generator
-CRDs carry huge embedded OpenAPI schemas) and this ArgoCD version's
-sync engine could not be made to apply it successfully through any
-sync-option. The failure is specific to ArgoCD's own sync/apply
-codepath, not the object itself or the cluster.
+level -- despite three different documented sync-option fixes and one
+Helm-level toggle, this specific combination of a very large CRD
+(`external-secrets`' generator CRDs carry huge embedded OpenAPI
+schemas) and this ArgoCD version's sync engine could not be made to
+apply it successfully through any option tried. The failure is
+specific to ArgoCD's own sync/apply codepath for these two resources,
+not the objects themselves, not the cluster, and not anything that
+depends on them.
 
-### Resolution: Stop ArgoCD From Managing These CRDs At All
+### Current status: accepted as a known, harmless limitation
 
-Since a plain `kubectl apply --server-side` outside ArgoCD works fine,
-and this repo's ansible bootstrap
-(`ansible/playbooks/k3s/004-bootstrap.yaml`) already installs every CRD
-in the `external-secrets` chart that way as a one-time step, ongoing
-ArgoCD management of these CRDs is redundant. Set `helm.skipCrds: true`
-on the Application (same pattern already used for `envoy-gateway`):
-
-```jsonnet
-{ wave: '20', name: 'external-secrets', namespace: 'external-secrets', helm: { skipCrds: true } },
-```
-
-**Trade-off:** CRD changes from a future chart version bump will only
-take effect by re-running `make setup` or `make upgrade` (which re-runs
-the ansible bootstrap), not automatically via a git push + ArgoCD sync
-like every other resource in this chart. Worth remembering the next
-time `helm-charts/external-secrets/Chart.yaml`'s dependency version
-changes.
+No further fix attempted. Re-check after a future ArgoCD version
+upgrade in case this is a version-specific bug; otherwise this is
+expected to keep showing up as a `Degraded`/sync-error artifact for
+these two CRDs specifically with no actual effect on cluster
+function.
