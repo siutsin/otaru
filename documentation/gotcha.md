@@ -1264,7 +1264,7 @@ considering it confirmed.
 
 ---
 
-## ArgoCD Sync Fails on Large CRDs Even With `ServerSideApply=true`
+## ArgoCD Cannot Sync Some Large CRDs No Matter Which Apply Strategy Is Used
 
 **Problem:** forcing a fresh sync of the `external-secrets` Application
 reproducibly failed with:
@@ -1277,39 +1277,52 @@ metadata.annotations: Too long: may not be more than 262144 bytes
 
 Live objects were small and healthy (tens of bytes of annotations,
 nowhere near the 256KiB cap), and a plain `kubectl apply --server-side`
-of the identical rendered manifest succeeded cleanly every time. The
-Application already had `ServerSideApply=true` in `syncOptions` (the
-repo default for every app), which made this doubly confusing --
-Server-Side Apply is the documented fix for exactly this class of
-"CRD too large for `last-applied-configuration`" error.
+or `kubectl replace` of the identical rendered manifest succeeded
+cleanly every time run directly. Only ArgoCD's own sync failed.
 
-**Why it happens:** `ServerSideApply` and `ServerSideDiff` are two
-separate ArgoCD settings. `ServerSideApply=true` only changes how the
-final *apply* is performed. ArgoCD's *diffing/comparison* step --
-run to decide whether a sync is even needed, and to render the diff
-view -- still uses the old client-side method by default, which
-internally computes a `last-applied-configuration`-equivalent
-structure regardless of the apply strategy. `external-secrets` ships
-CRDs with unusually large embedded OpenAPI schemas
-(`clustersecretstores.external-secrets.io`,
-`secretstores.external-secrets.io`), and that diff-time computation
-is what overflows the 256KiB annotation limit -- not the actual apply,
-and not the live object.
+**Two documented ArgoCD fixes for exactly this error class were tried
+live and both failed identically:**
 
-### Resolution: Enable ServerSideDiff, Not Just ServerSideApply
+- `ServerSideApply=true` in `syncOptions` -- already the repo default
+  for every Application, did not help.
+- `argocd.argoproj.io/compare-options: ServerSideDiff=true` -- a
+  separate setting from `ServerSideApply` (the former governs the
+  *diff* step, the latter the *apply* step); added it, forced a fresh
+  sync, same failure.
+- `Replace=true` in `syncOptions` -- ArgoCD's own docs describe this as
+  the fix for "resource specifications too large for the standard
+  last-applied-configuration annotation" and note it takes precedence
+  over Server-Side Apply. Tested live (with automated sync disabled so
+  `selfHeal` couldn't revert the test config first). `argocd-
+  application-controller` logs showed it was still choosing
+  `serverSideApply:false` and still hit the identical annotation-size
+  error -- `Replace=true` was not actually honored for this resource in
+  this ArgoCD version.
 
-Add the `argocd.argoproj.io/compare-options: ServerSideDiff=true`
-annotation to the Application (in this repo,
-`argocd/manifest.jsonnet`'s `ArgoCDApplication` library already wires
-this up via a `serverSideDiff` config key -- just set
-`serverSideDiff: 'true'` on the app entry):
+**Why it happens:** not fully root-caused at the ArgoCD-internals
+level -- despite three different documented configuration knobs, this
+specific combination of a very large CRD (external-secrets' generator
+CRDs carry huge embedded OpenAPI schemas) and this ArgoCD version's
+sync engine could not be made to apply it successfully through any
+sync-option. The failure is specific to ArgoCD's own sync/apply
+codepath, not the object itself or the cluster.
+
+### Resolution: Stop ArgoCD From Managing These CRDs At All
+
+Since a plain `kubectl apply --server-side` outside ArgoCD works fine,
+and this repo's ansible bootstrap
+(`ansible/playbooks/k3s/004-bootstrap.yaml`) already installs every CRD
+in the `external-secrets` chart that way as a one-time step, ongoing
+ArgoCD management of these CRDs is redundant. Set `helm.skipCrds: true`
+on the Application (same pattern already used for `envoy-gateway`):
 
 ```jsonnet
-{ wave: '20', name: 'external-secrets', namespace: 'external-secrets', serverSideDiff: 'true' },
+{ wave: '20', name: 'external-secrets', namespace: 'external-secrets', helm: { skipCrds: true } },
 ```
 
-This is a per-Application annotation, not a global setting -- only
-apply it where needed rather than enabling it everywhere by default,
-since Server-Side Diff has its own tradeoffs (documented in ArgoCD's
-own diff-strategies guide, e.g. excluding mutation-webhook changes
-from the diff unless separately opted in).
+**Trade-off:** CRD changes from a future chart version bump will only
+take effect by re-running `make setup` or `make upgrade` (which re-runs
+the ansible bootstrap), not automatically via a git push + ArgoCD sync
+like every other resource in this chart. Worth remembering the next
+time `helm-charts/external-secrets/Chart.yaml`'s dependency version
+changes.

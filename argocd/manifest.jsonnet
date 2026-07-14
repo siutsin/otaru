@@ -199,13 +199,16 @@ local bootstrap = [
   { wave: '20', name: 'namespaces', namespace: 'argocd' },
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
-  // serverSideDiff: ServerSideApply=true (default syncOptions) avoids the
-  // last-applied-configuration annotation during the actual apply, but
-  // ArgoCD's diff/comparison step still used the old client-side method by
-  // default, which computes that annotation anyway -- overflowing the
-  // 256KiB limit on external-secrets' unusually large CRDs
-  // (clustersecretstores/secretstores). See documentation/gotcha.md.
-  { wave: '20', name: 'external-secrets', namespace: 'external-secrets', serverSideDiff: 'true' },
+  // skipCrds: ArgoCD's sync (with or without ServerSideApply/ServerSideDiff/
+  // Replace=true -- all three were tried live and failed identically) cannot
+  // apply external-secrets' clustersecretstores/secretstores CRDs without
+  // hitting the 256KiB metadata.annotations limit. Ansible's bootstrap
+  // (`ansible/playbooks/k3s/004-bootstrap.yaml`) already installs every CRD
+  // in this chart via a working `kubectl apply --server-side` outside
+  // ArgoCD, so ongoing ArgoCD management is redundant anyway. See
+  // documentation/gotcha.md. CRD updates on a future chart bump require
+  // re-running `make setup`/`make upgrade`, not just a git push.
+  { wave: '20', name: 'external-secrets', namespace: 'external-secrets', helm: { skipCrds: true } },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
   { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
