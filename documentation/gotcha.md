@@ -1329,10 +1329,27 @@ specific to ArgoCD's own sync/apply codepath for these two resources,
 not the objects themselves, not the cluster, and not anything that
 depends on them.
 
-### Current status: accepted as a known, harmless limitation
+### Current status: real upstream fix identified, waiting on a stable release
 
-No further fix attempted. Re-check after a future ArgoCD version
-upgrade in case this is a version-specific bug; otherwise this is
-expected to keep showing up as a `Degraded`/sync-error artifact for
-these two CRDs specifically with no actual effect on cluster
-function.
+Confirmed via the upstream issue tracker (2026-07-14) that this is a
+known bug, root-caused and properly fixed upstream:
+[argoproj/argo-cd#28440][argocd-28440] ("fix: fix failure on Sync of
+resources that do not fit into last-applied-configuration") replaces
+the previous broken client-dry-run/server-dry-run workaround with a
+proper one, and adds e2e tests specifically for manifests over 256KiB.
+
+- Merged into `argoproj/argo-cd` main on 2026-06-30.
+- Cherry-picked into `v3.5.0-rc2` (pre-release, 2026-07-01) --
+  confirmed present in that release's changelog.
+- **Not** in `v3.4.5` (latest *stable* release, 2026-07-09) -- checked
+  its changelog directly, this fix is not cherry-picked into the 3.4.x
+  line. This cluster runs `v3.4.4`.
+
+**Decision:** wait for `v3.5.0` to reach a stable (non-`-rc`) release
+rather than run a release candidate on the GitOps control plane for a
+cosmetic issue with zero live impact. Revisit this Application's sync
+once the cluster's ArgoCD version is upgraded to `v3.5.0` or later --
+check the release changelog for `#28440`/`#28421` to confirm the fix
+landed before assuming it's resolved.
+
+[argocd-28440]: https://github.com/argoproj/argo-cd/pull/28440
