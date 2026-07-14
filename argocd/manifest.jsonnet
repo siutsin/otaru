@@ -199,16 +199,16 @@ local bootstrap = [
   { wave: '20', name: 'namespaces', namespace: 'argocd' },
   { wave: '20', name: 'argocd', namespace: 'argocd' },
   { wave: '20', name: 'argocd-bootstrap', namespace: 'argocd', helm: { parameters: [{ name: 'targetRevision', value: revision }] } },
-  // skipCrds: ArgoCD's sync (with or without ServerSideApply/ServerSideDiff/
-  // Replace=true -- all three were tried live and failed identically) cannot
-  // apply external-secrets' clustersecretstores/secretstores CRDs without
-  // hitting the 256KiB metadata.annotations limit. Ansible's bootstrap
-  // (`ansible/playbooks/k3s/004-bootstrap.yaml`) already installs every CRD
-  // in this chart via a working `kubectl apply --server-side` outside
-  // ArgoCD, so ongoing ArgoCD management is redundant anyway. See
-  // documentation/gotcha.md. CRD updates on a future chart bump require
-  // re-running `make setup`/`make upgrade`, not just a git push.
-  { wave: '20', name: 'external-secrets', namespace: 'external-secrets', helm: { skipCrds: true } },
+  // Known issue: syncing this app reproducibly fails to apply the
+  // clustersecretstores/secretstores CRDs ("metadata.annotations: Too long").
+  // ServerSideApply=true (already the default below), ServerSideDiff=true,
+  // Replace=true, and helm.skipCrds were all tried live and none fixed it --
+  // see documentation/gotcha.md for what was tried and why disabling CRD
+  // creation via chart values is not a safe option (it would stop the
+  // operator processing the ClusterSecretStore every ExternalSecret in this
+  // cluster depends on). No live impact: the CRDs themselves stay healthy
+  // and Synced; only ArgoCD's own sync attempt for these two fails.
+  { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
   { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
