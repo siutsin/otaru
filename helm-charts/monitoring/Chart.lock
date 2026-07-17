@@ -16,6 +16,6 @@ dependencies:
   version: 10.5.15
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
-  version: 1.21.0
-digest: sha256:26baa1812112038773017ed1e0bc54d5093eaf12146a7e9c9bd405a844e68327
-generated: "2026-07-16T06:06:16.992499018Z"
+  version: 1.21.1
+digest: sha256:46e7d56fcc5b8261cae3e25270adf0d4eca50450c88d30aa94f956c633537964
+generated: "2026-07-17T18:28:31.178086936Z"
