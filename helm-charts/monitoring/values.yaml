@@ -204,7 +204,7 @@ k8s-ephemeral-storage-metrics:
     enable: false
   image:
     repository: ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics
-    tag: 1.21.0@sha256:73f2042ce8d144044ee967bb20db0bad22e2aaa999de48ce8589d3bec92ff165
+    tag: 1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7
     imagePullPolicy: IfNotPresent
   resources:
     requests:
