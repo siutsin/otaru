@@ -10,10 +10,8 @@ Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 
 | Key | Grafana title | Notes |
 | --- | --- | --- |
-| `blocky` | blocky | Custom SRE layout; v0.28 metric names |
-| `onzack-cluster-monitoring` | Standard Cluster Monitoring | ONZACK 17404 + recording rules |
-| `k3s-cluster-monitoring` | K3S Cluster Monitoring | Older cAdvisor-focused board; overlaps Onzack |
-| `resource-requests-vs-usage` | Resource Requests vs Usage | Request vs usage tables |
+| `blocky` | Blocky | Custom SRE layout; v0.28 metric names |
+| `onzack-cluster-monitoring` | Standard Cluster Monitoring | ONZACK 17404 + recording rules + otaru sections |
 | `prometheus-stats` | Prometheus Stats | Prometheus process stats |
 | `container-log-dashboard` | (gnet 16966) | Loki logs; `gnetId`+`revision` download |
 
@@ -71,6 +69,33 @@ When re-vendoring 17404, re-apply:
 5. **Empty limits** — many workloads set no CPU limits. Pure sum panels for
    limits (especially `namespace=~"kube-.*|..."`) use `or vector(0)` so Grafana
    shows **0** instead of **No data**.
+6. **`refresh: auto`** and plain-language **panel descriptions** on every
+   panel/row (including otaru-only sections below).
+7. **otaru-only collapsed sections** (not in upstream 17404) — copy forward
+   from the previous vendored JSON after re-embedding upstream. Identify rows
+   whose titles end with `(cAdvisor)` or `(KRR)`, plus variables
+   `cadvisor_instance` and `namespace`. Details:
+
+   | Collapsed row title | Source (retired board) | Contents |
+   | --- | --- | --- |
+   | Workload usage by namespace (cAdvisor) | gnet 15282 / k3s-cluster-monitoring | CPU + memory by namespace |
+   | Pods resource usage (cAdvisor) | gnet 15282 | Pod CPU, memory, network I/O |
+   | Containers resource usage (cAdvisor) | gnet 15282 | Container CPU/memory, network I/O |
+   | Resource requests vs usage (KRR) | resource-requests-vs-usage | Request vs 6h usage tables (CPU/mem), cluster requested vs used, ephemeral-storage top 20 |
+
+   Section rules when re-applying:
+
+   - Datasource UID must be `${datasource}` (not hardcoded Prometheus UID).
+   - cAdvisor workload queries filter with
+     `instance=~"$cadvisor_instance"` and `namespace=~"$namespace"`
+     (variables: All = `.*`, multi-select).
+   - Prefer `$__rate_interval` for live rates (scrape is 1m). Keep the KRR
+     tables’ fixed `6h` / `avg_over_time(...[6h])` windows — those are
+     intentional right-sizing horizons.
+   - Skip re-adding host-level “All processes” charts from old k3s; node
+     views already live in ONZACK CPU/Memory/Network rows.
+   - Do **not** reintroduce standalone
+     `k3s-cluster-monitoring.yaml` or `resource-requests-vs-usage.yaml`.
 
 ### Upgrading the dashboard
 
@@ -78,11 +103,15 @@ When re-vendoring 17404, re-apply:
    `with-recording-rules/standard-cluster-monitoring.json`).
 2. Diff against current `recording_rules` groups; merge new records into
    `values.yaml` **with** the adaptations above.
-3. Re-embed JSON under `onzack-cluster-monitoring`, re-apply dashboard
-   adaptations, bump description with gnet revision.
-4. After deploy: ConfigMap reload is enough (see below). Confirm
+3. Re-embed JSON under `onzack-cluster-monitoring`.
+4. Re-apply items 1–7: scrape/job fixes, descriptions, `refresh: auto`, and
+   **copy the otaru-only cAdvisor + KRR rows and variables** from the previous
+   dashboard revision (or rebuild from the table above). Bump description with
+   gnet revision and note that otaru sections were re-applied.
+5. After deploy: ConfigMap reload is enough (see below). Confirm
    `count(instance:kube_node_role)` equals node count and
    `count(container_cpu_usage_seconds_total:sum_rate5m:namespace) > 0`.
+   Open the new cAdvisor/KRR sections once and confirm tables/series populate.
 
 ## Prometheus config reload
 

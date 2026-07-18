@@ -33,7 +33,7 @@ grafana:
               {
                 "icon": "external link",
                 "tags": [],
-                "title": "blocky @ GitHub",
+                "title": "Blocky @ GitHub",
                 "tooltip": "open GitHub repo",
                 "type": "link",
                 "url": "https://github.com/0xERR0R/blocky"
@@ -425,7 +425,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Denylist entries per replica (averaged). Empty \u2248 blocking does nothing",
+                "description": "Denylist entries per replica (averaged). Empty ≈ blocking does nothing",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -703,7 +703,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Mean latency per response_type (RESOLVED \u2248 upstream DoH)",
+                "description": "Mean latency per response_type (RESOLVED ≈ upstream DoH)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1935,8 +1935,8 @@ grafana:
               ]
             },
             "timezone": "browser",
-            "title": "blocky",
+            "title": "Blocky",
             "uid": "JvOqE4gRk",
-            "version": 16,
+            "version": 17,
             "weekStart": ""
           }
