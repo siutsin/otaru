@@ -17,12 +17,30 @@ ROOT = Path(__file__).resolve().parents[1]
 DASH_DIR = ROOT / "helm-charts" / "monitoring" / "dashboards"
 
 FORBIDDEN = [
-    (re.compile(r'job\s*=\s*"node-exporter"'), 'job="node-exporter" (use kubernetes-service-endpoints scrape job)'),
-    (re.compile(r"container_name\s*="), "container_name label (use container)"),
-    (re.compile(r"rkt_container_name"), "obsolete rkt_container_name selector"),
-    (re.compile(r"cattle-\.\*openshift"), "broken cattle/openshift namespace regex (missing |)"),
-    (re.compile(r"prometheus_local_storage_"), "obsolete prometheus_local_storage_* metrics"),
-    (re.compile(r"prometheus_evaluator_duration_milliseconds"), "obsolete evaluator duration metric name"),
+    (
+        re.compile(r'job\s*=\s*"node-exporter"'),
+        'job="node-exporter" (use kubernetes-service-endpoints)',
+    ),
+    (
+        re.compile(r"container_name\s*="),
+        "container_name label (use container)",
+    ),
+    (
+        re.compile(r"rkt_container_name"),
+        "obsolete rkt_container_name selector",
+    ),
+    (
+        re.compile(r"cattle-\.\*openshift"),
+        "broken cattle/openshift regex (missing |)",
+    ),
+    (
+        re.compile(r"prometheus_local_storage_"),
+        "obsolete prometheus_local_storage_* metrics",
+    ),
+    (
+        re.compile(r"prometheus_evaluator_duration_milliseconds"),
+        "obsolete evaluator duration metric name",
+    ),
 ]
 
 
@@ -33,12 +51,17 @@ def iter_dashboard_docs(path: Path):
 
     def walk(obj, trail=""):
         if isinstance(obj, dict):
-            if isinstance(obj.get("json"), str) and '"panels"' in obj["json"]:
-                yield trail or path.name, json.loads(obj["json"])
+            raw = obj.get("json")
+            if isinstance(raw, str) and '"panels"' in raw:
+                yield trail or path.name, json.loads(raw)
             if obj.get("gnetId") is not None:
-                yield trail or path.name, {"_gnetId": obj.get("gnetId"), "revision": obj.get("revision")}
+                yield trail or path.name, {
+                    "_gnetId": obj.get("gnetId"),
+                    "revision": obj.get("revision"),
+                }
             for k, v in obj.items():
-                yield from walk(v, f"{trail}.{k}" if trail else k)
+                nxt = f"{trail}.{k}" if trail else k
+                yield from walk(v, nxt)
         elif isinstance(obj, list):
             for i, v in enumerate(obj):
                 yield from walk(v, f"{trail}[{i}]")
@@ -76,12 +99,15 @@ def main() -> int:
             if dash.get("_gnetId") is not None:
                 if not dash.get("_gnetId"):
                     errors.append(f"{path.name}: empty gnetId")
-                print(f"OK  {path.name}: gnetId={dash.get('_gnetId')} revision={dash.get('revision')}")
+                gid = dash.get("_gnetId")
+                rev = dash.get("revision")
+                print(f"OK  {path.name}: gnetId={gid} revision={rev}")
                 continue
 
             exprs = list(walk_all_exprs(dash))
             if not exprs:
-                errors.append(f"{path.name}: embedded dashboard has no PromQL targets")
+                msg = f"{path.name}: embedded dashboard has no PromQL targets"
+                errors.append(msg)
                 continue
 
             for title, expr in exprs:
@@ -90,14 +116,21 @@ def main() -> int:
                     errors.append(f"{path.name}: empty expr in panel {title!r}")
                 for cre, msg in FORBIDDEN:
                     if cre.search(expr):
-                        errors.append(f"{path.name}: panel {title!r}: forbidden pattern: {msg}")
+                        errors.append(
+                            f"{path.name}: panel {title!r}: forbidden: {msg}"
+                        )
 
             if not dash.get("uid"):
                 errors.append(f"{path.name}: missing dashboard uid")
             if not dash.get("title"):
                 errors.append(f"{path.name}: missing dashboard title")
 
-            print(f"OK  {path.name}: title={dash.get('title')!r} exprs={len(exprs)} version={dash.get('version')}")
+            title = dash.get("title")
+            ver = dash.get("version")
+            print(
+                f"OK  {path.name}: title={title!r} "
+                f"exprs={len(exprs)} version={ver}"
+            )
 
     if errors:
         print("\nFAILED:", file=sys.stderr)
@@ -105,7 +138,7 @@ def main() -> int:
             print(f"  - {e}", file=sys.stderr)
         return 1
 
-    print(f"\nAll Grafana dashboards valid ({checked} PromQL targets checked).")
+    print(f"\nAll Grafana dashboards valid ({checked} PromQL targets).")
     return 0
 
 
