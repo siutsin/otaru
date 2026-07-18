@@ -236,12 +236,21 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+        # uid matches hardcoded dashboard targets (PBFA97CFB590B2093).
+        # timeInterval must match Prometheus scrape_interval (1m). Without it Grafana
+        # assumes 15s and $__rate_interval collapses to ~1m, so rate()/increase() get
+        # <2 samples and Activity/heatmap panels show "No data".
         - name: Prometheus
           type: prometheus
+          uid: PBFA97CFB590B2093
           url: http://monitoring-prometheus-server.monitoring.svc.cluster.local
           isDefault: true
+          jsonData:
+            timeInterval: 1m
+            httpMethod: POST
         - name: Loki
           type: loki
+          uid: P8E80F9AEF21F6940
           url: http://monitoring-loki.monitoring.svc.cluster.local:3100
   dashboardProviders:
     dashboardproviders.yaml:
