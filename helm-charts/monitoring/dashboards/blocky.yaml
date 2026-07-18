@@ -135,27 +135,13 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "1 only if all replicas have blocking enabled",
+                "description": "Current DNS query rate across all Blocky pods (average over the last 5 minutes)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
                       "mode": "thresholds"
                     },
-                    "mappings": [
-                      {
-                        "type": "value",
-                        "options": {
-                          "0": {
-                            "text": "off",
-                            "color": "red"
-                          },
-                          "1": {
-                            "text": "on",
-                            "color": "green"
-                          }
-                        }
-                      }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                       "mode": "absolute",
                       "steps": [
@@ -164,12 +150,17 @@ grafana:
                           "value": null
                         },
                         {
-                          "color": "green",
+                          "color": "orange",
                           "value": 1
+                        },
+                        {
+                          "color": "green",
+                          "value": 5
                         }
                       ]
                     },
-                    "unit": "none"
+                    "unit": "short",
+                    "decimals": 1
                   },
                   "overrides": []
                 },
@@ -182,7 +173,7 @@ grafana:
                 "id": 3,
                 "options": {
                   "colorMode": "value",
-                  "graphMode": "none",
+                  "graphMode": "area",
                   "justifyMode": "auto",
                   "orientation": "auto",
                   "percentChangeColorMode": "standard",
@@ -205,14 +196,13 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "min(blocky_blocking_enabled{job=~\"$job\"})",
+                    "expr": "sum(rate(blocky_query_total{job=~\"$job\"}[5m])) * 60",
                     "legendFormat": "",
-                    "range": false,
-                    "refId": "A",
-                    "instant": true
+                    "range": true,
+                    "refId": "A"
                   }
                 ],
-                "title": "Blocking",
+                "title": "Queries/min",
                 "transparent": true,
                 "type": "stat"
               },
@@ -289,7 +279,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Sum of process RSS across Blocky pods (limit 512Mi each)",
+                "description": "Resident set size: RAM the Blocky process is using now (sum across pods; each pod limit is 512Mi)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -348,7 +338,7 @@ grafana:
                     "refId": "A"
                   }
                 ],
-                "title": "Memory (RSS)",
+                "title": "Process memory",
                 "transparent": true,
                 "type": "stat"
               },
@@ -1873,6 +1863,6 @@ grafana:
             "timezone": "browser",
             "title": "blocky",
             "uid": "JvOqE4gRk",
-            "version": 13,
+            "version": 14,
             "weekStart": ""
           }
