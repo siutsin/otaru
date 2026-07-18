@@ -51,7 +51,7 @@ grafana:
                 },
                 "id": 1,
                 "panels": [],
-                "title": "Overview",
+                "title": "Health",
                 "type": "row"
               },
               {
@@ -59,7 +59,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Blocky pods reporting metrics",
+                "description": "Blocky pods currently reporting metrics",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -89,7 +89,7 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
+                  "w": 4,
                   "x": 0,
                   "y": 1
                 },
@@ -175,8 +175,8 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
-                  "x": 6,
+                  "w": 4,
+                  "x": 4,
                   "y": 1
                 },
                 "id": 3,
@@ -243,8 +243,8 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
-                  "x": 12,
+                  "w": 4,
+                  "x": 8,
                   "y": 1
                 },
                 "id": 4,
@@ -312,8 +312,8 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
-                  "x": 18,
+                  "w": 4,
+                  "x": 12,
                   "y": 1
                 },
                 "id": 5,
@@ -353,401 +353,11 @@ grafana:
                 "type": "stat"
               },
               {
-                "collapsed": false,
-                "gridPos": {
-                  "h": 1,
-                  "w": 24,
-                  "x": 0,
-                  "y": 4
-                },
-                "id": 6,
-                "panels": [],
-                "title": "Traffic (dashboard range)",
-                "type": "row"
-              },
-              {
                 "datasource": {
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Total DNS queries in the selected time range",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        }
-                      ]
-                    },
-                    "unit": "short",
-                    "decimals": 0
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 0,
-                  "y": 5
-                },
-                "id": 7,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "ceil(sum(increase(blocky_query_total{job=~\"$job\"}[$__range])))",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Queries",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Share of queries answered as BLOCKED",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        },
-                        {
-                          "color": "yellow",
-                          "value": 0.05
-                        },
-                        {
-                          "color": "orange",
-                          "value": 0.2
-                        }
-                      ]
-                    },
-                    "unit": "percentunit",
-                    "decimals": 2
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 6,
-                  "y": 5
-                },
-                "id": 8,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(increase(blocky_response_total{job=~\"$job\",response_type=\"BLOCKED\"}[$__range])) / clamp_min(sum(increase(blocky_query_total{job=~\"$job\"}[$__range])), 1)",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Blocked",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Resolver cache hits / (hits + misses)",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "red",
-                          "value": null
-                        },
-                        {
-                          "color": "orange",
-                          "value": 0.5
-                        },
-                        {
-                          "color": "green",
-                          "value": 0.8
-                        }
-                      ]
-                    },
-                    "unit": "percentunit",
-                    "decimals": 2
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 12,
-                  "y": 5
-                },
-                "id": 9,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(increase(blocky_cache_hits_total{job=~\"$job\"}[$__range])) / clamp_min(sum(increase(blocky_cache_hits_total{job=~\"$job\"}[$__range])) + sum(increase(blocky_cache_misses_total{job=~\"$job\"}[$__range])), 1)",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Cache hit ratio",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Mean request duration across all response types",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        },
-                        {
-                          "color": "orange",
-                          "value": 0.05
-                        },
-                        {
-                          "color": "red",
-                          "value": 0.2
-                        }
-                      ]
-                    },
-                    "unit": "s",
-                    "decimals": 3
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 18,
-                  "y": 5
-                },
-                "id": 10,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(increase(blocky_request_duration_seconds_sum{job=~\"$job\"}[$__range])) / clamp_min(sum(increase(blocky_request_duration_seconds_count{job=~\"$job\"}[$__range])), 1)",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Avg latency",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "collapsed": false,
-                "gridPos": {
-                  "h": 1,
-                  "w": 24,
-                  "x": 0,
-                  "y": 8
-                },
-                "id": 11,
-                "panels": [],
-                "title": "Denylists & reliability",
-                "type": "row"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Denylist entries per replica (averaged)",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        }
-                      ]
-                    },
-                    "unit": "short",
-                    "decimals": 0
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 0,
-                  "y": 9
-                },
-                "id": 12,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(blocky_denylist_cache_entries{job=~\"$job\"}) / clamp_min(count(blocky_blocking_enabled{job=~\"$job\"}), 1)",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Denylist entries",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Age of oldest denylist group refresh across replicas",
+                "description": "Age of oldest denylist group refresh (stale lists = silent blocking decay)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -778,14 +388,14 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
-                  "x": 6,
-                  "y": 9
+                  "w": 4,
+                  "x": 16,
+                  "y": 1
                 },
-                "id": 13,
+                "id": 6,
                 "options": {
                   "colorMode": "value",
-                  "graphMode": "area",
+                  "graphMode": "none",
                   "justifyMode": "auto",
                   "orientation": "auto",
                   "percentChangeColorMode": "standard",
@@ -810,8 +420,9 @@ grafana:
                     "editorMode": "code",
                     "expr": "max(time() - blocky_last_list_group_refresh_timestamp_seconds{job=~\"$job\"})",
                     "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
                   }
                 ],
                 "title": "List age",
@@ -823,7 +434,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Denylist/source download failures in range (was missing from old dashboard)",
+                "description": "Denylist entries per replica (averaged). Empty \u2248 blocking does nothing",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -836,14 +447,6 @@ grafana:
                         {
                           "color": "green",
                           "value": null
-                        },
-                        {
-                          "color": "orange",
-                          "value": 1
-                        },
-                        {
-                          "color": "red",
-                          "value": 10
                         }
                       ]
                     },
@@ -854,14 +457,14 @@ grafana:
                 },
                 "gridPos": {
                   "h": 3,
-                  "w": 6,
-                  "x": 12,
-                  "y": 9
+                  "w": 4,
+                  "x": 20,
+                  "y": 1
                 },
-                "id": 14,
+                "id": 7,
                 "options": {
                   "colorMode": "value",
-                  "graphMode": "area",
+                  "graphMode": "none",
                   "justifyMode": "auto",
                   "orientation": "auto",
                   "percentChangeColorMode": "standard",
@@ -884,89 +487,14 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(increase(blocky_failed_downloads_total{job=~\"$job\"}[$__range]))",
+                    "expr": "sum(blocky_denylist_cache_entries{job=~\"$job\"}) / clamp_min(count(blocky_blocking_enabled{job=~\"$job\"}), 1)",
                     "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
                   }
                 ],
-                "title": "Failed downloads",
-                "transparent": true,
-                "type": "stat"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Blocky error counter increase in range",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        },
-                        {
-                          "color": "orange",
-                          "value": 1
-                        },
-                        {
-                          "color": "red",
-                          "value": 5
-                        }
-                      ]
-                    },
-                    "unit": "short",
-                    "decimals": 0
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 3,
-                  "w": 6,
-                  "x": 18,
-                  "y": 9
-                },
-                "id": 15,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(increase(blocky_error_total{job=~\"$job\"}[$__range]))",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Errors",
+                "title": "Denylist entries",
                 "transparent": true,
                 "type": "stat"
               },
@@ -976,11 +504,11 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 12
+                  "y": 4
                 },
-                "id": 16,
+                "id": 8,
                 "panels": [],
-                "title": "Rates",
+                "title": "Activity",
                 "type": "row"
               },
               {
@@ -988,7 +516,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "DNS queries per minute",
+                "description": "DNS queries per minute (rate over $__rate_interval)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1045,9 +573,9 @@ grafana:
                   "h": 7,
                   "w": 12,
                   "x": 0,
-                  "y": 13
+                  "y": 5
                 },
-                "id": 17,
+                "id": 9,
                 "options": {
                   "legend": {
                     "calcs": [
@@ -1071,7 +599,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_query_total{job=~\"$job\"}[5m])) * 60",
+                    "expr": "sum(rate(blocky_query_total{job=~\"$job\"}[$__rate_interval])) * 60",
                     "legendFormat": "queries/min",
                     "range": true,
                     "refId": "A"
@@ -1143,9 +671,9 @@ grafana:
                   "h": 7,
                   "w": 12,
                   "x": 12,
-                  "y": 13
+                  "y": 5
                 },
-                "id": 18,
+                "id": 10,
                 "options": {
                   "legend": {
                     "calcs": [
@@ -1169,7 +697,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (response_type) (rate(blocky_response_total{job=~\"$job\"}[5m])) * 60",
+                    "expr": "sum by (response_type) (rate(blocky_response_total{job=~\"$job\"}[$__rate_interval])) * 60",
                     "legendFormat": "{{response_type}}",
                     "range": true,
                     "refId": "A"
@@ -1184,7 +712,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Mean latency per response_type (RESOLVED ≈ upstream DoH)",
+                "description": "Mean latency per response_type (RESOLVED \u2248 upstream DoH)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1241,9 +769,9 @@ grafana:
                   "h": 7,
                   "w": 12,
                   "x": 0,
-                  "y": 20
+                  "y": 12
                 },
-                "id": 19,
+                "id": 11,
                 "options": {
                   "legend": {
                     "calcs": [
@@ -1267,7 +795,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (response_type) (rate(blocky_request_duration_seconds_sum{job=~\"$job\"}[5m])) / clamp_min(sum by (response_type) (rate(blocky_request_duration_seconds_count{job=~\"$job\"}[5m])), 1e-9)",
+                    "expr": "sum by (response_type) (rate(blocky_request_duration_seconds_sum{job=~\"$job\"}[$__rate_interval])) / clamp_min(sum by (response_type) (rate(blocky_request_duration_seconds_count{job=~\"$job\"}[$__rate_interval])), 1e-9)",
                     "legendFormat": "{{response_type}}",
                     "range": true,
                     "refId": "A"
@@ -1282,7 +810,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Resolver cache activity",
+                "description": "Resolver cache activity (hits/misses per minute)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1339,9 +867,9 @@ grafana:
                   "h": 7,
                   "w": 12,
                   "x": 12,
-                  "y": 20
+                  "y": 12
                 },
-                "id": 20,
+                "id": 12,
                 "options": {
                   "legend": {
                     "calcs": [
@@ -1365,7 +893,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_cache_hits_total{job=~\"$job\"}[5m])) * 60",
+                    "expr": "sum(rate(blocky_cache_hits_total{job=~\"$job\"}[$__rate_interval])) * 60",
                     "legendFormat": "hits/min",
                     "range": true,
                     "refId": "A"
@@ -1376,7 +904,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_cache_misses_total{job=~\"$job\"}[5m])) * 60",
+                    "expr": "sum(rate(blocky_cache_misses_total{job=~\"$job\"}[$__rate_interval])) * 60",
                     "legendFormat": "misses/min",
                     "range": true,
                     "refId": "B"
@@ -1391,7 +919,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Queries/min by client IP (as seen by Blocky)",
+                "description": "Top 10 clients by queries/min (as seen by Blocky)",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1448,9 +976,9 @@ grafana:
                   "h": 7,
                   "w": 12,
                   "x": 0,
-                  "y": 27
+                  "y": 19
                 },
-                "id": 21,
+                "id": 13,
                 "options": {
                   "legend": {
                     "calcs": [
@@ -1475,7 +1003,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (client) (rate(blocky_query_total{job=~\"$job\"}[5m])) * 60",
+                    "expr": "topk(10, sum by (client) (rate(blocky_query_total{job=~\"$job\"}[$__rate_interval])) * 60)",
                     "legendFormat": "{{client}}",
                     "range": true,
                     "refId": "A"
@@ -1490,7 +1018,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Error and denylist download failure rates",
+                "description": "Errors and denylist download failures per graph step ($__rate_interval). Bars go up when failures occur in that period and sit at zero when none happen.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1507,7 +1035,7 @@ grafana:
                       ]
                     },
                     "unit": "short",
-                    "decimals": 3,
+                    "decimals": 0,
                     "custom": {
                       "axisBorderShow": false,
                       "axisCenteredZero": false,
@@ -1515,8 +1043,8 @@ grafana:
                       "axisLabel": "",
                       "axisPlacement": "auto",
                       "barAlignment": 0,
-                      "drawStyle": "line",
-                      "fillOpacity": 15,
+                      "drawStyle": "bars",
+                      "fillOpacity": 80,
                       "gradientMode": "none",
                       "hideFrom": {
                         "legend": false,
@@ -1534,26 +1062,57 @@ grafana:
                       "spanNulls": false,
                       "stacking": {
                         "group": "A",
-                        "mode": "none"
+                        "mode": "normal"
                       },
                       "thresholdsStyle": {
                         "mode": "off"
                       }
                     }
                   },
-                  "overrides": []
+                  "overrides": [
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "errors"
+                      },
+                      "properties": [
+                        {
+                          "id": "color",
+                          "value": {
+                            "fixedColor": "red",
+                            "mode": "fixed"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "failed downloads"
+                      },
+                      "properties": [
+                        {
+                          "id": "color",
+                          "value": {
+                            "fixedColor": "orange",
+                            "mode": "fixed"
+                          }
+                        }
+                      ]
+                    }
+                  ]
                 },
                 "gridPos": {
                   "h": 7,
                   "w": 12,
                   "x": 12,
-                  "y": 27
+                  "y": 19
                 },
-                "id": 22,
+                "id": 14,
                 "options": {
                   "legend": {
                     "calcs": [
-                      "mean",
+                      "sum",
                       "max"
                     ],
                     "displayMode": "table",
@@ -1573,8 +1132,8 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_error_total{job=~\"$job\"}[5m])) * 60",
-                    "legendFormat": "errors/min",
+                    "expr": "sum(increase(blocky_error_total{job=~\"$job\"}[$__rate_interval]))",
+                    "legendFormat": "errors",
                     "range": true,
                     "refId": "A"
                   },
@@ -1584,8 +1143,8 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_failed_downloads_total{job=~\"$job\"}[5m])) * 60",
-                    "legendFormat": "failed downloads/min",
+                    "expr": "sum(increase(blocky_failed_downloads_total{job=~\"$job\"}[$__rate_interval]))",
+                    "legendFormat": "failed downloads",
                     "range": true,
                     "refId": "B"
                   }
@@ -1600,9 +1159,9 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 34
+                  "y": 26
                 },
-                "id": 23,
+                "id": 15,
                 "panels": [],
                 "title": "Upstream latency distribution",
                 "type": "row"
@@ -1632,9 +1191,9 @@ grafana:
                   "h": 8,
                   "w": 24,
                   "x": 0,
-                  "y": 35
+                  "y": 27
                 },
-                "id": 24,
+                "id": 16,
                 "options": {
                   "calculate": false,
                   "cellGap": 1,
@@ -1695,9 +1254,9 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 43
+                  "y": 35
                 },
-                "id": 25,
+                "id": 17,
                 "panels": [],
                 "title": "Breakdown (dashboard range)",
                 "type": "row"
@@ -1722,9 +1281,9 @@ grafana:
                   "h": 8,
                   "w": 8,
                   "x": 0,
-                  "y": 44
+                  "y": 36
                 },
-                "id": 26,
+                "id": 18,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -1791,9 +1350,9 @@ grafana:
                   "h": 8,
                   "w": 8,
                   "x": 8,
-                  "y": 44
+                  "y": 36
                 },
-                "id": 27,
+                "id": 19,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -1860,9 +1419,9 @@ grafana:
                   "h": 8,
                   "w": 8,
                   "x": 16,
-                  "y": 44
+                  "y": 36
                 },
-                "id": 28,
+                "id": 20,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -1927,11 +1486,11 @@ grafana:
                 },
                 "gridPos": {
                   "h": 8,
-                  "w": 12,
+                  "w": 8,
                   "x": 0,
-                  "y": 52
+                  "y": 44
                 },
-                "id": 29,
+                "id": 21,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -1996,11 +1555,11 @@ grafana:
                 },
                 "gridPos": {
                   "h": 8,
-                  "w": 12,
-                  "x": 12,
-                  "y": 52
+                  "w": 8,
+                  "x": 8,
+                  "y": 44
                 },
-                "id": 30,
+                "id": 22,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -2064,12 +1623,12 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 8,
                   "w": 8,
-                  "x": 0,
-                  "y": 60
+                  "x": 16,
+                  "y": 44
                 },
-                "id": 31,
+                "id": 23,
                 "options": {
                   "displayLabels": [
                     "name",
@@ -2144,11 +1703,11 @@ grafana:
                 },
                 "gridPos": {
                   "h": 7,
-                  "w": 8,
-                  "x": 8,
-                  "y": 60
+                  "w": 12,
+                  "x": 0,
+                  "y": 52
                 },
-                "id": 32,
+                "id": 24,
                 "options": {
                   "colorMode": "value",
                   "graphMode": "area",
@@ -2176,8 +1735,9 @@ grafana:
                     "editorMode": "code",
                     "expr": "sum(blocky_cache_entries{job=~\"$job\"}) / clamp_min(count(blocky_blocking_enabled{job=~\"$job\"}), 1)",
                     "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
                   }
                 ],
                 "title": "Cache entries",
@@ -2212,11 +1772,11 @@ grafana:
                 },
                 "gridPos": {
                   "h": 7,
-                  "w": 8,
-                  "x": 16,
-                  "y": 60
+                  "w": 12,
+                  "x": 12,
+                  "y": 52
                 },
-                "id": 33,
+                "id": 25,
                 "options": {
                   "colorMode": "value",
                   "graphMode": "area",
@@ -2242,7 +1802,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(process_cpu_seconds_total{job=~\"$job\",namespace=\"blocky\"}[5m]))",
+                    "expr": "sum(rate(process_cpu_seconds_total{job=~\"$job\",namespace=\"blocky\"}[$__rate_interval]))",
                     "legendFormat": "",
                     "range": true,
                     "refId": "A"
@@ -2313,6 +1873,6 @@ grafana:
             "timezone": "browser",
             "title": "blocky",
             "uid": "JvOqE4gRk",
-            "version": 11,
+            "version": 13,
             "weekStart": ""
           }
