@@ -2,6 +2,517 @@ grafana:
   dashboards:
     default:
       prometheus-stats:
-        gnetId: 2
-        revision: 2
-        datasource: Prometheus
+        json: |
+          {
+            "annotations": {
+              "list": [
+                {
+                  "builtIn": 1,
+                  "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                  },
+                  "enable": true,
+                  "hide": true,
+                  "iconColor": "rgba(0, 211, 255, 1)",
+                  "name": "Annotations & Alerts",
+                  "type": "dashboard"
+                }
+              ]
+            },
+            "editable": true,
+            "fiscalYearStartMonth": 0,
+            "graphTooltip": 1,
+            "id": null,
+            "links": [],
+            "liveNow": false,
+            "panels": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "s"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 4,
+                  "w": 6,
+                  "x": 0,
+                  "y": 0
+                },
+                "id": 1,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "textMode": "auto"
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "time() - process_start_time_seconds{job=\"prometheus\"}",
+                    "legendFormat": "uptime",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Uptime",
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 4,
+                  "w": 6,
+                  "x": 6,
+                  "y": 0
+                },
+                "id": 2,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "area",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "textMode": "auto"
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "prometheus_tsdb_head_series{job=\"prometheus\"}",
+                    "legendFormat": "series",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Head series",
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "bytes"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 4,
+                  "w": 6,
+                  "x": 12,
+                  "y": 0
+                },
+                "id": 3,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "area",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "textMode": "auto"
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "process_resident_memory_bytes{job=\"prometheus\"}",
+                    "legendFormat": "RSS",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "RSS memory",
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 4,
+                  "w": 6,
+                  "x": 18,
+                  "y": 0
+                },
+                "id": 4,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "area",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "textMode": "auto"
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(prometheus_sd_discovered_targets{job=\"prometheus\"})",
+                    "legendFormat": "targets",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Discovered targets",
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "lineWidth": 1,
+                      "showPoints": "never",
+                      "spanNulls": false
+                    },
+                    "unit": "ops"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 4
+                },
+                "id": 5,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(prometheus_tsdb_head_samples_appended_total{job=\"prometheus\"}[5m]))",
+                    "legendFormat": "samples/s",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Samples appended",
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "drawStyle": "line",
+                      "fillOpacity": 10,
+                      "lineWidth": 1,
+                      "showPoints": "never",
+                      "spanNulls": false
+                    },
+                    "unit": "ops"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 4
+                },
+                "id": 6,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(prometheus_target_interval_length_seconds_count{job=\"prometheus\"}[5m]))",
+                    "legendFormat": "scrapes/s",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Target scrapes",
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "drawStyle": "line",
+                      "fillOpacity": 10,
+                      "lineWidth": 1,
+                      "showPoints": "never",
+                      "spanNulls": false
+                    },
+                    "unit": "s"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 12
+                },
+                "id": 7,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "prometheus_target_interval_length_seconds{job=\"prometheus\",quantile=~\"0.5|0.9|0.99\"}",
+                    "legendFormat": "p{{quantile}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Scrape interval length",
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "drawStyle": "line",
+                      "fillOpacity": 10,
+                      "lineWidth": 1,
+                      "showPoints": "never",
+                      "spanNulls": false
+                    },
+                    "unit": "s"
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 12
+                },
+                "id": 8,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "prometheus_rule_evaluation_duration_seconds{job=\"prometheus\",quantile=~\"0.5|0.9|0.99\"}",
+                    "legendFormat": "p{{quantile}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Rule evaluation duration",
+                "type": "timeseries"
+              }
+            ],
+            "refresh": "auto",
+            "schemaVersion": 39,
+            "tags": [
+              "prometheus",
+              "otaru"
+            ],
+            "templating": {
+              "list": []
+            },
+            "time": {
+              "from": "now-1h",
+              "to": "now"
+            },
+            "timepicker": {},
+            "timezone": "browser",
+            "title": "Prometheus Stats",
+            "uid": "prometheus-stats-otaru",
+            "version": 1,
+            "weekStart": ""
+          }
