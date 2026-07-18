@@ -10,7 +10,7 @@ Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 
 | Key | Grafana title | Notes |
 | --- | --- | --- |
-| `blocky` | blocky | Custom SRE layout; v0.28 metric names |
+| `blocky` | Blocky | Custom SRE layout; v0.28 metric names |
 | `onzack-cluster-monitoring` | Standard Cluster Monitoring | ONZACK 17404 + recording rules + otaru sections |
 | `prometheus-stats` | Prometheus Stats | Prometheus process stats |
 | `container-log-dashboard` | (gnet 16966) | Loki logs; `gnetId`+`revision` download |
