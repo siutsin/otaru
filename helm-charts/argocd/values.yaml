@@ -160,9 +160,16 @@ argo-cd:
     # requests (2115m free of 4000m) and already hosts this pod, so applying
     # the 1678m recommendation now: RollingUpdate surge peaks at ~3563m/4000m
     # (89%) on nuc-00, well within capacity.
+    # KRR 2026-07-18 hotfix: the 1678m request above stopped fitting anywhere
+    # within a couple of hours -- nuc-00's free CPU had dropped to ~363m by
+    # the time the rollout retried (other workloads' requests grew after
+    # this pass), leaving the new pod Pending on all 5 nodes for 80+ minutes
+    # (FailedScheduling: insufficient cpu). Reduced to 700m, which fits with
+    # margin on raspberrypi-00/01/03 (~800-965m free each) -- still a large
+    # improvement over the original 250m, just not the full KRR peak.
     resources:
       requests:
-        cpu: 1678m
+        cpu: 700m
         memory: 512Mi
         ephemeral-storage: 512Mi
       limits:
