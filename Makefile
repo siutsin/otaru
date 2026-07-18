@@ -196,6 +196,12 @@ check-yaml: ## Check YAML syntax in key files
 	@yq eval '.' ansible/inventory.yaml > /dev/null
 	@echo "$(GREEN)YAML syntax check passed!$(NC)"
 
+.PHONY: check-image-digests
+check-image-digests: ## Verify pinned image digests reference the multi-arch index, not a single-arch child manifest
+	@echo "$(GREEN)Checking pinned image digests...$(NC)"
+	@bash $(HACK_DIR)/check-image-digests.sh
+	@echo "$(GREEN)Image digest check passed!$(NC)"
+
 .PHONY: check-markdown
 check-markdown: ## Check Markdown files with markdownlint-cli2
 	@echo "$(GREEN)Checking Markdown files...$(NC)"
@@ -264,7 +270,9 @@ format-python: poetry-install ## Format Python code with black
 	@echo "$(GREEN)Python code formatting complete!$(NC)"
 
 .PHONY: test
-test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform lint-terragrunt check-markdown lint-zizmor validate-helm-charts ## Run all validation and quality checks
+test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform \
+	lint-terragrunt check-markdown lint-zizmor validate-helm-charts \
+	check-image-digests ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
