@@ -82,7 +82,7 @@ grafana:
               ]
             },
             "description": "ONZACK Standard Cluster Monitoring (Grafana.com 17404 rev 11, with recording rules). Vendored into otaru; Prometheus rules live in monitoring chart recording_rules.yml (adapted for kubernetes-service-endpoints node-exporter and unlabeled worker nodes).",
-            "editable": true,
+            "editable": false,
             "fiscalYearStartMonth": 0,
             "graphTooltip": 0,
             "links": [
@@ -1127,7 +1127,7 @@ grafana:
                     "refId": "A"
                   }
                 ],
-                "title": "Memory Used (form capacity)",
+                "title": "Memory Used (from capacity)",
                 "type": "gauge"
               },
               {
@@ -1213,7 +1213,7 @@ grafana:
                     "refId": "A"
                   }
                 ],
-                "title": "Memory  Used Top Node",
+                "title": "Memory Used Top Node",
                 "type": "gauge"
               },
               {
@@ -9522,7 +9522,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use CPU resources. Thas why the usage can be higher than the limits.",
+                    "description": "Not all workloads have limits defined but still use CPU resources. That is why the usage can be higher than the limits.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9627,7 +9627,7 @@ grafana:
                         "refId": "B"
                       }
                     ],
-                    "title": "Cores Used (from LImits)",
+                    "title": "Cores Used (from Limits)",
                     "type": "timeseries"
                   },
                   {
@@ -9635,7 +9635,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use CPU resources. Thas why the usage can be higher than the limits.",
+                    "description": "Not all workloads have limits defined but still use CPU resources. That is why the usage can be higher than the limits.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9832,7 +9832,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use Memory resources. Thas why the usage can be higher than the limits.",
+                    "description": "Not all workloads have limits defined but still use Memory resources. That is why the usage can be higher than the limits.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9945,7 +9945,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use Memory resources. Thas why the usage can be higher than the limits.",
+                    "description": "Not all workloads have limits defined but still use Memory resources. That is why the usage can be higher than the limits.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -11065,7 +11065,7 @@ grafana:
                         "refId": "B"
                       }
                     ],
-                    "title": "Read Storage Troughput by Node",
+                    "title": "Read Storage Throughput by Node",
                     "type": "timeseries"
                   },
                   {
@@ -11168,7 +11168,7 @@ grafana:
                         "refId": "C"
                       }
                     ],
-                    "title": "Write Storage Troughput by Node",
+                    "title": "Write Storage Throughput by Node",
                     "type": "timeseries"
                   },
                   {
@@ -12224,7 +12224,7 @@ grafana:
               }
             ],
             "preload": false,
-            "refresh": "5m",
+            "refresh": "1m",
             "schemaVersion": 42,
             "tags": [
               "kubernetes",
@@ -12383,7 +12383,7 @@ grafana:
             "timezone": "browser",
             "title": "Standard Cluster Monitoring",
             "uid": "ozk-std-clstr-mon",
-            "version": 113,
+            "version": 114,
             "weekStart": "",
             "gnetId": 17404
           }
