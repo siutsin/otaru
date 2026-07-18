@@ -137,7 +137,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (container_memory_working_set_bytes{id=\"/\",node=~\"^$Node$\"}) / sum (machine_memory_bytes{node=~\"^$Node$\"}) * 100",
+                    "expr": "sum (container_memory_working_set_bytes{id=\"/\",instance=~\"^$Node$\"}) / sum (machine_memory_bytes{instance=~\"^$Node$\"}) * 100",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -226,7 +226,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{node=~\"^$Node$\"}[5m])) / sum (machine_cpu_cores{node=~\"^$Node$\"}) * 100",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{instance=~\"^$Node$\"}[5m])) / sum (machine_cpu_cores{instance=~\"^$Node$\"}) * 100",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -317,7 +317,7 @@ grafana:
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum (container_fs_usage_bytes{id=\"/\",node=~\"^$Node$\",device=~\"/dev/(nvme0n1p1|mmcblk0p2)\"}) / sum (container_fs_limit_bytes{id=\"/\",node=~\"^$Node$\",device=~\"/dev/(nvme0n1p1|mmcblk0p2)\"}) * 100",
+                    "expr": "sum (container_fs_usage_bytes{id=\"/\",instance=~\"^$Node$\",device=~\"/dev/(mapper/cryptroot|mapper/ubuntu--vg-ubuntu--lv|nvme0n1p1|sda2|mmcblk0p2)\"}) / sum (container_fs_limit_bytes{id=\"/\",instance=~\"^$Node$\",device=~\"/dev/(mapper/cryptroot|mapper/ubuntu--vg-ubuntu--lv|nvme0n1p1|sda2|mmcblk0p2)\"}) * 100",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -404,7 +404,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "container_memory_usage_bytes",
+                    "expr": "sum(container_memory_working_set_bytes{id=\"/\",instance=~\"^$Node$\"})",
                     "format": "table",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -489,7 +489,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "(machine_memory_bytes{})",
+                    "expr": "sum(machine_memory_bytes{instance=~\"^$Node$\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "10s",
@@ -574,7 +574,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\",node=~\"^$Node$\"}[5m]))",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\",instance=~\"^$Node$\"}[5m]))",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -658,7 +658,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "machine_cpu_physical_cores",
+                    "expr": "sum(machine_cpu_cores{instance=~\"^$Node$\"})",
                     "format": "table",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -744,7 +744,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum (container_fs_usage_bytes{id=\"/\",node=~\"^$Node$\",device=~\"/dev/(nvme0n1p1|mmcblk0p2)\"})",
+                    "expr": "sum (container_fs_usage_bytes{id=\"/\",instance=~\"^$Node$\",device=~\"/dev/(mapper/cryptroot|mapper/ubuntu--vg-ubuntu--lv|nvme0n1p1|sda2|mmcblk0p2)\"})",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -831,7 +831,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum (container_fs_limit_bytes{id=\"/\",node=~\"^$Node$\",device=~\"/dev/(nvme0n1p1|mmcblk0p2)\"})",
+                    "expr": "sum (container_fs_limit_bytes{id=\"/\",instance=~\"^$Node$\",device=~\"/dev/(mapper/cryptroot|mapper/ubuntu--vg-ubuntu--lv|nvme0n1p1|sda2|mmcblk0p2)\"})",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 1,
@@ -960,7 +960,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (rate (container_network_receive_bytes_total{node=~\"^$Node$\"}[5m]))",
+                    "expr": "sum (rate (container_network_receive_bytes_total{instance=~\"^$Node$\"}[5m]))",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 4,
@@ -974,7 +974,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "- sum (rate (container_network_transmit_bytes_total{node=~\"^$Node$\"}[5m]))",
+                    "expr": "- sum (rate (container_network_transmit_bytes_total{instance=~\"^$Node$\"}[5m]))",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 4,
@@ -1078,7 +1078,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (namespace)",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (namespace)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 4,
@@ -1182,7 +1182,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (namespace)",
+                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}) by (namespace)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 4,
@@ -1313,7 +1313,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 5,
@@ -1443,43 +1443,14 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",container_name!=\"POD\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (container_name, pod)",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\",image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (container, pod)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "10s",
                     "intervalFactor": 5,
-                    "legendFormat": "pod: {{ pod }} | {{ container_name }}",
+                    "legendFormat": "pod: {{ pod }} | {{ container }}",
                     "metric": "container_cpu",
                     "refId": "A",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name!~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, name, image)",
-                    "format": "time_series",
-                    "hide": false,
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "docker: {{ node }} | {{ image }} ({{ name }})",
-                    "metric": "container_cpu",
-                    "refId": "B",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{rkt_container_name!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, rkt_container_name)",
-                    "format": "time_series",
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "rkt: {{ node }} | {{ rkt_container_name }}",
-                    "metric": "container_cpu",
-                    "refId": "C",
                     "step": 10
                   }
                 ],
@@ -1596,7 +1567,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (rate (container_cpu_usage_seconds_total{id!=\"/\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (id)",
+                    "expr": "sum (rate (container_cpu_usage_seconds_total{id!=\"/\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (id)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "10s",
@@ -1720,7 +1691,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (pod)",
+                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}) by (pod)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 5,
@@ -1842,41 +1813,13 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\",container_name!=\"POD\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (container_name, pod)",
+                    "expr": "sum (container_memory_working_set_bytes{container!=\"\",container!=\"POD\",image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}) by (container, pod)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 5,
-                    "legendFormat": "pod: {{ pod }} | {{ container_name }}",
+                    "legendFormat": "pod: {{ pod }} | {{ container }}",
                     "metric": "container_memory_usage:sort_desc",
                     "refId": "A",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (container_memory_working_set_bytes{image!=\"\",name!~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (node, name, image)",
-                    "format": "time_series",
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "docker: {{ node }} | {{ image }} ({{ name }})",
-                    "metric": "container_memory_usage:sort_desc",
-                    "refId": "B",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (container_memory_working_set_bytes{rkt_container_name!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (node, rkt_container_name)",
-                    "format": "time_series",
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "rkt: {{ node }} | {{ rkt_container_name }}",
-                    "metric": "container_memory_usage:sort_desc",
-                    "refId": "C",
                     "step": 10
                   }
                 ],
@@ -1992,7 +1935,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (container_memory_working_set_bytes{id!=\"/\",node=~\"^$Node$\",namespace=~\"$Namespace\"}) by (id)",
+                    "expr": "sum (container_memory_working_set_bytes{id!=\"/\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}) by (id)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 4,
@@ -2115,7 +2058,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum (rate (container_network_receive_bytes_total{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
+                    "expr": "sum (rate (container_network_receive_bytes_total{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 5,
@@ -2130,7 +2073,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
+                    "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
                     "format": "time_series",
                     "interval": "10s",
                     "intervalFactor": 5,
@@ -2252,12 +2195,12 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "sum (rate (container_network_receive_bytes_total{image!=\"\",name=~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (container_name, pod)",
+                    "expr": "sum (rate (container_network_receive_bytes_total{pod!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "10s",
                     "intervalFactor": 5,
-                    "legendFormat": "-> pod: {{ pod }} | {{ container_name }}",
+                    "legendFormat": "-> {{ pod }}",
                     "metric": "network",
                     "refId": "B",
                     "step": 10
@@ -2267,74 +2210,14 @@ grafana:
                       "type": "prometheus",
                       "uid": "PBFA97CFB590B2093"
                     },
-                    "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",name=~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (container_name, pod)",
+                    "expr": "- sum (rate (container_network_transmit_bytes_total{pod!=\"\",instance=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (pod)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "10s",
                     "intervalFactor": 5,
-                    "legendFormat": "<- pod: {{ pod }} | {{ container_name }}",
+                    "legendFormat": "<- {{ pod }}",
                     "metric": "network",
                     "refId": "D",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (rate (container_network_receive_bytes_total{image!=\"\",name!~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, name, image)",
-                    "format": "time_series",
-                    "hide": false,
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "-> docker: {{ node }} | {{ image }} ({{ name }})",
-                    "metric": "network",
-                    "refId": "A",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",name!~\"^k8s_.*\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, name, image)",
-                    "format": "time_series",
-                    "hide": false,
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "<- docker: {{ node }} | {{ image }} ({{ name }})",
-                    "metric": "network",
-                    "refId": "C",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "sum (rate (container_network_transmit_bytes_total{rkt_container_name!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, rkt_container_name)",
-                    "format": "time_series",
-                    "hide": false,
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "-> rkt: {{ node }} | {{ rkt_container_name }}",
-                    "metric": "network",
-                    "refId": "E",
-                    "step": 10
-                  },
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "expr": "- sum (rate (container_network_transmit_bytes_total{rkt_container_name!=\"\",node=~\"^$Node$\",namespace=~\"$Namespace\"}[5m])) by (node, rkt_container_name)",
-                    "format": "time_series",
-                    "hide": false,
-                    "interval": "10s",
-                    "intervalFactor": 5,
-                    "legendFormat": "<- rkt: {{ node }} | {{ rkt_container_name }}",
-                    "metric": "network",
-                    "refId": "F",
                     "step": 10
                   }
                 ],
@@ -2361,14 +2244,14 @@ grafana:
                     "type": "prometheus",
                     "uid": "PBFA97CFB590B2093"
                   },
-                  "definition": "label_values(node)",
+                  "definition": "label_values(machine_memory_bytes, instance)",
                   "hide": 0,
                   "includeAll": true,
                   "multi": false,
                   "name": "Node",
                   "options": [],
                   "query": {
-                    "query": "label_values(node)",
+                    "query": "label_values(machine_memory_bytes, instance)",
                     "refId": "Prometheus-Node-Variable-Query"
                   },
                   "refresh": 1,
@@ -2391,14 +2274,14 @@ grafana:
                     "type": "prometheus",
                     "uid": "PBFA97CFB590B2093"
                   },
-                  "definition": "",
+                  "definition": "label_values(container_memory_working_set_bytes, namespace)",
                   "hide": 0,
                   "includeAll": true,
                   "multi": true,
                   "name": "Namespace",
                   "options": [],
                   "query": {
-                    "query": "label_values(namespace)",
+                    "query": "label_values(container_memory_working_set_bytes, namespace)",
                     "refId": "Prometheus-Namespace-Variable-Query"
                   },
                   "refresh": 1,
@@ -2444,6 +2327,6 @@ grafana:
             "timezone": "browser",
             "title": "K3S Cluster Monitoring",
             "uid": "1bI4P-xiz",
-            "version": 4,
+            "version": 5,
             "weekStart": ""
           }
