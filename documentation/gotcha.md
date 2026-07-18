@@ -1412,11 +1412,11 @@ which is misleading.
 
 ### Symptoms: VIP Answers Without Hitting Blocky
 
-| Path | `doubleclick.net` | `unifi` |
-| ---- | ----------------- | ------ |
-| Blocky pod IP (hostNetwork dig) | `0.0.0.0` | `192.168.10.1` (TTL 3600, one answer) |
-| VIP while capture is on | real Google IPs | often TTL 5, two answers, or wrong source |
-| VIP after capture is off | `0.0.0.0` | `192.168.10.1` (TTL 3600, one answer) |
+| Path                            | `doubleclick.net` | `unifi`                                   |
+| ------------------------------- | ----------------- | ----------------------------------------- |
+| Blocky pod IP (hostNetwork dig) | `0.0.0.0`         | `192.168.10.1` (TTL 3600, one answer)     |
+| VIP while capture is on         | real Google IPs   | often TTL 5, two answers, or wrong source |
+| VIP after capture is off        | `0.0.0.0`         | `192.168.10.1` (TTL 3600, one answer)     |
 
 ### Resolution: Disable DNS Capture on Envoy Proxy Pods
 
