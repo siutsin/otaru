@@ -12351,7 +12351,7 @@ grafana:
               }
             ],
             "preload": false,
-            "refresh": "1m",
+            "refresh": "auto",
             "schemaVersion": 42,
             "tags": [
               "kubernetes",
@@ -12510,7 +12510,7 @@ grafana:
             "timezone": "browser",
             "title": "Standard Cluster Monitoring",
             "uid": "ozk-std-clstr-mon",
-            "version": 116,
+            "version": 117,
             "weekStart": "",
             "gnetId": 17404
           }

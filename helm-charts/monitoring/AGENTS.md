@@ -25,8 +25,7 @@ Every Standard Cluster Monitoring panel (and row) should keep a **description**
 explaining the metric in plain language (hover in Grafana). When re-vendoring,
 re-apply or regenerate descriptions rather than shipping empty ones.
 
-Standard Cluster Monitoring auto-refreshes every **1m** (Prometheus scrape
-interval). Keep that cadence when re-vendoring unless scrape interval changes.
+Standard Cluster Monitoring auto-refreshes with Grafana **`auto`** (same as the blocky dashboard). Keep `refresh: auto` when re-vendoring.
 
 Validate with `python3 scripts/validate-grafana-dashboards.py` (also via
 `make test`). Forbidden selectors include bare `job="node-exporter"` and the
