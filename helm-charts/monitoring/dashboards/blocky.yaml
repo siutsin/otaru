@@ -112,7 +112,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": false,
-                    "expr": "sum(up{job=~\"$job\"})",
+                    "expr": "count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -352,11 +352,11 @@ grafana:
                         },
                         {
                           "color": "red",
-                          "value": 80
+                          "value": 0.08
                         }
                       ]
                     },
-                    "unit": "ms"
+                    "unit": "s"
                   },
                   "overrides": []
                 },
@@ -393,7 +393,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(increase(blocky_request_duration_ms_sum[$__range])) / sum(increase(blocky_request_duration_ms_count[$__range]))",
+                    "expr": "sum(increase(blocky_request_duration_seconds_sum[$__range])) / sum(increase(blocky_request_duration_seconds_count[$__range]))",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -469,7 +469,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(blocky_denylist_cache) / sum(up{job=~\"$job\"})",
+                    "expr": "sum(blocky_denylist_cache_entries) / count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -536,7 +536,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": false,
-                    "expr": "sum(time() -blocky_last_list_group_refresh)/ sum(up{job=~\"$job\"})",
+                    "expr": "sum(time() -blocky_last_list_group_refresh_timestamp_seconds)/ count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -763,7 +763,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(blocky_cache_entry_count)/ sum(up{job=~\"$job\"})",
+                    "expr": "sum(blocky_cache_entries)/ count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -833,7 +833,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(increase(blocky_cache_hit_count[$__range])) / (sum(increase(blocky_cache_hit_count[$__range])) + sum(increase(blocky_cache_miss_count[$__range])))",
+                    "expr": "sum(increase(blocky_cache_hits_total[$__range])) / (sum(increase(blocky_cache_hits_total[$__range])) + sum(increase(blocky_cache_misses_total[$__range])))",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -897,7 +897,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "ceil(sum(increase(blocky_prefetch_count[$__range])))",
+                    "expr": "ceil(sum(increase(blocky_prefetches_total[$__range])))",
                     "format": "table",
                     "interval": "",
                     "legendFormat": "",
@@ -960,7 +960,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(blocky_prefetch_domain_name_cache_count)/ sum(up{job=~\"$job\"})",
+                    "expr": "sum(blocky_prefetch_domain_name_cache_entries)/ count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "interval": "",
                     "legendFormat": "",
@@ -1027,7 +1027,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(rate(blocky_prefetch_count[5m])) * 60",
+                    "expr": "sum(rate(blocky_prefetches_total[5m])) * 60",
                     "format": "table",
                     "interval": "",
                     "legendFormat": "",
@@ -1096,7 +1096,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(increase(blocky_prefetch_hit_count[$__range])) / (sum(increase(blocky_cache_hit_count[$__range])))",
+                    "expr": "sum(increase(blocky_prefetch_hits_total[$__range])) / (sum(increase(blocky_cache_hits_total[$__range])))",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -1256,7 +1256,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(go_memstats_sys_bytes{job=~\"$job\"})/sum(up{job=~\"$job\"})",
+                    "expr": "sum(go_memstats_sys_bytes{job=~\"$job\",namespace=\"blocky\"})/count(blocky_blocking_enabled{job=~\"$job\"})",
                     "format": "table",
                     "instant": false,
                     "interval": "",
@@ -1547,7 +1547,7 @@ grafana:
                   "yAxis": {
                     "axisPlacement": "left",
                     "reverse": false,
-                    "unit": "ms"
+                    "unit": "s"
                   }
                 },
                 "pluginVersion": "11.2.1",
@@ -1559,7 +1559,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "exemplar": true,
-                    "expr": "sum(increase(blocky_request_duration_ms_bucket{response_type=\"RESOLVED\"}[$__range])) by (le)",
+                    "expr": "sum(increase(blocky_request_duration_seconds_bucket{response_type=\"RESOLVED\"}[$__range])) by (le)",
                     "format": "heatmap",
                     "instant": false,
                     "interval": "",
@@ -1798,7 +1798,7 @@ grafana:
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(1, blocky_denylist_cache) by (group)",
+                    "expr": "topk(1, blocky_denylist_cache_entries) by (group)",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -2098,6 +2098,6 @@ grafana:
             "timezone": "",
             "title": "blocky",
             "uid": "JvOqE4gRk",
-            "version": 6,
+            "version": 7,
             "weekStart": ""
           }
