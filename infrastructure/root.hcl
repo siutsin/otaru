@@ -10,42 +10,57 @@ locals {
   cloudflare_version = local.version_vars.cloudflare_version
   github_version     = local.version_vars.github_version
   unifi_version      = local.version_vars.unifi_version
-}
 
-# Configure Terragrunt to use OpenTofu instead of Terraform
-terraform_binary = "tofu"
+  # Scope required_providers to the unit path so each stack only pulls what it uses.
+  unit_path = path_relative_to_include()
 
-# Provider credentials are read from the process environment (see documentation/secrets.md).
-# Do not interpolate secrets into this generate block — they would land in .terragrunt-cache.
-generate "provider" {
-  path      = "provider.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-terraform {
-  required_providers {
+  needs_aws        = startswith(local.unit_path, "cloud/aws/")
+  needs_b2         = startswith(local.unit_path, "cloud/b2/")
+  needs_cloudflare = startswith(local.unit_path, "cloud/cloudflare/")
+  # GitHub IP ranges data source is only used by Access.
+  needs_github = startswith(local.unit_path, "cloud/cloudflare/access")
+  needs_unifi  = startswith(local.unit_path, "local/")
+
+  required_providers_hcl = join("\n", compact([
+    local.needs_aws ? <<-EOT
     aws = {
       source  = "hashicorp/aws"
       version = "${local.aws_version}"
     }
+    EOT
+    : "",
+    local.needs_b2 ? <<-EOT
     b2 = {
       source  = "Backblaze/b2"
       version = "${local.b2_version}"
     }
+    EOT
+    : "",
+    local.needs_cloudflare ? <<-EOT
     cloudflare = {
       source  = "cloudflare/cloudflare"
       version = "${local.cloudflare_version}"
     }
+    EOT
+    : "",
+    local.needs_github ? <<-EOT
     github = {
       source  = "integrations/github"
       version = "${local.github_version}"
     }
+    EOT
+    : "",
+    local.needs_unifi ? <<-EOT
     unifi = {
       source  = "paultyng/unifi"
       version = "${local.unifi_version}"
     }
-  }
-}
+    EOT
+    : "",
+  ]))
 
+  provider_blocks_hcl = join("\n", compact([
+    local.needs_aws ? <<-EOT
 provider "aws" {
   region = "${local.aws_region}"
 
@@ -56,18 +71,35 @@ provider "aws" {
     }
   }
 }
+EOT
+    : "",
+    # Credentials: B2_APPLICATION_KEY, B2_APPLICATION_KEY_ID
+    local.needs_b2 ? "provider \"b2\" {}" : "",
+    # Credentials: CLOUDFLARE_API_TOKEN
+    local.needs_cloudflare ? "provider \"cloudflare\" {}" : "",
+    # Credentials: GITHUB_TOKEN
+    local.needs_github ? "provider \"github\" {}" : "",
+    # Credentials: UNIFI_USERNAME, UNIFI_PASSWORD, UNIFI_API
+    local.needs_unifi ? "provider \"unifi\" {}" : "",
+  ]))
+}
 
-# Credentials: B2_APPLICATION_KEY, B2_APPLICATION_KEY_ID
-provider "b2" {}
+# Configure Terragrunt to use OpenTofu instead of Terraform
+terraform_binary = "tofu"
 
-# Credentials: CLOUDFLARE_API_TOKEN
-provider "cloudflare" {}
+# Provider credentials are read from the process environment (see documentation/secrets.md).
+# Do not interpolate secrets into this generate block — they would land in .terragrunt-cache.
+generate "provider" {
+  path      = "provider.tf"
+  if_exists = "overwrite"
+  contents  = <<-EOF
+terraform {
+  required_providers {
+${local.required_providers_hcl}
+  }
+}
 
-# Credentials: GITHUB_TOKEN
-provider "github" {}
-
-# Credentials: UNIFI_USERNAME, UNIFI_PASSWORD, UNIFI_API
-provider "unifi" {}
+${local.provider_blocks_hcl}
 EOF
 }
 
