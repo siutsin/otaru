@@ -1438,3 +1438,62 @@ off-cluster, so those queries time out without saying anything about Blocky
 health.
 
 ---
+
+## ArgoCD Reports Synced at the Right Revision While a subPath-Mounted ConfigMap Key Is Still Missing
+
+**Problem:** after merging a PR that added a new Grafana dashboard (a new
+key under `grafana.dashboards.default` in the `monitoring` chart), the
+`monitoring` Application showed `Synced`/`Healthy` at exactly the merge
+commit's revision within a few minutes, yet the live
+`monitoring-grafana-dashboards-default` ConfigMap was still missing the
+new dashboard's JSON key entirely -- not stale content, the key was
+absent.
+
+**Why it happens:** this is the same "sync revision lags the merge by
+tens of seconds to a couple of minutes" pattern already seen with
+`argocd-repo-server` rollouts elsewhere in this cluster, but here it is
+easy to miss because `status.sync.revision` matching the new commit
+looks like solid proof of a real sync -- it is not, on its own. A stale
+in-flight sync (started against an older revision) can still finish and
+report the newer revision string once the reconciler catches up to
+`HEAD` for status-reporting purposes, without that particular apply pass
+having actually re-rendered every resource against the new manifests.
+
+**Symptoms:**
+
+- `kubectl get application <name> -o jsonpath='{.status.sync.revision}'`
+  matches the exact merge commit, `status.sync.status` is `Synced`,
+  `status.health.status` is `Healthy`.
+- A specific resource (here, a ConfigMap key) that the new commit added
+  is nonetheless absent from the live object.
+- No error, no `OutOfSync` state, nothing to alert on -- looks fully
+  healthy from a status/health check alone.
+
+**Resolution:** don't trust `status.sync.revision` alone as proof a
+specific new resource/field landed -- diff the specific resource
+directly, or force a hard refresh and re-check:
+
+```shell
+kubectl annotate application <name> -n argocd \
+  argocd.argoproj.io/refresh=hard --overwrite
+```
+
+Poll until the `argocd.argoproj.io/refresh` annotation clears (ArgoCD
+removes it once the refresh completes), then re-check the resource. In
+this case the hard refresh immediately produced the missing ConfigMap
+key, and a fresh Grafana pod picked it up.
+
+**Related gotcha:** the Grafana `dashboards.default` mechanism mounts
+each dashboard JSON key as an individual `subPath` volume mount (one
+`volumeMounts` entry per dashboard file, not a whole-directory mount).
+Kubernetes does **not** live-update `subPath` mounts when the backing
+ConfigMap changes -- kubelet's ConfigMap-to-file sync relies on a
+symlink swap that `subPath` bypasses entirely. So even after the
+ConfigMap itself is correct, an already-running Grafana pod will keep
+serving the old file contents (or lack a key entirely) until the pod is
+recreated. Dashboards added via `gnetId` (downloaded by the chart's
+`download-dashboards` init container at pod start, not mounted from a
+ConfigMap) are unaffected by this specific quirk, but do depend on the
+init container running again, i.e. also a pod restart.
+
+---
