@@ -35,6 +35,19 @@
   kube-scheduler `MostAllocated` fix for exactly this scattered-memory
   case. See `documentation/gotcha.md` ("Multi-Container Pods Fail to
   Schedule Despite \"Enough\" Free Cluster Memory").
+- Pod `Pending` with `Insufficient memory` on **every node of one
+  architecture** while a node of the other architecture (`nuc-00`,
+  amd64) sits well under capacity: check `kubectl get pod -o
+  jsonpath='{.spec.nodeSelector}'` for a `kubernetes.io/arch` pin before
+  treating this as a real capacity shortfall — it may be an
+  architecture pin that only exists because of a mispinned single-arch
+  digest, not a genuine constraint. See `documentation/gotcha.md` ("A
+  Pinned Digest Can Silently Be Single-Arch, Not Multi-Arch" →
+  "Recurrence"). If the arch pool genuinely is full and the pin is
+  legitimate (or a fix is out of scope for this pass), a safe live
+  remediation is evicting one redundant pod from a same-pool node with
+  PDB headroom (multi-replica Deployment, `kubectl get pdb` allows the
+  disruption) to free enough room — it will reschedule on its own.
 
 ## Known data-durability gotchas
 

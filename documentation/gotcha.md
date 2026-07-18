@@ -1262,6 +1262,43 @@ Re-pin the chart to that digest. Cross-check it matches what a node of
 each architecture actually has cached as a multi-platform index before
 considering it confirmed.
 
+### Recurrence: Forced Architecture Pins Masking the Same Bug
+
+The same mispinning recurred three more times, discovered on
+2026-07-18 while investigating two separate stuck-`Pending` incidents
+(`monitoring-prometheus-node-exporter` and `argocd-repo-server`, both
+`FailedScheduling` on insufficient memory): `ghcr.io/openclaw/openclaw`,
+`busybox:1.38.0` (openclaw's init container), and
+`ghcr.io/siutsin/images/go-jsonnet` (the `argocd-repo-server` CMP
+sidecar) were all pinned to their arm64 child manifest instead of the
+index. Because these images were believed arm64-only, `openclaw` and
+`argocd-repoServer` both carried a `nodeSelector: kubernetes.io/arch:
+arm64`, which is exactly what turned an ordinary memory-pressure
+scheduling squeeze into a stuck rollout: neither pod could fall back to
+`nuc-00` (amd64) even when it had free headroom. One of the three --
+`go-jsonnet` -- had a comment stating it "ships an arm64-only binary"
+that was accurate when written; the image gained a real amd64 build
+later and nobody revisited the pin or the nodeSelector. Removing the
+mispinned digest and the nodeSelector let the next rollout land on
+`nuc-00` immediately, confirming the fix.
+
+**Lesson:** an "arch-only" comment on an image pin is a claim about the
+image at the time it was written, not a durable fact. Treat any
+`nodeSelector: kubernetes.io/arch` on a workload as a hypothesis to
+re-verify, not a permanent constraint -- especially once the underlying
+digest has been re-pinned to a real multi-arch index.
+
+### Prevention: Automated CI Check
+
+`hack/check-image-digests.sh` (wired into `make test` as
+`check-image-digests`) scans every `helm-charts/**/*.yaml` for pinned
+`repository:tag@digest` references, queries each image's registry for
+the tag's current manifest, and fails the build if a pinned digest
+matches a single-platform child manifest of an index rather than the
+index itself. Network or auth failures against a registry are reported
+as warnings, not build failures, so a transient registry hiccup doesn't
+block unrelated PRs -- only a confirmed mispin does.
+
 ---
 
 ## ArgoCD Cannot Sync Some Large CRDs -- No Safe Fix Found, Accepted As-Is
