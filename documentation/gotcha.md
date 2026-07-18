@@ -1390,3 +1390,45 @@ check the release changelog for `#28440`/`#28421` to confirm the fix
 landed before assuming it's resolved.
 
 [argocd-28440]: https://github.com/argoproj/argo-cd/pull/28440
+
+## Ambient DNS Capture Steals Envoy Gateway North-South DNS to Blocky
+
+**Problem:** Blocky pods are healthy and block ads when queried on the pod IP
+from a hostNetwork probe, but digs to the gateway VIP `192.168.10.51:53`
+return real A records for denylisted domains (for example `doubleclick.net`)
+and Blocky's `blocky_query_total` barely moves. Grafana shows almost no
+requests even though clients appear to use the VIP.
+
+**Why it happens:** the `gateway` namespace is ambient-enrolled so Envoy can
+use the mesh path to TCP/HTTP backends. Ambient DNS capture (default from
+Istio 1.25) intercepts **outbound** connections from those Envoy pods to
+destination port 53. Envoy's UDPRoute/TCPRoute still thinks it is proxying
+to `blocky-dns` endpoints, but ztunnel answers the query via the cluster DNS
+path instead of delivering the packet to Blocky. Access logs can show
+`upstream_host` set to a Blocky pod IP with a ~155-byte unblocked answer,
+which is misleading.
+
+**Fingerprint:**
+
+| Path | `doubleclick.net` | `unifi` |
+| ---- | ----------------- | ------ |
+| Blocky pod IP (hostNetwork dig) | `0.0.0.0` | `192.168.10.1` TTL 3600, one answer |
+| VIP while capture is on | real Google IPs | often TTL 5 / two answers / wrong source |
+| VIP after capture is off | `0.0.0.0` | `192.168.10.1` TTL 3600, one answer |
+
+**Resolution:** set `ambient.istio.io/dns-capture: "false"` on the Envoy
+proxy pod template (`EnvoyProxy` → `envoyDeployment.pod.annotations`). Also
+keep the `blocky-dns` Service off the shared waypoint
+(`istio.io/use-waypoint: none`) so plain DNS stays L4 to Blocky endpoints;
+the HTTP `blocky` Service can remain waypoint-bound for DoH/metrics AuthZ.
+
+**Verify after change:**
+
+```shell
+dig @192.168.10.51 doubleclick.net +short   # expect 0.0.0.0
+dig @192.168.10.51 unifi +short             # expect 192.168.10.1
+```
+
+Do not dig Blocky pod IPs from a LAN laptop: `10.42.0.0/16` is not routed
+off-cluster, so those queries time out without saying anything about Blocky
+health.
