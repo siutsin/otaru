@@ -3,7 +3,7 @@ namespace: openclaw
 
 image:
   repository: ghcr.io/openclaw/openclaw
-  tag: 2026.5.22@sha256:1a5b25794693e2d3a3bfe1ef6a6061634bf44704c4650d65934e19f018664ced
+  tag: 2026.5.22@sha256:dcfd148777401d1bbdc63eab5c2f280bbfa912dfb1818566f9d66bb96ffb3f95
   pullPolicy: IfNotPresent
 
 service:
@@ -24,10 +24,6 @@ gateway:
       windowMs: 60000
       lockoutMs: 300000
       exemptLoopback: true
-
-# Pin to arm64: busybox and openclaw images are arm64-only; rollout to nuc-00 (amd64) failed init with exec format error.
-nodeSelector:
-  kubernetes.io/arch: arm64
 
 persistence:
   claimName: openclaw-pvc
@@ -140,7 +136,7 @@ resources:
 initContainer:
   image:
     repository: busybox
-    tag: 1.38.0@sha256:8f2ffdcb46f1b83e46665954ec130e497b979db766854f79ca9eee43242b7e4c
+    tag: 1.38.0@sha256:fd8d9aa63ba2f0982b5304e1ee8d3b90a210bc1ffb5314d980eb6962f1a9715d
     pullPolicy: IfNotPresent
   resources:
     requests:
