@@ -105,9 +105,11 @@ Traffic entering the cluster follows this path:
 4. the destination node `ztunnel` forwards traffic to the target pod
 
 This applies to TCP and HTTP traffic. UDP listeners can stay on Envoy Gateway,
-but they do not gain Istio mTLS. The Envoy proxy pods also set
-`ambient.istio.io/dns-capture=false` so ambient DNS capture does not
-intercept Envoy's outbound connections to Blocky on port 53.
+but they do not gain Istio mTLS.
+
+The Envoy proxy pods also set `ambient.istio.io/dns-capture=false` so ambient
+DNS capture does not intercept Envoy's outbound connections to Blocky on
+port 53.
 
 ### North-South Path
 
