@@ -81,7 +81,7 @@ grafana:
                 }
               ]
             },
-            "description": "ONZACK Standard Cluster Monitoring (Grafana.com 17404 rev 11, with recording rules). Vendored into otaru; Prometheus rules live in monitoring chart recording_rules.yml (adapted for kubernetes-service-endpoints node-exporter and unlabeled worker nodes).",
+            "description": "ONZACK Standard Cluster Monitoring (Grafana.com 17404 rev 11, with recording rules). Vendored into otaru; Prometheus rules live in monitoring chart recording_rules.yml (adapted for kubernetes-service-endpoints node-exporter and unlabeled worker nodes). otaru also adds collapsed cAdvisor workload sections (namespace/pod/container CPU, memory, network) cherry-picked from retired K3S board gnet 15282; variables cadvisor_instance and namespace. Also folds Resource Requests vs Usage (KRR tables + ephemeral-storage) as a collapsed section; not in upstream ONZACK.",
             "editable": false,
             "fiscalYearStartMonth": 0,
             "graphTooltip": 0,
@@ -12348,6 +12348,1443 @@ grafana:
                 "title": "Network Monitoring",
                 "type": "row",
                 "description": "Per-node network bandwidth, packets, and drops."
+              },
+              {
+                "collapsed": true,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 42
+                },
+                "id": 231,
+                "panels": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "cAdvisor CPU usage rate summed by Kubernetes namespace. Filter with cAdvisor instance and Namespace variables. Cherry-picked from former K3S Cluster Monitoring (gnet 15282); not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "cores",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "short",
+                        "decimals": 3
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 12,
+                      "x": 0,
+                      "y": 43
+                    },
+                    "id": 229,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "{{namespace}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "CPU use by namespace",
+                    "type": "timeseries"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "cAdvisor working set memory summed by Kubernetes namespace. Filter with cAdvisor instance and Namespace variables. Cherry-picked from former K3S Cluster Monitoring (gnet 15282); not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "bytes",
+                        "decimals": 2
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 12,
+                      "x": 12,
+                      "y": 43
+                    },
+                    "id": 230,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (namespace) (container_memory_working_set_bytes{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"})",
+                        "format": "time_series",
+                        "legendFormat": "{{namespace}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Memory use by namespace",
+                    "type": "timeseries"
+                  }
+                ],
+                "title": "Workload usage by namespace (cAdvisor)",
+                "type": "row",
+                "description": "Namespace-level CPU and memory from cAdvisor. otaru addition from k3s board; re-apply on ONZACK upgrade."
+              },
+              {
+                "collapsed": true,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 43
+                },
+                "id": 235,
+                "panels": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "CPU cores used per pod (cAdvisor rate of container_cpu_usage_seconds_total). Excludes empty image series. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "cores",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "short",
+                        "decimals": 3
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 44
+                    },
+                    "id": 232,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "{{pod}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Pods CPU usage",
+                    "type": "timeseries"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Working set memory per pod from cAdvisor. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "bytes",
+                        "decimals": 2
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 52
+                    },
+                    "id": 233,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod) (container_memory_working_set_bytes{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"})",
+                        "format": "time_series",
+                        "legendFormat": "{{pod}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Pods memory usage",
+                    "type": "timeseries"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Pod network receive (positive) and transmit (negative) bytes/s from cAdvisor. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "Bps",
+                        "decimals": 2
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 60
+                    },
+                    "id": 234,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod) (rate(container_network_receive_bytes_total{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "-> {{pod}}",
+                        "refId": "A"
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "- sum by (pod) (rate(container_network_transmit_bytes_total{image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "<- {{pod}}",
+                        "refId": "B"
+                      }
+                    ],
+                    "title": "Pods network I/O",
+                    "type": "timeseries"
+                  }
+                ],
+                "title": "Pods resource usage (cAdvisor)",
+                "type": "row",
+                "description": "Per-pod CPU, memory, and network from cAdvisor. otaru addition from k3s board; re-apply on ONZACK upgrade."
+              },
+              {
+                "collapsed": true,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 44
+                },
+                "id": 239,
+                "panels": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "CPU cores per container (pod|container) from cAdvisor. Skips the pause POD container. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "cores",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "short",
+                        "decimals": 3
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 45
+                    },
+                    "id": 236,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod, container) (rate(container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\",image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "{{pod}} | {{container}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Containers CPU usage",
+                    "type": "timeseries"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Working set memory per container (pod|container) from cAdvisor. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "bytes",
+                        "decimals": 2
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 53
+                    },
+                    "id": 237,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod, container) (container_memory_working_set_bytes{container!=\"\",container!=\"POD\",image!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"})",
+                        "format": "time_series",
+                        "legendFormat": "{{pod}} | {{container}}",
+                        "refId": "A"
+                      }
+                    ],
+                    "title": "Containers memory usage",
+                    "type": "timeseries"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Network receive/transmit by pod from cAdvisor container network metrics. Cherry-picked from k3s board; not in upstream ONZACK.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "color": {
+                          "mode": "palette-classic"
+                        },
+                        "custom": {
+                          "axisBorderShow": false,
+                          "axisCenteredZero": false,
+                          "axisColorMode": "text",
+                          "axisLabel": "",
+                          "axisPlacement": "auto",
+                          "barAlignment": 0,
+                          "barWidthFactor": 0.6,
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "gradientMode": "none",
+                          "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                          },
+                          "insertNulls": false,
+                          "lineInterpolation": "smooth",
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "scaleDistribution": {
+                            "type": "linear"
+                          },
+                          "showPoints": "never",
+                          "spanNulls": false,
+                          "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                          },
+                          "thresholdsStyle": {
+                            "mode": "off"
+                          }
+                        },
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": null
+                            },
+                            {
+                              "color": "red",
+                              "value": 80
+                            }
+                          ]
+                        },
+                        "unit": "Bps",
+                        "decimals": 2
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 61
+                    },
+                    "id": 238,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "mean",
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "right",
+                        "showLegend": true,
+                        "sortBy": "Last",
+                        "sortDesc": true
+                      },
+                      "tooltip": {
+                        "mode": "multi",
+                        "sort": "desc"
+                      }
+                    },
+                    "pluginVersion": "12.0.2",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "sum by (pod) (rate(container_network_receive_bytes_total{pod!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "-> {{pod}}",
+                        "refId": "A"
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "exemplar": false,
+                        "expr": "- sum by (pod) (rate(container_network_transmit_bytes_total{pod!=\"\",instance=~\"$cadvisor_instance\",namespace=~\"$namespace\"}[$__rate_interval]))",
+                        "format": "time_series",
+                        "legendFormat": "<- {{pod}}",
+                        "refId": "B"
+                      }
+                    ],
+                    "title": "Containers network I/O",
+                    "type": "timeseries"
+                  }
+                ],
+                "title": "Containers resource usage (cAdvisor)",
+                "type": "row",
+                "description": "Per-container CPU/memory and pod-level network from cAdvisor. otaru addition from k3s board; re-apply on ONZACK upgrade."
+              },
+              {
+                "collapsed": true,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 45
+                },
+                "id": 245,
+                "panels": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "KRR-style view: container memory request vs its own 6h average usage. Sort descending to find under-provisioned workloads (near/over 100%); sort ascending for downsize candidates. Folded from former Resource Requests vs Usage board; not in upstream ONZACK — re-apply on upgrade.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "custom": {
+                          "align": "auto",
+                          "cellOptions": {
+                            "type": "auto"
+                          },
+                          "filterable": true,
+                          "inspect": false
+                        },
+                        "mappings": []
+                      },
+                      "overrides": [
+                        {
+                          "matcher": {
+                            "id": "byName",
+                            "options": "% of request"
+                          },
+                          "properties": [
+                            {
+                              "id": "unit",
+                              "value": "percent"
+                            },
+                            {
+                              "id": "custom.cellOptions",
+                              "value": {
+                                "type": "color-background",
+                                "mode": "gradient"
+                              }
+                            },
+                            {
+                              "id": "thresholds",
+                              "value": {
+                                "mode": "absolute",
+                                "steps": [
+                                  {
+                                    "color": "rgba(50, 172, 45, 0.9)",
+                                    "value": null
+                                  },
+                                  {
+                                    "color": "rgba(237, 129, 40, 0.89)",
+                                    "value": 50
+                                  },
+                                  {
+                                    "color": "rgba(245, 54, 54, 0.9)",
+                                    "value": 100
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "gridPos": {
+                      "h": 9,
+                      "w": 24,
+                      "x": 0,
+                      "y": 46
+                    },
+                    "id": 240,
+                    "options": {
+                      "cellHeight": "sm",
+                      "footer": {
+                        "countRows": false,
+                        "fields": "",
+                        "reducer": [
+                          "sum"
+                        ],
+                        "show": false
+                      },
+                      "showHeader": true,
+                      "sortBy": [
+                        {
+                          "desc": true,
+                          "displayName": "% of request"
+                        }
+                      ]
+                    },
+                    "pluginVersion": "11.2.0",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum by (namespace,container) (kube_pod_container_resource_requests{resource=\"memory\",container!=\"\",container!=\"POD\"}) / 1048576",
+                        "refId": "A",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum by (namespace,container) (avg_over_time(container_memory_working_set_bytes{container!=\"\",container!=\"POD\"}[6h])) / 1048576",
+                        "refId": "B",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "(sum by (namespace,container) (avg_over_time(container_memory_working_set_bytes{container!=\"\",container!=\"POD\"}[6h])) / on(namespace,container) group_left sum by (namespace,container) (kube_pod_container_resource_requests{resource=\"memory\",container!=\"\",container!=\"POD\"})) * 100",
+                        "refId": "C",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      }
+                    ],
+                    "title": "Memory: request vs 6h usage by container",
+                    "transformations": [
+                      {
+                        "id": "merge",
+                        "options": {}
+                      },
+                      {
+                        "id": "organize",
+                        "options": {
+                          "excludeByName": {
+                            "Time": true,
+                            "__name__": true
+                          },
+                          "indexByName": {},
+                          "renameByName": {
+                            "Value #A": "Request (MiB)",
+                            "Value #B": "Usage avg 6h (MiB)",
+                            "Value #C": "% of request"
+                          }
+                        }
+                      }
+                    ],
+                    "type": "table"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "fieldConfig": {
+                      "defaults": {
+                        "custom": {
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "showPoints": "never",
+                          "spanNulls": true
+                        },
+                        "unit": "bytes"
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 55
+                    },
+                    "id": 241,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "bottom"
+                      },
+                      "tooltip": {
+                        "mode": "multi"
+                      }
+                    },
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\",container!=\"\",container!=\"POD\"})",
+                        "refId": "A",
+                        "format": "time_series",
+                        "instant": false,
+                        "range": true,
+                        "legendFormat": "Requested"
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum(container_memory_working_set_bytes{container!=\"\",container!=\"POD\"})",
+                        "refId": "B",
+                        "format": "time_series",
+                        "instant": false,
+                        "range": true,
+                        "legendFormat": "Used"
+                      }
+                    ],
+                    "title": "Cluster memory: requested vs used",
+                    "type": "timeseries",
+                    "description": "Folded from former Resource Requests vs Usage board; not in upstream ONZACK — re-apply on upgrade."
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Same as the memory table but for CPU cores. Note CPU request headroom is node-wide (bin-packing), unlike memory which is usually the tighter constraint on this cluster. Folded from former Resource Requests vs Usage board; not in upstream ONZACK — re-apply on upgrade.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "custom": {
+                          "align": "auto",
+                          "cellOptions": {
+                            "type": "auto"
+                          },
+                          "filterable": true,
+                          "inspect": false
+                        },
+                        "mappings": []
+                      },
+                      "overrides": [
+                        {
+                          "matcher": {
+                            "id": "byName",
+                            "options": "% of request"
+                          },
+                          "properties": [
+                            {
+                              "id": "unit",
+                              "value": "percent"
+                            },
+                            {
+                              "id": "custom.cellOptions",
+                              "value": {
+                                "type": "color-background",
+                                "mode": "gradient"
+                              }
+                            },
+                            {
+                              "id": "thresholds",
+                              "value": {
+                                "mode": "absolute",
+                                "steps": [
+                                  {
+                                    "color": "rgba(50, 172, 45, 0.9)",
+                                    "value": null
+                                  },
+                                  {
+                                    "color": "rgba(237, 129, 40, 0.89)",
+                                    "value": 50
+                                  },
+                                  {
+                                    "color": "rgba(245, 54, 54, 0.9)",
+                                    "value": 100
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "gridPos": {
+                      "h": 9,
+                      "w": 24,
+                      "x": 0,
+                      "y": 63
+                    },
+                    "id": 242,
+                    "options": {
+                      "cellHeight": "sm",
+                      "footer": {
+                        "countRows": false,
+                        "fields": "",
+                        "reducer": [
+                          "sum"
+                        ],
+                        "show": false
+                      },
+                      "showHeader": true,
+                      "sortBy": [
+                        {
+                          "desc": true,
+                          "displayName": "% of request"
+                        }
+                      ]
+                    },
+                    "pluginVersion": "11.2.0",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum by (namespace,container) (kube_pod_container_resource_requests{resource=\"cpu\",container!=\"\",container!=\"POD\"})",
+                        "refId": "A",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum by (namespace,container) (avg_over_time(rate(container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\"}[5m])[6h:5m]))",
+                        "refId": "B",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "(sum by (namespace,container) (avg_over_time(rate(container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\"}[5m])[6h:5m])) / on(namespace,container) group_left sum by (namespace,container) (kube_pod_container_resource_requests{resource=\"cpu\",container!=\"\",container!=\"POD\"})) * 100",
+                        "refId": "C",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      }
+                    ],
+                    "title": "CPU: request vs 6h usage by container",
+                    "transformations": [
+                      {
+                        "id": "merge",
+                        "options": {}
+                      },
+                      {
+                        "id": "organize",
+                        "options": {
+                          "excludeByName": {
+                            "Time": true,
+                            "__name__": true
+                          },
+                          "indexByName": {},
+                          "renameByName": {
+                            "Value #A": "Request (cores)",
+                            "Value #B": "Usage avg 6h (cores)",
+                            "Value #C": "% of request"
+                          }
+                        }
+                      }
+                    ],
+                    "type": "table"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "fieldConfig": {
+                      "defaults": {
+                        "custom": {
+                          "drawStyle": "line",
+                          "fillOpacity": 10,
+                          "lineWidth": 1,
+                          "pointSize": 5,
+                          "showPoints": "never",
+                          "spanNulls": true
+                        },
+                        "unit": "short"
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 72
+                    },
+                    "id": 243,
+                    "options": {
+                      "legend": {
+                        "calcs": [
+                          "lastNotNull",
+                          "max"
+                        ],
+                        "displayMode": "table",
+                        "placement": "bottom"
+                      },
+                      "tooltip": {
+                        "mode": "multi"
+                      }
+                    },
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\",container!=\"\",container!=\"POD\"})",
+                        "refId": "A",
+                        "format": "time_series",
+                        "instant": false,
+                        "range": true,
+                        "legendFormat": "Requested"
+                      },
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\"}[$__rate_interval]))",
+                        "refId": "B",
+                        "format": "time_series",
+                        "instant": false,
+                        "range": true,
+                        "legendFormat": "Used"
+                      }
+                    ],
+                    "title": "Cluster CPU: requested vs used",
+                    "type": "timeseries",
+                    "description": "Folded from former Resource Requests vs Usage board; not in upstream ONZACK — re-apply on upgrade."
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "${datasource}"
+                    },
+                    "description": "Container-level ephemeral-storage usage as a percentage of its configured limit. Rows with no per-container limit set fall back to a node-level percentage and are not a genuine per-container breach -- cross-check against the container's own resources before acting. Folded from former Resource Requests vs Usage board; not in upstream ONZACK — re-apply on upgrade.",
+                    "fieldConfig": {
+                      "defaults": {
+                        "custom": {
+                          "align": "auto",
+                          "cellOptions": {
+                            "type": "color-background",
+                            "mode": "gradient"
+                          },
+                          "filterable": true
+                        },
+                        "unit": "percent",
+                        "thresholds": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "rgba(50, 172, 45, 0.9)",
+                              "value": null
+                            },
+                            {
+                              "color": "rgba(237, 129, 40, 0.89)",
+                              "value": 70
+                            },
+                            {
+                              "color": "rgba(245, 54, 54, 0.9)",
+                              "value": 90
+                            }
+                          ]
+                        }
+                      },
+                      "overrides": []
+                    },
+                    "gridPos": {
+                      "h": 8,
+                      "w": 24,
+                      "x": 0,
+                      "y": 80
+                    },
+                    "id": 244,
+                    "options": {
+                      "cellHeight": "sm",
+                      "footer": {
+                        "countRows": false,
+                        "fields": "",
+                        "reducer": [
+                          "sum"
+                        ],
+                        "show": false
+                      },
+                      "showHeader": true,
+                      "sortBy": [
+                        {
+                          "desc": true,
+                          "displayName": "Value"
+                        }
+                      ]
+                    },
+                    "pluginVersion": "11.2.0",
+                    "targets": [
+                      {
+                        "datasource": {
+                          "type": "prometheus",
+                          "uid": "${datasource}"
+                        },
+                        "expr": "topk(20, ephemeral_storage_container_limit_percentage)",
+                        "refId": "A",
+                        "format": "table",
+                        "instant": true,
+                        "range": false
+                      }
+                    ],
+                    "title": "Ephemeral-storage: top 20 containers by limit percentage",
+                    "type": "table"
+                  }
+                ],
+                "title": "Resource requests vs usage (KRR)",
+                "type": "row",
+                "description": "KRR-style request vs 6h usage tables and ephemeral-storage limit pressure. otaru addition folded from resource-requests-vs-usage; re-apply on ONZACK upgrade."
               }
             ],
             "preload": false,
@@ -12360,7 +13797,9 @@ grafana:
               "recording-rules",
               "prometheus",
               "otaru",
-              "onzack"
+              "onzack",
+              "cadvisor-workloads",
+              "krr"
             ],
             "templating": {
               "list": [
@@ -12486,6 +13925,62 @@ grafana:
                   "query": "0, 0.1, 0.2, 0.25, 0.333, 0.5",
                   "type": "custom",
                   "valuesFormat": "csv"
+                },
+                {
+                  "allValue": ".*",
+                  "current": {
+                    "selected": true,
+                    "text": "All",
+                    "value": "$__all"
+                  },
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "definition": "label_values(machine_memory_bytes, instance)",
+                  "hide": 0,
+                  "includeAll": true,
+                  "label": "cAdvisor instance",
+                  "multi": true,
+                  "name": "cadvisor_instance",
+                  "options": [],
+                  "query": {
+                    "query": "label_values(machine_memory_bytes, instance)",
+                    "refId": "OtaruCadvisorInstance"
+                  },
+                  "refresh": 2,
+                  "regex": "",
+                  "skipUrlSync": false,
+                  "sort": 1,
+                  "type": "query"
+                },
+                {
+                  "allValue": ".*",
+                  "current": {
+                    "selected": true,
+                    "text": "All",
+                    "value": "$__all"
+                  },
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "definition": "label_values(container_memory_working_set_bytes, namespace)",
+                  "hide": 0,
+                  "includeAll": true,
+                  "label": "Namespace",
+                  "multi": true,
+                  "name": "namespace",
+                  "options": [],
+                  "query": {
+                    "query": "label_values(container_memory_working_set_bytes, namespace)",
+                    "refId": "OtaruNamespace"
+                  },
+                  "refresh": 2,
+                  "regex": "",
+                  "skipUrlSync": false,
+                  "sort": 1,
+                  "type": "query"
                 }
               ]
             },
@@ -12510,7 +14005,7 @@ grafana:
             "timezone": "browser",
             "title": "Standard Cluster Monitoring",
             "uid": "ozk-std-clstr-mon",
-            "version": 117,
+            "version": 119,
             "weekStart": "",
             "gnetId": 17404
           }
