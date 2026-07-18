@@ -823,7 +823,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Denylist/source download failures in range (was missing from old dashboard)",
+                "description": "Total denylist/source download failures in the selected dashboard time range (sum of increases). For when they happened, use the Failures graph below.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1490,7 +1490,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Error and denylist download failure rates",
+                "description": "Errors and denylist download failures per graph step ($__rate_interval). Bars go up when failures occur in that period and sit at zero when none happen.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1507,7 +1507,7 @@ grafana:
                       ]
                     },
                     "unit": "short",
-                    "decimals": 3,
+                    "decimals": 0,
                     "custom": {
                       "axisBorderShow": false,
                       "axisCenteredZero": false,
@@ -1515,8 +1515,8 @@ grafana:
                       "axisLabel": "",
                       "axisPlacement": "auto",
                       "barAlignment": 0,
-                      "drawStyle": "line",
-                      "fillOpacity": 15,
+                      "drawStyle": "bars",
+                      "fillOpacity": 80,
                       "gradientMode": "none",
                       "hideFrom": {
                         "legend": false,
@@ -1534,7 +1534,7 @@ grafana:
                       "spanNulls": false,
                       "stacking": {
                         "group": "A",
-                        "mode": "none"
+                        "mode": "normal"
                       },
                       "thresholdsStyle": {
                         "mode": "off"
@@ -1553,7 +1553,7 @@ grafana:
                 "options": {
                   "legend": {
                     "calcs": [
-                      "mean",
+                      "sum",
                       "max"
                     ],
                     "displayMode": "table",
@@ -1573,8 +1573,8 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_error_total{job=~\"$job\"}[5m])) * 60",
-                    "legendFormat": "errors/min",
+                    "expr": "sum(increase(blocky_error_total{job=~\"$job\"}[$__rate_interval]))",
+                    "legendFormat": "errors",
                     "range": true,
                     "refId": "A"
                   },
@@ -1584,8 +1584,8 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(blocky_failed_downloads_total{job=~\"$job\"}[5m])) * 60",
-                    "legendFormat": "failed downloads/min",
+                    "expr": "sum(increase(blocky_failed_downloads_total{job=~\"$job\"}[$__rate_interval]))",
+                    "legendFormat": "failed downloads",
                     "range": true,
                     "refId": "B"
                   }
@@ -2313,6 +2313,6 @@ grafana:
             "timezone": "browser",
             "title": "blocky",
             "uid": "JvOqE4gRk",
-            "version": 11,
+            "version": 12,
             "weekStart": ""
           }
