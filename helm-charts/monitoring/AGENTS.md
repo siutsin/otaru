@@ -21,6 +21,10 @@ Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 `container-log-dashboard`, which pins a Grafana.com revision). Editing UI is
 disabled (`allowUiUpdates: false`). Changes require a PR and Argo reconcile.
 
+Every Standard Cluster Monitoring panel (and row) should keep a **description**
+explaining the metric in plain language (hover in Grafana). When re-vendoring,
+re-apply or regenerate descriptions rather than shipping empty ones.
+
 Standard Cluster Monitoring auto-refreshes every **1m** (Prometheus scrape
 interval). Keep that cadence when re-vendoring unless scrape interval changes.
 
