@@ -6,25 +6,17 @@ locals {
   aws_remote_backend_region = local.region_vars.aws_remote_backend_region
   aws_region                = local.region_vars.aws_region
 
-  b2_version            = local.version_vars.b2_version
-  b2_application_key    = get_env("B2_APPLICATION_KEY")
-  b2_application_key_id = get_env("B2_APPLICATION_KEY_ID")
-
-  cloudflare_version   = local.version_vars.cloudflare_version
-  cloudflare_api_token = get_env("CLOUDFLARE_API_TOKEN")
-
-  github_token   = trimspace(run_cmd("--terragrunt-quiet", "--terragrunt-global-cache", "gh", "auth", "token"))
-  github_version = local.version_vars.github_version
-
-  unifi_username = get_env("UNIFI_USERNAME")
-  unifi_password = get_env("UNIFI_PASSWORD")
-  unifi_api_url  = get_env("UNIFI_API_URL")
-  unifi_version  = local.version_vars.unifi_version
+  b2_version         = local.version_vars.b2_version
+  cloudflare_version = local.version_vars.cloudflare_version
+  github_version     = local.version_vars.github_version
+  unifi_version      = local.version_vars.unifi_version
 }
 
 # Configure Terragrunt to use OpenTofu instead of Terraform
 terraform_binary = "tofu"
 
+# Provider credentials are read from the process environment (see documentation/secrets.md).
+# Do not interpolate secrets into this generate block — they would land in .terragrunt-cache.
 generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite"
@@ -65,25 +57,17 @@ provider "aws" {
   }
 }
 
-provider "b2" {
-  application_key    = "${local.b2_application_key}"
-  application_key_id = "${local.b2_application_key_id}"
-}
+# Credentials: B2_APPLICATION_KEY, B2_APPLICATION_KEY_ID
+provider "b2" {}
 
-provider "cloudflare" {
-  api_token = "${local.cloudflare_api_token}"
-}
+# Credentials: CLOUDFLARE_API_TOKEN
+provider "cloudflare" {}
 
-provider "github" {
-  token = "${local.github_token}"
-}
+# Credentials: GITHUB_TOKEN
+provider "github" {}
 
-provider "unifi" {
-  username       = "${local.unifi_username}"
-  password       = "${local.unifi_password}"
-  api_url        = "${local.unifi_api_url}"
-  allow_insecure = true # self-signed for now
-}
+# Credentials: UNIFI_USERNAME, UNIFI_PASSWORD, UNIFI_API
+provider "unifi" {}
 EOF
 }
 
