@@ -279,11 +279,11 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Resident set size: RAM the Blocky process is using now (sum across pods; each pod limit is 512Mi)",
+                "description": "RAM used by the Blocky process in each pod (process resident set size / RSS). One value per running pod; each pod memory limit is 512Mi. Not container working-set from cAdvisor.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
-                      "mode": "thresholds"
+                      "mode": "palette-classic"
                     },
                     "mappings": [],
                     "thresholds": {
@@ -309,9 +309,9 @@ grafana:
                 "id": 5,
                 "options": {
                   "colorMode": "value",
-                  "graphMode": "area",
+                  "graphMode": "none",
                   "justifyMode": "auto",
-                  "orientation": "auto",
+                  "orientation": "horizontal",
                   "percentChangeColorMode": "standard",
                   "reduceOptions": {
                     "calcs": [
@@ -321,7 +321,7 @@ grafana:
                     "values": false
                   },
                   "showPercentChange": false,
-                  "textMode": "auto",
+                  "textMode": "value_and_name",
                   "wideLayout": true
                 },
                 "pluginVersion": "11.2.1",
@@ -332,13 +332,14 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(process_resident_memory_bytes{job=~\"$job\",namespace=\"blocky\"})",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
+                    "expr": "sum by (pod) (process_resident_memory_bytes{job=~\"$job\",namespace=\"blocky\"})",
+                    "legendFormat": "{{pod}}",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
                   }
                 ],
-                "title": "Process memory",
+                "title": "Memory per pod",
                 "transparent": true,
                 "type": "stat"
               },
@@ -1665,84 +1666,28 @@ grafana:
                 "type": "piechart"
               },
               {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Resolver cache entries per replica",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        }
-                      ]
-                    },
-                    "unit": "short",
-                    "decimals": 0
-                  },
-                  "overrides": []
-                },
+                "collapsed": false,
                 "gridPos": {
-                  "h": 7,
-                  "w": 12,
+                  "h": 1,
+                  "w": 24,
                   "x": 0,
                   "y": 52
                 },
-                "id": 24,
-                "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
-                    "calcs": [
-                      "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                  },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(blocky_cache_entries{job=~\"$job\"}) / clamp_min(count(blocky_blocking_enabled{job=~\"$job\"}), 1)",
-                    "legendFormat": "",
-                    "range": false,
-                    "refId": "A",
-                    "instant": true
-                  }
-                ],
-                "title": "Cache entries",
-                "transparent": true,
-                "type": "stat"
+                "id": 26,
+                "panels": [],
+                "title": "Resources (per pod)",
+                "type": "row"
               },
               {
                 "datasource": {
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "Total process CPU cores used by Blocky pods",
+                "description": "Resident set size per Blocky pod (process RAM). Each pod memory limit is 512Mi.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
-                      "mode": "thresholds"
+                      "mode": "palette-classic"
                     },
                     "mappings": [],
                     "thresholds": {
@@ -1754,34 +1699,65 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "percentunit",
-                    "decimals": 2
+                    "unit": "bytes",
+                    "decimals": 1,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 20,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
                   },
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 8,
                   "w": 12,
-                  "x": 12,
-                  "y": 52
+                  "x": 0,
+                  "y": 53
                 },
-                "id": 25,
+                "id": 24,
                 "options": {
-                  "colorMode": "value",
-                  "graphMode": "area",
-                  "justifyMode": "auto",
-                  "orientation": "auto",
-                  "percentChangeColorMode": "standard",
-                  "reduceOptions": {
+                  "legend": {
                     "calcs": [
+                      "mean",
+                      "max",
                       "lastNotNull"
                     ],
-                    "fields": "",
-                    "values": false
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
                   },
-                  "showPercentChange": false,
-                  "textMode": "auto",
-                  "wideLayout": true
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
                 },
                 "pluginVersion": "11.2.1",
                 "targets": [
@@ -1791,15 +1767,114 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(process_cpu_seconds_total{job=~\"$job\",namespace=\"blocky\"}[$__rate_interval]))",
-                    "legendFormat": "",
+                    "expr": "sum by (pod) (process_resident_memory_bytes{job=~\"$job\",namespace=\"blocky\"})",
+                    "legendFormat": "{{pod}}",
                     "range": true,
                     "refId": "A"
                   }
                 ],
-                "title": "CPU",
+                "title": "Memory by pod",
                 "transparent": true,
-                "type": "stat"
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "CPU cores used by each Blocky pod (1.0 = one full core). From process_cpu_seconds_total.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "none",
+                    "decimals": 3,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "cores",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 20,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 53
+                },
+                "id": 25,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (pod) (rate(process_cpu_seconds_total{job=~\"$job\",namespace=\"blocky\"}[$__rate_interval]))",
+                    "legendFormat": "{{pod}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "CPU by pod (cores)",
+                "transparent": true,
+                "type": "timeseries"
               }
             ],
             "refresh": "auto",
@@ -1862,6 +1937,6 @@ grafana:
             "timezone": "browser",
             "title": "blocky",
             "uid": "JvOqE4gRk",
-            "version": 15,
+            "version": 16,
             "weekStart": ""
           }
