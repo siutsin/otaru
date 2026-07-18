@@ -2,12 +2,18 @@ descheduler:
   kind: Deployment
   resources:
     # KRR 2026-07-05: live peak ~100Mi working set; 256Mi request was never approached.
+    # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe
+    # downsize). KRR also flags the 500m CPU limit as unnecessary, but it is
+    # inherited from the vendored chart's own default (this file never sets
+    # it) and a plain values.yaml `null` does not remove a subchart-default
+    # key on merge (confirmed via `helm template`) -- left as is rather than
+    # fighting the chart with a hackier override.
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 10m
+      memory: 100Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 128Mi
+      memory: 100Mi
       ephemeral-storage: 64Mi
   deschedulerPolicy:
     profiles:
