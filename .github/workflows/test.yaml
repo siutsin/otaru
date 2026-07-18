@@ -42,12 +42,12 @@ jobs:
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2
         with:
-          tofu_version: '1.12.0'
+          tofu_version: '1.12.4'
 
       - name: Setup Terragrunt
         uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
         with:
-          terragrunt-version: latest
+          terragrunt-version: '1.1.1'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install editorconfig-checker
