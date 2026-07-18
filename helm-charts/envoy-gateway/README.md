@@ -15,6 +15,10 @@ workload and use the mesh path to ambient backends.
 UDP listeners can remain on the same Envoy Gateway, but they still do not gain
 Istio mTLS. This chart change is about the TCP and HTTP ingress path.
 
+The generated Envoy proxy pods set `ambient.istio.io/dns-capture=false`. Without
+that, ambient DNS capture steals Envoy's outbound connections to backend port
+53 and answers via cluster DNS, so Blocky never sees north-south DNS traffic.
+
 The shared ambient waypoint still lives in `istio-waypoints` for east-west L7
 handling. The ingress proxy is ambient-enrolled, but it is not enrolled to use
 that shared waypoint itself.

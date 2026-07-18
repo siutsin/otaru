@@ -18,6 +18,11 @@ kind: Service
 metadata:
   name: {{ .Values.name }}-dns
   namespace: {{ .Values.namespace }}
+  labels:
+    # Plain DNS is L4 UDP/TCP, not HTTP. Keep this Service off the shared
+    # waypoint so Envoy's DNS routes hit Blocky endpoints directly instead of
+    # the L7 waypoint path used by the HTTP DoH/metrics Service.
+    istio.io/use-waypoint: none
 spec:
   selector:
     app.kubernetes.io/name: {{ .Values.name }}

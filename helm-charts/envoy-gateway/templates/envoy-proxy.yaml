@@ -13,6 +13,12 @@ spec:
           resources:
 {{ toYaml .Values.envoyProxy.resources | indent 12 }}
         pod:
+          # Ambient DNS capture intercepts outbound UDP/TCP 53 from the proxy
+          # and answers via cluster DNS, so Envoy's DNS UDPRoute/TCPRoute never
+          # reaches blocky. Opt the proxy pods out so north-south DNS on :53 is
+          # plain-proxied to blocky-dns.
+          annotations:
+            ambient.istio.io/dns-capture: "false"
           affinity:
 {{ toYaml .Values.envoyProxy.affinity | indent 12 }}
         # Envoy Gateway v1.8 has no first-class field for the
