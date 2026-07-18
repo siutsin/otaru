@@ -269,10 +269,16 @@ format-python: poetry-install ## Format Python code with black
 	@cd diagrams && poetry run black . && cd ..
 	@echo "$(GREEN)Python code formatting complete!$(NC)"
 
+.PHONY: validate-grafana-dashboards
+validate-grafana-dashboards: ## Validate Grafana dashboard embeds (PromQL targets / obsolete selectors)
+	@echo "$(GREEN)Validating Grafana dashboards...$(NC)"
+	@python3 scripts/validate-grafana-dashboards.py
+	@echo "$(GREEN)Grafana dashboard validation passed!$(NC)"
+
 .PHONY: test
 test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform \
 	lint-terragrunt check-markdown lint-zizmor validate-helm-charts \
-	check-image-digests ## Run all validation and quality checks
+	check-image-digests validate-grafana-dashboards ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
