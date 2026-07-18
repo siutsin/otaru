@@ -84,12 +84,17 @@ browser:
     # KRR 2026-07-05: Playwright browser peaked at ~1.08Gi during Amazon watch fetches; 1Gi left ~6Mi headroom.
     # KRR 2026-07-09: 14-day peak grew to ~1.28Gi, exceeding the 1152Mi limit set above. Bumped to 1408Mi for headroom.
     # KRR 2026-07-18: CPU CRITICAL, 14d peak needs ~1189m against the 50m
-    # request (memory unaffected, still GOOD at 1408Mi). Deployment uses
-    # Recreate; raspberrypi-03 (its current node, 62% CPU requests) frees
-    # the old 50m before scheduling the new pod, and rpi-02 has 1395m free
-    # as a fallback if the scheduler places it elsewhere.
+    # request (memory unaffected, still GOOD at 1408Mi).
+    # KRR 2026-07-18 (hotfix): the full 1189m request left this pod
+    # Pending -- concurrent CPU upsizes in the same rollout (argocd-repo-
+    # server to nuc-00, umami and kyverno-reports-controller relocating)
+    # left no single node with both 1199m free CPU and 1536Mi free memory
+    # at once. raspberrypi-03 (this pod's usual node) had 865m CPU free
+    # but needed 1199m; every other node was short on memory instead.
+    # Reduced to 700m, which fits raspberrypi-03 with ~155m spare. Full
+    # KRR target deferred to a later pass once cluster headroom improves.
     requests:
-      cpu: 1189m
+      cpu: 700m
       memory: 1408Mi
       ephemeral-storage: 1Gi
     limits:
