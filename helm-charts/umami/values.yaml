@@ -28,12 +28,16 @@ deployment:
   replicas: 1
   resources:
     # KRR 2026-07-05: live peak ~340Mi working set; 256Mi request left ~84Mi headroom.
+    # KRR 2026-07-18: CPU WARNING, 14d peak needs ~359m against the 50m
+    # request; memory peak dropped to ~313Mi (GOOD), so downsized to match.
+    # raspberrypi-01 (its current node, 81% CPU requests, 725m free) has
+    # room for the RollingUpdate surge.
     requests:
-      cpu: 50m
-      memory: 384Mi
+      cpu: 359m
+      memory: 320Mi
       ephemeral-storage: 256Mi
     limits:
-      memory: 384Mi
+      memory: 320Mi
       ephemeral-storage: 256Mi
 
 routes:

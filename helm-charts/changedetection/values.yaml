@@ -83,8 +83,13 @@ browser:
   resources:
     # KRR 2026-07-05: Playwright browser peaked at ~1.08Gi during Amazon watch fetches; 1Gi left ~6Mi headroom.
     # KRR 2026-07-09: 14-day peak grew to ~1.28Gi, exceeding the 1152Mi limit set above. Bumped to 1408Mi for headroom.
+    # KRR 2026-07-18: CPU CRITICAL, 14d peak needs ~1189m against the 50m
+    # request (memory unaffected, still GOOD at 1408Mi). Deployment uses
+    # Recreate; raspberrypi-03 (its current node, 62% CPU requests) frees
+    # the old 50m before scheduling the new pod, and rpi-02 has 1395m free
+    # as a fallback if the scheduler places it elsewhere.
     requests:
-      cpu: 50m
+      cpu: 1189m
       memory: 1408Mi
       ephemeral-storage: 1Gi
     limits:
