@@ -1391,6 +1391,8 @@ landed before assuming it's resolved.
 
 [argocd-28440]: https://github.com/argoproj/argo-cd/pull/28440
 
+---
+
 ## Ambient DNS Capture Steals Envoy Gateway North-South DNS to Blocky
 
 **Problem:** Blocky pods are healthy and block ads when queried on the pod IP
@@ -1408,21 +1410,23 @@ path instead of delivering the packet to Blocky. Access logs can show
 `upstream_host` set to a Blocky pod IP with a ~155-byte unblocked answer,
 which is misleading.
 
-**Fingerprint:**
+### Symptoms: VIP Answers Without Hitting Blocky
 
 | Path | `doubleclick.net` | `unifi` |
 | ---- | ----------------- | ------ |
-| Blocky pod IP (hostNetwork dig) | `0.0.0.0` | `192.168.10.1` TTL 3600, one answer |
-| VIP while capture is on | real Google IPs | often TTL 5 / two answers / wrong source |
-| VIP after capture is off | `0.0.0.0` | `192.168.10.1` TTL 3600, one answer |
+| Blocky pod IP (hostNetwork dig) | `0.0.0.0` | `192.168.10.1` (TTL 3600, one answer) |
+| VIP while capture is on | real Google IPs | often TTL 5, two answers, or wrong source |
+| VIP after capture is off | `0.0.0.0` | `192.168.10.1` (TTL 3600, one answer) |
 
-**Resolution:** set `ambient.istio.io/dns-capture: "false"` on the Envoy
-proxy pod template (`EnvoyProxy` → `envoyDeployment.pod.annotations`). Also
-keep the `blocky-dns` Service off the shared waypoint
-(`istio.io/use-waypoint: none`) so plain DNS stays L4 to Blocky endpoints;
-the HTTP `blocky` Service can remain waypoint-bound for DoH/metrics AuthZ.
+### Resolution: Disable DNS Capture on Envoy Proxy Pods
 
-**Verify after change:**
+Set `ambient.istio.io/dns-capture: "false"` on the Envoy proxy pod template
+(`EnvoyProxy` → `envoyDeployment.pod.annotations`). Also keep the
+`blocky-dns` Service off the shared waypoint (`istio.io/use-waypoint: none`)
+so plain DNS stays L4 to Blocky endpoints. The HTTP `blocky` Service can
+remain waypoint-bound for DoH/metrics AuthZ.
+
+Verify after change:
 
 ```shell
 dig @192.168.10.51 doubleclick.net +short   # expect 0.0.0.0
@@ -1432,3 +1436,5 @@ dig @192.168.10.51 unifi +short             # expect 192.168.10.1
 Do not dig Blocky pod IPs from a LAN laptop: `10.42.0.0/16` is not routed
 off-cluster, so those queries time out without saying anything about Blocky
 health.
+
+---
