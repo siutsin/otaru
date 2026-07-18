@@ -96,10 +96,11 @@ remote_state {
   }
 
   config = {
-    bucket  = "github-otaru-${local.aws_remote_backend_region}-terraform-state"
-    key     = "${path_relative_to_include()}/terraform.tfstate"
-    region  = local.aws_remote_backend_region
-    encrypt = true
+    bucket       = "github-otaru-${local.aws_remote_backend_region}-terraform-state"
+    key          = "${path_relative_to_include()}/terraform.tfstate"
+    region       = local.aws_remote_backend_region
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
