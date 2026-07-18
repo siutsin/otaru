@@ -65,6 +65,9 @@ When re-vendoring 17404, re-apply:
 4. **Dashboard** — `noderole` include All (`.*`); kubelet errors match
    `job=~"kubelet|kubernetes-api-servers"`. Recording metric names use the
    `role:` prefix where upstream records `role:kube_node_status_*:avg`.
+5. **Empty limits** — many workloads set no CPU limits. Pure sum panels for
+   limits (especially `namespace=~"kube-.*|..."`) use `or vector(0)` so Grafana
+   shows **0** instead of **No data**.
 
 ### Upgrading the dashboard
 

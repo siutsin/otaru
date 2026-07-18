@@ -3513,7 +3513,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "",
@@ -3780,7 +3780,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
@@ -4046,7 +4046,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "",
@@ -4313,7 +4313,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
@@ -4512,7 +4512,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})) or vector(0)",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "",
@@ -4711,7 +4711,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
@@ -5083,7 +5083,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum by (node) (kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})",
+                        "expr": "(sum by (node) (kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})) or vector(0)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -5506,7 +5506,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum by (node) (kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"})",
+                        "expr": "(sum by (node) (kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"})) or vector(0)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -9115,7 +9115,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "apps",
                         "refId": "B"
@@ -9126,7 +9126,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "k8s",
                         "refId": "D"
@@ -9415,7 +9415,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "apps",
                         "refId": "B"
@@ -9426,7 +9426,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "k8s",
                         "refId": "D"
@@ -9507,7 +9507,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "100\n/\nsum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})\n*\nsum(container_cpu_usage_seconds_total:sum_rate5m:namespace{role=~\"$noderole\"})",
+                        "expr": "100\n/\nclamp_min(sum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"}) or vector(0), 1e-9)\n*\nsum(container_cpu_usage_seconds_total:sum_rate5m:namespace{role=~\"$noderole\"})",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "",
@@ -9725,7 +9725,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "apps (limits)",
                         "refId": "C"
@@ -9747,7 +9747,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\"} * on(node) group_left() instance:kube_node_role{role=~\"$noderole\"})",
+                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"}) or vector(0)",
                         "interval": "",
                         "legendFormat": "k8s (limits)",
                         "refId": "E"
@@ -9817,7 +9817,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "100\n/\nsum(kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"})\n*\nsum(container_memory_working_set_bytes:sum:namespace{role=~\"$noderole\"})",
+                        "expr": "100\n/\nclamp_min(sum(kube_pod_container_resource_limits:memory:running:namespace{role=~\"$noderole\"}) or vector(0), 1e-9)\n*\nsum(container_memory_working_set_bytes:sum:namespace{role=~\"$noderole\"})",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "",
@@ -10035,7 +10035,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace!~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "apps (limits)",
                         "refId": "C"
@@ -10057,7 +10057,7 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:memory:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "(sum(kube_pod_container_resource_limits:memory:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})) or vector(0)",
                         "interval": "",
                         "legendFormat": "k8s (limits)",
                         "refId": "E"
@@ -12383,7 +12383,7 @@ grafana:
             "timezone": "browser",
             "title": "Standard Cluster Monitoring",
             "uid": "ozk-std-clstr-mon",
-            "version": 114,
+            "version": 115,
             "weekStart": "",
             "gnetId": 17404
           }
