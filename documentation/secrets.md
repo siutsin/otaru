@@ -51,7 +51,12 @@ export CLOUDFLARE_ZONE_TUNNEL_IP_LIST='["1.2.3.4/32"]'
 export CLOUDFLARE_DNS_IP=192.168.12.34
 export CLOUDFLARE_DNS_SUBDOMAINS='["subdomain1.internal","subdomain2.internal"]'
 
+# UniFi provider reads UNIFI_API (not UNIFI_API_URL). Keep both if other tools
+# still use UNIFI_API_URL.
 export UNIFI_API_URL=...
+export UNIFI_API="${UNIFI_API_URL}"
+export UNIFI_USERNAME=...
+export UNIFI_PASSWORD=...
 export UNIFI_LHR_WLAN01_PASSWORD=...
 export UNIFI_LHR_WLAN01_SSID=...
 export UNIFI_LHR_WLAN02_PASSWORD=...
@@ -60,13 +65,26 @@ export UNIFI_LHR_WLAN03_PASSWORD=...
 export UNIFI_LHR_WLAN03_SSID=...
 export UNIFI_LHR_WLAN04_PASSWORD=...
 export UNIFI_LHR_WLAN04_SSID=...
-export UNIFI_PASSWORD=...
-export UNIFI_USERNAME=...
+
+# OpenTofu GitHub provider (Access unit IP data source). Prefer env over
+# embedding tokens in generated provider.tf / .terragrunt-cache.
+export GITHUB_TOKEN="$(gh auth token)"
 ```
 
-GitHub authentication is read from the GitHub CLI instead of this envrc file.
-Run `gh auth login` before using Terraform/Terragrunt targets or Helm OCI chart
-dependency updates that need GitHub access.
+OpenTofu/Terragrunt providers take credentials from the environment only
+(see `infrastructure/root.hcl`):
+
+| Provider   | Environment variables                                                      |
+| ---------- | -------------------------------------------------------------------------- |
+| AWS        | standard AWS SDK chain (`AWS_PROFILE`, keys, etc.)                         |
+| B2         | `B2_APPLICATION_KEY`, `B2_APPLICATION_KEY_ID`                              |
+| Cloudflare | `CLOUDFLARE_API_TOKEN`                                                     |
+| GitHub     | `GITHUB_TOKEN`                                                             |
+| UniFi      | `UNIFI_USERNAME`, `UNIFI_PASSWORD`, `UNIFI_API`                            |
+
+Run `gh auth login` before Terraform targets or Helm OCI chart updates that
+need GitHub. Export `GITHUB_TOKEN` as above so the GitHub provider does not
+need `gh` invoked from Terragrunt.
 
 ## `1password-credentials.json`
 
