@@ -142,6 +142,7 @@ local _grafanaDashboards = [
   'dashboards/k3s-cluster-monitoring.yaml',
   'dashboards/onzack-cluster-monitoring.yaml',
   'dashboards/prometheus-stats.yaml',
+  'dashboards/resource-requests-vs-usage.yaml',
 ];
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
