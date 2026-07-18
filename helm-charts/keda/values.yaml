@@ -8,29 +8,35 @@ _shared:
 
 keda:
   resources:
+    # KRR 2026-07-18: 14d peaks all GOOD-rated -- downsize CPU requests and
+    # correct memory requests to the observed peak. KRR also flags the
+    # 1-core CPU limit on each as unnecessary, but it is inherited from the
+    # vendored chart's own defaults (this file never sets limits.cpu) and a
+    # plain values.yaml `null` does not remove a subchart-default key on
+    # merge (confirmed via `helm template`) -- left as is.
     operator:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 10m
+        memory: 150Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 150Mi
         ephemeral-storage: 64Mi
     metricServer:
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 17m
+        memory: 140Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 140Mi
         ephemeral-storage: 64Mi
     webhooks:
       requests:
-        cpu: 50m
-        memory: 64Mi
+        cpu: 10m
+        memory: 100Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 64Mi
+        memory: 100Mi
         ephemeral-storage: 64Mi
   operator:
     affinity:

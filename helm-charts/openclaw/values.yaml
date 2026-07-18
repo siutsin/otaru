@@ -125,8 +125,13 @@ probes:
 
 resources:
   # KRR 2026-07-05: live peak ~763Mi working set; 1Gi request reserved ~1.3x actual usage.
+  # KRR 2026-07-18: CPU CRITICAL, 14d peak needs ~1150m against the 320m
+  # request. Deferred previously while this pod was forced onto arm64 by a
+  # mispinned digest; PR #2842 removed that nodeSelector. Deployment uses
+  # Recreate, so raspberrypi-03 (its current node, 62% CPU requests) frees
+  # the old 320m before scheduling the new pod — 1150m fits comfortably.
   requests:
-    cpu: 320m
+    cpu: 1150m
     memory: 768Mi
     ephemeralStorage: 1Gi
   limits:

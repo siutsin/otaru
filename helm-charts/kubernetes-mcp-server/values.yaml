@@ -11,13 +11,18 @@ kubernetes-mcp-server:
   service:
     port: 8080
   fullnameOverride: kubernetes-mcp-server
+  # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe
+  # downsize). KRR also flags the 100m CPU limit as unnecessary, but it is
+  # inherited from the vendored chart's own default (this file never sets
+  # it) and a plain values.yaml `null` does not remove a subchart-default
+  # key on merge (confirmed via `helm template`) -- left as is.
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 10m
+      memory: 100Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 128Mi
+      memory: 100Mi
       ephemeral-storage: 64Mi
   affinity:
     podAntiAffinity:

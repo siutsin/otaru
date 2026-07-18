@@ -18,4 +18,16 @@ kyverno:
   cleanupController:
     resources: *resources
   reportsController:
-    resources: *resources
+    # KRR 2026-07-18: CPU WARNING, 14d peak needs ~335m against the shared
+    # 50m request (memory unaffected, still GOOD at 128Mi). Split out from
+    # the shared &resources anchor so the other three controllers keep
+    # their existing 50m request. raspberrypi-00 (its current node, 77%
+    # CPU requests, 895m free) has room for the RollingUpdate surge.
+    resources:
+      requests:
+        cpu: 335m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi

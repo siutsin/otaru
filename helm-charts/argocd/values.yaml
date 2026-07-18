@@ -152,15 +152,17 @@ argo-cd:
     # KRR 2026-07-12: 14d peak 380Mi against a 768Mi request/limit (WARNING,
     # ~2x headroom). Downsized to 512Mi, keeping ~35% margin over peak given
     # the cold-cache render spikes noted on reposerver.parallelism.limit
-    # above. CPU is a separate, deferred item: KRR wants ~1.7 cores against
-    # the current 250m (CRITICAL), but the nodes this pod can land on are
-    # already at 63-69% CPU requests, and a jump this size risks
-    # near-saturating whichever one it schedules on. CPU throttling
-    # degrades gracefully (unlike an OOM), so leaving this deferred is a
-    # smaller risk than following KRR blindly on a memory-tight cluster.
+    # above. CPU was deferred at the time: KRR wanted ~1.7 cores against the
+    # current 250m (CRITICAL), but this pod was still forced onto arm64 by a
+    # mispinned digest, and all 4 arm64 nodes sat at 63-69% CPU requests.
+    # KRR 2026-07-18: PR #2842 removed the arm64 nodeSelector (mispinned
+    # digest fixed). nuc-00 (amd64, now a valid target) sits at 47% CPU
+    # requests (2115m free of 4000m) and already hosts this pod, so applying
+    # the 1678m recommendation now: RollingUpdate surge peaks at ~3563m/4000m
+    # (89%) on nuc-00, well within capacity.
     resources:
       requests:
-        cpu: 250m
+        cpu: 1678m
         memory: 512Mi
         ephemeral-storage: 512Mi
       limits:
