@@ -21,6 +21,9 @@ Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 `container-log-dashboard`, which pins a Grafana.com revision). Editing UI is
 disabled (`allowUiUpdates: false`). Changes require a PR and Argo reconcile.
 
+Standard Cluster Monitoring auto-refreshes every **1m** (Prometheus scrape
+interval). Keep that cadence when re-vendoring unless scrape interval changes.
+
 Validate with `python3 scripts/validate-grafana-dashboards.py` (also via
 `make test`). Forbidden selectors include bare `job="node-exporter"` and the
 broken `cattle-.*openshift` regex.
@@ -62,6 +65,9 @@ When re-vendoring 17404, re-apply:
 4. **Dashboard** — `noderole` include All (`.*`); kubelet errors match
    `job=~"kubelet|kubernetes-api-servers"`. Recording metric names use the
    `role:` prefix where upstream records `role:kube_node_status_*:avg`.
+5. **Empty limits** — many workloads set no CPU limits. Pure sum panels for
+   limits (especially `namespace=~"kube-.*|..."`) use `or vector(0)` so Grafana
+   shows **0** instead of **No data**.
 
 ### Upgrading the dashboard
 
