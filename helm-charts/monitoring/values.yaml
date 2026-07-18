@@ -129,6 +129,145 @@ prometheus:
                 sum by (namespace, pod) (
                   container_memory_working_set_bytes{job="kubernetes-nodes-cadvisor", pod!="", container!="", container!="POD"}
                 )
+        # ONZACK Standard Cluster Monitoring (grafana.com/dashboards/17404) recording rules.
+        # Source: github.com/onzack/grafana-dashboards prometheus/recording-rules.
+        # otaru adaptations: unlabeled nodes get role=worker; node-exporter job is
+        # kubernetes-service-endpoints (not job=node-exporter).
+        - name: onzack-cluster-common
+          rules:
+            - record: instance:kube_node_role
+              expr: |
+                (
+                  topk by (node) (1,
+                    max by (node, role) (
+                      (kube_node_role{role="control-plane"} * 2)
+                      OR
+                      (kube_node_role{role!="control-plane"} * 1)
+                    )
+                    /
+                    max by (node, role) (
+                      (kube_node_role{role="control-plane"} * 2)
+                      OR
+                      (kube_node_role{role!="control-plane"} * 1)
+                    )
+                    * on(node) group_left(instance)
+                    label_replace(node_uname_info, "node", "$1", "nodename", "(.*)")
+                  )
+                )
+                OR
+                (
+                  label_replace(
+                    (
+                      group by (node) (kube_node_info)
+                      unless on (node) group by (node) (kube_node_role)
+                    )
+                    * on(node) group_left(instance)
+                    label_replace(node_uname_info, "node", "$1", "nodename", "(.*)"),
+                    "role", "worker", "", ""
+                  )
+                )
+        - name: onzack-cluster-cpu
+          rules:
+            - record: node_cpu_seconds_total:sum_rate5m
+              expr: sum by (cpu,instance,node,role) (rate(node_cpu_seconds_total{mode!="idle"}[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: kube_node_status_capacity:cpu:sum
+              expr: sum by (node,role) (kube_node_status_capacity{resource="cpu"} * on(node) group_left(role) instance:kube_node_role)
+            - record: role:kube_node_status_capacity:cpu:avg
+              expr: avg by (role) (kube_node_status_capacity{resource="cpu"} * on(node) group_left(role) instance:kube_node_role)
+            - record: kube_node_status_allocatable:cpu:sum
+              expr: sum by (node,role) (kube_node_status_allocatable{resource="cpu"} * on(node) group_left(role) instance:kube_node_role)
+            - record: role:kube_node_status_allocatable:cpu:avg
+              expr: avg by (role) (kube_node_status_allocatable{resource="cpu"} * on(node) group_left(role) instance:kube_node_role)
+        - name: onzack-cluster-memory
+          rules:
+            - record: node_memory_MemUsed_bytes:sum
+              expr: |
+                sum by (instance,node,role) (
+                  (
+                    node_memory_MemTotal_bytes{job=~"kubernetes-service-endpoints|node-exporter"}
+                    - node_memory_MemAvailable_bytes{job=~"kubernetes-service-endpoints|node-exporter"}
+                  ) * on(instance) group_left(node,role) instance:kube_node_role
+                )
+            - record: kube_node_status_capacity:memory:sum
+              expr: sum by (node,role) (kube_node_status_capacity{resource="memory"} * on(node) group_left(role) instance:kube_node_role)
+            - record: role:kube_node_status_capacity:memory:avg
+              expr: avg by (role) (kube_node_status_capacity{resource="memory"} * on(node) group_left(role) instance:kube_node_role)
+            - record: kube_node_status_allocatable:memory:sum
+              expr: sum by (node,role) (kube_node_status_allocatable{resource="memory"} * on(node) group_left(role) instance:kube_node_role)
+            - record: role:kube_node_status_allocatable:memory:avg
+              expr: avg by (role) (kube_node_status_allocatable{resource="memory"} * on(node) group_left(role) instance:kube_node_role)
+        - name: onzack-cluster-storage
+          rules:
+            - record: node_disk_read_bytes_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_read_bytes_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_disk_reads_completed_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_reads_completed_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_disk_read_time_seconds_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_read_time_seconds_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_disk_written_bytes_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_written_bytes_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_disk_writes_completed_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_writes_completed_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_disk_write_time_seconds_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_disk_write_time_seconds_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+        - name: onzack-cluster-network
+          rules:
+            - record: node_network_receive_bytes_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_receive_bytes_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_network_receive_packets_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_receive_packets_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_network_receive_drop_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_receive_drop_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_network_transmit_bytes_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_transmit_bytes_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_network_transmit_packets_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_transmit_packets_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+            - record: node_network_transmit_drop_total:sum_rate5m
+              expr: sum by (instance,node,role) (rate(node_network_transmit_drop_total[5m]) * on(instance) group_left(node,role) instance:kube_node_role)
+        - name: onzack-cluster-container
+          rules:
+            - record: container_cpu_usage_seconds_total:sum_rate5m:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  rate(container_cpu_usage_seconds_total{container!="", container!="POD"}[5m])
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
+            - record: container_memory_working_set_bytes:sum:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  container_memory_working_set_bytes{container!="", container!="POD"}
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
+            - record: kube_pod_container_resource_requests:cpu:running:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  kube_pod_container_resource_requests{resource="cpu"}
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
+            - record: kube_pod_container_resource_limits:cpu:running:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  kube_pod_container_resource_limits{resource="cpu"}
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
+            - record: kube_pod_container_resource_requests:memory:running:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  kube_pod_container_resource_requests{resource="memory"}
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
+            - record: kube_pod_container_resource_limits:memory:running:namespace
+              expr: |
+                sum by (namespace,node,role) (
+                  kube_pod_container_resource_limits{resource="memory"}
+                  * on(pod, namespace) group_left() (kube_pod_status_phase{phase="Running"}==1)
+                  * on(node) group_left(role) instance:kube_node_role
+                )
     alerting_rules.yml:
       groups:
         - name: cluster-health
