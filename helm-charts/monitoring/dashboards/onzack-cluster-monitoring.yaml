@@ -123,7 +123,8 @@ grafana:
                 },
                 "id": 222,
                 "title": "Overview",
-                "type": "row"
+                "type": "row",
+                "description": "Cluster health and high-level CPU, memory, disk, and network usage."
               },
               {
                 "datasource": {
@@ -195,7 +196,8 @@ grafana:
                   }
                 ],
                 "title": "Failures",
-                "type": "stat"
+                "type": "stat",
+                "description": "Count of node condition failures (not Ready) plus unschedulable nodes. Non-zero means something is wrong with cluster node health or cordoning."
               },
               {
                 "datasource": {
@@ -316,7 +318,8 @@ grafana:
                 ],
                 "timeFrom": "24h",
                 "title": "Failures (all nodes)",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Time series of node failure conditions and unschedulable flags by type. Use to see when nodes became unhealthy or cordoned."
               },
               {
                 "datasource": {
@@ -437,7 +440,8 @@ grafana:
                 ],
                 "timeFrom": "24h",
                 "title": "Nodes",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Number of Kubernetes nodes reporting in the selected role filter over time."
               },
               {
                 "datasource": {
@@ -547,7 +551,8 @@ grafana:
                   }
                 ],
                 "title": "Unschedulable Nodes",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Count of nodes marked unschedulable (cordoned). Workloads will not schedule onto them."
               },
               {
                 "datasource": {
@@ -657,7 +662,8 @@ grafana:
                   }
                 ],
                 "title": "Nodes with unavailable Network",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Nodes reporting NetworkUnavailable condition. Networking may be broken for pods on those nodes."
               },
               {
                 "datasource": {
@@ -767,7 +773,8 @@ grafana:
                   }
                 ],
                 "title": "Kubernetes Operation Errors",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Rate of kubelet runtime operation errors (container create/start/etc.). Spikes indicate node runtime problems."
               },
               {
                 "datasource": {
@@ -853,7 +860,8 @@ grafana:
                   }
                 ],
                 "title": "Cores Used (from capacity)",
-                "type": "gauge"
+                "type": "gauge",
+                "description": "Cluster CPU usage as a percent of node capacity (hardware cores), after reserve/spare adjustments on capacity. Shows how busy the machines are relative to physical CPU capacity."
               },
               {
                 "datasource": {
@@ -939,7 +947,8 @@ grafana:
                   }
                 ],
                 "title": "Cores Used Top Node",
-                "type": "gauge"
+                "type": "gauge",
+                "description": "CPU usage percent of the single busiest node (by capacity). Helps spot one hot node vs cluster average."
               },
               {
                 "datasource": {
@@ -1042,7 +1051,8 @@ grafana:
                   }
                 ],
                 "title": "CPU Cores Usage by Node",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "CPU cores used per node over time (absolute cores from node-exporter non-idle time)."
               },
               {
                 "datasource": {
@@ -1128,7 +1138,8 @@ grafana:
                   }
                 ],
                 "title": "Memory Used (from capacity)",
-                "type": "gauge"
+                "type": "gauge",
+                "description": "Cluster memory used (MemTotal − MemAvailable style) as a percent of capacity after reserve/spare. Reflects node-level RAM pressure, not only container working sets."
               },
               {
                 "datasource": {
@@ -1214,7 +1225,8 @@ grafana:
                   }
                 ],
                 "title": "Memory Used Top Node",
-                "type": "gauge"
+                "type": "gauge",
+                "description": "Memory used percent of the single fullest node by capacity."
               },
               {
                 "datasource": {
@@ -1318,7 +1330,8 @@ grafana:
                   }
                 ],
                 "title": "Memory usage by Node",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Absolute memory used per node over time (bytes)."
               },
               {
                 "datasource": {
@@ -1384,7 +1397,8 @@ grafana:
                   }
                 ],
                 "title": "Disk Read",
-                "type": "stat"
+                "type": "stat",
+                "description": "Current aggregate disk read throughput across selected nodes."
               },
               {
                 "datasource": {
@@ -1450,7 +1464,8 @@ grafana:
                   }
                 ],
                 "title": "Disk Write",
-                "type": "stat"
+                "type": "stat",
+                "description": "Current aggregate disk write throughput across selected nodes."
               },
               {
                 "datasource": {
@@ -1560,7 +1575,8 @@ grafana:
                   }
                 ],
                 "title": "Disk Read & Write by Node",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Disk read and write throughput per node over time."
               },
               {
                 "datasource": {
@@ -1626,7 +1642,8 @@ grafana:
                   }
                 ],
                 "title": "Network Receive",
-                "type": "stat"
+                "type": "stat",
+                "description": "Current aggregate network receive bandwidth across selected nodes."
               },
               {
                 "datasource": {
@@ -1692,7 +1709,8 @@ grafana:
                   }
                 ],
                 "title": "Network Transmit",
-                "type": "stat"
+                "type": "stat",
+                "description": "Current aggregate network transmit bandwidth across selected nodes."
               },
               {
                 "datasource": {
@@ -1808,7 +1826,8 @@ grafana:
                   }
                 ],
                 "title": "Network Bandwidth (receive & transmit) by Node",
-                "type": "timeseries"
+                "type": "timeseries",
+                "description": "Network receive and transmit bandwidth per node over time."
               },
               {
                 "collapsed": true,
@@ -1840,7 +1859,8 @@ grafana:
                     "pluginVersion": "13.0.1",
                     "targets": [],
                     "title": "",
-                    "type": "text"
+                    "type": "text",
+                    "description": "Legend for capacity terms: capacity, brutto (allocatable), and netto (allocatable after Node CPU/Mem Reserve and Spare Nodes). Requested/used/limits “from netto” percentages use netto as the denominator."
                   },
                   {
                     "datasource": {
@@ -1906,7 +1926,8 @@ grafana:
                       }
                     ],
                     "title": "Nodes ($noderole)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "How many nodes match the Node Role variable (or All). Filters most capacity panels."
                   },
                   {
                     "datasource": {
@@ -1973,7 +1994,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Available (requestable)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "How much CPU (cores) remains for new pod requests after subtracting current requests from netto capacity. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2040,7 +2062,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Available (for usage)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "How much CPU remains before hitting netto capacity based on current actual CPU usage. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2107,7 +2130,8 @@ grafana:
                       }
                     ],
                     "title": "Cores (capacity)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total CPU capacity (hardware cores) for selected node roles."
                   },
                   {
                     "datasource": {
@@ -2174,7 +2198,8 @@ grafana:
                       }
                     ],
                     "title": "Cores (brutto)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total Kubernetes allocatable CPU cores for selected roles. Brutto means Kubernetes allocatable capacity before Spare Nodes / extra reserve adjustments."
                   },
                   {
                     "datasource": {
@@ -2241,7 +2266,8 @@ grafana:
                       }
                     ],
                     "title": "Cores (netto)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "CPU budget used as the denominator for “from netto” gauges. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2309,7 +2335,8 @@ grafana:
                       }
                     ],
                     "title": "Mem Available (requestable)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Memory headroom for new pod requests: netto memory minus current memory requests. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2377,7 +2404,8 @@ grafana:
                       }
                     ],
                     "title": "Mem Available (for usage)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Memory headroom vs actual node memory used relative to netto. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2445,7 +2473,8 @@ grafana:
                       }
                     ],
                     "title": "Memory (capacity)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total memory capacity for selected node roles."
                   },
                   {
                     "datasource": {
@@ -2513,7 +2542,8 @@ grafana:
                       }
                     ],
                     "title": "Memory (brutto)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total Kubernetes allocatable memory for selected roles. Brutto means Kubernetes allocatable capacity before Spare Nodes / extra reserve adjustments."
                   },
                   {
                     "datasource": {
@@ -2581,7 +2611,8 @@ grafana:
                       }
                     ],
                     "title": "Memory (netto)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Memory budget used as the denominator for “from netto” gauges. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2666,7 +2697,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod CPU requests as a percent of CPU netto. Above 100% means request overcommit vs the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2751,7 +2783,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual node CPU usage as a percent of CPU netto. Above 100% means real CPU use exceeds the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -2836,7 +2869,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual CPU usage as a percent of total CPU requests. Low values mean requests are oversized relative to use; over 100% means usage exceeds total requests."
                   },
                   {
                     "datasource": {
@@ -2917,7 +2951,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod CPU limits as a percent of CPU netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -3002,7 +3037,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod memory requests as a percent of memory netto. Above 100% means request overcommit vs the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -3087,7 +3123,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual node memory used as a percent of memory netto. Above 100% means RAM use exceeds the conservative budget (reserve + spare nodes). Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -3172,7 +3209,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual memory usage as a percent of total memory requests. Shows how full the requested memory envelope is."
                   },
                   {
                     "datasource": {
@@ -3253,7 +3291,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod memory limits as a percent of memory netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -3320,7 +3359,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total CPU requests for application namespaces. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3387,7 +3427,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "CPU usage attributed to application namespaces (container metrics). Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3454,7 +3495,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Wasted (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "App CPU requests minus app CPU usage when positive. Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3521,7 +3563,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total CPU limits in application namespaces (0 if none set). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3589,7 +3632,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total memory requests for application namespaces. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3652,7 +3696,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Container memory working set for application namespaces. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3720,7 +3765,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Wasted (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "App memory requests minus app usage when positive. Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3787,7 +3833,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits (apps)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total memory limits in application namespaces (0 if none set). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Apps = namespaces not matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3854,7 +3901,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total CPU requests for platform namespaces. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3920,7 +3968,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "CPU usage for platform namespaces. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -3987,7 +4036,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Wasted (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Platform CPU requests minus usage when positive. Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4054,7 +4104,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total CPU limits in platform namespaces (often 0 if kube-system pods have no CPU limits). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4122,7 +4173,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total memory requests for platform namespaces. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4185,7 +4237,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Container memory working set for platform namespaces. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4253,7 +4306,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Wasted (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Platform memory requests minus usage when positive. Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4320,7 +4374,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits (k8s)",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Total memory limits in platform namespaces (0 if none set). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. K8s platform = namespaces matching kube-.* / cattle-.* / openshift-*."
                   },
                   {
                     "datasource": {
@@ -4387,7 +4442,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide sum of CPU requests for running pods (all namespaces, selected node roles)."
                   },
                   {
                     "datasource": {
@@ -4453,7 +4509,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide actual CPU usage (node-level non-idle cores) for selected roles."
                   },
                   {
                     "datasource": {
@@ -4520,7 +4577,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide sum of CPU limits for running pods. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because pods without limits still consume resources."
                   },
                   {
                     "datasource": {
@@ -4588,7 +4646,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide sum of memory requests for running pods (absolute bytes, selected roles)."
                   },
                   {
                     "datasource": {
@@ -4651,7 +4710,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide actual memory used on nodes for selected roles."
                   },
                   {
                     "datasource": {
@@ -4718,7 +4778,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits",
-                    "type": "stat"
+                    "type": "stat",
+                    "description": "Cluster-wide sum of memory limits for running pods. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because pods without limits still consume resources."
                   },
                   {
                     "datasource": {
@@ -5140,7 +5201,8 @@ grafana:
                         }
                       }
                     ],
-                    "type": "table"
+                    "type": "table",
+                    "description": "Per-node table of CPU capacity/allocatable, requests, usage, limits, and ratios. Use to compare scheduling pressure and real use node by node."
                   },
                   {
                     "datasource": {
@@ -5561,7 +5623,8 @@ grafana:
                         }
                       }
                     ],
-                    "type": "table"
+                    "type": "table",
+                    "description": "Per-node table of memory capacity/allocatable, requests, usage, limits, and ratios."
                   },
                   {
                     "datasource": {
@@ -5670,7 +5733,8 @@ grafana:
                       }
                     ],
                     "title": "Pods per Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Number of pods scheduled on each node over time."
                   },
                   {
                     "datasource": {
@@ -5779,7 +5843,8 @@ grafana:
                       }
                     ],
                     "title": "Nodes with Memory Pressure",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Count of nodes with MemoryPressure condition true."
                   },
                   {
                     "datasource": {
@@ -5888,7 +5953,8 @@ grafana:
                       }
                     ],
                     "title": "Nodes with Disk Pressure",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Count of nodes with DiskPressure condition true."
                   },
                   {
                     "datasource": {
@@ -5997,11 +6063,13 @@ grafana:
                       }
                     ],
                     "title": "Nodes with PID Pressure",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Count of nodes with PIDPressure condition true."
                   }
                 ],
                 "title": "Capacity Management - Overview",
-                "type": "row"
+                "type": "row",
+                "description": "Capacity planning snapshot: netto budget, requests, usage, limits, apps vs platform split. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
               },
               {
                 "collapsed": true,
@@ -6096,7 +6164,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod CPU requests as a percent of CPU netto. Above 100% means request overcommit vs the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6217,7 +6286,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU requests as a fraction of CPU netto over time. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6338,7 +6408,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Requested & Allocatable",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series comparing CPU requests vs allocatable/netto style capacity. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6423,7 +6494,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod memory requests as a percent of memory netto. Above 100% means request overcommit vs the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6543,7 +6615,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Memory requests as a fraction of memory netto over time. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6664,7 +6737,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Requested & Allocatable",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series comparing memory requests vs allocatable/netto style capacity. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6749,7 +6823,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual node CPU usage as a percent of CPU netto. Above 100% means real CPU use exceeds the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -6880,7 +6955,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Actual node CPU usage as a percent of CPU netto. Above 100% means real CPU use exceeds the conservative budget. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -7012,7 +7088,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used & Allocatable",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of CPU usage vs allocatable/netto capacity. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -7097,7 +7174,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual node memory used as a percent of memory netto. Above 100% means RAM use exceeds the conservative budget (reserve + spare nodes). Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -7228,7 +7306,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Actual node memory used as a percent of memory netto. Above 100% means RAM use exceeds the conservative budget (reserve + spare nodes). Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -7360,7 +7439,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used & Allocatable",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of memory usage vs allocatable/netto capacity. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -7445,7 +7525,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual CPU usage as a percent of total CPU requests. Low values mean requests are oversized relative to use; over 100% means usage exceeds total requests."
                   },
                   {
                     "datasource": {
@@ -7565,7 +7646,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from requested)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Actual CPU usage as a percent of total CPU requests. Low values mean requests are oversized relative to use; over 100% means usage exceeds total requests."
                   },
                   {
                     "datasource": {
@@ -7697,7 +7779,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used & Requested",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of CPU usage versus CPU requests (and related series). Shows request efficiency over time."
                   },
                   {
                     "datasource": {
@@ -7768,7 +7851,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Actual memory usage as a percent of total memory requests. Shows how full the requested memory envelope is."
                   },
                   {
                     "datasource": {
@@ -7881,7 +7965,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from requested)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Actual memory usage as a percent of total memory requests. Shows how full the requested memory envelope is."
                   },
                   {
                     "datasource": {
@@ -8006,7 +8091,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Used & Requested",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of memory usage versus memory requests."
                   },
                   {
                     "datasource": {
@@ -8073,7 +8159,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Wasted (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "CPU requests minus CPU usage, as a percent of requests (unused reservation). Wasted = resource requests minus actual usage (unused reserved capacity)."
                   },
                   {
                     "datasource": {
@@ -8181,7 +8268,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Wasted (from requested)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU request waste over time (requests − usage relative to requests). Wasted = resource requests minus actual usage (unused reserved capacity)."
                   },
                   {
                     "datasource": {
@@ -8328,7 +8416,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used, Requested & Wasted",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of CPU used, requested, and wasted (request − use). Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested."
                   },
                   {
                     "datasource": {
@@ -8429,7 +8518,8 @@ grafana:
                       }
                     ],
                     "title": "Namespaces Wasting CPU Cores",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Namespaces where CPU requests exceed usage (positive waste). Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested."
                   },
                   {
                     "datasource": {
@@ -8497,7 +8587,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Wasted (from requested)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Memory requests minus memory usage, as a percent of requests. Wasted = resource requests minus actual usage (unused reserved capacity)."
                   },
                   {
                     "datasource": {
@@ -8606,7 +8697,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Wasted (from requested)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Memory request waste over time (requests − usage relative to requests). Wasted = resource requests minus actual usage (unused reserved capacity)."
                   },
                   {
                     "datasource": {
@@ -8753,7 +8845,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Used, Requested & Wasted",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Time series of CPU used, requested, and wasted (request − use). Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested."
                   },
                   {
                     "datasource": {
@@ -8855,7 +8948,8 @@ grafana:
                       }
                     ],
                     "title": "Namespaces Wasting Memory",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Namespaces where memory requests exceed usage (positive waste). Wasted = resource requests minus actual usage (unused reserved capacity). Values can be empty or zero when nothing is over-requested."
                   },
                   {
                     "datasource": {
@@ -8922,7 +9016,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod CPU limits as a percent of CPU netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -9030,7 +9125,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Sum of pod CPU limits as a percent of CPU netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -9144,7 +9240,8 @@ grafana:
                       }
                     ],
                     "title": "Cores Limits",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU limits over time (often split apps vs platform). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because pods without limits still consume resources."
                   },
                   {
                     "datasource": {
@@ -9211,7 +9308,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits (from netto)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Sum of pod memory limits as a percent of memory netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -9330,7 +9428,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits (from netto)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Sum of pod memory limits as a percent of memory netto. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
                   },
                   {
                     "datasource": {
@@ -9444,7 +9543,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Limits",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Memory limits over time (often split apps vs platform). Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because pods without limits still consume resources."
                   },
                   {
                     "datasource": {
@@ -9515,14 +9615,15 @@ grafana:
                       }
                     ],
                     "title": "Cores Used (from Limits)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "CPU usage as a percent of sum of CPU limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources."
                   },
                   {
                     "datasource": {
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use CPU resources. That is why the usage can be higher than the limits.",
+                    "description": "CPU usage as a percent of sum of CPU limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9635,7 +9736,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use CPU resources. That is why the usage can be higher than the limits.",
+                    "description": "Time series of CPU usage and CPU limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9825,14 +9926,15 @@ grafana:
                       }
                     ],
                     "title": "Memory Used (from Limits)",
-                    "type": "gauge"
+                    "type": "gauge",
+                    "description": "Memory usage as a percent of sum of memory limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources."
                   },
                   {
                     "datasource": {
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use Memory resources. That is why the usage can be higher than the limits.",
+                    "description": "Memory usage as a percent of sum of memory limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -9945,7 +10047,7 @@ grafana:
                       "type": "prometheus",
                       "uid": "${datasource}"
                     },
-                    "description": "Not all workloads have limits defined but still use Memory resources. That is why the usage can be higher than the limits.",
+                    "description": "Time series of memory usage and memory limits. Many workloads set no CPU/memory limits; empty limits show as 0. Usage can exceed total limits because unlimit-ed pods still consume resources.",
                     "fieldConfig": {
                       "defaults": {
                         "color": {
@@ -10068,7 +10170,8 @@ grafana:
                   }
                 ],
                 "title": "Capacity Management - Details",
-                "type": "row"
+                "type": "row",
+                "description": "Time series detail for the same capacity ratios as the overview section. Netto capacity is Kubernetes allocatable after dashboard variables Node CPU/Mem Reserve and Spare Nodes (default: keep ~10% and one node free). Percentages over 100% mean over that conservative budget, not necessarily OOM."
               },
               {
                 "collapsed": true,
@@ -10181,7 +10284,8 @@ grafana:
                       }
                     ],
                     "title": "CPU Cores Usage by Node (absolute)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU cores used per node (absolute cores), from node CPU metrics."
                   },
                   {
                     "datasource": {
@@ -10290,11 +10394,13 @@ grafana:
                       }
                     ],
                     "title": "CPU Cores Usage by Node (%)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU usage per node as a fraction of that node’s allocatable/capacity after reserve."
                   }
                 ],
                 "title": "CPU Monitoring",
-                "type": "row"
+                "type": "row",
+                "description": "Per-node CPU usage absolute and relative."
               },
               {
                 "collapsed": true,
@@ -10408,7 +10514,8 @@ grafana:
                       }
                     ],
                     "title": "Memory Usage by Node (absolute)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Memory used per node in bytes."
                   },
                   {
                     "datasource": {
@@ -10517,11 +10624,13 @@ grafana:
                       }
                     ],
                     "title": "Memory Usage by Node (%)",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Memory used per node as a fraction of that node’s allocatable/capacity after reserve."
                   }
                 ],
                 "title": "Memory Monitoring",
-                "type": "row"
+                "type": "row",
+                "description": "Per-node memory usage absolute and relative."
               },
               {
                 "collapsed": true,
@@ -10634,7 +10743,8 @@ grafana:
                       }
                     ],
                     "title": "Filesystem Usage by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Filesystem space used per node in bytes (typically root or primary mount)."
                   },
                   {
                     "datasource": {
@@ -10745,7 +10855,8 @@ grafana:
                       }
                     ],
                     "title": "Filesystem Usage by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Filesystem space used per node as a percent of that filesystem’s size."
                   },
                   {
                     "datasource": {
@@ -10856,7 +10967,8 @@ grafana:
                       }
                     ],
                     "title": "Filesystem Inodes Usage by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Filesystem inode usage percent per node. High values can block creates even if disk space remains."
                   },
                   {
                     "datasource": {
@@ -10963,7 +11075,8 @@ grafana:
                       }
                     ],
                     "title": "IOWait by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "CPU time spent in iowait per node. High values mean CPUs stalled on disk I/O."
                   },
                   {
                     "datasource": {
@@ -11066,7 +11179,8 @@ grafana:
                       }
                     ],
                     "title": "Read Storage Throughput by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Disk read throughput (bytes/s) per node."
                   },
                   {
                     "datasource": {
@@ -11169,7 +11283,8 @@ grafana:
                       }
                     ],
                     "title": "Write Storage Throughput by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Disk write throughput (bytes/s) per node."
                   },
                   {
                     "datasource": {
@@ -11272,7 +11387,8 @@ grafana:
                       }
                     ],
                     "title": "Read Storage IOPS by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Disk read operations per second per node."
                   },
                   {
                     "datasource": {
@@ -11374,7 +11490,8 @@ grafana:
                       }
                     ],
                     "title": "Write Storage IOPS by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Disk write operations per second per node."
                   },
                   {
                     "datasource": {
@@ -11476,7 +11593,8 @@ grafana:
                       }
                     ],
                     "title": "Read Wait by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Average disk read wait time per node (queueing/latency signal)."
                   },
                   {
                     "datasource": {
@@ -11578,11 +11696,13 @@ grafana:
                       }
                     ],
                     "title": "Write Wait by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Average disk write wait time per node (queueing/latency signal)."
                   }
                 ],
                 "title": "Storage Monitoring",
-                "type": "row"
+                "type": "row",
+                "description": "Per-node filesystem, inode, iowait, and disk throughput/IOPS/latency."
               },
               {
                 "collapsed": true,
@@ -11696,7 +11816,8 @@ grafana:
                       }
                     ],
                     "title": "Receive Network Bandwidth by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Network receive bandwidth per node."
                   },
                   {
                     "datasource": {
@@ -11800,7 +11921,8 @@ grafana:
                       }
                     ],
                     "title": "Transmit Network Bandwidth by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Network transmit bandwidth per node."
                   },
                   {
                     "datasource": {
@@ -11904,7 +12026,8 @@ grafana:
                       }
                     ],
                     "title": "Receive Network Packets by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Network receive packet rate per node."
                   },
                   {
                     "datasource": {
@@ -12008,7 +12131,8 @@ grafana:
                       }
                     ],
                     "title": "Transmit Network Packets by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Network transmit packet rate per node."
                   },
                   {
                     "datasource": {
@@ -12112,7 +12236,8 @@ grafana:
                       }
                     ],
                     "title": "Receive Network Packets Dropped by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Dropped receive packets per node. Sustained drops mean network congestion or buffer pressure."
                   },
                   {
                     "datasource": {
@@ -12216,11 +12341,13 @@ grafana:
                       }
                     ],
                     "title": "Transmit Network Packets Dropped by Node",
-                    "type": "timeseries"
+                    "type": "timeseries",
+                    "description": "Dropped transmit packets per node. Sustained drops mean network congestion or buffer pressure."
                   }
                 ],
                 "title": "Network Monitoring",
-                "type": "row"
+                "type": "row",
+                "description": "Per-node network bandwidth, packets, and drops."
               }
             ],
             "preload": false,
@@ -12383,7 +12510,7 @@ grafana:
             "timezone": "browser",
             "title": "Standard Cluster Monitoring",
             "uid": "ozk-std-clstr-mon",
-            "version": 115,
+            "version": 116,
             "weekStart": "",
             "gnetId": 17404
           }
