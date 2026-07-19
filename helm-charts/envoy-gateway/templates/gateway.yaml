@@ -47,6 +47,7 @@ spec:
                   - openclaw
                   - teslamate
                   - umami
+                  - unifi-mcp
     - name: jellyfin-sftp
       protocol: TCP
       port: 2022
