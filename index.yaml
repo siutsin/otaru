@@ -1422,6 +1422,18 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/umami-0.1.0/umami-0.1.0.tgz
     version: 0.1.0
+  unifi-mcp:
+  - apiVersion: v2
+    created: "2026-07-19T02:15:57.963273849Z"
+    description: sirkirby/unifi-mcp servers (Network, and future Protect/Access),
+      one pod per otaru instance
+    digest: d68fda08a162550d87fc43eede362f230e5f898ee6021060cdeba01b6b02d91f
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: unifi-mcp
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/unifi-mcp-0.1.0/unifi-mcp-0.1.0.tgz
+    version: 0.1.0
   waypoints:
   - apiVersion: v2
     created: "2026-05-02T22:37:46.957172853Z"
@@ -1495,4 +1507,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-07-05T21:40:34.535576182Z"
+generated: "2026-07-19T02:15:58.118449408Z"
