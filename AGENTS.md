@@ -144,3 +144,8 @@ plain reboot until the initramfs unlock step runs.
 | Terraform   | `tofu` or `terraform` | Infrastructure as code    |
 | Terragrunt  | `terragrunt`          | Terraform wrapper         |
 | Markdown    | `markdownlint-cli2`   | Linting and validation    |
+
+Before widening a pinned provider version constraint in `infrastructure/version.hcl`,
+read `documentation/gotcha.md` for the Cloudflare provider state-migration gotcha —
+large version jumps can break `plan`/`import` on resources whose schema changed,
+not just produce plan noise.

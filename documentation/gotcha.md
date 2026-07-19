@@ -1497,3 +1497,63 @@ ConfigMap) are unaffected by this specific quirk, but do depend on the
 init container running again, i.e. also a pod restart.
 
 ---
+
+## Cloudflare Provider Cannot Migrate Old `schema_version=0` State Across Large Version Jumps
+
+Widening `cloudflare/cloudflare` from a long-pinned `~> 5.4.0` to `~> 5.22`
+(18 minor releases apart) broke `terragrunt plan`/`import` outright on
+several resource types, rather than just producing plan noise.
+
+**Symptoms:**
+
+- `terragrunt plan` exits 1 with `Could not parse raw state as v5 format:
+  AttributeName("<field>"): unsupported attribute "<field>"`, or
+  `Failed to unmarshal v5 state during upgrade`.
+- `terragrunt state show <resource>` fails harder: `schema version 0 ...
+  does not match version 500 from the provider`.
+- Affected resource types in this repo: `cloudflare_zero_trust_list`,
+  `cloudflare_zero_trust_access_policy`,
+  `cloudflare_zero_trust_access_application`, and
+  `cloudflare_zero_trust_tunnel_cloudflared_config`.
+
+**Cause:** the provider removed attributes from several Zero Trust
+resource schemas between `5.5.0` and `5.10.0` (`created_at`, `app_count`,
+`updated_at`, `reusable`, and a JSON shape change on
+`cloudflared_config.config`). Its own `schema_version=0` upgrader only
+handles the *documented* v4-string-format-to-v5-object-format transition;
+state that was already in v5-object shape but still carried a now-deleted
+field has no upgrade path in any released provider version (checked
+`5.4.0` through `5.22.0` directly against the provider source, and
+searched GitHub for an open issue — none exists for this exact
+combination, only a string of provider-team PRs patching adjacent edge
+cases). State that sits untouched across a large version gap is the
+trigger; frequent-apply projects upgrade incrementally and rarely hit it.
+
+**Resolution:** `terragrunt state rm '<resource address>'` followed by
+`terragrunt import '<resource address>' '<import id>'` per broken
+resource, re-reading fresh from the live Cloudflare API under the new
+schema. This only rewrites Terraform's state bookkeeping — `import` only
+reads, so no live Cloudflare resource is created, modified, or deleted.
+Back up state first (`terragrunt state pull` to a local file, and note
+the S3 object's current `VersionId` if the backend has bucket versioning
+enabled, as a rollback point).
+
+Order matters: `import`/`plan` refresh the *entire* unit's state and
+error on the first broken resource encountered, masking any other broken
+resource types further down. Discover the full set of broken resources
+before assuming a single `state rm` + `import` is the whole fix — in this
+case, `cloudflare_zero_trust_access_application` had to be fixed before
+`cloudflare_zero_trust_access_policy`, which had to be fixed before
+`cloudflare_zero_trust_list`, purely because of import/refresh ordering.
+
+**Related near-miss:** don't trust a provider's generic docs import-ID
+example (e.g. `accounts/<account_id>/<app_id>`) without checking the
+resource's actual HCL config for its real scoping field first. Reimporting
+`cloudflare_zero_trust_access_application` via the `accounts/` scope when
+the module actually configures it with `zone_id` (not `account_id`)
+produced a `-/+ destroy and then create replacement` plan for a live
+production Access application. Caught at the read-only `plan` stage
+before any apply; fixed by reimporting with `zones/<zone_id>/<app_id>`
+instead.
+
+---
