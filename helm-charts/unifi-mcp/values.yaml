@@ -16,20 +16,16 @@ externalSecret:
       host: UNIFI_HOST
       username: UNIFI_USERNAME
       password: UNIFI_PASSWORD
-      apiKey: UNIFI_API_KEY
 
 secret:
   name: unifi-mcp-secrets
 
 # Shared across every container in the pod -- same controller, same
 # runtime transport settings. Credentials (UNIFI_HOST, UNIFI_USERNAME,
-# UNIFI_PASSWORD, UNIFI_API_KEY) come from the ExternalSecret above and
-# are injected via envFrom, not here. UNIFI_USERNAME/UNIFI_PASSWORD must
-# be a local admin/service account, not a Ubiquiti SSO account, and must
-# not have MFA enabled -- the login flow does not support a TOTP prompt.
-# UNIFI_API_KEY is optional and only unlocks a handful of extra
-# capabilities (e.g. firewall rule ordering); username/password are
-# required regardless.
+# UNIFI_PASSWORD) come from the ExternalSecret above and are injected via
+# envFrom, not here. UNIFI_USERNAME/UNIFI_PASSWORD must be a local
+# admin/service account, not a Ubiquiti SSO account, and must not have MFA
+# enabled -- the login flow does not support a TOTP prompt.
 sharedEnv:
   controllerPort: "443"
 
