@@ -43,7 +43,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(MAGENTA)Development & Infrastructure:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(clean-terragrunt-cache|add-helm-repos|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
+		grep -E "^(clean-terragrunt-cache|plan-infrastructure|add-helm-repos|update-helm-deps|delete-git-tags|clean-all|generate-diagrams):" | \
 		sort | awk 'BEGIN {FS = ":.*?## "}; {gsub(/\(DANGEROUS!\)/, "$(RED)(DANGEROUS!)$(NC)"); printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(GREEN)Validation & Quality:$(NC)"
@@ -130,6 +130,15 @@ nuke: ## Run cluster destruction playbook (DANGEROUS!)
 clean-terragrunt-cache: ## Clean up all .terragrunt-cache folders in infrastructure directory
 	@echo "$(GREEN)Cleaning Terragrunt cache...$(NC)"
 	bash $(HACK_DIR)/remove-terragrunt-cache.sh $(INFRASTRUCTURE_DIR)
+
+.PHONY: plan-infrastructure
+plan-infrastructure: ## Plan all non-UniFi infrastructure units (non-apply; exit 2 means drift)
+	@echo "$(GREEN)Planning non-UniFi infrastructure...$(NC)"
+	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
+	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
+	@cd $(INFRASTRUCTURE_DIR) && terragrunt run --all --non-interactive \
+		--queue-ignore-errors --filter '!./local/**' -- \
+		plan -detailed-exitcode -no-color
 
 .PHONY: add-helm-repos
 add-helm-repos: ## Add Helm repositories declared by chart dependencies
