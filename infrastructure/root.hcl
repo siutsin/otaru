@@ -52,7 +52,7 @@ locals {
     : "",
     local.needs_unifi ? <<-EOT
     unifi = {
-      source  = "paultyng/unifi"
+      source  = "ubiquiti-community/unifi"
       version = "${local.unifi_version}"
     }
     EOT

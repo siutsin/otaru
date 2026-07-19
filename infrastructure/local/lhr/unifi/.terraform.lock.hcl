@@ -1,24 +1,34 @@
 # This file is maintained automatically by "tofu init".
 # Manual edits may be lost in future updates.
 
-provider "registry.opentofu.org/paultyng/unifi" {
-  version     = "0.41.0"
-  constraints = "~> 0.41"
+provider "registry.opentofu.org/ubiquiti-community/unifi" {
+  version     = "0.41.3"
+  constraints = "0.41.3"
   hashes = [
-    "h1:fc0gUNc7ddxeLKVgVbt2iuYBn0U9GKE9lxK78w8oRF4=",
-    "zh:03ddd3aee05a08e1446f75a7b3f52810181d3307728cba08ce8fb67f109a9c00",
-    "zh:11b14b79ad02b0a55fd6116b10c0eb6fab432dd7d1f3527af0e2055adf292451",
-    "zh:18c0eb19889927f115a1e05d64f59b4e8d530ccdf1a8b574940a86be20973564",
-    "zh:2df9ca0c21830d2757758e574b19d0d4e54965ce80dbbfb3f124db1dac3d7e8f",
-    "zh:36274af3b7e8b08ba69c04a226c63e0dd2ec386c583288ebd7bc2a30e349ee8f",
-    "zh:413eb222ef30889bab33ccbfc46c9fb64307555da34eac4625d51e696ac72e1d",
-    "zh:4839814ff9f405a13397ffadd6f1052c770b88802280a4d8cde066f9a19718c7",
-    "zh:9547b7831852cc5b9c0fd13ab447d48539eae94582c8725ad255af36e31fb5d9",
-    "zh:a855c89b12326eb1c89bbf292a2bb1de3651794e3409d5012076ada89aabdc8a",
-    "zh:aef12a33b90fd77a9bf4e9d397966ccbfa4a037a648a1725074aff2db2d90fb0",
-    "zh:b3c72a6a02e29b4d21aa0d0831a272ca7cb82c3f8c2c3c7f09fcc2d2dcd78752",
-    "zh:c8354eaaab5f526e8e530b098544c7583a0f0b5b27d67500c7b3e9da56a3a7e5",
-    "zh:dc29f1e70f20ce86d3c6a66c7a817616f993a1cf9d941604dfd5222a06992c4c",
-    "zh:e772779333419f34d2c6da333c7f7d235a5a34f21ea47636b548e132aed74f3b",
+    "h1:71OvN+aWZJ+yr1vM8tMzWgGfPV3qR9WovQXzKsJzMT0=",
+    "h1:766ofaRFv7qpB0P6JqxQjxkHR4GzIO2KuaGk4i0pYmo=",
+    "h1:7gutSKrsshKdwCwyDZe1wnqQh+zW27wzu9cTLreN4Ew=",
+    "h1:FPq9RwlHkj4P8dbTWoDd5JOteRdK/wviexnKWfDB9bM=",
+    "h1:XJxo6zYWaH8R45490NA+NqpaJY7EreyEdLapZxFM+xI=",
+    "h1:ds0hWL4QAMNVsrG6AvVKEbFLEBqmoV2ZBRNv3fsqbxg=",
+    "h1:iWQceHPs154/FIsp79vf6gAB5/85rXV+i2iXxPlG0N8=",
+    "h1:krDVMv+RCc0KZ/Socoo2iPuWZPL5mFlbhQLTzrTafEQ=",
+    "h1:ksSB4bmefV/5B4EUrAdy1DXhVvFzgs83EihAXly4z4Q=",
+    "h1:taEkpJBErnuo5fbmoKPUNMnMazixVyc8YJXeH2RvFbA=",
+    "h1:vrR6WT/LXnK2Tvvs28hyXzeWj2FF6PlyUIFR3EsSQk4=",
+    "zh:239f297e94e784698f49c7adcd098f97108f71759b1771981da495b1b612e911",
+    "zh:274399720a31f70b79302aed1da23f5bd710b511c1b3164db16797988b1fe207",
+    "zh:2787cb0e4e9f879f57a802938f05dc50041e6004757ca85af8c10ec116208b34",
+    "zh:58e29b259042fad7002b05c37bda90692afae8b17c4be7df82927c313d97e183",
+    "zh:704ebc07ec2f05a6756dab0719457ed9059a37db5458447cab7681f8a9cb4deb",
+    "zh:85d67369aab06649f6ea896609e52c971ef1a64d291a30122b88c14551f64f00",
+    "zh:8a864f366b6ae31cb87325bea0b0969e5a507f05175eb9744cb00bfc355f3cd8",
+    "zh:8c31a6d6fb2eb37d6eb939bd50277dbefe8d9bd69e098cdc1b0cf8eb1cfad6b3",
+    "zh:8c81a651e7adb2c06ecbe090596a04fb40d93d7f0b243db469061d895c56883a",
+    "zh:8ddfe7792e06faf322a19bd42b906da5f76641165be383c9ca57942bc9a91d75",
+    "zh:bfb509f81ec3f286d355be372f34c861449c51b66797ef650c50f7bf371bbae9",
+    "zh:e13830c399ec00420e5578a40cd700c0a96531358a2c306d46c6802b62b17076",
+    "zh:e8912aa53752f8b1258de8b1e825fb4c7c86bdf6d6daa760e535c8b1b1ce5823",
+    "zh:f54f01fc16193f6f3bfccadc66443b2cf75bb89b389f4c9b4ec9b0c3c8a8d67c",
   ]
 }
