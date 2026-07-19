@@ -1,4 +1,4 @@
-# https://registry.terraform.io/providers/paultyng/unifi/latest/docs/resources/firewall_rule
+# https://registry.terraform.io/providers/ubiquiti-community/unifi/0.41.3/docs/resources/firewall_rule
 variable "firewall_rules" {
   type = map(object({
     action                 = string
