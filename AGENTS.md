@@ -149,3 +149,78 @@ Before widening a pinned provider version constraint in `infrastructure/version.
 read `documentation/gotcha.md` for the Cloudflare provider state-migration gotcha —
 large version jumps can break `plan`/`import` on resources whose schema changed,
 not just produce plan noise.
+
+## New Helm Chart Onboarding Checklist
+
+When adding a new app under `helm-charts/<name>/`, update every integration
+point below that applies. Missing one is a common production failure mode
+(route `NotAllowedByListeners`, ExternalSecret blocked by Kyverno, pod never
+Ready on a wrong probe path). Use a peer chart (for example `httpbin`,
+`kubernetes-mcp-server`, or `unifi-mcp`) as the template.
+
+### Chart package (`helm-charts/<name>/`)
+
+- [ ] `Chart.yaml`, `values.yaml`, `.helmignore`, and templates for the workload
+- [ ] Image digest-pinned (`tag: <version>@sha256:…`), not a floating tag alone
+- [ ] Resources: memory request = memory limit; no CPU limit unless explicitly
+  requested; ephemeral-storage request and limit set
+- [ ] Pod/container securityContext: non-root, drop `ALL`, read-only rootfs when
+  feasible (compensate in the chart if the upstream image runs as root)
+- [ ] Probes that match what the process actually exposes (HTTP path that
+  returns 2xx/3xx, or `tcpSocket` when there is no health endpoint)
+- [ ] `Service` + `ServiceAccount` (`automountServiceAccountToken: false` unless
+  the workload needs the API)
+- [ ] Ambient mesh: `AuthorizationPolicy` with `targetRefs` on the `Service` and
+  `from.source.principals` allowing the gateway SA
+  (`cluster.local/ns/gateway/sa/gateway`) for ingress-backed ports
+- [ ] Secrets: `ExternalSecret` → ClusterSecretStore `onepassword-secret-store`,
+  plus Reloader (`reloader.stakater.com/auto: "true"`) when secret rotation
+  should restart pods
+- [ ] Ingress: internal and/or public `HTTPRoute` as needed (path rewrites,
+  hostnames under `*.internal.siutsin.com` or public names)
+
+### GitOps registration
+
+- [ ] `argocd/manifest.jsonnet` — Application entry (`wave`, `name`,
+  `namespace`; optional `path` / `helm` overrides). Path defaults to
+  `helm-charts/<name>` when omitted
+- [ ] `helm-charts/namespaces/values.yaml` — namespace list entry. Ambient labels
+  default on; set `ambient: false` only when mesh must stay off
+
+### Kyverno (`helm-charts/kyverno-policy/values.yaml`)
+
+- [ ] **`clusterSecretStorePolicy.allowedNamespaces`** — required for any
+  ExternalSecret that reads 1Password via `onepassword-secret-store`. Map
+  `namespace: [1Password item name, …]`
+- [ ] **`barmanObjectStorePolicy.allowedNamespaces`** — only if the chart uses
+  CloudNativePG Barman object stores
+- [ ] **Exclude-list policies** (`workloadResourcesPolicy`,
+  `requireImageTagPolicy`, `requireContainerHardeningPolicy`,
+  `meshAuthorizationPolicy`) — do **not** add the new namespace by default;
+  make the chart compliant instead. Only add an exclude when the user
+  explicitly accepts the risk and documents why
+
+### Envoy Gateway (`helm-charts/envoy-gateway/templates/gateway.yaml`)
+
+- [ ] HTTPS listener `allowedRoutes.namespaces` selector — add the chart
+  namespace or the HTTPRoute stays `NotAllowedByListeners` and the hostname
+  404s
+- [ ] Extra listeners (TCP/UDP, non-443) only if the chart needs them; add the
+  namespace to that listener's allowlist the same way
+
+### Secrets and docs outside the chart
+
+- [ ] 1Password item in the vault used by Connect (typically `github-otaru`),
+  field names matching the ExternalSecret `remoteRef` properties. Prefer
+  creating the item via `op`; never commit secret values
+- [ ] `README.md` Cluster Components (and SaaS table if an external dependency
+  is new)
+- [ ] `documentation/secrets.md` or other docs only when the secret layout is
+  non-obvious or operator-facing
+
+### Verify before merge
+
+- [ ] `make test` green (Helm lint/template, YAML, markdown, EditorConfig, …)
+- [ ] After merge/sync: Application Synced/Healthy, ExternalSecret Ready (if
+  any), pod Ready, HTTPRoute `Accepted`, and a real request through the
+  published hostname or in-cluster Service
