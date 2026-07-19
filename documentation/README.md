@@ -4,6 +4,7 @@
 |----------------------------------------------------------|---------------------------------------------------------------|
 | [Create a Raspberry Pi image](create_rpi_image.md)       | Standard Raspberry Pi 5 encrypted NVMe image workflow.        |
 | [Secrets](secrets.md)                                    | Secret management and encryption workflow for the repo.       |
+| [Infrastructure operations](infrastructure.md)           | OpenTofu and Terragrunt plan/apply operating procedure.       |
 | [Connectivity](connectivity.md)                          | North-south, east-west, and mesh security model.              |
 | [LUKS remote unlock and recovery](luks_remote_unlock.md) | Remote unlock and recovery workflow for LUKS-encrypted nodes. |
 | [LUKS passphrase handling](luks_passphrase.md)           | How LUKS passphrases are stored and loaded for automation.    |
