@@ -42,6 +42,29 @@ kubectl cluster-info
 kubectl get nodes -o wide
 ```
 
+## Network layer (UniFi)
+
+The otaru VLAN (`192.168.10.0/24`, see Network table above) is one VLAN on a
+UniFi Network controller that also serves other household VLANs. When a node
+Reachability check fails, `unifi-network` MCP tools give read-only visibility
+below the Kubernetes layer, without needing SSH or physical access:
+
+- `unifi_get_network_health` — per-subsystem (WAN/LAN/WLAN/VPN) status.
+- `unifi_list_alarms` / `unifi_list_events` — connectivity and firmware
+  alarms, connect/disconnect/roam events.
+- `unifi_list_devices` — switch/AP/gateway online status and uptime.
+- `unifi_get_port_stats` (`device_mac` argument) — per-port link state,
+  speed, duplex, and error/drop counters for the switch a node's cable
+  lands on.
+- `unifi_get_lldp_neighbors` — confirms physical switch-to-switch topology.
+
+Read-only only. Do not adopt, reboot, or toggle devices, change WLANs, or
+touch ACL/firewall/VPN config from this skill — that is out of scope and may
+conflict with other in-flight network changes elsewhere. Journal and
+escalate any UniFi-side finding (port errors, alarms, WAN down) rather than
+acting on it; do not name specific device models, MAC addresses, or port
+numbers in the journal beyond what is already in this file's Network table.
+
 ## Validation
 
 Before opening a PR, from the repo root:

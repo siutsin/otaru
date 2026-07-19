@@ -18,7 +18,10 @@ Journal **any** NotReady node as P0 before lower-priority categories.
 
 **Reachability.** Ping the node IP from `references/cluster.md`. If the host
 is dark (no ping, no SSH) but power may still be on, do not assume a clean
-reboot — see hardware gotchas below.
+reboot. If `unifi-network` MCP tools are available, check switch-port link
+state and error counters first (`references/cluster.md` Network layer
+section) — read-only, and can distinguish a dead host from a dead link
+before escalating hardware. See hardware gotchas below.
 
 **LUKS / initramfs.** Several nodes use LUKS-encrypted root
 (`luks_root_nodes` in `ansible/inventory.yaml`). After a reboot they sit in
