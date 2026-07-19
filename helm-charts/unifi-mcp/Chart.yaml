@@ -1,0 +1,6 @@
+apiVersion: v2
+name: unifi-mcp
+description: sirkirby/unifi-mcp servers (Network, and future Protect/Access), one pod per otaru instance
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg

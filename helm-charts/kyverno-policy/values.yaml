@@ -43,6 +43,8 @@ clusterSecretStorePolicy:
       - b2-secret-cloudnative-pg
       - heartbeats
       - teslamate
+    unifi-mcp:
+      - unifi-mcp
 
 workloadResourcesPolicy:
   enabled: true

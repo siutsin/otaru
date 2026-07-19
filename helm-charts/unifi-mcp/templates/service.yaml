@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    {{- range $key, $c := .Values.containers }}
+    {{- if $c.enabled }}
+    - name: {{ $key }}
+      port: {{ $c.port }}
+      protocol: TCP
+      targetPort: {{ $key }}
+    {{- end }}
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Values.name }}
