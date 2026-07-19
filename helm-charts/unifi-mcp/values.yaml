@@ -1,0 +1,82 @@
+name: unifi-mcp
+namespace: unifi-mcp
+
+gateway:
+  name: gateway
+  namespace: gateway
+
+externalSecret:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  remoteRef:
+    key: unifi-mcp
+    properties:
+      host: UNIFI_HOST
+      username: UNIFI_USERNAME
+      password: UNIFI_PASSWORD
+
+secret:
+  name: unifi-mcp-secrets
+
+# Shared across every container in the pod -- same controller, same
+# runtime transport settings. Credentials (UNIFI_HOST, UNIFI_USERNAME,
+# UNIFI_PASSWORD) come from the ExternalSecret above and are injected via
+# envFrom, not here. UNIFI_USERNAME/UNIFI_PASSWORD must be a local
+# admin/service account, not a Ubiquiti SSO account, and must not have MFA
+# enabled -- the login flow does not support a TOTP prompt.
+sharedEnv:
+  controllerPort: "443"
+
+# One entry per sirkirby/unifi-mcp server. All containers land in the same
+# pod so they share node placement, restart together, and reuse the one
+# ExternalSecret -- this repo has exactly one UniFi controller, so there is
+# nothing to gain from separate pods. Add a "protect" or "access" entry
+# here (own image/port/probes/resources, same shape as "network") to grow
+# the pod later; no template changes needed.
+containers:
+  network:
+    enabled: true
+    image:
+      repository: ghcr.io/sirkirby/unifi-network-mcp
+      tag: 0.24.0@sha256:b212059aaf707c0d3764a32bf348bdfa948ed6418883e8bb7e9bddadfc9eafa5
+      pullPolicy: IfNotPresent
+    port: 3000
+    env:
+      networkSite: default
+      verifySsl: "true"
+      # confirm (default) requires preview-then-confirm on every mutating
+      # tool call; never set this to bypass while Claude Code also runs
+      # with its own permission prompts bypassed -- with both bypassed
+      # there is no remaining safety net before a live network change.
+      toolPermissionMode: confirm
+      # Envoy Gateway forwards the client's original Host header, which
+      # UNIFI_MCP_ALLOWED_HOSTS can't reliably enumerate through a proxy
+      # chain. The upstream project's own runtime.py comments recommend
+      # disabling DNS rebinding protection for exactly this
+      # Kubernetes/proxy deployment shape.
+      enableDnsRebindingProtection: "false"
+    probes:
+      liveness:
+        path: /healthz
+        initialDelaySeconds: 15
+        periodSeconds: 30
+        timeoutSeconds: 10
+        failureThreshold: 4
+      readiness:
+        path: /healthz
+        periodSeconds: 10
+        timeoutSeconds: 10
+        failureThreshold: 3
+    resources:
+      # New workload, no KRR history yet -- conservative starting estimate
+      # for a single-replica async Python HTTP server with no persistent
+      # state. Revisit after the first right-sizing pass has real data.
+      requests:
+        cpu: 50m
+        memory: 192Mi
+        ephemeralStorage: 128Mi
+      limits:
+        memory: 192Mi
+        ephemeralStorage: 128Mi

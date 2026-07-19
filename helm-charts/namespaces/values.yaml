@@ -40,3 +40,4 @@ namespaces:
   - name: reloader
   - name: teslamate
   - name: umami
+  - name: unifi-mcp

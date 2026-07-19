@@ -1,0 +1,40 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}-internal
+  namespace: {{ .Values.namespace }}
+spec:
+  hostnames:
+    - {{ printf "%s.internal.siutsin.com" .Values.name }}
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+  rules:
+    {{- range $key, $c := .Values.containers }}
+    {{- if $c.enabled }}
+    # Each sirkirby/unifi-mcp server serves Streamable HTTP at a fixed
+    # /mcp path with no way to change it, so the client-facing prefix
+    # below is rewritten to /mcp before it reaches the container.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ printf "/%s" $key }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /mcp
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ $.Values.name }}
+          port: {{ $c.port }}
+          weight: 1
+    {{- end }}
+    {{- end }}
