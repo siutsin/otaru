@@ -57,17 +57,19 @@ containers:
       # disabling DNS rebinding protection for exactly this
       # Kubernetes/proxy deployment shape.
       enableDnsRebindingProtection: "false"
+    # FastMCP streamable-http serves only /mcp (JSON-RPC/SSE). No HTTP
+    # health endpoint exists in 0.24.0 -- probes use tcpSocket instead.
     probes:
       liveness:
-        path: /healthz
         initialDelaySeconds: 15
         periodSeconds: 30
         timeoutSeconds: 10
         failureThreshold: 4
       readiness:
-        path: /healthz
+        # Delay until after UniFi login + uvicorn bind (see container logs).
+        initialDelaySeconds: 10
         periodSeconds: 10
-        timeoutSeconds: 10
+        timeoutSeconds: 5
         failureThreshold: 3
     resources:
       # New workload, no KRR history yet -- conservative starting estimate

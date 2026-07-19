@@ -85,18 +85,20 @@ spec:
             - name: {{ $key }}
               containerPort: {{ $c.port }}
               protocol: TCP
+          # FastMCP streamable-http only exposes /mcp (protocol-bound). There
+          # is no /healthz; HTTP probes always 404 and thrash the pod. TCP
+          # confirms the listener is up after UniFi login succeeds at startup.
           livenessProbe:
-            httpGet:
-              path: {{ $c.probes.liveness.path | quote }}
+            tcpSocket:
               port: {{ $key }}
             initialDelaySeconds: {{ $c.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ $c.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ $c.probes.liveness.timeoutSeconds }}
             failureThreshold: {{ $c.probes.liveness.failureThreshold }}
           readinessProbe:
-            httpGet:
-              path: {{ $c.probes.readiness.path | quote }}
+            tcpSocket:
               port: {{ $key }}
+            initialDelaySeconds: {{ $c.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ $c.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ $c.probes.readiness.timeoutSeconds }}
             failureThreshold: {{ $c.probes.readiness.failureThreshold }}
