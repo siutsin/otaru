@@ -5,6 +5,12 @@ resource "cloudflare_zero_trust_access_application" "this" {
   type                      = var.type
   session_duration          = var.session_duration
   auto_redirect_to_identity = var.auto_redirect_to_identity
+  # Binds the auth cookie to the client, hardening against compromised
+  # authorization tokens and CSRF attacks (Cloudflare-recommended).
+  enable_binding_cookie = true
+  # No cross-origin CORS preflight requirement for this application; keep
+  # OPTIONS requests behind Access rather than bypassing auth for them.
+  options_preflight_bypass = false
 
   policies = [
     {
