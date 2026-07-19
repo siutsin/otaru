@@ -11,6 +11,21 @@ kubernetes-mcp-server:
   service:
     port: 8080
   fullnameOverride: kubernetes-mcp-server
+  # In-cluster agents use the pod ServiceAccount (not the operator's
+  # kubeconfig). The upstream chart creates an SA but no default rules.
+  # Bind cluster-admin so an SRE agent can do the same class of work as a
+  # human with admin kubeconfig: inspect, restart, scale, patch GitOps
+  # apps, and operate CRDs (Argo, Longhorn, CNPG, Gateway, etc.). The MCP
+  # endpoint is internal-only (*.internal.siutsin.com); do not expose it
+  # publicly without Access or equivalent. Tighten later only if that
+  # surface changes.
+  rbac:
+    create: true
+    extraClusterRoleBindings:
+      - name: cluster-admin
+        roleRef:
+          name: cluster-admin
+          external: true
   # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe
   # downsize). KRR also flags the 100m CPU limit as unnecessary, but it is
   # inherited from the vendored chart's own default (this file never sets
