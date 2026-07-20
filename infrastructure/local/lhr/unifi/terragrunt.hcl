@@ -24,6 +24,19 @@ inputs = {
       fixed_ip = "192.168.10.41"
       mac      = local.tfconfig.unifi.clients.jetkvm.mac
     }
+    kitchen_airplay = {
+      fixed_ip = "192.168.4.221"
+      mac      = local.tfconfig.unifi.clients.kitchen_airplay.mac
+    }
+    living_room_homepod = {
+      fixed_ip = "192.168.4.239"
+      mac      = local.tfconfig.unifi.clients.living_room_homepod.mac
+    }
+    nvidia_shield = {
+      # Its current DHCP address could not be reserved because UniFi reports it in use.
+      fixed_ip = "192.168.1.200"
+      mac      = local.tfconfig.unifi.clients.nvidia_shield.mac
+    }
   }
   site = {
     site00 = {

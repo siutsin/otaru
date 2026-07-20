@@ -18,13 +18,13 @@ runbook defines the routine plan cadence and the approval boundary for applies.
 
 ## Cadence
 
-| Trigger | Action |
-| ------- | ------ |
-| Monthly | Run the non-UniFi plan across all 11 cloud units. |
-| Infrastructure pull request | Plan every affected unit before merge. |
-| Provider or module upgrade | Plan affected units before merge and again after any approved apply. |
+| Trigger                      | Action                                                                             |
+|------------------------------|------------------------------------------------------------------------------------|
+| Monthly                      | Run the non-UniFi plan across all 11 cloud units.                                  |
+| Infrastructure pull request  | Plan every affected unit before merge.                                             |
+| Provider or module upgrade   | Plan affected units before merge and again after any approved apply.               |
 | Suspected out-of-band change | Plan the affected unit and record whether Git or the live service is ground truth. |
-| UniFi maintenance | Plan only after the provider and ground-truth gates are explicitly opened. |
+| UniFi maintenance            | Plan only after the provider and ground-truth gates are explicitly opened.         |
 
 ## Routine non-UniFi plan
 
@@ -68,6 +68,41 @@ rm "$PLAN_FILE"
 Saved `*.tfplan` files may contain sensitive values and are ignored by Git.
 Keep provider credentials in the environment; never add them to HCL, generated
 files, logs, or plan artifacts.
+
+## UniFi firewall policy ordering
+
+UniFi evaluates firewall policies in controller order. The UniFi provider can
+read each policy's zone-pair index, but the controller does not let it set or
+change that index. Terraform creation dependencies therefore establish a safe
+order only when a complete allow-before-deny policy set is created for the
+first time.
+
+Broad deny policies declare `allow_policy_keys_before` in the
+`unifi-firewall-rules` module input. A Terraform lifecycle postcondition checks
+the controller-reported indices, so every routine plan and apply fails when a
+declared exception is below the deny it must precede. Do not recreate a broad
+deny to change its position and do not automate the private UniFi UI reorder
+endpoint.
+
+Roll out a new exception in an existing zone pair in two fail-closed stages:
+
+1. Add the new allow policy with `enabled = false`, without adding its key to
+    the deny's `allow_policy_keys_before`, then review and apply that unit.
+2. In the UniFi UI, move the disabled allow above the broad deny.
+3. Add the allow key to `allow_policy_keys_before` and run a plan. Continue only
+    when the ordering postcondition passes.
+4. Set `enabled = true`, review and apply the saved plan, then run a final clean
+    plan.
+
+If a future provider release supports controller-backed reordering, replace
+this staged procedure with explicit provider-managed priorities only after a
+live migration plan proves that existing policy order is preserved.
+
+This controller firmware also rejects the provider's `CLIENT` firewall target.
+Policies for selected clients therefore use fixed IP reservations managed by
+the base UniFi unit and exported to the firewall unit. Add the reservation
+before adding a client to an IP-targeted policy; keep its MAC only in the
+private `tfconfig` document.
 
 ## CI drift planning
 
