@@ -40,7 +40,7 @@ variable "wan" {
 variable "vlan" {
   type = map(object({
     auto_scale          = optional(bool, false)
-    dhcp_dns            = optional(list(string), ["192.168.10.51", "1.1.1.2"])
+    dhcp_dns            = optional(list(string), ["192.168.10.51"])
     dhcp_enabled        = optional(bool, true)
     dhcp_start          = string
     dhcp_stop           = string
