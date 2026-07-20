@@ -16,13 +16,16 @@ deployment:
   ports:
     http: 4000
   resources:
-    # Keep memory at 512Mi: Blocky spikes during denylist refresh/import and was OOMKilled at 192Mi.
+    # 2026-07-20: OOMKilled (exit 137) at 512Mi after adding a second denylist
+    # group ("malware", HaGeZi TIF + URLhaus) alongside the existing "ads"
+    # group -- concurrent import/parse of both groups spikes higher than a
+    # single group did. Bumped to 768Mi for headroom.
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 768Mi
       ephemeral-storage: 100Mi
     limits:
-      memory: 512Mi
+      memory: 768Mi
       ephemeral-storage: 100Mi
 
 hpa:
