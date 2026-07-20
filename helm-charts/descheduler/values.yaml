@@ -81,6 +81,25 @@ descheduler:
               podProtections:
                 defaultDisabled:
                   - PodsWithLocalStorage
+              # 2026-07-20: blocky (DNS-critical) was repeatedly evicted from
+              # raspberrypi-00 by this profile's HighNodeUtilization -- it was
+              # the only node under the 90% memory threshold while the other
+              # four sat at 98-100%, so the evicted pod had nowhere else to
+              # fit and rescheduled straight back onto the same node, a
+              # disruptive no-op loop every ~5 minutes. Tried opting blocky
+              # out via the descheduler.alpha.kubernetes.io/evict: "false"
+              # pod annotation first -- confirmed via descheduler v0.36
+              # source that this annotation only checks presence, not value
+              # (kubernetes-sigs/descheduler#1659), so it had no effect.
+              # labelSelector is an allow-list (only matching pods are
+              # eligible for eviction under this profile), so excluding
+              # blocky here is the correct mechanism.
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: NotIn
+                    values:
+                      - blocky
           - name: HighNodeUtilization
             args:
               thresholds:
