@@ -99,13 +99,17 @@ serves a DoH endpoint over the internal HTTPS ingress path. Plain DNS on
 
 Traffic entering the cluster follows this path:
 
-1. a client reaches the Envoy Gateway load balancer at `192.168.10.51`
-2. the Envoy Gateway proxy in `gateway` matches a `Gateway` listener and `HTTPRoute`
-3. if the destination service is ambient-enrolled and configured to use the shared waypoint, ingress traffic is sent through the shared waypoint
-4. the destination node `ztunnel` forwards traffic to the target pod
+1. for routed clients, the UniFi gateway evaluates the source-zone firewall policy
+2. the client reaches the Envoy Gateway load balancer at `192.168.10.51`
+3. the Envoy Gateway proxy in `gateway` matches a `Gateway` listener and `HTTPRoute`
+4. if the destination service is ambient-enrolled and configured to use the shared waypoint, ingress traffic is sent through the shared waypoint
+5. the destination node `ztunnel` forwards traffic to the target pod
 
 This applies to TCP and HTTP traffic. UDP listeners can stay on Envoy Gateway,
 but they do not gain Istio mTLS.
+
+The UniFi exceptions and VLAN-specific access expectations are documented in
+[Infrastructure operations](infrastructure.md#current-unifi-access-policy).
 
 The Envoy proxy pods also set `ambient.istio.io/dns-capture=false` so ambient
 DNS capture does not intercept Envoy's outbound connections to Blocky on
@@ -115,7 +119,8 @@ port 53.
 
 ```mermaid
 flowchart LR
-  U["Client"] --> EG["Envoy Gateway Proxy\nNamespace=gateway\nGateway=gateway\nVIP=192.168.10.51"]
+  U["Client"] --> UF["UniFi Zone Firewall"]
+  UF --> EG["Envoy Gateway Proxy\nNamespace=gateway\nGateway=gateway\nVIP=192.168.10.51"]
   EG --> W["Shared Waypoint\nNamespace=istio-waypoints\nGateway=waypoint\nHBONE 15008"]
   W --> ZD["Destination ztunnel"]
   ZD --> P["Application Pod"]

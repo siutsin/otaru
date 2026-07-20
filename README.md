@@ -38,7 +38,10 @@ Current cluster layout:
 | `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | [Crucial P2 500GB][crucial-p2]         |
 | `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 64 GB SSD                              |
 | `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
+| `usw-lite-8-poe`  | UniFi Switch Lite 8 PoE                                        | PoE switch     | -                                      |
 | `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -                                      |
+| `u7-pro-front`    | UniFi U7 Pro                                                    | Access point   | -                                      |
+| `u7-pro-back`     | UniFi U7 Pro                                                    | Access point   | -                                      |
 | `rackmate-t1`     | [GeeekPi DeskPi RackMate T1][rackmate-t1]                      | Rack enclosure | -                                      |
 | `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -                                      |
 <!-- markdownlint-enable MD060 -->
@@ -50,6 +53,23 @@ Current cluster layout:
 Three nodes form the control plane. Two nodes remain workers, including temporary `nuc-00`.
 
 ## Network Layout
+
+The UniFi gateway routes eight managed networks. Detailed firewall behavior and
+verification steps are documented in
+[Infrastructure operations](documentation/infrastructure.md#current-unifi-access-policy).
+
+| VLAN | Network       | Subnet              | Purpose                                      |
+|------|---------------|---------------------|----------------------------------------------|
+| 1    | Default       | `192.168.1.0/24`    | Untagged and VLAN-unaware IoT devices        |
+| 3    | Guest         | `192.168.3.0/24`    | Visitor devices                              |
+| 4    | Client        | `192.168.4.0/24`    | Trusted personal clients and media receivers |
+| 5    | IoT Public    | `192.168.5.0/24`    | Internet-connected IoT devices               |
+| 6    | IoT Private   | `192.168.6.0/24`    | IoT devices that must remain offline         |
+| 7    | Work          | `192.168.7.0/24`    | Work devices                                 |
+| 8    | Unrestricted  | `192.168.8.0/24`    | Unrestricted trusted devices                 |
+| 10   | Server        | `192.168.10.0/24`   | Cluster nodes and service VIPs               |
+
+Key addresses on the Server network:
 
 | IP              | Role                 |
 |-----------------|----------------------|
