@@ -4,8 +4,17 @@ variable "site" {
   }))
 }
 
+variable "client" {
+  type = map(object({
+    fixed_ip = string
+    mac      = string
+  }))
+}
+
 variable "device" {
-  type = set(string)
+  type = map(object({
+    mac = string
+  }))
 }
 
 variable "wan" {

@@ -16,6 +16,7 @@ Create this layout:
 ```text
 ~/dotfiles/secrets/otaru/
 ├── envrc
+├── tfconfig
 ├── 1password-credentials.json
 ├── token
 └── etcd/
@@ -69,6 +70,32 @@ export UNIFI_LHR_WLAN04_SSID=...
 # OpenTofu GitHub provider (Access unit IP data source). Prefer env over
 # embedding tokens in generated provider.tf / .terragrunt-cache.
 export GITHUB_TOKEN="$(gh auth token)"
+```
+
+## `tfconfig`
+
+Terraform configuration that should stay outside the public repository belongs
+in `~/dotfiles/secrets/otaru/tfconfig`. Keep this local JSON file synchronized
+with the `tfconfig` Document item in the `github-otaru` 1Password vault,
+matching the existing `envrc` Document pattern. Only sensitive Terraform values
+belong here. Keep stable keys, fixed IPs, device roles, and other non-sensitive
+desired configuration in HCL:
+
+```json
+{
+  "unifi": {
+    "clients": {
+      "device-name": {
+        "mac": "00:00:00:00:00:00"
+      }
+    },
+    "devices": {
+      "device-key": {
+        "mac": "00:00:00:00:00:00"
+      }
+    }
+  }
+}
 ```
 
 OpenTofu/Terragrunt providers take credentials from the environment only

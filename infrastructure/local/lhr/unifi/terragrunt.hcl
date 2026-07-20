@@ -7,6 +7,7 @@ terraform {
 }
 
 locals {
+  tfconfig        = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
   wlan01_password = get_env("UNIFI_LHR_WLAN01_PASSWORD")
   wlan01_ssid     = get_env("UNIFI_LHR_WLAN01_SSID")
   wlan02_password = get_env("UNIFI_LHR_WLAN02_PASSWORD")
@@ -18,20 +19,34 @@ locals {
 }
 
 inputs = {
+  client = {
+    jetkvm = {
+      fixed_ip = "192.168.10.41"
+      mac      = local.tfconfig.unifi.clients.jetkvm.mac
+    }
+  }
   site = {
     site00 = {
       description = "Default"
     }
   }
-  # Device identities and controller-assigned names are retained in private
-  # Terraform state rather than exposed in this public repository.
-  device = toset([
-    "gateway00", # Cloud Gateway Ultra
-    "switch00",  # USW Lite 8 PoE
-    "switch01",  # Switch Ultra
-    "wifi00",    # U7 Pro Back
-    "wifi01",    # U7 Pro Front
-  ])
+  device = {
+    gateway00 = { # Cloud Gateway Ultra
+      mac = local.tfconfig.unifi.devices.gateway00.mac
+    }
+    switch00 = { # USW Lite 8 PoE
+      mac = local.tfconfig.unifi.devices.switch00.mac
+    }
+    switch01 = { # Switch Ultra
+      mac = local.tfconfig.unifi.devices.switch01.mac
+    }
+    wifi00 = { # U7 Pro Back
+      mac = local.tfconfig.unifi.devices.wifi00.mac
+    }
+    wifi01 = { # U7 Pro Front
+      mac = local.tfconfig.unifi.devices.wifi01.mac
+    }
+  }
   # Only VLAN address groups that already exist in the controller are managed.
   firewall_group_vlan_keys = toset([
     "vlan01",
