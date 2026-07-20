@@ -105,6 +105,7 @@ variable "setting" {
       advanced_filtering_preference           = string
       content_filtering_blocking_page_enabled = bool
       enabled_categories                      = list(string)
+      enabled_network_keys                    = set(string)
       honeypot_enabled                        = bool
       ips_mode                                = string
       memory_optimized                        = bool

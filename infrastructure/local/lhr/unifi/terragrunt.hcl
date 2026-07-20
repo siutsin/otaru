@@ -278,12 +278,29 @@ inputs = {
         network_ids = []
       }
       ips = {
-        advanced_filtering_preference           = "disabled"
+        advanced_filtering_preference           = "manual"
         content_filtering_blocking_page_enabled = true
-        enabled_categories                      = []
-        honeypot_enabled                        = true
-        ips_mode                                = "disabled"
-        memory_optimized                        = true
+        enabled_categories = [
+          "botcc",
+          "compromised",
+          "emerging-exploit",
+          "emerging-malware",
+          "emerging-useragent",
+          "malicious-hosts",
+        ]
+        enabled_network_keys = [
+          "vlan01",
+          "vlan03",
+          "vlan04",
+          "vlan05",
+          "vlan06",
+          "vlan07",
+          "vlan08",
+          "vlan10",
+        ]
+        honeypot_enabled = true
+        ips_mode         = "ids"
+        memory_optimized = true
       }
       lcm = {
         brightness   = 80
@@ -296,7 +313,7 @@ inputs = {
         advanced_feature_enabled  = true
         auto_upgrade              = true
         auto_upgrade_hour         = 5
-        debug_tools_enabled       = true
+        debug_tools_enabled       = false
         direct_connect_enabled    = true
         ssh_auth_password_enabled = false
         ssh_enabled               = true
@@ -324,7 +341,7 @@ inputs = {
       usg = {
         broadcast_ping       = false
         receive_redirects    = false
-        send_redirects       = true
+        send_redirects       = false
         syn_cookies          = true
         upnp_enabled         = false
         upnp_nat_pmp_enabled = false
