@@ -3,13 +3,21 @@ resource "unifi_device" "device" {
 
   mac = each.value.mac
 
+  dynamic "port_override" {
+    for_each = each.value.port_overrides
+
+    content {
+      index                 = port_override.value.index
+      native_networkconf_id = unifi_network.vlan[port_override.value.native_network_id_key].id
+    }
+  }
+
   lifecycle {
     # Imported devices do not report the provider's client-side adoption and
-    # destroy flags. Port configuration is maintained in the live controller.
+    # destroy flags.
     ignore_changes = [
       allow_adoption,
       forget_on_destroy,
-      port_override,
     ]
   }
 }

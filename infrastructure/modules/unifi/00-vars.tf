@@ -14,6 +14,10 @@ variable "client" {
 variable "device" {
   type = map(object({
     mac = string
+    port_overrides = optional(map(object({
+      index                 = number
+      native_network_id_key = string
+    })), {})
   }))
 }
 

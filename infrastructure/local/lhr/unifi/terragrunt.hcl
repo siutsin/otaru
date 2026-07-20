@@ -33,12 +33,62 @@ inputs = {
   device = {
     gateway00 = { # Cloud Gateway Ultra
       mac = local.tfconfig.unifi.devices.gateway00.mac
+      port_overrides = {
+        port01 = {
+          index                 = 1
+          native_network_id_key = "vlan01"
+        }
+      }
     }
     switch00 = { # USW Lite 8 PoE
       mac = local.tfconfig.unifi.devices.switch00.mac
+      port_overrides = {
+        port04 = {
+          index                 = 4
+          native_network_id_key = "vlan10"
+        }
+        port05 = {
+          index                 = 5
+          native_network_id_key = "vlan10"
+        }
+        port06 = {
+          index                 = 6
+          native_network_id_key = "vlan10"
+        }
+      }
     }
     switch01 = { # Switch Ultra
       mac = local.tfconfig.unifi.devices.switch01.mac
+      port_overrides = {
+        port01 = {
+          index                 = 1
+          native_network_id_key = "vlan04"
+        }
+        port02 = {
+          index                 = 2
+          native_network_id_key = "vlan04"
+        }
+        port03 = {
+          index                 = 3
+          native_network_id_key = "vlan10"
+        }
+        port04 = {
+          index                 = 4
+          native_network_id_key = "vlan10"
+        }
+        port05 = {
+          index                 = 5
+          native_network_id_key = "vlan10"
+        }
+        port06 = {
+          index                 = 6
+          native_network_id_key = "vlan10"
+        }
+        port07 = {
+          index                 = 7
+          native_network_id_key = "vlan10"
+        }
+      }
     }
     wifi00 = { # U7 Pro Back
       mac = local.tfconfig.unifi.devices.wifi00.mac
