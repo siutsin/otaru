@@ -11,3 +11,19 @@ output "firewall_group_rfc1918" {
     id = unifi_firewall_group.rfc1918.id
   }
 }
+
+output "clients" {
+  value = {
+    for k, v in unifi_client.this : k => {
+      fixed_ip = v.fixed_ip
+    }
+  }
+}
+
+output "networks" {
+  value = {
+    for k, v in unifi_network.vlan : k => {
+      id = v.id
+    }
+  }
+}

@@ -7,6 +7,7 @@ terraform {
 }
 
 locals {
+  tfconfig        = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
   wlan01_password = get_env("UNIFI_LHR_WLAN01_PASSWORD")
   wlan01_ssid     = get_env("UNIFI_LHR_WLAN01_SSID")
   wlan02_password = get_env("UNIFI_LHR_WLAN02_PASSWORD")
@@ -18,35 +19,145 @@ locals {
 }
 
 inputs = {
+  client = {
+    jetkvm = {
+      fixed_ip = "192.168.10.41"
+      mac      = local.tfconfig.unifi.clients.jetkvm.mac
+    }
+    kitchen_airplay = {
+      fixed_ip = "192.168.4.221"
+      mac      = local.tfconfig.unifi.clients.kitchen_airplay.mac
+    }
+    living_room_homepod = {
+      fixed_ip = "192.168.4.239"
+      mac      = local.tfconfig.unifi.clients.living_room_homepod.mac
+    }
+    nvidia_shield = {
+      # Its current DHCP address could not be reserved because UniFi reports it in use.
+      fixed_ip = "192.168.1.200"
+      mac      = local.tfconfig.unifi.clients.nvidia_shield.mac
+    }
+  }
   site = {
     site00 = {
       description = "Default"
     }
   }
   device = {
-    gateway00 = {
-      name = "Cloud Gateway Ultra"
+    gateway00 = { # Cloud Gateway Ultra
+      mac = local.tfconfig.unifi.devices.gateway00.mac
+      port_overrides = {
+        port01 = {
+          index                 = 1
+          native_network_id_key = "vlan01"
+        }
+      }
     }
-    switch00 = {
-      name = "USW Lite 8 PoE"
+    switch00 = { # USW Lite 8 PoE
+      mac = local.tfconfig.unifi.devices.switch00.mac
+      port_overrides = {
+        port04 = {
+          index                 = 4
+          native_network_id_key = "vlan10"
+        }
+        port05 = {
+          index                 = 5
+          native_network_id_key = "vlan10"
+        }
+        port06 = {
+          index                 = 6
+          native_network_id_key = "vlan10"
+        }
+      }
     }
-    switch01 = {
-      name = "Switch Ultra"
+    switch01 = { # Switch Ultra
+      mac = local.tfconfig.unifi.devices.switch01.mac
+      port_overrides = {
+        port01 = {
+          index                 = 1
+          native_network_id_key = "vlan04"
+        }
+        port02 = {
+          index                 = 2
+          native_network_id_key = "vlan04"
+        }
+        port03 = {
+          index                 = 3
+          native_network_id_key = "vlan10"
+        }
+        port04 = {
+          index                 = 4
+          native_network_id_key = "vlan10"
+        }
+        port05 = {
+          index                 = 5
+          native_network_id_key = "vlan10"
+        }
+        port06 = {
+          index                 = 6
+          native_network_id_key = "vlan10"
+        }
+        port07 = {
+          index                 = 7
+          native_network_id_key = "vlan10"
+        }
+      }
     }
-    wifi00 = {
-      name = "U7 Pro 1/F"
+    wifi00 = { # U7 Pro Back
+      mac = local.tfconfig.unifi.devices.wifi00.mac
+      radio_table = [
+        {
+          channel = "1"
+          ht      = 20
+          radio   = "ng"
+        },
+        {
+          channel = "157"
+          ht      = 80
+          radio   = "na"
+        },
+        {
+          channel = "auto"
+          ht      = 160
+          radio   = "6e"
+        },
+      ]
     }
-    wifi01 = {
-      name = "U7 Pro G/F"
+    wifi01 = { # U7 Pro Front
+      mac = local.tfconfig.unifi.devices.wifi01.mac
+      radio_table = [
+        {
+          channel = "6"
+          ht      = 20
+          radio   = "ng"
+        },
+        {
+          channel = "auto"
+          ht      = 80
+          radio   = "na"
+        },
+        {
+          channel = "auto"
+          ht      = 320
+          radio   = "6e"
+        },
+      ]
     }
   }
+  # Only VLAN address groups that already exist in the controller are managed.
+  firewall_group_vlan_keys = toset([
+    "vlan01",
+    "vlan03",
+    "vlan04",
+    "vlan05",
+    "vlan06",
+    "vlan07",
+  ])
   wan = {
     wan00 = {
-      name             = "Primary (WAN1)"
-      wan_dns          = ["192.168.10.51", "1.1.1.2"]
-      wan_networkgroup = "WAN"
-      wan_type         = "dhcp"
-      wan_type_v6      = "disabled"
+      name        = "Internet 1"
+      wan_dns     = []
+      wan_type_v6 = "dhcpv6"
     }
   }
   vlan = {
@@ -54,7 +165,7 @@ inputs = {
       dhcp_start = "192.168.1.6"
       dhcp_stop  = "192.168.1.254"
       name       = "Default"
-      subnet     = "192.168.1.0/24"
+      subnet     = "192.168.1.1/24"
     }
     # UniFi Teleport (vlan_id: 1) range 192.168.2.0 - 192.168.2.255.
     vlan03 = {
@@ -62,14 +173,14 @@ inputs = {
       dhcp_stop  = "192.168.3.254"
       name       = "Guest"
       purpose    = "guest"
-      subnet     = "192.168.3.0/24"
+      subnet     = "192.168.3.1/24"
       vlan_id    = 3
     }
     vlan04 = {
-      dhcp_start = "192.168.4.6"
+      dhcp_start = "192.168.4.100"
       dhcp_stop  = "192.168.4.254"
       name       = "Client"
-      subnet     = "192.168.4.0/24"
+      subnet     = "192.168.4.1/24"
       vlan_id    = 4
     }
     # TODO: fix chime pro issue
@@ -79,14 +190,14 @@ inputs = {
       dhcp_start = "192.168.5.100"
       dhcp_stop  = "192.168.5.254"
       name       = "IoT Public"
-      subnet     = "192.168.5.0/24"
+      subnet     = "192.168.5.1/24"
       vlan_id    = 5
     }
     vlan06 = {
       dhcp_start = "192.168.6.6"
       dhcp_stop  = "192.168.6.40"
       name       = "IoT Private"
-      subnet     = "192.168.6.0/24"
+      subnet     = "192.168.6.1/24"
       vlan_id    = 6
     }
     vlan07 = {
@@ -94,8 +205,35 @@ inputs = {
       dhcp_start = "192.168.7.6"
       dhcp_stop  = "192.168.7.254"
       name       = "Work"
-      subnet     = "192.168.7.0/24"
+      subnet     = "192.168.7.1/24"
       vlan_id    = 7
+    }
+    vlan08 = {
+      auto_scale  = true
+      dhcp_dns    = ["1.1.1.2", "1.0.0.2"]
+      dhcp_start  = "192.168.8.6"
+      dhcp_stop   = "192.168.8.254"
+      domain_name = ""
+      lte_lan     = true
+      name        = "Unrestricted"
+      subnet      = "192.168.8.1/24"
+      vlan_id     = 8
+    }
+    vlan10 = {
+      auto_scale         = true
+      dhcp_dns           = []
+      dhcp_start         = "192.168.10.6"
+      dhcp_stop          = "192.168.10.254"
+      domain_name        = ""
+      ipv6_pd_start      = ""
+      ipv6_pd_stop       = ""
+      ipv6_ra_enable     = false
+      ipv6_ra_priority   = ""
+      lte_lan            = true
+      name               = "Server"
+      setting_preference = "auto"
+      subnet             = "192.168.10.1/24"
+      vlan_id            = 10
     }
   }
   wlan = {
@@ -105,9 +243,11 @@ inputs = {
       passphrase     = local.wlan01_password
     }
     wlan02 = {
+      group_rekey    = 0
       name           = local.wlan02_ssid
       network_id_key = "vlan04"
       passphrase     = local.wlan02_password
+      wlan_bands     = ["2g", "5g", "6g"]
     }
     wlan03 = {
       name            = local.wlan03_ssid
@@ -115,6 +255,7 @@ inputs = {
       passphrase      = local.wlan03_password
       pmf_mode        = "disabled"
       wlan_band       = "2g"
+      wlan_bands      = ["2g"]
       wpa3_support    = false
       wpa3_transition = false
     }
@@ -122,12 +263,99 @@ inputs = {
       name           = local.wlan04_ssid
       network_id_key = "vlan01" # some IoT devices do not support vlan tag. All IoT devices will assign to the default vlan from now on.
       passphrase     = local.wlan04_password
+      wlan_bands     = ["2g", "5g", "6g"]
     }
   }
   setting = {
     setting00 = {
+      auto_speedtest = {
+        cron_expr = "0 5 * * *"
+        enabled   = true
+      }
+      country = {
+        code = 826
+      }
+      doh = {
+        server_names = ["cloudflare", "google"]
+        state        = "off"
+      }
+      dpi = {
+        enabled                = true
+        fingerprinting_enabled = true
+      }
+      igmp_snooping = {
+        enabled     = false
+        network_ids = []
+      }
+      ips = {
+        advanced_filtering_preference           = "manual"
+        content_filtering_blocking_page_enabled = true
+        enabled_categories = [
+          "botcc",
+          "compromised",
+          "emerging-exploit",
+          "emerging-malware",
+          "emerging-useragent",
+          "malicious-hosts",
+        ]
+        enabled_network_keys = [
+          "vlan01",
+          "vlan03",
+          "vlan04",
+          "vlan05",
+          "vlan06",
+          "vlan07",
+          "vlan08",
+          "vlan10",
+        ]
+        honeypot_enabled = true
+        ips_mode         = "ids"
+        memory_optimized = true
+      }
+      lcm = {
+        brightness   = 80
+        idle_timeout = 300
+        sync         = true
+      }
+      mgmt = {
+        advanced_feature_enabled  = true
+        auto_upgrade              = true
+        auto_upgrade_hour         = 5
+        debug_tools_enabled       = false
+        direct_connect_enabled    = true
+        ssh_auth_password_enabled = false
+        ssh_enabled               = true
+        unifi_idp_enabled         = false
+        wifiman_enabled           = true
+      }
+      network_optimization = {
+        enabled = true
+      }
+      ntp = {
+        ntp_server_1       = "0.ubnt.pool.ntp.org"
+        ntp_server_2       = "1.ubnt.pool.ntp.org"
+        ntp_server_3       = "2.ubnt.pool.ntp.org"
+        ntp_server_4       = "3.ubnt.pool.ntp.org"
+        setting_preference = "auto"
+      }
       site_key       = "site00"
       ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7Hl8gjq6bsgtlkTBxeuEJs0y22YlYll//0Eg+0E0pSkE4lTk8rRva4oVGO4JM5jdNfyHdyvblrXTkMVAoaAj5WJZ3Ia74kN/x3S3pKDASPPW+KCI+Lgq+n474Oi5M0C0AxQgE5fNlEoRcosjTroxPVOBRi/kDSirqc4x60n9YbCaL+/XWo6EhqHieq+AKBzE/mU1gmbej0lrvG9Iyiu1F+VtJel5OTsXU8/czzHHApdegiXUNbw7KVVuCYdWK6ihBib0hEhbDaZNCYQeYuMF5F3MYU8q/WCXe56ditftUX9GPs7m71/15vBsdNFLqhpFTtMdnn/z5FFLYnT9Qp4TobXnZc8F7/gZ1ghdI01pzYpg0TvInbe/KDDRlfFf5GqWhqFPoReK2yAI3nBHZkovnDct292pqsgMe27SAY16ULyzEnt+mJCofTafuZzWZlmXZum3/symt4G+l77Bscq2tJ0OfVY0YhHh7cCXTpDrb4yJrRB8BrwFrqAlC3Xbn+0NcX42DQs6B8TMlWxm19yriGRagbZJ4lPOucBUZSxKXtrFFT8aSvhiPgFJ+b92bl7sY7Po2Gnv3FkDpb9RvyP76Odv5Sm+O9vDIhtHRUEoxNxdnwsfWoqjl2Y9sCOZ6Q+eoQ11QWvEPRkvtxKDKrCd1pNkC7OlvVnsQLEHyRRO3Dw=="
+      syslog = {
+        enabled                        = true
+        log_all_contents               = true
+        this_controller                = true
+        this_controller_encrypted_only = true
+      }
+      usg = {
+        broadcast_ping       = false
+        receive_redirects    = false
+        send_redirects       = false
+        syn_cookies          = true
+        upnp_enabled         = false
+        upnp_nat_pmp_enabled = false
+        upnp_secure_mode     = false
+        upnp_wan_interface   = "WAN"
+      }
     }
   }
 }

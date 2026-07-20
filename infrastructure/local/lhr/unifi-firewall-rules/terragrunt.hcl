@@ -11,141 +11,143 @@ dependencies {
 }
 
 locals {
+  media_receiver_client_keys = [
+    "kitchen_airplay",
+    "living_room_homepod",
+    "nvidia_shield",
+  ]
+
   mock_outputs = {
     firewall_group = {
       id = "id"
     }
+    client = {
+      fixed_ip = "192.0.2.1"
+    }
   }
 
-  gateway_ip = "192.168.10.51"
-  vlans      = ["vlan01", "vlan03", "vlan04", "vlan05", "vlan06", "vlan07"]
+  k3s_ingress_ip = "192.168.10.51"
+  vlans          = ["vlan01", "vlan03", "vlan04", "vlan05", "vlan06", "vlan07", "vlan08", "vlan10"]
 }
 
 dependency "unifi" {
   config_path = "../unifi"
 
   mock_outputs = {
+    clients                = { for client_key in local.media_receiver_client_keys : client_key => local.mock_outputs.client }
     firewall_group_vlans   = { for vlan in local.vlans : vlan => local.mock_outputs.firewall_group }
     firewall_group_rfc1918 = local.mock_outputs.firewall_group
+    networks               = { for vlan in local.vlans : vlan => local.mock_outputs.firewall_group }
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
 }
 
-# Rule Types
-#
-# The rules are grouped based on the type of network that they apply to. The following network types are used:
-#
-# Internet: Contains IPv4 firewall rules that apply to the Internet network.
-# LAN: Contains IPv4 firewall rules that apply to the LAN (Corporate) network.
-# Guest: Contains IPv4 firewall rules that apply to the Guest network.
-# Internet v6: Contains IPv6 firewall rules that apply to the Internet network.
-# LAN v6: Contains IPv6 firewall rules that apply to the LAN (Corporate) network.
-# Guest v6: Contains IPv6 firewall rules that apply to the Guest network.
-#
-# Rule Directionality
-#
-# Besides the network type, the firewall rules also apply to a direction. The following directions are used:
-#
-# Local: Applies to traffic that is destined for the UDM/USG itself.
-# In: Applies to traffic that is entering the interface (ingress), destined for other networks.
-# Out: Applies to traffic that is exiting the interface (egress), destined for this network.
-#
-# For example, firewall rules configured under LAN In will apply to traffic from the LAN (Corporate) network, destined for other networks. Firewall rules configured under LAN
-# Local will apply to traffic from the LAN (Corporate) network, destined for the UDM/USG itself.
+inputs = {
+  firewall_policies = {
+    allow_hotspot_k3s_web_dns = {
+      action               = "ALLOW"
+      create_allow_respond = true
+      description          = "Allow guest devices to use DNS and web services exposed through the K3s ingress."
+      name                 = "Allow Hotspot to K3s Web and DNS"
+      protocol             = "tcp_udp"
 
-# inputs = {
-#   firewall_rules = {
-#     # Common
-#     allow_all_vlans_to_otaru_gateway = {
-#       action     = "accept"
-#       name       = "Allow Traffic from All VLANs to Otaru Gateway"
-#       rule_index = 20000
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-#       dst_address            = local.gateway_ip
-#     }
-#     # vlan05
-#     allow_vlan01_to_vlan05 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan01 to vlan05"
-#       rule_index = 20501
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan01"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-#     }
-#     allow_vlan04_to_vlan05 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan04 to vlan05"
-#       rule_index = 20504
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan04"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-#     }
-#     allow_vlan05_to_vlan05 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan05 to vlan05"
-#       rule_index = 20505
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-#     }
-#     block_vlan05_to_all_vlans = {
-#       action     = "drop"
-#       name       = "Block Traffic from vlan05 to All VLANs"
-#       rule_index = 20510
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan05"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-#     }
-#     # vlan06
-#     allow_vlan01_to_vlan06 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan01 to vlan06"
-#       rule_index = 20601
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan01"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#     }
-#     allow_vlan04_to_vlan06 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan04 to vlan06"
-#       rule_index = 20604
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan04"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#     }
-#     allow_vlan06_to_vlan06 = {
-#       action     = "accept"
-#       name       = "Allow Traffic from vlan06 to vlan06"
-#       rule_index = 20606
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#     }
-#     block_vlan06_to_all_vlans = {
-#       action     = "drop"
-#       name       = "Block Traffic from vlan06 to All VLANs"
-#       rule_index = 20610
-#       ruleset    = "LAN_IN"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#       dst_firewall_group_ids = [dependency.unifi.outputs.firewall_group_rfc1918.id]
-#     }
-#     block_vlan06_to_internet = {
-#       action     = "drop"
-#       name       = "Block Traffic from vlan06 to Internet"
-#       rule_index = 20620
-#       ruleset    = "WAN_OUT"
-#
-#       src_firewall_group_ids = [dependency.unifi.outputs.firewall_group_vlans["vlan06"].id]
-#     }
-#   }
-# }
+      source = {
+        zone = "Hotspot"
+      }
+      destination = {
+        ips             = [local.k3s_ingress_ip]
+        matching_target = "IP"
+        port            = "53,443"
+        zone            = "Internal"
+      }
+    }
+    allow_internal_ingress = {
+      action               = "ALLOW"
+      create_allow_respond = true
+      description          = "Allow devices on internal networks to reach services exposed through the K3s ingress."
+      name                 = "Allow Internal to K3s Ingress"
+
+      source = {
+        zone = "Internal"
+      }
+      destination = {
+        ips             = [local.k3s_ingress_ip]
+        matching_target = "IP"
+        zone            = "Internal"
+      }
+    }
+    allow_guest_media_receivers = {
+      action               = "ALLOW"
+      create_allow_respond = true
+      description          = "Allow guest devices to use the household AirPlay, Chromecast, and Spotify Connect receivers."
+      ip_version           = "BOTH"
+      name                 = "Allow Guest Media Receivers"
+
+      source = {
+        zone = "Hotspot"
+      }
+      destination = {
+        ips = [
+          for client_key in local.media_receiver_client_keys : dependency.unifi.outputs.clients[client_key].fixed_ip
+        ]
+        # This controller firmware rejects CLIENT targets, so stable client reservations are matched by IP.
+        matching_target = "IP"
+        zone            = "Internal"
+      }
+    }
+    allow_vpn_ingress = {
+      action               = "ALLOW"
+      create_allow_respond = true
+      description          = "Allow remote VPN devices to reach services exposed through the K3s ingress."
+      name                 = "Allow VPN to K3s Ingress"
+
+      source = {
+        zone = "Vpn"
+      }
+      destination = {
+        ips             = [local.k3s_ingress_ip]
+        matching_target = "IP"
+        zone            = "Internal"
+      }
+    }
+    block_restricted_internal = {
+      action = "BLOCK"
+      # Keep the K3s ingress exception above this broad Internal-to-Internal deny.
+      allow_policy_keys_before = ["allow_internal_ingress"]
+      connection_state_type    = "CUSTOM"
+      connection_states        = ["NEW", "INVALID"]
+      description              = "Prevent devices on the Default and IoT networks from initiating connections to other internal networks."
+      ip_version               = "BOTH"
+      logging                  = true
+      name                     = "Block Restricted Networks to Internal"
+
+      source = {
+        matching_target = "NETWORK"
+        network_ids = [
+          dependency.unifi.outputs.networks["vlan01"].id,
+          dependency.unifi.outputs.networks["vlan05"].id,
+          dependency.unifi.outputs.networks["vlan06"].id,
+        ]
+        zone = "Internal"
+      }
+      destination = {
+        zone = "Internal"
+      }
+    }
+    block_private_iot_internet = {
+      action      = "BLOCK"
+      description = "Keep private IoT devices off the Internet."
+      ip_version  = "BOTH"
+      name        = "Block Private IoT Internet"
+
+      source = {
+        matching_target = "NETWORK"
+        network_ids     = [dependency.unifi.outputs.networks["vlan06"].id]
+        zone            = "Internal"
+      }
+      destination = {
+        zone = "External"
+      }
+    }
+  }
+}
