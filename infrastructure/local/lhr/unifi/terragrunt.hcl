@@ -258,8 +258,79 @@ inputs = {
   }
   setting = {
     setting00 = {
+      auto_speedtest = {
+        cron_expr = "0 5 * * *"
+        enabled   = true
+      }
+      country = {
+        code = 826
+      }
+      doh = {
+        server_names = ["cloudflare", "google"]
+        state        = "off"
+      }
+      dpi = {
+        enabled                = true
+        fingerprinting_enabled = true
+      }
+      igmp_snooping = {
+        enabled     = false
+        network_ids = []
+      }
+      ips = {
+        advanced_filtering_preference           = "disabled"
+        content_filtering_blocking_page_enabled = true
+        enabled_categories                      = []
+        honeypot_enabled                        = true
+        ips_mode                                = "disabled"
+        memory_optimized                        = true
+      }
+      lcm = {
+        brightness   = 80
+        enabled      = true
+        idle_timeout = 300
+        sync         = true
+        touch_event  = true
+      }
+      mgmt = {
+        advanced_feature_enabled  = true
+        auto_upgrade              = true
+        auto_upgrade_hour         = 5
+        debug_tools_enabled       = true
+        direct_connect_enabled    = true
+        ssh_auth_password_enabled = false
+        ssh_enabled               = true
+        unifi_idp_enabled         = false
+        wifiman_enabled           = true
+      }
+      network_optimization = {
+        enabled = true
+      }
+      ntp = {
+        ntp_server_1       = "0.ubnt.pool.ntp.org"
+        ntp_server_2       = "1.ubnt.pool.ntp.org"
+        ntp_server_3       = "2.ubnt.pool.ntp.org"
+        ntp_server_4       = "3.ubnt.pool.ntp.org"
+        setting_preference = "auto"
+      }
       site_key       = "site00"
       ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7Hl8gjq6bsgtlkTBxeuEJs0y22YlYll//0Eg+0E0pSkE4lTk8rRva4oVGO4JM5jdNfyHdyvblrXTkMVAoaAj5WJZ3Ia74kN/x3S3pKDASPPW+KCI+Lgq+n474Oi5M0C0AxQgE5fNlEoRcosjTroxPVOBRi/kDSirqc4x60n9YbCaL+/XWo6EhqHieq+AKBzE/mU1gmbej0lrvG9Iyiu1F+VtJel5OTsXU8/czzHHApdegiXUNbw7KVVuCYdWK6ihBib0hEhbDaZNCYQeYuMF5F3MYU8q/WCXe56ditftUX9GPs7m71/15vBsdNFLqhpFTtMdnn/z5FFLYnT9Qp4TobXnZc8F7/gZ1ghdI01pzYpg0TvInbe/KDDRlfFf5GqWhqFPoReK2yAI3nBHZkovnDct292pqsgMe27SAY16ULyzEnt+mJCofTafuZzWZlmXZum3/symt4G+l77Bscq2tJ0OfVY0YhHh7cCXTpDrb4yJrRB8BrwFrqAlC3Xbn+0NcX42DQs6B8TMlWxm19yriGRagbZJ4lPOucBUZSxKXtrFFT8aSvhiPgFJ+b92bl7sY7Po2Gnv3FkDpb9RvyP76Odv5Sm+O9vDIhtHRUEoxNxdnwsfWoqjl2Y9sCOZ6Q+eoQ11QWvEPRkvtxKDKrCd1pNkC7OlvVnsQLEHyRRO3Dw=="
+      syslog = {
+        enabled                        = true
+        log_all_contents               = true
+        this_controller                = true
+        this_controller_encrypted_only = true
+      }
+      usg = {
+        broadcast_ping       = false
+        receive_redirects    = false
+        send_redirects       = true
+        syn_cookies          = true
+        upnp_enabled         = false
+        upnp_nat_pmp_enabled = false
+        upnp_secure_mode     = false
+        upnp_wan_interface   = "WAN"
+      }
     }
   }
 }

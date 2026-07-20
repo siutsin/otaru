@@ -82,9 +82,80 @@ variable "wlan" {
 
 variable "setting" {
   type = map(object({
+    auto_speedtest = optional(object({
+      cron_expr = string
+      enabled   = bool
+    }))
+    country = optional(object({
+      code = number
+    }))
+    doh = optional(object({
+      server_names = list(string)
+      state        = string
+    }))
+    dpi = optional(object({
+      enabled                = bool
+      fingerprinting_enabled = bool
+    }))
+    igmp_snooping = optional(object({
+      enabled     = bool
+      network_ids = list(string)
+    }))
+    ips = optional(object({
+      advanced_filtering_preference           = string
+      content_filtering_blocking_page_enabled = bool
+      enabled_categories                      = list(string)
+      honeypot_enabled                        = bool
+      ips_mode                                = string
+      memory_optimized                        = bool
+    }))
+    lcm = optional(object({
+      brightness   = number
+      enabled      = bool
+      idle_timeout = number
+      sync         = bool
+      touch_event  = bool
+    }))
+    mgmt = object({
+      advanced_feature_enabled  = bool
+      auto_upgrade              = bool
+      auto_upgrade_hour         = number
+      debug_tools_enabled       = bool
+      direct_connect_enabled    = bool
+      ssh_auth_password_enabled = bool
+      ssh_enabled               = bool
+      unifi_idp_enabled         = bool
+      wifiman_enabled           = bool
+    })
+    network_optimization = optional(object({
+      enabled = bool
+    }))
+    ntp = optional(object({
+      ntp_server_1       = string
+      ntp_server_2       = string
+      ntp_server_3       = string
+      ntp_server_4       = string
+      setting_preference = string
+    }))
     site_key       = string
     ssh_key_name   = optional(string, "UniFi Site Manager")
     ssh_key_type   = optional(string, "ssh-rsa")
     ssh_public_key = string
+    syslog = optional(object({
+      enabled                        = bool
+      log_all_contents               = bool
+      this_controller                = bool
+      this_controller_encrypted_only = bool
+    }))
+    usg = optional(object({
+      broadcast_ping       = bool
+      receive_redirects    = bool
+      send_redirects       = bool
+      syn_cookies          = bool
+      upnp_enabled         = bool
+      upnp_nat_pmp_enabled = bool
+      upnp_secure_mode     = bool
+      upnp_wan_interface   = string
+    }))
   }))
 }
