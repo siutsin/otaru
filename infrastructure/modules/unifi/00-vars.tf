@@ -31,8 +31,8 @@ variable "wan" {
     name                = string
     wan_dhcp_v6_pd_size = optional(number, 48)
     wan_dns             = list(string)
-    wan_networkgroup    = string
-    wan_type            = string
+    wan_networkgroup    = optional(string)
+    wan_type            = optional(string)
     wan_type_v6         = string
   }))
 }
@@ -112,10 +112,10 @@ variable "setting" {
     }))
     lcm = optional(object({
       brightness   = number
-      enabled      = bool
+      enabled      = optional(bool)
       idle_timeout = number
       sync         = bool
-      touch_event  = bool
+      touch_event  = optional(bool)
     }))
     mgmt = object({
       advanced_feature_enabled  = bool

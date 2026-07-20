@@ -142,11 +142,9 @@ inputs = {
   ])
   wan = {
     wan00 = {
-      name             = "Internet 1"
-      wan_dns          = []
-      wan_networkgroup = "WAN"
-      wan_type         = "dhcp"
-      wan_type_v6      = "dhcpv6"
+      name        = "Internet 1"
+      wan_dns     = []
+      wan_type_v6 = "dhcpv6"
     }
   }
   vlan = {
@@ -230,7 +228,6 @@ inputs = {
       name           = local.wlan01_ssid
       network_id_key = "vlan03"
       passphrase     = local.wlan01_password
-      wlan_bands     = ["2g", "5g"]
     }
     wlan02 = {
       group_rekey    = 0
@@ -304,10 +301,8 @@ inputs = {
       }
       lcm = {
         brightness   = 80
-        enabled      = true
         idle_timeout = 300
         sync         = true
-        touch_event  = true
       }
       mgmt = {
         advanced_feature_enabled  = true
