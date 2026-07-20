@@ -22,16 +22,6 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: {{ .Values.deployment.ports.http | quote }}
         prometheus.io/scrape: "true"
-        # 2026-07-20: descheduler's "consolidate" HighNodeUtilization strategy
-        # repeatedly evicted blocky from raspberrypi-00 every ~5 minutes --
-        # it is the only node under the 90% memory threshold while the other
-        # four sit at 98-100%, so the evicted pod has nowhere else to fit and
-        # reschedules straight back, causing a disruptive no-op loop (~40-50s
-        # of reduced capacity per cycle, protected only by the PDB's
-        # maxUnavailable: 1). Opt this DNS-critical, disruption-sensitive
-        # workload out of all descheduler strategies rather than tuning the
-        # shared cluster-wide policy.
-        descheduler.alpha.kubernetes.io/evict: "false"
     spec:
       affinity:
         podAntiAffinity:

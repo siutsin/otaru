@@ -1413,7 +1413,7 @@ which is misleading.
 ### Symptoms: VIP Answers Without Hitting Blocky
 
 | Path                            | `doubleclick.net` | `unifi`                                   |
-| ------------------------------- | ----------------- | ----------------------------------------- |
+|---------------------------------|-------------------|-------------------------------------------|
 | Blocky pod IP (hostNetwork dig) | `0.0.0.0`         | `192.168.10.1` (TTL 3600, one answer)     |
 | VIP while capture is on         | real Google IPs   | often TTL 5, two answers, or wrong source |
 | VIP after capture is off        | `0.0.0.0`         | `192.168.10.1` (TTL 3600, one answer)     |
@@ -1555,5 +1555,61 @@ produced a `-/+ destroy and then create replacement` plan for a live
 production Access application. Caught at the read-only `plan` stage
 before any apply; fixed by reimporting with `zones/<zone_id>/<app_id>`
 instead.
+
+---
+
+## `descheduler.alpha.kubernetes.io/evict: "false"` Does Not Stop Eviction
+
+**Problem:** blocky was being evicted from `raspberrypi-00` roughly every
+5 minutes by the `consolidate` profile's `HighNodeUtilization` plugin (see
+"Multi-Container Pods Fail to Schedule Despite \"Enough\" Free Cluster
+Memory" above for that profile's purpose). The first attempted fix added
+the pod annotation `descheduler.alpha.kubernetes.io/evict: "false"` to
+blocky's Deployment template, on the assumption this is the standard
+descheduler opt-out. Confirmed live in `kubectl get events -n blocky` and
+descheduler's own logs that eviction continued unchanged after this
+"fix" rolled out.
+
+**Why it happens:** the annotation is real, but descheduler v0.36 only
+checks whether the key is **present**, not its value -- `"false"` is
+treated identically to `"true"` or any other string, and a pod carrying
+it in *any* form is treated as unconditionally evictable. This is a
+confirmed upstream limitation
+([kubernetes-sigs/descheduler#1659](https://github.com/kubernetes-sigs/descheduler/issues/1659)),
+not a local misconfiguration. Do not trust this annotation to protect a
+pod from eviction on this or any similarly-versioned descheduler.
+
+### Symptoms: Descheduler-Annotated Pod Still Gets Evicted
+
+- A pod carries `descheduler.alpha.kubernetes.io/evict: "false"`, but
+  `kubectl get events -n <namespace>` still shows
+  `Reason: HighNodeUtilization` (or any other strategy) evicting it.
+- Descheduler logs show the pod being selected and evicted with no
+  mention of the annotation at all.
+
+### Resolution: Scope the Exclusion via `DefaultEvictor`'s `labelSelector`
+
+`DefaultEvictor`'s `labelSelector` arg is a real allow-list -- only pods
+matching the selector are eligible for eviction under that profile.
+Exclude specific workloads with a `NotIn` match instead of relying on the
+per-pod annotation:
+
+```yaml
+- name: DefaultEvictor
+  args:
+    labelSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: NotIn
+          values:
+            - blocky
+```
+
+Scoped to one profile's `DefaultEvictor` config, this only exempts the
+workload from that profile's strategies (here, `consolidate`'s
+`HighNodeUtilization`) -- other profiles (e.g. `default`'s `PodLifeTime`,
+`RemovePodsHavingTooManyRestarts`) still apply normally. Verified live:
+zero further blocky evictions across multiple 5-minute descheduler cycles
+after this rolled out, versus one roughly every cycle beforehand.
 
 ---
