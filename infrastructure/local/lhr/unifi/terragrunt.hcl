@@ -92,9 +92,43 @@ inputs = {
     }
     wifi00 = { # U7 Pro Back
       mac = local.tfconfig.unifi.devices.wifi00.mac
+      radio_table = [
+        {
+          channel = "1"
+          ht      = 20
+          radio   = "ng"
+        },
+        {
+          channel = "157"
+          ht      = 80
+          radio   = "na"
+        },
+        {
+          channel = "auto"
+          ht      = 160
+          radio   = "6e"
+        },
+      ]
     }
     wifi01 = { # U7 Pro Front
       mac = local.tfconfig.unifi.devices.wifi01.mac
+      radio_table = [
+        {
+          channel = "6"
+          ht      = 20
+          radio   = "ng"
+        },
+        {
+          channel = "auto"
+          ht      = 80
+          radio   = "na"
+        },
+        {
+          channel = "auto"
+          ht      = 320
+          radio   = "6e"
+        },
+      ]
     }
   }
   # Only VLAN address groups that already exist in the controller are managed.

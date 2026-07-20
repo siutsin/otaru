@@ -1,7 +1,8 @@
 resource "unifi_device" "device" {
   for_each = var.device
 
-  mac = each.value.mac
+  mac         = each.value.mac
+  radio_table = each.value.radio_table
 
   dynamic "port_override" {
     for_each = each.value.port_overrides

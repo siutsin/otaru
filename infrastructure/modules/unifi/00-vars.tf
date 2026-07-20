@@ -18,6 +18,11 @@ variable "device" {
       index                 = number
       native_network_id_key = string
     })), {})
+    radio_table = optional(list(object({
+      channel = string
+      ht      = number
+      radio   = string
+    })))
   }))
 }
 
