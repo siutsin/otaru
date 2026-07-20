@@ -10,7 +10,9 @@ resource "unifi_firewall_group" "rfc1918" {
 }
 
 resource "unifi_firewall_group" "this" {
-  for_each = var.vlan
+  for_each = {
+    for key in var.firewall_group_vlan_keys : key => var.vlan[key]
+  }
 
   members = [cidrsubnet(each.value.subnet, 0, 0)]
   name    = each.key

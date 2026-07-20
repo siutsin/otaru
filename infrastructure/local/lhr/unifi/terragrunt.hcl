@@ -26,11 +26,20 @@ inputs = {
   # Device identities and controller-assigned names are retained in private
   # Terraform state rather than exposed in this public repository.
   device = toset([
-    "gateway00",
-    "switch00",
-    "switch01",
-    "wifi00",
-    "wifi01",
+    "gateway00", # Cloud Gateway Ultra
+    "switch00",  # USW Lite 8 PoE
+    "switch01",  # Switch Ultra
+    "wifi00",    # U7 Pro Back
+    "wifi01",    # U7 Pro Front
+  ])
+  # Only VLAN address groups that already exist in the controller are managed.
+  firewall_group_vlan_keys = toset([
+    "vlan01",
+    "vlan03",
+    "vlan04",
+    "vlan05",
+    "vlan06",
+    "vlan07",
   ])
   wan = {
     wan00 = {
@@ -88,6 +97,33 @@ inputs = {
       name       = "Work"
       subnet     = "192.168.7.1/24"
       vlan_id    = 7
+    }
+    vlan08 = {
+      auto_scale  = true
+      dhcp_dns    = ["1.1.1.2", "1.0.0.2"]
+      dhcp_start  = "192.168.8.6"
+      dhcp_stop   = "192.168.8.254"
+      domain_name = ""
+      lte_lan     = true
+      name        = "Unrestricted"
+      subnet      = "192.168.8.1/24"
+      vlan_id     = 8
+    }
+    vlan10 = {
+      auto_scale         = true
+      dhcp_dns           = []
+      dhcp_start         = "192.168.10.6"
+      dhcp_stop          = "192.168.10.254"
+      domain_name        = ""
+      ipv6_pd_start      = ""
+      ipv6_pd_stop       = ""
+      ipv6_ra_enable     = false
+      ipv6_ra_priority   = ""
+      lte_lan            = true
+      name               = "Server"
+      setting_preference = "auto"
+      subnet             = "192.168.10.1/24"
+      vlan_id            = 10
     }
   }
   wlan = {

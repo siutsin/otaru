@@ -21,6 +21,7 @@ variable "wan" {
 
 variable "vlan" {
   type = map(object({
+    auto_scale          = optional(bool, false)
     dhcp_dns            = optional(list(string), ["192.168.10.51", "1.1.1.2"])
     dhcp_enabled        = optional(bool, true)
     dhcp_start          = string
@@ -31,12 +32,18 @@ variable "vlan" {
     ipv6_pd_stop        = optional(string, "::7d1")
     ipv6_ra_enable      = optional(bool, true)
     ipv6_ra_priority    = optional(string, "high")
+    lte_lan             = optional(bool, false)
     multicast_dns       = optional(bool, true)
     name                = string
     purpose             = optional(string, "corporate")
+    setting_preference  = optional(string, "manual")
     subnet              = string
     vlan_id             = optional(number, 0)
   }))
+}
+
+variable "firewall_group_vlan_keys" {
+  type = set(string)
 }
 
 variable "wlan" {
