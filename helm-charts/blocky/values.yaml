@@ -20,12 +20,34 @@ deployment:
     # group ("malware", HaGeZi TIF + URLhaus) alongside the existing "ads"
     # group -- concurrent import/parse of both groups spikes higher than a
     # single group did. Bumped to 768Mi for headroom.
+    #
+    # 2026-07-21/22: still OOMKilling every ~4h in production (confirmed via
+    # Prometheus: working-set memory flat at ~290Mi steady state the entire
+    # 4h between kills, no leak -- the config has no explicit refreshPeriod,
+    # so blocky's default 4h denylist refresh was the trigger). Startup-only
+    # spikes peaked 550-670Mi with no prior list resident; a refresh spikes
+    # higher still because the old list (~290Mi) stays resident and serving
+    # queries while the new one is concurrently downloaded and parsed,
+    # stacking to an estimated ~840-960Mi peak -- over the 768Mi limit.
+    # Limit raised to 1280Mi for headroom above that estimate.
+    #
+    # Deliberate exception to this repo's "memory request equal to memory
+    # limit" convention (see CLAUDE.md): request is lowered to 350Mi (just
+    # above the ~290Mi steady state) while the limit stays at 1280Mi. Only
+    # the limit needs to cover the transient refresh spike -- steady-state
+    # usage never approaches it -- so requests==limits here was reserving
+    # ~930Mi of phantom, permanently-unused node capacity per replica
+    # against a spike that only ever happens for a few seconds every ~4h.
+    # See the paired HPA memory metric change (Utilization -> AverageValue)
+    # in templates/hpa.yaml: it must be decoupled from this request, or a
+    # lower request alone would push HPA's 60%-of-request memory target
+    # permanently over threshold at ordinary steady-state usage.
     requests:
       cpu: 100m
-      memory: 768Mi
+      memory: 350Mi
       ephemeral-storage: 100Mi
     limits:
-      memory: 768Mi
+      memory: 1280Mi
       ephemeral-storage: 100Mi
 
 hpa:

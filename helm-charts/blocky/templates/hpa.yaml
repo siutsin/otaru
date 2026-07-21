@@ -20,6 +20,14 @@ spec:
     - type: Resource
       resource:
         name: memory
+        # 2026-07-22: switched from Utilization (% of request) to a fixed
+        # AverageValue. The memory request was intentionally lowered to
+        # 350Mi (see values.yaml) while the limit stayed high to cover a
+        # periodic refresh spike, so a request-relative target would put
+        # ordinary ~290Mi steady-state usage permanently over a 60%-of-350Mi
+        # threshold, pinning replicas at max continuously. 500Mi keeps
+        # roughly the same absolute trigger point as the previous
+        # 60%-of-768Mi (~461Mi) target, decoupled from the request value.
         target:
-          type: Utilization
-          averageUtilization: 60
+          type: AverageValue
+          averageValue: 500Mi
