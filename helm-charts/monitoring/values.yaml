@@ -55,16 +55,24 @@ prometheus:
     resources:
       # KRR 2026-07-05: live peak ~3.16Gi working set; prior 3Gi bump (#2309) was still ~40Mi short.
       # KRR 2026-07-22: CPU CRITICAL, 14d peak only ~155m against the 800m
-      # request (retained series count grew, not compute cost -- reduced to
-      # 200m for headroom). Memory WARNING, 14d peak ~3675Mi against the
-      # 3264Mi request/limit -- continued organic growth from retained
-      # metrics volume; bumped to 3840Mi for headroom above that peak.
+      # request (retained series count grew, not compute cost) -- reduced to
+      # 200m for headroom; kept below, this part held up fine.
+      # KRR 2026-07-22 (reverted): also bumped memory to 3840Mi for the
+      # WARNING (14d peak ~3675Mi against the 3264Mi request/limit), but
+      # every node lacked that much free requested-memory capacity at once
+      # (nuc-00, the least-committed node, had only ~3536Mi free) --
+      # FailedScheduling took prometheus down entirely on rollout. Reverted
+      # memory to 3264Mi, which fits on nuc-00's free capacity; the real
+      # ~3675Mi peak headroom is deferred to a later cycle once cluster
+      # memory-request headroom improves (same pattern as
+      # changedetection-browser's deferred CPU target -- see that entry
+      # above this chart's history for a comparable case).
       requests:
         cpu: 200m
-        memory: 3840Mi
+        memory: 3264Mi
         ephemeral-storage: 256Mi
       limits:
-        memory: 3840Mi
+        memory: 3264Mi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 100Gi
