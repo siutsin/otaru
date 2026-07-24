@@ -1,0 +1,17 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-24: no PDB existed at all, so the descheduler had free rein to
+  # evict the sole home-assistant replica for HighNodeUtilization. Confirmed
+  # via events: evicted four times in 25 minutes on nuc-00 (12:20, 12:25,
+  # 12:30, 12:45 UTC), each restart's startup probe still failing when the
+  # next eviction hit -- a real ~25min outage. Same fix and pattern as
+  # helm-charts/umami/templates/pdb.yaml and the single-replica case in
+  # helm-charts/jung2bot/templates/pdb.yaml.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
