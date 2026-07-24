@@ -4,7 +4,13 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  minAvailable: 0
+  # 2026-07-24: minAvailable was 0, giving the descheduler free rein to evict
+  # umami's sole replica for HighNodeUtilization at will -- confirmed via
+  # events (evicted twice within an hour on nuc-00), each time costing a real
+  # ~30s gap while the pod restarts and passes DB/migration checks. umami
+  # only ever runs 1 replica, so match jung2bot's single-replica pattern
+  # (helm-charts/jung2bot/templates/pdb.yaml) and require it stay available.
+  minAvailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.name }}
