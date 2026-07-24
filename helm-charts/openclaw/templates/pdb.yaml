@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-24: no PDB existed, so the descheduler had free rein to evict
+  # the sole replica for HighNodeUtilization -- found while auditing all
+  # single-replica app charts after the same gap caused real outages for
+  # umami (#2917) and home-assistant (#2918) on the same day. Matches the
+  # existing single-replica PDB pattern already used by those charts.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
