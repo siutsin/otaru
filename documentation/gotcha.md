@@ -1613,3 +1613,69 @@ zero further blocky evictions across multiple 5-minute descheduler cycles
 after this rolled out, versus one roughly every cycle beforehand.
 
 ---
+
+## Descheduler Eviction Storms Look Like Self-Resolving Blips, One Check At A Time
+
+**Problem:** on 2026-07-25, `umami`, `home-assistant`,
+`changedetection`, `openclaw`, `teslamate`, `unifi-mcp`, and
+`monitoring-prometheus-server` were each found to have no
+PodDisruptionBudget at all (or, for `umami`, one with `minAvailable: 0`,
+which is equally unprotective). Each is a single-replica workload, so
+the `consolidate` profile's `HighNodeUtilization` strategy could evict it
+on any scan cycle whenever its node crossed the memory threshold --
+which on this cluster, running most nodes at 95%+ requested memory most
+of the time, is close to constant. `monitoring-prometheus-server` was
+evicted roughly every 5 minutes for over an hour on `raspberrypi-03`
+before this was caught, and never stayed up long enough to finish
+loading its TSDB, causing live HTTP 503s from the Prometheus API.
+
+**Why it happens:** two earlier hourly self-healing checks (09:30 and
+11:30 that day) both found the `monitoring` ArgoCD Application
+`Progressing`, waited for the pod that was running at that moment to
+reach `Ready` (it did, in under a minute both times), and logged the
+finding as a self-resolved transient. Each check was individually
+correct -- the pod really had recovered -- but the check only asked "is
+it up right now," not "how many times has this happened." A workload
+being evicted every 5 minutes and taking under a minute to reschedule
+will show as briefly `Progressing` then `Healthy` on almost any
+snapshot check, no matter how frequently you look, unless you widen the
+query to look for the *pattern* across a longer window.
+
+### Symptoms: Repeated Short-Lived `Progressing` Flips
+
+- The same ArgoCD Application shows `Progressing` in more than one
+  separate check, each time recovering to `Healthy` before you finish
+  investigating.
+- `kubectl get pods -n <ns>` for the workload shows a pod only tens of
+  seconds to a few minutes old, with a *different* pod name each time
+  you look, but the same `pod-template-hash` (i.e. no new rollout, just
+  the same ReplicaSet recreating pods).
+- A narrow events query scoped to the exact current pod name looks
+  clean or shows only one eviction -- because each older pod's events
+  age out or belong to a name you are no longer querying.
+
+### Resolution: Widen the Query, Then Add a PDB
+
+Before logging a `Progressing` finding as resolved, check for the
+pattern, not just the current state:
+
+```bash
+kubectl get events -n <namespace> --field-selector reason=HighNodeUtilization \
+  --sort-by='.lastTimestamp'
+```
+
+This lists every eviction across every pod name for the whole
+namespace, with timestamps -- a burst of entries for the same workload
+prefix across the last hour is the signal, even though each individual
+pod recovered quickly. Cross-check with `kubectl get pdb -n <namespace>`
+for that workload; if it is missing or has `minAvailable: 0`, that is
+the root cause; see the "Missing PDB on a single-replica workload"
+entry in `.claude/skills/self-healing/runbooks/workloads.md` for the fix
+pattern (a hand-written PDB template for app-owned charts, or a bundled
+subchart's native `podDisruptionBudget` values option -- e.g.
+`helm-charts/monitoring/values.yaml`'s `prometheus.server` block).
+Verified live for all seven workloads listed above: `disruptionsAllowed:
+0` and `currentHealthy: 1` on the new PDB, zero further evictions
+observed after rollout.
+
+---
