@@ -52,6 +52,17 @@ prometheus:
   server:
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: blackbox-scrape-config
+    # 2026-07-25: no PDB existed, so the descheduler had free rein to evict
+    # the sole prometheus-server replica for HighNodeUtilization. Confirmed
+    # via events: evicted roughly every 5 minutes for over an hour on
+    # raspberrypi-03, never staying up long enough to finish loading its
+    # TSDB, causing live 503s. Same root cause and fix as umami (#2917),
+    # home-assistant (#2918), and the changedetection/openclaw/teslamate/
+    # unifi-mcp bundle (#2919) -- this subchart exposes the setting
+    # natively rather than needing a hand-written template.
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
     resources:
       # KRR 2026-07-05: live peak ~3.16Gi working set; prior 3Gi bump (#2309) was still ~40Mi short.
       # KRR 2026-07-22: CPU CRITICAL, 14d peak only ~155m against the 800m
