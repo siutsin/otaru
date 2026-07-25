@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.browser.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-25: found during a repo-wide PDB audit after the missing-PDB
+  # eviction-storm pattern caused real outages for umami, home-assistant,
+  # and prometheus-server the same day (see documentation/gotcha.md).
+  # The main changedetection Deployment already has a PDB
+  # (templates/pdb.yaml); this sidecar browser Deployment did not.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.browser.name }}

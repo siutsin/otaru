@@ -58,6 +58,11 @@ grafana:
   testFramework:
     # Helm test hooks are not run under Argo CD and leave orphaned resources that degrade app health.
     enabled: false
+  # 2026-07-25: no PDB existed, found during a repo-wide audit after the
+  # same gap caused real outages for umami, home-assistant, and
+  # prometheus-server the same day (see documentation/gotcha.md).
+  podDisruptionBudget:
+    minAvailable: 1
   resources:
     # Keep memory at 512Mi: TeslaMate dashboard usage pushed Grafana against the 128Mi limit and caused OOMKills.
     requests:
