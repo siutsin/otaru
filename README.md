@@ -40,8 +40,8 @@ Current cluster layout:
 | `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
 | `usw-lite-8-poe`  | UniFi Switch Lite 8 PoE                                        | PoE switch     | -                                      |
 | `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -                                      |
-| `u7-pro-front`    | UniFi U7 Pro                                                    | Access point   | -                                      |
-| `u7-pro-back`     | UniFi U7 Pro                                                    | Access point   | -                                      |
+| `u7-pro-front`    | UniFi U7 Pro                                                   | Access point   | -                                      |
+| `u7-pro-back`     | UniFi U7 Pro                                                   | Access point   | -                                      |
 | `rackmate-t1`     | [GeeekPi DeskPi RackMate T1][rackmate-t1]                      | Rack enclosure | -                                      |
 | `rack-mount`      | [GeeekPi 10" 2U Rack Mount][rack-mount]                        | Pi rack mount  | -                                      |
 <!-- markdownlint-enable MD060 -->
@@ -58,16 +58,16 @@ The UniFi gateway routes eight managed networks. Detailed firewall behavior and
 verification steps are documented in
 [Infrastructure operations](documentation/infrastructure.md#current-unifi-access-policy).
 
-| VLAN | Network       | Subnet              | Purpose                                      |
-|------|---------------|---------------------|----------------------------------------------|
-| 1    | Default       | `192.168.1.0/24`    | Untagged and VLAN-unaware IoT devices        |
-| 3    | Guest         | `192.168.3.0/24`    | Visitor devices                              |
-| 4    | Client        | `192.168.4.0/24`    | Trusted personal clients and media receivers |
-| 5    | IoT Public    | `192.168.5.0/24`    | Internet-connected IoT devices               |
-| 6    | IoT Private   | `192.168.6.0/24`    | IoT devices that must remain offline         |
-| 7    | Work          | `192.168.7.0/24`    | Work devices                                 |
-| 8    | Unrestricted  | `192.168.8.0/24`    | Unrestricted trusted devices                 |
-| 10   | Server        | `192.168.10.0/24`   | Cluster nodes and service VIPs               |
+| VLAN | Network      | Subnet            | Purpose                                      |
+|------|--------------|-------------------|----------------------------------------------|
+| 1    | Default      | `192.168.1.0/24`  | Untagged and VLAN-unaware IoT devices        |
+| 3    | Guest        | `192.168.3.0/24`  | Visitor devices                              |
+| 4    | Client       | `192.168.4.0/24`  | Trusted personal clients and media receivers |
+| 5    | IoT Public   | `192.168.5.0/24`  | Internet-connected IoT devices               |
+| 6    | IoT Private  | `192.168.6.0/24`  | IoT devices that must remain offline         |
+| 7    | Work         | `192.168.7.0/24`  | Work devices                                 |
+| 8    | Unrestricted | `192.168.8.0/24`  | Unrestricted trusted devices                 |
+| 10   | Server       | `192.168.10.0/24` | Cluster nodes and service VIPs               |
 
 Key addresses on the Server network:
 
@@ -128,10 +128,11 @@ Key addresses on the Server network:
 | Monitoring   | [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server)                      | Scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines                                                                  |
 | Monitoring   | [Loki](helm-charts/monitoring)                                                                      | Log aggregation and query backend                                                                                                                                       |
 | Monitoring   | [Prometheus](helm-charts/monitoring)                                                                | Metrics collection and query backend                                                                                                                                    |
-| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation; runs a `HighNodeUtilization` profile to consolidate the least-loaded node's pods elsewhere                           |
+| Scheduling   | [Descheduler](https://github.com/kubernetes-sigs/descheduler)                                       | Evicts pods for optimal cluster node utilisation; runs a `HighNodeUtilization` profile to consolidate the least-loaded node's pods elsewhere                            |
 | Scheduling   | [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)                                           | Automated failed pod cleanup and periodic workload repaving                                                                                                             |
 | Scheduling   | [KEDA](https://keda.sh/)                                                                            | Event Driven Autoscaler                                                                                                                                                 |
 | Scheduling   | [Reloader](https://github.com/stakater/Reloader)                                                    | Watch changes in ConfigMap and Secret and do rolling upgrades                                                                                                           |
+| Scheduling   | [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler)                 | Vertical Pod Autoscaler for automatic CPU/memory right-sizing                                                                                                           |
 | Security     | [1Password Connect](https://github.com/1Password/connect)                                           | Proxy service for 1Password; acts as a secret provider                                                                                                                  |
 | Security     | [amazon-eks-pod-identity-webhook](https://github.com/aws/amazon-eks-pod-identity-webhook)           | Amazon EKS Pod Identity Webhook for IRSA in bare metal Kubernetes clusters                                                                                              |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                                                                                            |
