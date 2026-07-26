@@ -41,3 +41,4 @@ namespaces:
   - name: teslamate
   - name: umami
   - name: unifi-mcp
+  - name: vpa

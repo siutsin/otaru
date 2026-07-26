@@ -1,5 +1,8 @@
 namespace: k8s-cleaner
 
+vpa:
+  enabled: true
+
 excludeNamespaces: &excludeNamespaces
   - envoy-gateway-system
   - gateway

@@ -1,0 +1,49 @@
+namespace: vpa
+
+vertical-pod-autoscaler:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: [ALL]
+  admissionController:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 100Mi
+        ephemeral-storage: 64Mi
+    mutatingWebhookConfiguration:
+      failurePolicy: Ignore  # explicit chart default: never block pod creation
+    certGen:
+      enabled: false
+    registerWebhook: false
+    tls:
+      create: false
+    certManager:
+      enabled: true
+      createSelfSignedIssuer:
+        enabled: true
+  recommender:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+  updater:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 100Mi
+        ephemeral-storage: 64Mi
