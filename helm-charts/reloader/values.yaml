@@ -1,3 +1,6 @@
+name: reloader-reloader
+namespace: reloader
+
 vpa:
   enabled: true
 
