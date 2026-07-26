@@ -6,7 +6,7 @@ gateway:
   namespace: gateway
 
 route:
-  hostname: auth.siutsin.com
+  hostname: auth.internal.siutsin.com
 
 systemSecret:
   name: hydra-system
