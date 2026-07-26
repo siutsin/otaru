@@ -14,16 +14,28 @@ _pdb: &pdb
   enabled: true
   minAvailable: 1
 
+# Scrape annotations for each controller's metrics Service (port 8000).
+# The Prometheus AuthorizationPolicy for this port already existed
+# (templates/authorization-policy.yaml) but nothing set these annotations,
+# so the kubernetes-service-endpoints job never picked the services up.
+_metricsScrape: &metricsScrape
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+
 kyverno:
   admissionController:
     resources: *resources
     podDisruptionBudget: *pdb
+    metricsService: *metricsScrape
   backgroundController:
     resources: *resources
     podDisruptionBudget: *pdb
+    metricsService: *metricsScrape
   cleanupController:
     resources: *resources
     podDisruptionBudget: *pdb
+    metricsService: *metricsScrape
   reportsController:
     # KRR 2026-07-18: CPU WARNING, 14d peak needs ~335m against the shared
     # 50m request (memory unaffected, still GOOD at 128Mi). Split out from
@@ -39,3 +51,4 @@ kyverno:
         memory: 128Mi
         ephemeral-storage: 64Mi
     podDisruptionBudget: *pdb
+    metricsService: *metricsScrape
