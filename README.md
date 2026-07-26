@@ -138,6 +138,7 @@ Key addresses on the Server network:
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                                                                                 |
 | Security     | [Kyverno](https://github.com/kyverno/kyverno)                                                       | Kubernetes policy engine                                                                                                                                                |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                                                                                              |
+| Security     | [Ory Hydra](https://www.ory.com/hydra)                                                               | OAuth 2.0 and OpenID Connect provider for machine identities                                                                                                           |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                                                                        |
 <!-- markdownlint-enable MD060 -->
 

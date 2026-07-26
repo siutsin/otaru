@@ -22,6 +22,9 @@ clusterSecretStorePolicy:
     gateway:
       - cloudflare-acme-verification-secret
       - heartbeats
+    hydra:
+      - b2-secret-cloudnative-pg
+      - Ory
     umami:
       - Umami
       - b2-secret-cloudnative-pg
@@ -64,6 +67,11 @@ meshAuthorizationPolicy:
 barmanObjectStorePolicy:
   enabled: true
   allowedNamespaces:
+    hydra:
+      objectStores:
+        - b2-backup
+      credentialSecrets:
+        - b2-backup-credentials
     teslamate:
       objectStores:
         - b2-backup

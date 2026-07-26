@@ -197,6 +197,19 @@ otaru_luks_password: "replace-me"
 
 This file is not required for normal cluster bootstrap.
 
+## Ory
+
+The `Ory` Password item in the `github-otaru` vault provides two independent,
+stable Hydra fields: `hydraSecretsSystem` and `hydraSecretsCookie`. The
+component prefix keeps room for other Ory services in the same item. Hydra uses
+them to encrypt persisted data and protect browser state. Do not rotate either
+field as a normal password rotation: Hydra secret rotation requires an overlap
+period with both the old and new values configured.
+
+OAuth client signing keys are separate from these server secrets. Keep client
+private keys outside Git and Kubernetes; register only their public JWKs when a
+client is onboarded.
+
 ## Check
 
 Run this before bootstrap:

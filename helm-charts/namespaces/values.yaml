@@ -20,6 +20,7 @@ namespaces:
   - name: external-secrets
   - name: home-assistant
   - name: httpbin
+  - name: hydra
   - name: istio-system
     ambient: false
   - name: jellyfin

@@ -36,6 +36,7 @@ spec:
                   - gateway
                   - home-assistant
                   - httpbin
+                  - hydra
                   - istio-system
                   - jellyfin
                   - jsoncrack

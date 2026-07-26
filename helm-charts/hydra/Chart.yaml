@@ -1,0 +1,10 @@
+apiVersion: v2
+name: hydra
+description: OAuth 2.0 and OpenID Connect provider for machine identities
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/ory/docs/master/docs/static/img/logo-hydra.svg
+dependencies:
+  - name: hydra
+    version: 0.62.1
+    repository: https://k8s.ory.com/helm/charts
