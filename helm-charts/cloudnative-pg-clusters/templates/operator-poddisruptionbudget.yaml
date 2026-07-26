@@ -1,0 +1,19 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudnative-pg
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The
+  # cloudnative-pg operator (single replica) has no native
+  # podDisruptionBudget option in its upstream chart, and that chart is
+  # applied directly from https://cloudnative-pg.io/charts/ via ArgoCD
+  # (see argocd/manifest.jsonnet) rather than vendored under helm-charts/,
+  # so there is no local template to patch. This chart already targets the
+  # same cnpg-system namespace and syncs after the operator (wave 06 vs
+  # wave 03), so the PDB lives here instead of a new single-purpose chart.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudnative-pg
+      app.kubernetes.io/instance: cloudnative-pg
