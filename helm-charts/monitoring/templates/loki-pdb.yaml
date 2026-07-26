@@ -1,0 +1,19 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-loki
+  namespace: {{ .Release.Namespace }}
+spec:
+  # 2026-07-25: the vendored loki chart (grafana/loki) has no native
+  # podDisruptionBudget support for any of its components -- found
+  # during a repo-wide audit after the same missing-PDB gap caused real
+  # outages for umami, home-assistant, and prometheus-server the same
+  # day (see documentation/gotcha.md). Added here in the parent chart
+  # since the subchart itself cannot be patched without being
+  # overwritten on the next `helm dependency build`.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: single-binary

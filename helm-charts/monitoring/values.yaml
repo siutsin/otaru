@@ -100,6 +100,11 @@ prometheus:
         readOnly: true
   alertmanager:
     enabled: true
+    # 2026-07-25: no PDB existed, found during a repo-wide audit after
+    # the same gap caused real outages for umami, home-assistant, and
+    # prometheus-server the same day (see documentation/gotcha.md).
+    podDisruptionBudget:
+      minAvailable: 1
     resources: *smallResources
     persistence:
       enabled: true
@@ -122,10 +127,20 @@ prometheus:
         mountPath: /etc/alertmanager/templates
         readOnly: true
   kube-state-metrics:
+    # 2026-07-25: no PDB existed, found during a repo-wide audit after
+    # the same gap caused real outages for umami, home-assistant, and
+    # prometheus-server the same day (see documentation/gotcha.md).
+    podDisruptionBudget:
+      minAvailable: 1
     resources: *smallResources
   prometheus-node-exporter:
     resources: *smallResources
   prometheus-pushgateway:
+    # 2026-07-25: no PDB existed, found during a repo-wide audit after
+    # the same gap caused real outages for umami, home-assistant, and
+    # prometheus-server the same day (see documentation/gotcha.md).
+    podDisruptionBudget:
+      minAvailable: 1
     resources: *smallResources
   serverFiles:
     recording_rules.yml:
@@ -361,6 +376,11 @@ prometheus:
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
+  # 2026-07-25: no PDB existed, found during a repo-wide audit after
+  # the same gap caused real outages for umami, home-assistant, and
+  # prometheus-server the same day (see documentation/gotcha.md).
+  podDisruptionBudget:
+    minAvailable: 1
   resources: *smallResources
 
 k8s-ephemeral-storage-metrics:
@@ -387,6 +407,11 @@ k8s-ephemeral-storage-metrics:
       ephemeral-storage: 64Mi
 
 grafana:
+  # 2026-07-25: no PDB existed, found during a repo-wide audit after
+  # the same gap caused real outages for umami, home-assistant, and
+  # prometheus-server the same day (see documentation/gotcha.md).
+  podDisruptionBudget:
+    minAvailable: 1
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
     # ephemeral-storage 2026-07-06: 14d peak ~50Mi against a 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) — bump to 128Mi for headroom.
