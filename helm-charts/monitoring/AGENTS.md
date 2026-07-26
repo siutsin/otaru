@@ -8,12 +8,13 @@ diagnostics, then backport.
 
 Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 
-| Key | Grafana title | Notes |
-| --- | --- | --- |
-| `blocky` | Blocky | Custom SRE layout; v0.28 metric names |
-| `onzack-cluster-monitoring` | Standard Cluster Monitoring | ONZACK 17404 + recording rules + otaru sections |
-| `prometheus-stats` | Prometheus Stats | Prometheus process stats |
-| `container-log-dashboard` | (gnet 16966) | Loki logs; `gnetId`+`revision` download |
+| Key                         | Grafana title               | Notes                                                                                      |
+|-----------------------------|-----------------------------|--------------------------------------------------------------------------------------------|
+| `blocky`                    | Blocky                      | Custom SRE layout; v0.28 metric names                                                      |
+| `kyverno-policy-metrics`    | Kyverno Policy Metrics      | Custom layout; requires `helm-charts/kyverno`'s `metricsService.annotations` scrape config |
+| `onzack-cluster-monitoring` | Standard Cluster Monitoring | ONZACK 17404 + recording rules + otaru sections                                            |
+| `prometheus-stats`          | Prometheus Stats            | Prometheus process stats                                                                   |
+| `container-log-dashboard`   | (gnet 16966)                | Loki logs; `gnetId`+`revision` download                                                    |
 
 **Dashboards are vendored GitOps artifacts**, not live upstream sync (except
 `container-log-dashboard`, which pins a Grafana.com revision). Editing UI is
@@ -76,25 +77,25 @@ When re-vendoring 17404, re-apply:
    whose titles end with `(cAdvisor)` or `(KRR)`, plus variables
    `cadvisor_instance` and `namespace`. Details:
 
-   | Collapsed row title | Source (retired board) | Contents |
-   | --- | --- | --- |
-   | Workload usage by namespace (cAdvisor) | gnet 15282 / k3s-cluster-monitoring | CPU + memory by namespace |
-   | Pods resource usage (cAdvisor) | gnet 15282 | Pod CPU, memory, network I/O |
-   | Containers resource usage (cAdvisor) | gnet 15282 | Container CPU/memory, network I/O |
-   | Resource requests vs usage (KRR) | resource-requests-vs-usage | Request vs 6h usage tables (CPU/mem), cluster requested vs used, ephemeral-storage top 20 |
+| Collapsed row title                    | Source (retired board)              | Contents                                                                                  |
+|----------------------------------------|-------------------------------------|-------------------------------------------------------------------------------------------|
+| Workload usage by namespace (cAdvisor) | gnet 15282 / k3s-cluster-monitoring | CPU + memory by namespace                                                                 |
+| Pods resource usage (cAdvisor)         | gnet 15282                          | Pod CPU, memory, network I/O                                                              |
+| Containers resource usage (cAdvisor)   | gnet 15282                          | Container CPU/memory, network I/O                                                         |
+| Resource requests vs usage (KRR)       | resource-requests-vs-usage          | Request vs 6h usage tables (CPU/mem), cluster requested vs used, ephemeral-storage top 20 |
 
    Section rules when re-applying:
 
-   - Datasource UID must be `${datasource}` (not hardcoded Prometheus UID).
-   - cAdvisor workload queries filter with
+- Datasource UID must be `${datasource}` (not hardcoded Prometheus UID).
+- cAdvisor workload queries filter with
      `instance=~"$cadvisor_instance"` and `namespace=~"$namespace"`
      (variables: All = `.*`, multi-select).
-   - Prefer `$__rate_interval` for live rates (scrape is 1m). Keep the KRR
+- Prefer `$__rate_interval` for live rates (scrape is 1m). Keep the KRR
      tables’ fixed `6h` / `avg_over_time(...[6h])` windows — those are
      intentional right-sizing horizons.
-   - Skip re-adding host-level “All processes” charts from old k3s; node
+- Skip re-adding host-level “All processes” charts from old k3s; node
      views already live in ONZACK CPU/Memory/Network rows.
-   - Do **not** reintroduce standalone
+- Do **not** reintroduce standalone
      `k3s-cluster-monitoring.yaml` or `resource-requests-vs-usage.yaml`.
 
 ### Upgrading the dashboard

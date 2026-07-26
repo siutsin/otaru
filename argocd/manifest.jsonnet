@@ -139,6 +139,7 @@ local _ignoreDifferences = {
 local _grafanaDashboards = [
   'dashboards/blocky.yaml',
   'dashboards/container-log-dashboard.yaml',
+  'dashboards/kyverno-policy-metrics.yaml',
   'dashboards/onzack-cluster-monitoring.yaml',
   'dashboards/prometheus-stats.yaml',
 ];
