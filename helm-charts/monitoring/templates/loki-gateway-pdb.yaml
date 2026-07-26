@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-loki-gateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  # See templates/loki-pdb.yaml for why this lives in the parent chart.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: gateway
