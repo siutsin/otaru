@@ -177,6 +177,7 @@ local application = [
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
+  { wave: '10', name: 'hydra', namespace: 'hydra' },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'openclaw-volume', namespace: 'openclaw' },

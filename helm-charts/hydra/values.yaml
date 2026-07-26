@@ -1,0 +1,160 @@
+name: hydra
+namespace: hydra
+
+gateway:
+  name: gateway
+  namespace: gateway
+
+route:
+  hostname: hydra.internal.siutsin.com
+
+systemSecret:
+  name: hydra-system
+  refreshInterval: 24h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  remoteRef:
+    key: Ory
+
+database:
+  secretName: hydra-20260726-0001
+  caSecretName: hydra-20260726-0001-ca
+
+hydra:
+  fullnameOverride: hydra
+  replicaCount: 2
+
+  image:
+    tag: v26.2.0@sha256:ff67c7fb5f95074fa53374d41151713554960504b340cd3f95b09e65deaea2a9
+
+  hydra:
+    config:
+      urls:
+        self:
+          issuer: https://hydra.internal.siutsin.com/
+        # Browser grants are intentionally unavailable. Hydra requires these
+        # URLs syntactically, but client_credentials never calls them.
+        login: https://not-configured.invalid/login
+        consent: https://not-configured.invalid/consent
+        logout: https://not-configured.invalid/logout
+      strategies:
+        # Short-lived JWTs let Envoy validate MCP credentials locally using
+        # Hydra's public JWKS; revocation is bounded by the 15-minute TTL.
+        access_token: jwt
+      ttl:
+        access_token: 15m
+      log:
+        format: json
+        level: info
+    automigration:
+      enabled: true
+      type: job
+
+  secret:
+    enabled: false
+    nameOverride: hydra-system
+
+  deployment:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    customLivenessProbe:
+      httpGet:
+        path: /health/alive
+        port: 4445
+        httpHeaders:
+          - name: Host
+            value: 127.0.0.1
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 3
+    customReadinessProbe:
+      httpGet:
+        path: /health/ready
+        port: 4445
+        httpHeaders:
+          - name: Host
+            value: 127.0.0.1
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 5
+    customStartupProbe:
+      httpGet:
+        path: /health/ready
+        port: 4445
+        httpHeaders:
+          - name: Host
+            value: 127.0.0.1
+      periodSeconds: 2
+      timeoutSeconds: 2
+      failureThreshold: 30
+    extraEnv:
+      - name: DSN
+        valueFrom:
+          secretKeyRef:
+            name: hydra-20260726-0001
+            key: DATABASE_URL
+    extraVolumes:
+      - name: database-ca
+        secret:
+          secretName: hydra-20260726-0001-ca
+    extraVolumeMounts:
+      - name: database-ca
+        mountPath: /etc/secrets/ca
+        readOnly: true
+    # Initial sizing: Hydra is a small Go control-plane service with no live
+    # KRR history yet. Keep enough headroom for key generation and migrations,
+    # then revisit after 14 days of production metrics.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+
+  job:
+    automountServiceAccountToken: false
+    extraEnv:
+      - name: DSN
+        valueFrom:
+          secretKeyRef:
+            name: hydra-20260726-0001
+            key: DATABASE_URL
+    # Migration uses the same binary and database schema as the server; match
+    # the initial server memory envelope until live job metrics say otherwise.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: hydra
+            topologyKey: kubernetes.io/hostname
+
+  pdb:
+    enabled: true
+    spec:
+      minAvailable: 1
+
+  maester:
+    # Client onboarding comes later; avoid running a controller and CRDs until
+    # there is an OAuth2Client for it to manage.
+    enabled: false
+
+  test:
+    busybox:
+      tag: stable@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662

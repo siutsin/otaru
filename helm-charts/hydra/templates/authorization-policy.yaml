@@ -1,0 +1,39 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: hydra-public
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: hydra-public
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+      to:
+        - operation:
+            ports:
+              - "4444"
+---
+# Hydra's administrative API can create clients, keys, and trust relationships.
+# Keep it reachable only through explicit future service-level policy changes;
+# it must never inherit the public issuer's gateway access.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: hydra-admin
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: hydra-admin
+  rules: []
