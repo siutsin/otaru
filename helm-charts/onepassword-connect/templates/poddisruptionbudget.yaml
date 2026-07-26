@@ -1,0 +1,13 @@
+{{- $namespace := .Release.Namespace | default "onepassword" -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: onepassword-connect
+  namespace: {{ $namespace }}
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The vendored
+  # 1password/connect chart has no native podDisruptionBudget option.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: onepassword-connect

@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: k8s-cleaner
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The vendored
+  # gianlucam76/k8s-cleaner chart has no native podDisruptionBudget option.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8s-cleaner
+      app.kubernetes.io/instance: k8s-cleaner
