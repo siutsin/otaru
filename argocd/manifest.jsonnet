@@ -271,6 +271,7 @@ local scheduling = [
   { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling['k8s-cleaner'] },
   { wave: '02', name: 'keda', namespace: 'keda' },
   { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.reloader },
+  { wave: '05', name: 'vpa', namespace: 'vpa' },  // after cert-manager (wave 02)
 ];
 
 local security = [

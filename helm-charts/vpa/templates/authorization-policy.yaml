@@ -1,0 +1,16 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: vpa-webhook
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: vpa-webhook
+  rules:
+    - to:  # kube-apiserver calls this directly, no mesh identity to scope to (same as kyverno-svc)
+        - operation:
+            ports:
+              - "443"
