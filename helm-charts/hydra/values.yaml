@@ -6,7 +6,7 @@ gateway:
   namespace: gateway
 
 route:
-  hostname: hydra.internal.siutsin.com
+  hostname: auth.siutsin.com
 
 systemSecret:
   name: hydra-system
@@ -32,7 +32,7 @@ hydra:
     config:
       urls:
         self:
-          issuer: https://hydra.internal.siutsin.com/
+          issuer: https://auth.siutsin.com/
         # Browser grants are intentionally unavailable. Hydra requires these
         # URLs syntactically, but client_credentials never calls them.
         login: https://not-configured.invalid/login
