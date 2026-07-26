@@ -1,0 +1,18 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: istiod
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The vendored
+  # istio-release/istiod chart only creates its own PDB when replicas > 1
+  # (a workaround for https://github.com/kubernetes/kubernetes/issues/93476
+  # -- a single-replica PDB with 0 allowed disruptions can deadlock a node
+  # drain). That does not apply here: the LUKS reboot playbook
+  # (ansible/playbooks/maintenance/000-packages.yaml) already drains with
+  # `--disable-eviction`, bypassing the Eviction API and therefore this PDB
+  # entirely, so a hand-written PDB is safe for our single-replica istiod.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      istio: pilot

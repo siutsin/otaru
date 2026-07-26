@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: keda-operator-metrics-apiserver
+  namespace: keda
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The vendored
+  # kedacore/keda chart's native podDisruptionBudget option only covers the
+  # operator component in this chart version -- metricServer has no native
+  # PDB option, so this is hand-written in the parent chart.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: keda-operator-metrics-apiserver

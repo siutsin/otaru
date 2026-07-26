@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-07-26: repo-wide PDB audit (documentation/gotcha.md). The vendored
+  # kiali-server chart has no native podDisruptionBudget option.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kiali
+      app.kubernetes.io/instance: {{ .Values.name }}
