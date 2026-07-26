@@ -1679,3 +1679,41 @@ Verified live for all seven workloads listed above: `disruptionsAllowed:
 observed after rollout.
 
 ---
+
+## `krr` can hang silently for hours with near-zero CPU
+
+**Problem:** a `krr simple` run for the right-sizing pass sat for over
+two hours producing no output and no error, blocking two consecutive
+hourly self-healing fires (each one saw a prior right-sizing run "still
+in progress" and skipped its own investigation).
+
+**Why it happens:** unknown -- Prometheus itself was healthy throughout
+(`/-/healthy` responded in under 50ms, the prometheus-server pod showed
+normal CPU/memory and 0 restarts), and the stuck `krr` process held
+several established TCP connections with almost no CPU time consumed
+(4 seconds of CPU across 2 hours), consistent with a client-side stall
+rather than a slow query or an overloaded cluster. A second run against
+the same Prometheus, same cluster state, completed normally in about a
+minute.
+
+### Symptoms: KRR Silent Hang
+
+- `krr simple -p <prometheus-url> -f json -q > out.json` produces an
+  empty `out.json` well past the few-minutes duration of a normal pass.
+- `ps aux | grep krr` shows the process alive with very low accumulated
+  CPU time (not spinning, not obviously crashed).
+- Downstream: the self-healing loop's own "is a prior right-sizing run
+  still running" check (`.claude/skills/self-healing-loop`) correctly
+  defers to it, so the hang silently consumes multiple scheduled fires
+  before anyone notices no KRR output ever landed.
+
+### Resolution: Kill and Retry Once
+
+- If a `krr` process has been running much longer than a normal pass
+  (check the journal for a typical duration) with an empty output file
+  and low CPU time, kill it (`kill <pid>` -- a local CLI subprocess, not
+  a cluster mutation) and retry once.
+- If the retry also hangs, treat it as a real issue and escalate rather
+  than retrying indefinitely.
+
+---
