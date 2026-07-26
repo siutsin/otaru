@@ -1,5 +1,8 @@
 reloader:
   reloader:
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
     deployment:
       resources:
         requests:

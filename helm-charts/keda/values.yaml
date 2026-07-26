@@ -49,3 +49,9 @@ keda:
       <<: *preferredPodAntiAffinity
   affinity:
     <<: *preferredPodAntiAffinity
+  podDisruptionBudget:
+    # metricServer and webhooks have no native podDisruptionBudget support
+    # in this chart version -- hand-written PDBs for those two live in
+    # templates/metrics-server-pdb.yaml and templates/webhooks-pdb.yaml.
+    operator:
+      minAvailable: 1

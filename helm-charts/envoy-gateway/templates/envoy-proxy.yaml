@@ -38,3 +38,8 @@ spec:
 {{ toYaml .Values.envoyProxy.shutdownManagerResources | indent 24 }}
       envoyService:
         name: {{ .Values.service.name }}
+      # 2026-07-26: repo-wide PDB audit -- protects the 2-replica data-plane
+      # proxy from the descheduler's HighNodeUtilization eviction the same
+      # way as every other workload in this pass (see documentation/gotcha.md).
+      envoyPDB:
+        minAvailable: 1

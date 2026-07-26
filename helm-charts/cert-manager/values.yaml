@@ -17,6 +17,9 @@ cert-manager:
     limits:
       memory: 128Mi
       ephemeral-storage: 64Mi
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   cainjector:
     affinity:
       <<: *preferredPodAntiAffinity
@@ -28,6 +31,9 @@ cert-manager:
       limits:
         memory: 128Mi
         ephemeral-storage: 64Mi
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
   webhook:
     affinity:
       <<: *preferredPodAntiAffinity
@@ -39,6 +45,9 @@ cert-manager:
       limits:
         memory: 64Mi
         ephemeral-storage: 64Mi
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
   startupapicheck:
     resources:
       requests:
