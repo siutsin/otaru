@@ -27,6 +27,11 @@ vertical-pod-autoscaler:
       enabled: true
       createSelfSignedIssuer:
         enabled: true
+      # 2026-07-27: chart default (duration: 168h, renewBefore: 24h) means
+      # the leaf cert is always within the CertificateExpiringSoon alert's
+      # 7-day window for its entire life, firing every renewal cycle.
+      duration: 2160h
+      renewBefore: 360h
   recommender:
     replicas: 1
     resources:
