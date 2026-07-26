@@ -676,6 +676,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/httpbin-0.1.0/httpbin-0.1.0.tgz
     version: 0.1.0
+  hydra:
+  - apiVersion: v2
+    created: "2026-07-26T23:16:24.076783329Z"
+    dependencies:
+    - name: hydra
+      repository: https://k8s.ory.com/helm/charts
+      version: 0.62.1
+    description: OAuth 2.0 and OpenID Connect provider for machine identities
+    digest: 38b5a0702c2e648124612171fa398f44e699a8608dba405d04b3af0ba5043448
+    icon: https://raw.githubusercontent.com/ory/docs/master/docs/static/img/logo-hydra.svg
+    name: hydra
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/hydra-0.1.0/hydra-0.1.0.tgz
+    version: 0.1.0
   istio-base:
   - apiVersion: v2
     created: "2026-04-13T22:53:08.003972244Z"
@@ -1522,4 +1537,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-07-26T22:35:43.467916949Z"
+generated: "2026-07-26T23:16:24.589143094Z"
