@@ -49,6 +49,54 @@
   PDB headroom (multi-replica Deployment, `kubectl get pdb` allows the
   disruption) to free enough room — it will reschedule on its own.
 
+## Known availability gotchas
+
+- **Missing PDB on a single-replica workload → descheduler eviction
+  storm.** A Deployment/StatefulSet with one replica and no
+  PodDisruptionBudget (or a PDB with `minAvailable: 0`) has zero
+  protection against `sigs.k8s.io/descheduler`'s `HighNodeUtilization`
+  strategy, which can evict it every scan cycle (roughly every 5
+  minutes on this cluster) whenever its node is over threshold — this
+  cluster runs several nodes at 95%+ memory requested most of the time,
+  so this is not a rare edge case. Symptoms: the workload's ArgoCD
+  Application flips to `Progressing` repeatedly; each individual check
+  shows the pod reaching Ready again within a minute, making it look
+  like unrelated one-off blips rather than one ongoing incident (see
+  `runbooks/gitops-reconciliation.md` → `Progressing`). A component
+  that never gets to run long enough between evictions can show real
+  symptoms beyond a health-status flap — e.g. prometheus-server
+  returning live HTTP 503s because it never finished loading its TSDB
+  before the next eviction.
+  - **Detect:** `kubectl get pdb -n <ns>` — is the workload covered at
+    all? `kubectl get events -n <ns> --field-selector
+    reason=HighNodeUtilization --sort-by='.lastTimestamp'` — how many
+    distinct pod names for this workload were evicted, and over what
+    time span?
+  - **Fix (trivial, GitOps):** add a PDB with `minAvailable: 1`. For a
+    hand-written app chart using this repo's `.Values.name` /
+    `.Values.namespace` convention, copy the template already used by
+    `helm-charts/jung2bot/templates/pdb.yaml` (and umami,
+    home-assistant, changedetection, openclaw, teslamate, unifi-mcp —
+    all fixed for this exact issue on 2026-07-25, PRs #2917-#2919). For
+    a bundled third-party subchart, check its own values schema first
+    (`helm show values <chart> --version <pinned>` or the vendored
+    chart cache) — many prometheus-community / grafana charts expose a
+    native `podDisruptionBudget.enabled` / `minAvailable` key, which is
+    the correct fix instead of hand-writing a template (see
+    `helm-charts/monitoring/values.yaml`'s `prometheus.server` block,
+    PR #2922).
+  - **Not a candidate for this fix:** vendored/generated operator
+    manifests (helmify-style, hardcoded labels, no `.Values.name`
+    convention) and anything serving live shared-cluster traffic where
+    an eviction mid-operation has a different risk profile (e.g. a CNPG
+    backup plugin mid-backup) — these need a case-by-case decision, not
+    the same-day automated fix. `heartbeats`,
+    `k3s-apiserver-loadbalancer`, and
+    `cloudnative-pg-plugin-barman-cloud` were identified with this same
+    gap and deliberately left unpatched for that reason.
+  - This is now a recurring-enough pattern to spot-check on any
+    `Progressing` finding, not just wait for a report.
+
 ## Known data-durability gotchas
 
 - **changedetection watch list wipe:** pinning
