@@ -2,15 +2,15 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: k8s-cleaner
+  name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: k8s-cleaner
+    name: {{ .Values.name }}
   updatePolicy:
-    updateMode: Initial  # trial: only applies at pod (re)creation, never evicts
+    updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
       - containerName: '*'

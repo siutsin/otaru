@@ -1,3 +1,4 @@
+name: k8s-cleaner
 namespace: k8s-cleaner
 
 vpa:
