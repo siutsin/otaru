@@ -90,3 +90,22 @@ requireContainerHardeningPolicy:
     - istio-system
     - metallb-system
     - kube-system
+
+# 2026-07-25: audit-only policy added after the missing-PDB
+# eviction-storm pattern caused real outages for umami, home-assistant,
+# and prometheus-server on the same day (see documentation/gotcha.md).
+# Excluded namespaces are the same system-managed/dynamic components
+# already established as out of scope for hand-written PDB fixes
+# (helm-charts/*/templates -- Longhorn CSI/UI/driver-deployer are
+# created directly by longhorn-manager, not by any chart here).
+# Audit mode first: this reports violations without blocking anything,
+# so the initial run against ~30+ pre-existing gaps does not need every
+# exclusion tuned up front.
+requirePodDisruptionBudgetPolicy:
+  enabled: true
+  excludedNamespaces:
+    - longhorn-system
+    - kube-system
+    - kube-node-lease
+    - kube-public
+    - kyverno
