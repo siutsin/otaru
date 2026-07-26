@@ -1,3 +1,7 @@
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $prometheusPrincipal := printf "cluster.local/ns/%s/sa/%s" $prometheusNamespace $prometheusServiceAccount -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -14,3 +18,27 @@ spec:
         - operation:
             ports:
               - "443"
+---
+{{- range list "recommender-metrics" "updater-metrics" "admission-controller-metrics" }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: vpa-{{ . }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: vpa-{{ . }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            ports:
+              - {{ if hasPrefix "recommender" . }}"8942"{{ else if hasPrefix "updater" . }}"8943"{{ else }}"8944"{{ end }}
+---
+{{- end }}

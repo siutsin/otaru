@@ -1,0 +1,25 @@
+{{- range list "recommender" "updater" "admission-controller" }}
+{{- $component := . }}
+{{- $port := "" }}
+{{- if eq $component "recommender" }}{{ $port = "8942" }}{{ end }}
+{{- if eq $component "updater" }}{{ $port = "8943" }}{{ end }}
+{{- if eq $component "admission-controller" }}{{ $port = "8944" }}{{ end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpa-{{ $component }}-metrics
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: {{ $port | quote }}
+spec:
+  selector:
+    app.kubernetes.io/name: vertical-pod-autoscaler
+    app.kubernetes.io/instance: vpa
+    app.kubernetes.io/component: {{ $component }}
+  ports:
+    - name: metrics
+      port: {{ $port }}
+      targetPort: {{ $port }}
+---
+{{- end }}
