@@ -97,6 +97,17 @@
   - This is now a recurring-enough pattern to spot-check on any
     `Progressing` finding, not just wait for a report.
 
+- **VPA-driven resource changes are expected, not an incident.**
+  `helm-charts/vpa/` runs a live admission-controller and updater for a
+  growing set of workloads (`kubectl get vpa -A` lists them). A pod whose
+  `resources.requests`/`limits` differ from its chart's declared values, or
+  that shows a restart with no other explanation, may simply be VPA applying
+  a recommendation (`InPlaceOrRecreate` resizes live with no restart when the
+  kubelet supports it; it falls back to a normal pod recreate otherwise).
+  Check `kubectl get vpa -n <namespace>` before treating this as drift or an
+  issue. See `.claude/skills/right-sizing/SKILL.md` **VPA-managed workloads**
+  for how these are configured and vetted.
+
 ## Known data-durability gotchas
 
 - **changedetection watch list wipe:** pinning

@@ -3,10 +3,12 @@ name: "right-sizing"
 description: >-
   Right-size otaru workloads via KRR (CPU/memory) and Prometheus ephemeral-storage
   metrics. Read incident comments as guardrails, apply downsizes and upsizes in one
-  GitOps PR, verify rollout. Invoke as /right-sizing from /self-healing when
-  healthy (including scheduled fires from /self-healing-loop), or manually.
+  GitOps PR, verify rollout. Also covers VPA (helm-charts/vpa), a complementary
+  automated path for steady-state workloads with no spike pattern. Invoke as
+  /right-sizing from /self-healing when healthy (including scheduled fires from
+  /self-healing-loop), or manually.
 metadata:
-  short-description: "KRR and ephemeral-storage right-sizing for otaru"
+  short-description: "KRR, ephemeral-storage, and VPA right-sizing for otaru"
 ---
 
 # Otaru workload right-sizing
@@ -60,8 +62,13 @@ krr simple -p <prometheus-url-via-ingress> -f json -q > /tmp/krr-otaru-$(date +%
 
 ### Build the change set
 
-For each candidate workload in `helm-charts/**/values.yaml` (and chart templates
-when resources live there):
+Before editing any workload, check `kubectl get vpa -A` — skip anything with an
+existing `VerticalPodAutoscaler` object (see **VPA-managed workloads** below).
+KRR and VPA fighting over the same Deployment produces confusing drift, not a
+better answer.
+
+For each remaining candidate workload in `helm-charts/**/values.yaml` (and chart
+templates when resources live there):
 
 1. Read inline resource comments for past incidents (OOM, probe failures, scheduling pressure). **Do not downsize past those guardrails.**
 2. **Downsize** when KRR peak is well below the request and no incident comment blocks it.
@@ -167,6 +174,52 @@ Open a follow-up PR immediately if rollout breaks a workload:
   and workload (for example changedetection OOMKill exit 137 at 256Mi → 1Gi).
 - **Init/exec format error on nuc-00** — arm64-only images on amd64; pin
   `nodeSelector: kubernetes.io/arch: arm64` when charts use arm64-only digests.
+
+## VPA-managed workloads
+
+`helm-charts/vpa/` deploys Kubernetes VPA (recommender, updater,
+admission-controller). It is a **second, complementary** resource-management
+path, not a replacement for KRR passes above — the two suit different shapes
+of workload.
+
+### Why VPA does not replace KRR here
+
+VPA's memory algorithm targets the 95th percentile of **daily peak** usage
+over an 8-day window, not typical/steady-state usage. That is the right
+behaviour for a workload with roughly constant usage, but for a workload that
+spikes briefly then idles (blocky's ~4h denylist refresh, changedetection's
+hourly page-render), it recommends a request near the peak — undoing the
+manual "steady-state request, higher limit" overcommit tuning already applied
+to those charts. **Never add a `VerticalPodAutoscaler` for a guarded workload**
+(the same list as the KRR guardrails above) unless it is scoped to
+`controlledResources: [cpu]` only, since VPA's CPU algorithm is
+percentile-based, not peak-based, and does not have this problem.
+
+### Good VPA candidates
+
+Workloads with no incident-history comment in their chart and no
+periodic-spike shape — most single-purpose controllers and sidecars. `reloader`
+and `k8s-cleaner` are the initial trial (`helm-charts/reloader/values.yaml`,
+`helm-charts/k8s-cleaner/values.yaml`, both `vpa.enabled: true`).
+
+### Onboarding a new workload to VPA
+
+1. Add `vpa.enabled: true` to the chart's `values.yaml`.
+2. Add `templates/verticalpodautoscaler.yaml` gated by that flag, following
+    the pattern in `helm-charts/reloader/templates/verticalpodautoscaler.yaml`:
+    `targetRef` at the Deployment, `minAllowed`/`maxAllowed` bounds derived
+    from real Prometheus usage (not a guess), `controlledResources` scoped to
+    what is safe for that workload's usage shape.
+3. Start `updateMode: Initial` while validating the recommendation against
+    real usage; a fresh VPA has near-zero history and its confidence-interval
+    math inflates recommendations toward `maxAllowed` for the first ~24 hours,
+    settling toward the real value over roughly a week (8-day histogram
+    window). Do not trust or hand-tune bounds around an `Initial`-mode
+    recommendation less than a day old.
+4. Switch to `updateMode: InPlaceOrRecreate` once the recommendation has
+    settled and looks sane. This cluster's k3s v1.36.2 supports in-place pod
+    resize (GA since Kubernetes 1.35) and VPA 1.7+ needs no feature-gate flag
+    for this mode, so most resizes apply live with no pod restart.
 
 ## Journal
 
