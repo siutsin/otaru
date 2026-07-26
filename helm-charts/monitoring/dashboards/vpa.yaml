@@ -111,7 +111,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "vpa_recommender_vpa_objects_count",
+                    "expr": "sum(vpa_recommender_vpa_objects_count{matches_pods=\"true\", has_recommendation=\"true\", unsupported_config=\"false\"})",
                     "legendFormat": "",
                     "range": false,
                     "refId": "A",
