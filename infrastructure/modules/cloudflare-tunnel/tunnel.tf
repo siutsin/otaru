@@ -9,8 +9,14 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_virtual_network" "this" {
   account_id         = var.account_id
   name               = var.name
   comment            = var.name
-  is_default         = false
   is_default_network = false
+
+  lifecycle {
+    # Cloudflare v5 keeps the deprecated is_default=false value in legacy
+    # state; ignoring only that removed input avoids replacing the network and
+    # its route while is_default_network remains the configured source of truth.
+    ignore_changes = [is_default]
+  }
 }
 
 resource "cloudflare_zero_trust_tunnel_cloudflared_route" "this" {
@@ -56,6 +62,16 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
         service  = var.gateway_service
         origin_request = {
           origin_server_name = "analytics.${var.zone}"
+          http2_origin       = true
+        }
+      },
+      {
+        # Hydra's public OAuth and discovery endpoints use the shared gateway;
+        # its administrative Service has no HTTPRoute and remains inaccessible.
+        hostname = "auth.${var.zone}"
+        service  = var.gateway_service
+        origin_request = {
+          origin_server_name = "auth.${var.zone}"
           http2_origin       = true
         }
       },

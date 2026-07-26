@@ -28,3 +28,12 @@ resource "cloudflare_dns_record" "analytics" {
   ttl     = 1
   type    = "CNAME"
 }
+
+resource "cloudflare_dns_record" "auth" {
+  zone_id = var.zone_id
+  content = local.tunnel_hostname
+  name    = "auth"
+  proxied = true
+  ttl     = 1
+  type    = "CNAME"
+}
