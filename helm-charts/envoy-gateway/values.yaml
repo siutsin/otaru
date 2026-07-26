@@ -89,6 +89,8 @@ envoy-gateway:
     gatewayAPI:
       safeUpgradePolicy:
         enabled: false
+  podDisruptionBudget:
+    minAvailable: 1
   deployment:
     envoyGateway:
       resources: *envoyGatewayResources

@@ -10,13 +10,20 @@ _shared:
       memory: 128Mi
       ephemeral-storage: 64Mi
 
+_pdb: &pdb
+  enabled: true
+  minAvailable: 1
+
 kyverno:
   admissionController:
     resources: *resources
+    podDisruptionBudget: *pdb
   backgroundController:
     resources: *resources
+    podDisruptionBudget: *pdb
   cleanupController:
     resources: *resources
+    podDisruptionBudget: *pdb
   reportsController:
     # KRR 2026-07-18: CPU WARNING, 14d peak needs ~335m against the shared
     # 50m request (memory unaffected, still GOOD at 128Mi). Split out from
@@ -31,3 +38,4 @@ kyverno:
       limits:
         memory: 128Mi
         ephemeral-storage: 64Mi
+    podDisruptionBudget: *pdb

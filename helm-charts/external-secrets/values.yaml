@@ -21,6 +21,9 @@ external-secrets:
   affinity:
     <<: *preferredPodAntiAffinity
   resources: *resources
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   webhook:
     # 2026-07-12: ArgoCD ExternalSecret syncs failed with "no endpoints
     # available for service external-secrets-webhook" during a night of
@@ -40,6 +43,9 @@ external-secrets:
     affinity:
       <<: *preferredPodAntiAffinity
     resources: *resources
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
   global:
     affinity:
       <<: *preferredPodAntiAffinity
