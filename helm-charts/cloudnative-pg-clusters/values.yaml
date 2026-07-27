@@ -119,12 +119,16 @@ clusters:
     namespace: hydra
     affinity:
       podAntiAffinityType: required
-    instances: 2
-    minSyncReplicas: 1
-    maxSyncReplicas: 1
+    # 2026-07-27: the replica join stayed Pending because required anti-affinity
+    # excludes the primary node and every other node lacks the requested memory.
+    # Run one instance while 3-hourly backups and continuous WAL archiving provide
+    # PITR; restore 2/1/1 after reserving at least 1Gi on another node.
+    instances: 1
+    minSyncReplicas: 0
+    maxSyncReplicas: 0
     # Initial sizing: Hydra stores low-volume OAuth metadata and has no live
     # database metrics yet. This matches the established lightweight database
-    # envelope while retaining failover and vacuum headroom; revisit with KRR.
+    # envelope while retaining vacuum headroom; revisit with KRR.
     resources:
       requests:
         cpu: 100m
