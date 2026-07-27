@@ -6,7 +6,8 @@ gateway:
   namespace: gateway
 
 route:
-  hostname: auth.internal.siutsin.com
+  # Canonical OIDC hostname; DNS points to the private ingress VIP and is not publicly routed.
+  hostname: auth.siutsin.com
 
 systemSecret:
   name: hydra-system
