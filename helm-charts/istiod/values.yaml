@@ -1,5 +1,9 @@
 namespace: istio-system
 
+oryHydra:
+  issuer: https://auth.siutsin.com/
+  jwksUri: https://auth.siutsin.com/.well-known/jwks.json
+
 istiod:
   profile: ambient
   pilot:
