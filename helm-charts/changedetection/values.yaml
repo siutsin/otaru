@@ -14,7 +14,8 @@ deployment:
     LANG: C.UTF-8
     LC_ALL: C.UTF-8
     MINIMUM_SECONDS_RECHECK_TIME: "60"
-    PLAYWRIGHT_DRIVER_URL: ws://changedetection-browser.changedetection.svc.cluster.local:3000?--user-data-dir=/profile/chromium&headful=true
+    PLAYWRIGHT_DRIVER_URL: "ws://changedetection-browser.changedetection.svc.cluster.local:3000?--user-data-dir=/profile/chromium&headful=true&\
+      --user-agent=Mozilla/5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit/537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome/119.0.0.0%20Safari/537.36"
     TZ: Europe/London
     USE_X_SETTINGS: "true"
   image:
