@@ -176,6 +176,11 @@ hydra:
     image:
       tag: v0.0.42@sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156
     deployment:
+      extraEnv:
+        # Maester v0.0.42 scopes its controller cache from this environment
+        # variable; the --namespace flag alone only filters reconciliation.
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"
       # Initial controller sizing: Maester reconciles one small client CR and
       # has no live metrics yet. Start small and revisit after KRR has history.
       resources:
