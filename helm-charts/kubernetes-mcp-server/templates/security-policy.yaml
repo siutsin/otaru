@@ -1,0 +1,36 @@
+{{- if .Values.authentication.enabled }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .Values.name }}-authentication
+  namespace: {{ .Values.namespace }}
+spec:
+  # Envoy Gateway resolves backends directly to pod endpoints, so ingress can
+  # bypass a Service-attached ambient waypoint. Enforce JWTs on the HTTPRoute;
+  # the Istio policy remains defense-in-depth for Service-addressed mesh calls.
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: {{ .Values.name }}-internal
+  jwt:
+    providers:
+      - name: hydra
+        issuer: {{ .Values.authentication.issuer | quote }}
+        remoteJWKS:
+          uri: {{ .Values.authentication.jwksUri | quote }}
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: allow-mcp-client
+        action: Allow
+        principal:
+          jwt:
+            provider: hydra
+            scopes:
+              {{- toYaml .Values.authentication.requiredScopes | nindent 14 }}
+            claims:
+              - name: sub
+                valueType: String
+                values:
+                  {{- toYaml .Values.authentication.allowedSubjects | nindent 18 }}
+{{- end }}
