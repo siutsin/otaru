@@ -1,0 +1,25 @@
+{{- if .Values.mcpTestClient.enabled }}
+apiVersion: hydra.ory.sh/v1alpha1
+kind: OAuth2Client
+metadata:
+  name: {{ .Values.mcpTestClient.id }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # The previous wave guarantees Maester reads the deterministic client ID
+    # and generated secret instead of racing to generate different credentials.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  accessTokenStrategy: jwt
+  clientName: {{ .Values.mcpTestClient.name | quote }}
+  deletionPolicy: delete
+  grantTypes:
+    - client_credentials
+  responseTypes:
+    - token
+  scopeArray:
+    - {{ .Values.mcpTestClient.scope | quote }}
+  secretName: {{ .Values.mcpTestClient.secretName }}
+  tokenEndpointAuthMethod: client_secret_basic
+  tokenLifespans:
+    client_credentials_grant_access_token_lifespan: 15m
+{{- end }}
