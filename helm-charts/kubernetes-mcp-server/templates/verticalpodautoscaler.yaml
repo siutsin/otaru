@@ -10,7 +10,7 @@ spec:
     kind: Deployment
     name: kubernetes-mcp-server
   updatePolicy:
-    updateMode: Initial
+    updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
       - containerName: '*'
