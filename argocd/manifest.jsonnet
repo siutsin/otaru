@@ -29,6 +29,19 @@ local crdConversionCABundle(name) = [{
   ],
 }];
 
+local kyvernoClusterPolicyApiCallDefaults(policyNames) = [
+  {
+    group: 'kyverno.io',
+    kind: 'ClusterPolicy',
+    name: policyName,
+    jqPathExpressions: [
+      '.spec.rules[].context[]?.apiCall?.method',
+      '.spec.rules[].skipBackgroundRequests',
+    ],
+  }
+  for policyName in policyNames
+];
+
 local kyvernoDefaultedCrdFields(crdNames) = [
   {
     group: 'apiextensions.k8s.io',
@@ -132,6 +145,11 @@ local _ignoreDifferences = {
       'namespacedvalidatingpolicies.policies.kyverno.io',
       'policyexceptions.policies.kyverno.io',
       'validatingpolicies.policies.kyverno.io',
+    ]),
+    // Kyverno defaults these on the live ClusterPolicy at admission time;
+    // they never appear in the rendered chart manifest.
+    'kyverno-policy': kyvernoClusterPolicyApiCallDefaults([
+      'require-pod-disruption-budget',
     ]),
   },
 };
@@ -279,7 +297,7 @@ local scheduling = [
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
   { wave: '03', name: 'kyverno', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security.kyverno },
-  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno' },
+  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security['kyverno-policy'] },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];
