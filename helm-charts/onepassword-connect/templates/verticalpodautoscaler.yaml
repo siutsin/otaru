@@ -21,6 +21,13 @@ spec:
           memory: 16Mi
         maxAllowed:
           memory: 64Mi
+      - containerName: connect-api
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 1m
+        maxAllowed:
+          cpu: 50m
       - containerName: connect-sync
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
@@ -28,4 +35,11 @@ spec:
           memory: 16Mi
         maxAllowed:
           memory: 64Mi
+      - containerName: connect-sync
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 1m
+        maxAllowed:
+          cpu: 50m
 {{- end }}

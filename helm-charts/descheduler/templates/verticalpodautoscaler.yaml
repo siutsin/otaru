@@ -13,11 +13,18 @@ spec:
     updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
-      - containerName: '*'
+      - containerName: descheduler
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
         minAllowed:
           memory: 16Mi
         maxAllowed:
           memory: 128Mi
+      - containerName: descheduler
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 1m
+        maxAllowed:
+          cpu: 50m
 {{- end }}
