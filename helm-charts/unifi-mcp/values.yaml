@@ -11,6 +11,8 @@ authentication:
   jwksUri: https://auth.siutsin.com/.well-known/jwks.json
   allowedSubjects:
     - mcp-test-client
+  requiredScopes:
+    - mcp
 
 externalSecret:
   refreshInterval: 1h
