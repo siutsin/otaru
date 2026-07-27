@@ -36,18 +36,4 @@ spec:
     - group: ""
       kind: Service
       name: hydra-admin
-  {{- if .Values.clientController.enabled }}
-  rules:
-    # Maester is the only workload allowed to reconcile OAuth clients through
-    # Hydra's administrative API; the ingress gateway remains excluded.
-    - from:
-        - source:
-            principals:
-              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.clientController.serviceAccountName }}
-      to:
-        - operation:
-            ports:
-              - "4445"
-  {{- else }}
   rules: []
-  {{- end }}

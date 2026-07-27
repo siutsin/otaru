@@ -22,10 +22,6 @@ database:
   secretName: hydra-20260726-0001
   caSecretName: hydra-20260726-0001-ca
 
-clientController:
-  enabled: true
-  serviceAccountName: hydra-maester-account
-
 hydra:
   fullnameOverride: hydra
   replicaCount: 2
@@ -44,8 +40,8 @@ hydra:
         consent: https://not-configured.invalid/consent
         logout: https://not-configured.invalid/logout
       strategies:
-        # Short-lived JWTs let Envoy validate MCP credentials locally using
-        # Hydra's public JWKS; revocation is bounded by the 15-minute TTL.
+        # Keep future machine tokens self-contained and short-lived; consumers
+        # can validate them locally from Hydra's public JWKS.
         access_token: jwt
       ttl:
         access_token: 15m
@@ -156,33 +152,9 @@ hydra:
       minAvailable: 1
 
   maester:
-    enabled: true
-
-  hydra-maester:
-    fullnameOverride: hydra-maester
-    singleNamespaceMode: true
-    image:
-      tag: v0.0.42@sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156
-    deployment:
-      extraEnv:
-        # Maester v0.0.42 scopes its controller cache from this environment
-        # variable; the --namespace flag alone only filters reconciliation.
-        - name: NAMESPACE
-          value: "{{ .Release.Namespace }}"
-      # Initial controller sizing: Maester reconciles one small client CR and
-      # has no live metrics yet. Start small and revisit after KRR has history.
-      resources:
-        requests:
-          cpu: 25m
-          memory: 64Mi
-          ephemeral-storage: 64Mi
-        limits:
-          memory: 64Mi
-          ephemeral-storage: 64Mi
-    pdb:
-      enabled: true
-      spec:
-        minAvailable: 1
+    # Client onboarding is paused; avoid running a controller and CRDs until
+    # there is an OAuth2Client for it to manage.
+    enabled: false
 
   test:
     busybox:
