@@ -1,6 +1,9 @@
 name: kiali
 namespace: kiali
 
+vpa:
+  enabled: true
+
 kiali-server:
   auth:
     strategy: anonymous
