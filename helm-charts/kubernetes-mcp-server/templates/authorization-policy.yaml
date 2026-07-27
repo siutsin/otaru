@@ -17,15 +17,7 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
-            # RequestAuthentication validates the issuer; this additionally
-            # requires a signed JWT rather than accepting anonymous ingress.
-            requestPrincipals:
-              - "*"
       to:
         - operation:
             ports:
               - {{ index .Values "kubernetes-mcp-server" "service" "port" | quote }}
-      when:
-        - key: request.auth.claims[sub]
-          values:
-            {{- toYaml .Values.authentication.allowedSubjects | nindent 12 }}

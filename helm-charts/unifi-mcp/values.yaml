@@ -5,15 +5,6 @@ gateway:
   name: gateway
   namespace: gateway
 
-authentication:
-  enabled: true
-  issuer: https://auth.siutsin.com/
-  jwksUri: https://auth.siutsin.com/.well-known/jwks.json
-  allowedSubjects:
-    - mcp-test-client
-  requiredScopes:
-    - mcp
-
 externalSecret:
   refreshInterval: 1h
   secretStoreRef:
