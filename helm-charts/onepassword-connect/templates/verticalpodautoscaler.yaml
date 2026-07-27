@@ -11,7 +11,7 @@ spec:
     kind: Deployment
     name: onepassword-connect
   updatePolicy:
-    updateMode: Initial
+    updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
       - containerName: connect-api

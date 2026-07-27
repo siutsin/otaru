@@ -10,7 +10,7 @@ spec:
     kind: Deployment
     name: descheduler
   updatePolicy:
-    updateMode: Initial
+    updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
       - containerName: '*'

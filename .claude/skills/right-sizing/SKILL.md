@@ -210,16 +210,20 @@ and `k8s-cleaner` are the initial trial (`helm-charts/reloader/values.yaml`,
     `targetRef` at the Deployment, `minAllowed`/`maxAllowed` bounds derived
     from real Prometheus usage (not a guess), `controlledResources` scoped to
     what is safe for that workload's usage shape.
-3. Start `updateMode: Initial` while validating the recommendation against
-    real usage; a fresh VPA has near-zero history and its confidence-interval
-    math inflates recommendations toward `maxAllowed` for the first ~24 hours,
-    settling toward the real value over roughly a week (8-day histogram
-    window). Do not trust or hand-tune bounds around an `Initial`-mode
-    recommendation less than a day old.
-4. Switch to `updateMode: InPlaceOrRecreate` once the recommendation has
-    settled and looks sane. This cluster's k3s v1.36.2 supports in-place pod
-    resize (GA since Kubernetes 1.35) and VPA 1.7+ needs no feature-gate flag
-    for this mode, so most resizes apply live with no pod restart.
+3. Use `updateMode: InPlaceOrRecreate` from the start. This cluster's k3s
+    v1.36.2 supports in-place pod resize (GA since Kubernetes 1.35) and
+    VPA 1.7+ needs no feature-gate flag for this mode, so most resizes
+    apply live with no pod restart and the updater keeps re-applying as
+    the recommendation moves.
+4. Expect a fresh VPA's first recommendation to be confidence-inflated
+    toward `maxAllowed` for roughly the first 24 hours (near-zero history),
+    settling toward the real value over about a week (8-day histogram
+    window) -- `InPlaceOrRecreate` will apply that inflated number
+    immediately, then correct it down again as real history accumulates.
+    `Initial` mode avoids the temporary overshoot but only ever applies a
+    recommendation when the pod is next recreated for an unrelated reason,
+    which may never happen for a long-lived Deployment -- not a real
+    alternative for actually getting the fix applied.
 
 ## Journal
 
