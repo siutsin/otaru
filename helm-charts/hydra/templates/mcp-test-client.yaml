@@ -10,8 +10,12 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   accessTokenStrategy: jwt
+  # Declare CRD defaults explicitly so Kubernetes defaulting does not leave
+  # Argo CD reporting this client as perpetually OutOfSync.
+  backChannelLogoutSessionRequired: false
   clientName: {{ .Values.mcpTestClient.name | quote }}
   deletionPolicy: delete
+  frontChannelLogoutSessionRequired: false
   grantTypes:
     - client_credentials
   responseTypes:
@@ -19,6 +23,8 @@ spec:
   scopeArray:
     - {{ .Values.mcpTestClient.scope | quote }}
   secretName: {{ .Values.mcpTestClient.secretName }}
+  skipConsent: false
+  skipLogoutConsent: false
   tokenEndpointAuthMethod: client_secret_basic
   tokenLifespans:
     client_credentials_grant_access_token_lifespan: 15m
