@@ -22,6 +22,22 @@ database:
   secretName: hydra-20260726-0001
   caSecretName: hydra-20260726-0001-ca
 
+clientController:
+  enabled: true
+  serviceAccountName: hydra-maester-account
+
+mcpTestClient:
+  enabled: true
+  id: mcp-test-client
+  name: MCP end-to-end test client
+  scope: mcp
+  secretName: mcp-test-client
+  password:
+    length: 48
+    digits: 8
+    symbols: 8
+    symbolCharacters: "!&*+"
+
 hydra:
   fullnameOverride: hydra
   replicaCount: 2
@@ -152,9 +168,28 @@ hydra:
       minAvailable: 1
 
   maester:
-    # Client onboarding comes later; avoid running a controller and CRDs until
-    # there is an OAuth2Client for it to manage.
-    enabled: false
+    enabled: true
+
+  hydra-maester:
+    fullnameOverride: hydra-maester
+    singleNamespaceMode: true
+    image:
+      tag: v0.0.42@sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156
+    deployment:
+      # Initial controller sizing: Maester reconciles one small client CR and
+      # has no live metrics yet. Start small and revisit after KRR has history.
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+          ephemeral-storage: 64Mi
+        limits:
+          memory: 64Mi
+          ephemeral-storage: 64Mi
+    pdb:
+      enabled: true
+      spec:
+        minAvailable: 1
 
   test:
     busybox:

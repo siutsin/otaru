@@ -4,6 +4,13 @@ namespace: kubernetes-mcp-server
 vpa:
   enabled: true
 
+authentication:
+  enabled: true
+  issuer: https://auth.siutsin.com/
+  jwksUri: https://auth.siutsin.com/.well-known/jwks.json
+  allowedSubjects:
+    - mcp-test-client
+
 kubernetes-mcp-server:
   image:
     registry: quay.io
@@ -48,4 +55,3 @@ kubernetes-mcp-server:
         - weight: 100
           podAffinityTerm:
             topologyKey: kubernetes.io/hostname
-

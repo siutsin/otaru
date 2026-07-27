@@ -1,0 +1,16 @@
+{{- if .Values.authentication.enabled }}
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: {{ index .Values "kubernetes-mcp-server" "fullnameOverride" }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # Ambient waypoints require targetRefs; a selector would be ignored.
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ index .Values "kubernetes-mcp-server" "fullnameOverride" }}
+  jwtRules:
+    - issuer: {{ .Values.authentication.issuer | quote }}
+      jwksUri: {{ .Values.authentication.jwksUri | quote }}
+{{- end }}
