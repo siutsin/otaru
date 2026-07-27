@@ -4,7 +4,8 @@ include {
 
 locals {
   zone_id    = get_env("CLOUDFLARE_ZONE_ID")
-  subdomains = jsondecode(get_env("CLOUDFLARE_DNS_SUBDOMAINS"))
+  tfconfig   = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
+  subdomains = local.tfconfig.cloudflare.dns
   ip         = get_env("CLOUDFLARE_DNS_IP")
 }
 

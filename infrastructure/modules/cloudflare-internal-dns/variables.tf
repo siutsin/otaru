@@ -4,7 +4,7 @@ variable "zone_id" {
 }
 
 variable "subdomains" {
-  type      = list(string)
+  type      = map(string)
   sensitive = true
 }
 
