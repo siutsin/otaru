@@ -1,0 +1,23 @@
+{{- if .Values.vpa.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: kubernetes-mcp-server
+  namespace: {{ .Values.namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kubernetes-mcp-server
+  updatePolicy:
+    updateMode: Initial
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: [memory]
+        controlledValues: RequestsAndLimits
+        minAllowed:
+          memory: 16Mi
+        maxAllowed:
+          memory: 128Mi
+{{- end }}
