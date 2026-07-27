@@ -1,0 +1,12 @@
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: ory-hydra
+  namespace: {{ .Values.namespace }}
+spec:
+  # A selector-free policy in Istio's root namespace registers this issuer for
+  # the whole mesh. It validates a presented Ory token but does not require one;
+  # individual AuthorizationPolicies decide where JWTs are mandatory.
+  jwtRules:
+    - issuer: {{ .Values.oryHydra.issuer | quote }}
+      jwksUri: {{ .Values.oryHydra.jwksUri | quote }}
