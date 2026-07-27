@@ -17,6 +17,8 @@ spec:
       - name: hydra
         issuer: {{ .Values.authentication.issuer | quote }}
         remoteJWKS:
+          # Match the Envoy Gateway CRD default explicitly to avoid Argo drift.
+          cacheDuration: 300s
           uri: {{ .Values.authentication.jwksUri | quote }}
   authorization:
     defaultAction: Deny
