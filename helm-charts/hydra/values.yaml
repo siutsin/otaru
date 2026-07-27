@@ -26,18 +26,6 @@ clientController:
   enabled: true
   serviceAccountName: hydra-maester-account
 
-mcpTestClient:
-  enabled: true
-  id: mcp-test-client
-  name: MCP end-to-end test client
-  scope: mcp
-  secretName: mcp-test-client
-  password:
-    length: 48
-    digits: 8
-    symbols: 8
-    symbolCharacters: "!&*+"
-
 hydra:
   fullnameOverride: hydra
   replicaCount: 2
