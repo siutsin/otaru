@@ -1717,3 +1717,40 @@ minute.
   than retrying indefinitely.
 
 ---
+
+## Hydra private_key_jwt fails on one replica only
+
+**Problem:** `client_credentials` with `private_key_jwt` (ES256) returns
+`invalid_client` / `Unable to verify the integrity of the 'client_assertion'
+value` with Hydra debug `go-jose/go-jose: error in cryptographic primitive`
+for a large share of requests, even though the client assertion is valid.
+
+**Why it happens:** With two Hydra public pods behind the Service, one
+replica can enter a bad state verifying client assertions (observed as
+100% failure on that pod, 100% success on the other) while both can still
+fetch the same `jwksUri` content and share the same client record. Load
+balancing then makes minting look intermittent. Separately, high-S ECDSA
+signatures are rejected by go-jose; the mint helper always emits low-S.
+
+### Symptoms: Intermittent invalid_client on token mint
+
+- `hack/mint-otaru-mcp-token.py` fails with `invalid_client` then succeeds
+  on retry without changing the private key or JWKS.
+- Port-forwarding to each Hydra pod and posting the same style of
+  assertion shows one pod always failing and the other always succeeding.
+- Hydra logs show `error in cryptographic primitive` on the failing
+  replica only.
+
+### Resolution: Recycle the bad pod and mint with retries
+
+- Delete the failing Hydra pod so the Deployment recreates it:
+  `kubectl delete pod -n hydra -l app.kubernetes.io/name=hydra` (or
+  delete the single bad pod by name).
+- Mint via `hack/mint-otaru-mcp-token.py`, which signs ES256 with low-S
+  and retries transient `invalid_client` responses
+  (`OTARU_MCP_MINT_ATTEMPTS`, default 5).
+- Client JWKS remains at
+  `https://raw.githubusercontent.com/siutsin/otaru/master/jwks/otaru-mcp-oauth.jwks.json`
+  (`jwks/otaru-mcp-oauth.jwks.json`).
+
+---
