@@ -1,4 +1,0 @@
-l2AnnouncementPolicy:
-  advertisements:
-    - interfaces:
-        - enp0s2
