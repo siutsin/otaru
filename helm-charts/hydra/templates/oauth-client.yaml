@@ -1,0 +1,35 @@
+{{- if .Values.oauthClient.enabled }}
+apiVersion: hydra.ory.sh/v1alpha1
+kind: OAuth2Client
+metadata:
+  name: {{ .Values.oauthClient.id }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # Secret with CLIENT_ID must exist before Maester reconciles this CR.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  accessTokenStrategy: jwt
+  # Declare CRD defaults explicitly so Kubernetes defaulting does not leave
+  # Argo CD reporting this client as perpetually OutOfSync.
+  backChannelLogoutSessionRequired: false
+  clientName: {{ .Values.oauthClient.name | quote }}
+  deletionPolicy: delete
+  frontChannelLogoutSessionRequired: false
+  grantTypes:
+    - client_credentials
+  jwksUri: {{ .Values.oauthClient.jwksUri | quote }}
+  responseTypes:
+    - token
+  scopeArray:
+    {{- range .Values.oauthClient.scopes }}
+    - {{ . | quote }}
+    {{- end }}
+  # Maester always requires a Secret; token auth uses private_key_jwt only.
+  secretName: {{ .Values.oauthClient.secretName }}
+  skipConsent: false
+  skipLogoutConsent: false
+  tokenEndpointAuthMethod: private_key_jwt
+  tokenEndpointAuthSigningAlg: {{ .Values.oauthClient.tokenEndpointAuthSigningAlg | quote }}
+  tokenLifespans:
+    client_credentials_grant_access_token_lifespan: {{ .Values.oauthClient.accessTokenLifespan | quote }}
+{{- end }}
