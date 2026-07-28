@@ -81,6 +81,7 @@ already fresh (stale in-process token).
 
 ## Related docs
 
+- [Architecture diagram](../assets/architecture.png) — cluster-wide layout including MCP
 - [Connectivity](connectivity.md) — north-south path through Envoy Gateway
 - [Secrets](secrets.md) — Hydra server secrets and client key handling
 - [Public JWKS](../jwks/README.md) — committed public keys only
