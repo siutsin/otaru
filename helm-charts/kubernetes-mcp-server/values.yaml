@@ -23,21 +23,43 @@ kubernetes-mcp-server:
   service:
     port: 8080
   fullnameOverride: kubernetes-mcp-server
-  # In-cluster agents use the pod ServiceAccount (not the operator's
-  # kubeconfig). The upstream chart creates an SA but no default rules.
-  # Bind cluster-admin so an SRE agent can do the same class of work as a
-  # human with admin kubeconfig: inspect, restart, scale, patch GitOps
-  # apps, and operate CRDs (Argo, Longhorn, CNPG, Gateway, etc.). The MCP
-  # endpoint is internal-only (*.internal.siutsin.com); do not expose it
-  # publicly without Access or equivalent. Tighten later only if that
-  # surface changes.
+  # Edge JWT authenticates MCP callers; the pod SA is used for cluster work.
+  config:
+    cluster_auth_mode: kubeconfig
+    cluster_provider_strategy: in-cluster
+  # Read-mostly agent SA; write limited to workloads and Argo Applications.
   rbac:
     create: true
+    extraClusterRoles:
+      - name: agent
+        rules:
+          - apiGroups: ["*"]
+            resources: ["*"]
+            verbs: ["get", "list", "watch"]
+          - nonResourceURLs: ["*"]
+            verbs: ["get"]
+          - apiGroups: [""]
+            resources: ["pods", "pods/log", "pods/status", "pods/eviction"]
+            verbs: ["delete", "create", "patch", "update"]
+          - apiGroups: ["apps"]
+            resources:
+              - deployments
+              - deployments/scale
+              - statefulsets
+              - statefulsets/scale
+              - daemonsets
+              - replicasets
+            verbs: ["patch", "update", "delete"]
+          - apiGroups: ["batch"]
+            resources: ["jobs", "cronjobs"]
+            verbs: ["create", "patch", "update", "delete"]
+          - apiGroups: ["argoproj.io"]
+            resources: ["applications"]
+            verbs: ["patch", "update"]
     extraClusterRoleBindings:
-      - name: cluster-admin
+      - name: agent
         roleRef:
-          name: cluster-admin
-          external: true
+          name: agent
   # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe
   # downsize). KRR also flags the 100m CPU limit as unnecessary, but it is
   # inherited from the vendored chart's own default (this file never sets
