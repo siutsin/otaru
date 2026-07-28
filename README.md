@@ -24,6 +24,10 @@ Current cluster layout:
   paired with Descheduler's `HighNodeUtilization` profile, to
   concentrate free memory onto one node instead of spreading it too
   thin for larger pods to fit anywhere (see `documentation/gotcha.md`)
+- MCP servers (Kubernetes and UniFi) are JWT-gated at Envoy Gateway;
+  local agents reach them through a workstation agentgateway that
+  injects short-lived Hydra tokens (see
+  [MCP authentication](documentation/mcp-auth.md))
 
 ## Hardware
 
@@ -139,7 +143,7 @@ Key addresses on the Server network:
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                                                                                 |
 | Security     | [Kyverno](https://github.com/kyverno/kyverno)                                                       | Kubernetes policy engine                                                                                                                                                |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                                                                                              |
-| Security     | [Ory Hydra](https://www.ory.com/hydra)                                                               | Internally routed OAuth 2.0 and OpenID Connect issuer; its JWKS is registered mesh-wide for optional JWT validation                                                    |
+| Security     | [Ory Hydra](https://www.ory.com/hydra)                                                               | OAuth 2.0 and OpenID Connect issuer for machine clients and JWT validation                                                                                              |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                                                                        |
 <!-- markdownlint-enable MD060 -->
 

@@ -133,6 +133,15 @@ The controller and proxy need different ambient treatment:
 - `envoy-gateway-system` stays `istio.io/dataplane-mode=none`
 - `gateway` is ambient-enrolled so TCP and HTTP traffic from the ingress proxy can use the mesh path to backends
 
+### JWT on HTTPRoutes
+
+MCP and other sensitive routes attach an Envoy Gateway `SecurityPolicy` that
+validates a Hydra JWT before traffic reaches the Service. Mesh
+`AuthorizationPolicy` alone is not enough: Envoy Gateway can dial pod IPs and
+bypass a Service-attached waypoint. Kyverno `require-security-policy` enforces
+a SecurityPolicy on new HTTPRoutes. MCP edge and client flow:
+[MCP authentication](mcp-auth.md).
+
 ## East-West Connectivity
 
 For ambient-enrolled services, the path is:
