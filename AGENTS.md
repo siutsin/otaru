@@ -173,6 +173,12 @@ Ready on a wrong probe path). Use a peer chart (for example `httpbin`,
 - [ ] Ambient mesh: `AuthorizationPolicy` with `targetRefs` on the `Service` and
   `from.source.principals` allowing the gateway SA
   (`cluster.local/ns/gateway/sa/gateway`) for ingress-backed ports
+- [ ] HTTPRoute JWT: Envoy Gateway `SecurityPolicy` targeting the route
+  (issuer/JWKS + deny-by-default authz). Mesh AuthZ is not enough because EG
+  can bypass Service waypoints via pod IPs. ClusterPolicy
+  `require-security-policy` enforces this for every new HTTPRoute; do not add
+  the route to `requireSecurityPolicy.excludedRoutes` unless deliberately
+  grandfathering without JWT
 - [ ] Secrets: `ExternalSecret` → ClusterSecretStore `onepassword-secret-store`,
   plus Reloader (`reloader.stakater.com/auto: "true"`) when secret rotation
   should restart pods
