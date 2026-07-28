@@ -103,6 +103,9 @@ available. Prefer them for read-only diagnostics such as listing Pods, reading
 events, checking Argo CD Applications, inspecting resources, logs, and metrics
 before falling back to `kubectl`.
 
+MCP edge auth and local agentgateway layout are documented in
+`documentation/mcp-auth.md`. Agents should use the local front door only.
+
 For mutating operations, keep GitOps as the source of truth: patch the repo and
 let Argo CD reconcile unless the user explicitly asks for an emergency live
 change.

@@ -210,6 +210,14 @@ OAuth client signing keys are separate from these server secrets. Keep client
 private keys outside Git and Kubernetes; register only their public JWKs when a
 client is onboarded.
 
+### MCP machine client
+
+Client id `otaru-mcp` uses `private_key_jwt` (ES256). Public JWK is committed
+under `jwks/`. Private key stays on the operator workstation (for example
+`~/.config/otaru-mcp/oauth-key.pem` via `OTARU_MCP_KEY`). Do not load it into
+the cluster. Architecture and token path:
+[MCP authentication](mcp-auth.md).
+
 ## Check
 
 Run this before bootstrap:

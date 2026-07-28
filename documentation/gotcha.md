@@ -1717,3 +1717,28 @@ minute.
   than retrying indefinitely.
 
 ---
+
+## Local agentgateway returns `Jwt is expired` after token refresh
+
+### Symptom
+
+`http://127.0.0.1:13000/mcp` or `:13001` returns HTTP 401 with body
+`Jwt is expired`, while a direct request to the cluster hostname with a
+fresh Bearer token succeeds.
+
+### Cause
+
+The token refresh LaunchAgent updates the cache file, but agentgateway may
+still inject a previously read token until the process restarts.
+
+### Resolution: Restart agentgateway
+
+1. Confirm the cache file is fresh and the JWT `exp` is in the future.
+2. Restart the agentgateway LaunchAgent
+  (`launchctl kickstart -k gui/$(id -u)/com.siutsin.agentgateway`).
+3. Prefer agents on `127.0.0.1:13000` / `13001` only; do not embed Hydra
+  tokens in agent config.
+
+Architecture: [MCP authentication](mcp-auth.md).
+
+---

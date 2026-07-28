@@ -6,6 +6,7 @@
 | [Secrets](secrets.md)                                    | Secret management and encryption workflow for the repo.       |
 | [Infrastructure operations](infrastructure.md)           | OpenTofu/Terragrunt operations and UniFi firewall runbook.    |
 | [Connectivity](connectivity.md)                          | North-south, east-west, and mesh security model.              |
+| [MCP authentication](mcp-auth.md)                        | Edge JWT, local agentgateway, and MCP cluster identity.       |
 | [LUKS remote unlock and recovery](luks_remote_unlock.md) | Remote unlock and recovery workflow for LUKS-encrypted nodes. |
 | [LUKS passphrase handling](luks_passphrase.md)           | How LUKS passphrases are stored and loaded for automation.    |
 | [Gotchas and Workarounds](gotcha.md)                     | Operational pitfalls and known recovery steps.                |
