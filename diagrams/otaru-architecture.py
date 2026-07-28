@@ -228,8 +228,13 @@ with Diagram(
                     "MCP",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    hydra = Deployment("Ory Hydra")
                     mcp_servers = Deployment("Kubernetes MCP\nand UniFi MCP")
+
+                with Cluster(
+                    "Identity",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    hydra = Deployment("Ory Hydra")
 
                 with Cluster(
                     "Certificate Management",
@@ -469,22 +474,10 @@ with Diagram(
     (cloudflare >> edge("OIDC JWKS", colour=COLOUR_OIDC) >> api_server)
     applications >> edge("Use AWS APIs", colour=COLOUR_OIDC) >> aws_app_services
 
-    # MCP JWT: workstation front door -> Hydra + Envoy -> MCP servers.
-    # constraint=false avoids pinning MCP to the right of Connectivity.
+    # MCP JWT: workstation -> Hydra (mint) + Envoy (edge JWT) -> MCP.
+    # Prefer short chain edges; avoid constraint=false (it draws long loops).
     ai_agent >> edge("Local MCP", colour=COLOUR_OIDC) >> agentgateway
-    (
-        agentgateway
-        >> edge("Mint token", colour=COLOUR_OIDC, constraint="false")
-        >> hydra
-    )
-    (
-        agentgateway
-        >> edge("Bearer JWT", colour=COLOUR_OIDC, constraint="false")
-        >> envoy_gateway
-    )
-    (envoy_gateway >> edge("JWKS", colour=COLOUR_OIDC, constraint="false") >> hydra)
-    (
-        envoy_gateway
-        >> edge("MCP", colour=COLOUR_OIDC, constraint="false")
-        >> mcp_servers
-    )
+    agentgateway >> edge("Mint token", colour=COLOUR_OIDC) >> hydra
+    agentgateway >> edge("Bearer JWT", colour=COLOUR_OIDC) >> envoy_gateway
+    envoy_gateway >> edge("JWKS", colour=COLOUR_OIDC) >> hydra
+    envoy_gateway >> edge("MCP", colour=COLOUR_OIDC) >> mcp_servers
