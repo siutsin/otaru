@@ -27,7 +27,7 @@ re-apply or regenerate descriptions rather than shipping empty ones.
 
 Standard Cluster Monitoring auto-refreshes with Grafana **`auto`** (same as the blocky dashboard). Keep `refresh: auto` when re-vendoring.
 
-Validate with `python3 scripts/validate-grafana-dashboards.py` (also via
+Validate with `python3 hack/validate-grafana-dashboards.py` (also via
 `make test`). Forbidden selectors include bare `job="node-exporter"` and the
 broken `cattle-.*openshift` regex.
 
@@ -143,6 +143,6 @@ resource change with the observed trigger (OOM, probe fail, etc.).
 ```bash
 make test
 # or focused:
-python3 scripts/validate-grafana-dashboards.py
+python3 hack/validate-grafana-dashboards.py
 helm template monitoring helm-charts/monitoring -f helm-charts/monitoring/values.yaml >/dev/null
 ```

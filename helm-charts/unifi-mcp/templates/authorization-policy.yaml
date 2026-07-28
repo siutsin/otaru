@@ -17,6 +17,10 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+            {{- if .Values.authentication.enabled }}
+            requestPrincipals:
+              - "*"
+            {{- end }}
       to:
         - operation:
             ports:
@@ -25,3 +29,9 @@ spec:
               - {{ $c.port | quote }}
               {{- end }}
               {{- end }}
+      {{- if .Values.authentication.enabled }}
+      when:
+        - key: request.auth.claims[sub]
+          values:
+            {{- toYaml .Values.authentication.allowedSubjects | nindent 12 }}
+      {{- end }}

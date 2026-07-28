@@ -281,7 +281,7 @@ format-python: poetry-install ## Format Python code with black
 .PHONY: validate-grafana-dashboards
 validate-grafana-dashboards: ## Validate Grafana dashboard embeds (PromQL targets / obsolete selectors)
 	@echo "$(GREEN)Validating Grafana dashboards...$(NC)"
-	@python3 scripts/validate-grafana-dashboards.py
+	@python3 hack/validate-grafana-dashboards.py
 	@echo "$(GREEN)Grafana dashboard validation passed!$(NC)"
 
 .PHONY: test

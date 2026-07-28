@@ -1,0 +1,16 @@
+{{- if .Values.authentication.enabled }}
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # Ambient waypoints require targetRefs; a selector would be ignored.
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  jwtRules:
+    - issuer: {{ .Values.authentication.issuer | quote }}
+      jwksUri: {{ .Values.authentication.jwksUri | quote }}
+{{- end }}

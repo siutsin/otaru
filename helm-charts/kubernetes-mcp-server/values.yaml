@@ -4,6 +4,13 @@ namespace: kubernetes-mcp-server
 vpa:
   enabled: true
 
+authentication:
+  enabled: true
+  issuer: https://auth.siutsin.com/
+  jwksUri: https://auth.siutsin.com/.well-known/jwks.json
+  allowedSubjects:
+    - otaru-mcp
+
 kubernetes-mcp-server:
   image:
     registry: quay.io
