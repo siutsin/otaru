@@ -17,7 +17,17 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+            {{- if .Values.authentication.enabled }}
+            requestPrincipals:
+              - "*"
+            {{- end }}
       to:
         - operation:
             ports:
               - {{ index .Values "kubernetes-mcp-server" "service" "port" | quote }}
+      {{- if .Values.authentication.enabled }}
+      when:
+        - key: request.auth.claims[sub]
+          values:
+            {{- toYaml .Values.authentication.allowedSubjects | nindent 12 }}
+      {{- end }}
