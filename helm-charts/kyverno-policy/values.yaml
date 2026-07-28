@@ -95,9 +95,15 @@ requireSecurityPolicy:
       name: httpbin-public
     - namespace: hydra
       name: hydra-internal
+    - namespace: jellyfin
+      name: jellyfin-internal
+    - namespace: jellyfin
+      name: jellyfin-sftpgo-internal-http
     - namespace: jsoncrack
       name: jsoncrack-internal
     - namespace: jung2bot
+      name: jung2bot-public
+    - namespace: jung2bot-dev
       name: jung2bot-public
     - namespace: longhorn-system
       name: longhorn-internal
