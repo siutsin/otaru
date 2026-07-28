@@ -38,6 +38,15 @@ oauthClient:
   tokenEndpointAuthSigningAlg: ES256
   accessTokenLifespan: 15m
   jwksUri: https://raw.githubusercontent.com/siutsin/otaru/master/jwks/otaru-mcp-oauth.jwks.json
+  # Nominal CLIENT_SECRET for Maester only (1Password item title otaru-mcp).
+  externalSecret:
+    refreshInterval: 24h
+    secretStoreRef:
+      kind: ClusterSecretStore
+      name: onepassword-secret-store
+    remoteRef:
+      key: otaru-mcp
+      property: password
 
 hydra:
   fullnameOverride: hydra
