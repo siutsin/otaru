@@ -3,7 +3,7 @@
 
 Requires jwcrypto, for example:
 
-uvx --with jwcrypto python scripts/mint-otaru-mcp-token.py
+uvx --with jwcrypto python hack/mint-otaru-mcp-token.py
 
 Environment:
 
