@@ -17,9 +17,16 @@ spec:
               operations:
                 - CREATE
                 - UPDATE
+{{- with .Values.requireSecurityPolicy.excludedRoutes }}
+      exclude:
+        any:
+{{- range . }}
+          - resources:
               namespaces:
-{{- range .Values.requireSecurityPolicy.namespaces }}
-                - {{ . }}
+                - {{ .namespace }}
+              names:
+                - {{ .name }}
+{{- end }}
 {{- end }}
       context:
         - name: securityPolicyCount
@@ -37,12 +44,13 @@ spec:
         allowExistingViolations: true
         failureAction: {{ .Values.requireSecurityPolicy.failureAction }}
         message: >-
-          HTTPRoutes in JWT-protected namespaces must have a SecurityPolicy in
-          the same namespace with targetRefs pointing at that HTTPRoute, at
-          least one jwt.providers entry, and authorization.defaultAction Deny.
-          Envoy Gateway can resolve backends to pod IPs and bypass Service
-          waypoints, so mesh AuthorizationPolicy alone is not enough. Annotate
-          gateway.otaru.io/skip-security-policy=true only for deliberate opt-outs.
+          HTTPRoutes must have a SecurityPolicy in the same namespace with
+          targetRefs pointing at that HTTPRoute, at least one jwt.providers
+          entry, and authorization.defaultAction Deny. Envoy Gateway can
+          resolve backends to pod IPs and bypass Service waypoints, so mesh
+          AuthorizationPolicy alone is not enough. Pre-existing routes are
+          listed under requireSecurityPolicy.excludedRoutes; for a one-off
+          opt-out set gateway.otaru.io/skip-security-policy=true.
         deny:
           conditions:
             all:

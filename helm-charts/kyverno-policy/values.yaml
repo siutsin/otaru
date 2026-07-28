@@ -65,16 +65,58 @@ meshAuthorizationPolicy:
     matchLabels:
       istio.io/dataplane-mode: ambient
 
-# Envoy Gateway can hit pod IPs and bypass Service waypoints, so MCP
-# HTTPRoutes need a SecurityPolicy (JWT + deny-by-default) in addition to
-# mesh AuthorizationPolicy. Keep this list aligned with charts that ship
-# security-policy.yaml (kubernetes-mcp-server, unifi-mcp).
+# Cluster-wide: every HTTPRoute needs a companion Envoy Gateway
+# SecurityPolicy (JWT + deny-by-default). EG can hit pod IPs and bypass
+# Service waypoints, so mesh AuthorizationPolicy alone is not enough.
+# excludedRoutes lists pre-existing routes grandfathered without JWT;
+# remove entries only when that route gains a real SecurityPolicy.
+# k8s-mcp-internal and unifi-mcp-internal are intentionally not listed.
 requireSecurityPolicy:
   enabled: true
   failureAction: Enforce
-  namespaces:
-    - kubernetes-mcp-server
-    - unifi-mcp
+  excludedRoutes:
+    - namespace: argocd
+      name: argocd-internal
+    - namespace: argocd
+      name: argocd-public
+    - namespace: blocky
+      name: blocky-internal-doh
+    - namespace: changedetection
+      name: changedetection-internal
+    - namespace: cyberchef
+      name: cyberchef-internal
+    - namespace: excalidraw
+      name: excalidraw-internal
+    - namespace: gateway
+      name: kiali-internal
+    - namespace: home-assistant
+      name: home-assistant-internal
+    - namespace: httpbin
+      name: httpbin-public
+    - namespace: hydra
+      name: hydra-internal
+    - namespace: jsoncrack
+      name: jsoncrack-internal
+    - namespace: jung2bot
+      name: jung2bot-public
+    - namespace: longhorn-system
+      name: longhorn-internal
+    - namespace: monitoring
+      name: monitoring-grafana-internal
+    - namespace: monitoring
+      name: monitoring-loki-internal
+    - namespace: monitoring
+      name: monitoring-prometheus-internal
+    - namespace: openclaw
+      name: openclaw-internal
+    - namespace: teslamate
+      name: teslamate-grafana-internal
+    - namespace: teslamate
+      name: teslamate-internal
+    - namespace: umami
+      name: umami-collect
+    - namespace: umami
+      name: umami-internal
 
 barmanObjectStorePolicy:
   enabled: true
