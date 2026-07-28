@@ -13,6 +13,7 @@ import sys
 
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.database import Dynamodb
+from diagrams.aws.robotics import Robotics
 from diagrams.aws.security import IAMAWSSts
 from diagrams.custom import Custom
 from diagrams.generic.blank import Blank
@@ -181,7 +182,7 @@ with Diagram(
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
             unifi_gateway = icon_node("UniFi Cloud\nGateway", "unifi")
-            ai_agent = User("AI Agent")
+            ai_agent = Robotics("AI Agent")
             agentgateway = Deployment("Local\nagentgateway")
             with Cluster("K3s Cluster", graph_attr=cluster_attr):
                 with Cluster(
