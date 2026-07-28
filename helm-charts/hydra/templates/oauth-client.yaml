@@ -5,12 +5,10 @@ metadata:
   name: {{ .Values.oauthClient.id }}
   namespace: {{ .Values.namespace }}
   annotations:
-    # Secret with CLIENT_ID must exist before Maester reconciles this CR.
     argocd.argoproj.io/sync-wave: "2"
 spec:
   accessTokenStrategy: jwt
-  # Declare CRD defaults explicitly so Kubernetes defaulting does not leave
-  # Argo CD reporting this client as perpetually OutOfSync.
+  # Explicit CRD defaults so Kubernetes defaulting does not leave Argo CD OutOfSync.
   backChannelLogoutSessionRequired: false
   clientName: {{ .Values.oauthClient.name | quote }}
   deletionPolicy: delete
@@ -24,7 +22,6 @@ spec:
     {{- range .Values.oauthClient.scopes }}
     - {{ . | quote }}
     {{- end }}
-  # Maester always requires a Secret; token auth uses private_key_jwt only.
   secretName: {{ .Values.oauthClient.secretName }}
   skipConsent: false
   skipLogoutConsent: false

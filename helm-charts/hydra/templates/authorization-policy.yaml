@@ -22,8 +22,6 @@ spec:
             ports:
               - "4444"
 ---
-# Hydra's administrative API can create clients, keys, and trust relationships.
-# Keep it closed to the ingress gateway; only the client controller may call it.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
