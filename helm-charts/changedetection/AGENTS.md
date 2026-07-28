@@ -21,6 +21,12 @@ diagnostics or recovery, then backport the chart change.
   model configuration. A request may complete after the client sees a timeout.
 - For variant-specific product watches, make extraction target the exact
   variant. Generic product metadata often points at a default variant.
+- Amazon Restock watches: use one shared `webdriver_js_execute_code` on every
+  Amazon Restock watch (featured buy-box price → inject Product JSON-LD;
+  used-only / "See All Buying Options" / no featured offer → inject
+  "no featured offers available" into the stock-script scan band). Keep all
+  Amazon watches on the same script so stock and price semantics stay
+  consistent. Datastore-only; not in the chart.
 - For workload-only changes, restart the workload or let Argo CD reconcile. Do
   not reboot nodes for this app.
 - Validate focused changes with `helm template`, then run `make test`.
