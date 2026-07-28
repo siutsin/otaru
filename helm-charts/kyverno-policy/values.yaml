@@ -65,6 +65,17 @@ meshAuthorizationPolicy:
     matchLabels:
       istio.io/dataplane-mode: ambient
 
+# Envoy Gateway can hit pod IPs and bypass Service waypoints, so MCP
+# HTTPRoutes need a SecurityPolicy (JWT + deny-by-default) in addition to
+# mesh AuthorizationPolicy. Keep this list aligned with charts that ship
+# security-policy.yaml (kubernetes-mcp-server, unifi-mcp).
+requireSecurityPolicy:
+  enabled: true
+  failureAction: Enforce
+  namespaces:
+    - kubernetes-mcp-server
+    - unifi-mcp
+
 barmanObjectStorePolicy:
   enabled: true
   allowedNamespaces:

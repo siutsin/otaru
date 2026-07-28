@@ -173,6 +173,11 @@ Ready on a wrong probe path). Use a peer chart (for example `httpbin`,
 - [ ] Ambient mesh: `AuthorizationPolicy` with `targetRefs` on the `Service` and
   `from.source.principals` allowing the gateway SA
   (`cluster.local/ns/gateway/sa/gateway`) for ingress-backed ports
+- [ ] JWT-protected MCP (or similar) ingress: Envoy Gateway `SecurityPolicy`
+  targeting the HTTPRoute (issuer/JWKS + deny-by-default authz). Mesh AuthZ is
+  not enough because EG can bypass Service waypoints via pod IPs. Add the
+  namespace to `requireSecurityPolicy.namespaces` in
+  `helm-charts/kyverno-policy/values.yaml`
 - [ ] Secrets: `ExternalSecret` → ClusterSecretStore `onepassword-secret-store`,
   plus Reloader (`reloader.stakater.com/auto: "true"`) when secret rotation
   should restart pods

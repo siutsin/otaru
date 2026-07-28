@@ -1,0 +1,56 @@
+{{- if .Values.requireSecurityPolicy.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-security-policy
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  rules:
+    - name: require-security-policy-for-httproutes
+      match:
+        any:
+          - resources:
+              kinds:
+                - HTTPRoute
+              operations:
+                - CREATE
+                - UPDATE
+              namespaces:
+{{- range .Values.requireSecurityPolicy.namespaces }}
+                - {{ . }}
+{{- end }}
+      context:
+        - name: securityPolicyCount
+          apiCall:
+            method: GET
+            urlPath: "/apis/gateway.envoyproxy.io/v1alpha1/namespaces/{{ `{{ request.namespace }}` }}/securitypolicies"
+            jmesPath: >-
+              items[?length((spec.targetRefs || `[]`)[?group == 'gateway.networking.k8s.io' &&
+              kind == 'HTTPRoute' && name == '{{ `{{ request.object.metadata.name }}` }}']) > `0` &&
+              length(spec.jwt.providers || `[]`) > `0` &&
+              spec.authorization.defaultAction == 'Deny'] | length(@)
+            default: 0
+      skipBackgroundRequests: true
+      validate:
+        allowExistingViolations: true
+        failureAction: {{ .Values.requireSecurityPolicy.failureAction }}
+        message: >-
+          HTTPRoutes in JWT-protected namespaces must have a SecurityPolicy in
+          the same namespace with targetRefs pointing at that HTTPRoute, at
+          least one jwt.providers entry, and authorization.defaultAction Deny.
+          Envoy Gateway can resolve backends to pod IPs and bypass Service
+          waypoints, so mesh AuthorizationPolicy alone is not enough. Annotate
+          gateway.otaru.io/skip-security-policy=true only for deliberate opt-outs.
+        deny:
+          conditions:
+            all:
+              - key: "{{ `{{ securityPolicyCount }}` }}"
+                operator: Equals
+                value: 0
+              - key: {{ printf "{{ request.object.metadata.annotations.\"gateway.otaru.io/skip-security-policy\" || '' }}" | quote }}
+                operator: NotEquals
+                value: "true"
+  validationFailureAction: {{ .Values.requireSecurityPolicy.failureAction }}
+{{- end }}
