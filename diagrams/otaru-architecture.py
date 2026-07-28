@@ -3,7 +3,7 @@ Otaru Architecture Diagram.
 
 This script generates a comprehensive architecture diagram for the Otaru project,
 covering public traffic flow, GitOps, TLS/Certificate management, secret management,
-monitoring, control plane, storage, database, and OIDC/IRSA authentication.
+monitoring, control plane, storage, database, OIDC/JWT, and MCP authentication.
 
 The diagram is generated using the 'diagrams' Python library and includes custom
 icons and color-coded edges for different logical flows.
@@ -13,6 +13,7 @@ import sys
 
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.database import Dynamodb
+from diagrams.aws.robotics import Robotics
 from diagrams.aws.security import IAMAWSSts
 from diagrams.custom import Custom
 from diagrams.generic.blank import Blank
@@ -45,7 +46,7 @@ output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 # GitOps                     London Overground
 # Monitoring                 Metropolitan
 # Node Connectivity          DLR
-# OIDC/IRSA Authentication   Elizabeth
+# OIDC/JWT Authentication    Elizabeth
 # Public Traffic             Central
 # Secret Management          London Trams
 # Storage                    Liberty
@@ -181,6 +182,8 @@ with Diagram(
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
             unifi_gateway = icon_node("UniFi Cloud\nGateway", "unifi")
+            ai_agent = Robotics("AI Agent")
+            agentgateway = Deployment("Local\nagentgateway")
             with Cluster("K3s Cluster", graph_attr=cluster_attr):
                 with Cluster(
                     "Cluster Platform",
@@ -221,6 +224,18 @@ with Diagram(
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
                     openclaw = icon_node("OpenClaw", "openclaw")
+
+                with Cluster(
+                    "MCP",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    mcp_servers = Deployment("Kubernetes MCP\nand UniFi MCP")
+
+                with Cluster(
+                    "Identity",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    hydra = Deployment("Ory Hydra")
 
                 with Cluster(
                     "Certificate Management",
@@ -288,7 +303,7 @@ with Diagram(
             # Split legend into two rows for more compact layout
             legend_row(
                 [
-                    ("OIDC/IRSA", COLOUR_OIDC),
+                    ("OIDC/JWT", COLOUR_OIDC),
                     ("Public Traffic", COLOUR_PUBLIC),
                     ("GitOps", COLOUR_GITOPS),
                     ("TLS/Certificate", COLOUR_TLS),
@@ -459,3 +474,11 @@ with Diagram(
     (aws_sts >> edge("Validate JWT", colour=COLOUR_OIDC) >> cloudflare)
     (cloudflare >> edge("OIDC JWKS", colour=COLOUR_OIDC) >> api_server)
     applications >> edge("Use AWS APIs", colour=COLOUR_OIDC) >> aws_app_services
+
+    # MCP JWT: workstation -> Hydra (mint) + Envoy (edge JWT) -> MCP.
+    # Prefer short chain edges; avoid constraint=false (it draws long loops).
+    ai_agent >> edge("Local MCP", colour=COLOUR_OIDC) >> agentgateway
+    agentgateway >> edge("Mint token", colour=COLOUR_OIDC) >> hydra
+    agentgateway >> edge("Bearer JWT", colour=COLOUR_OIDC) >> envoy_gateway
+    envoy_gateway >> edge("JWKS", colour=COLOUR_OIDC) >> hydra
+    envoy_gateway >> edge("MCP", colour=COLOUR_OIDC) >> mcp_servers
