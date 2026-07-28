@@ -22,6 +22,29 @@ database:
   secretName: hydra-20260726-0001
   caSecretName: hydra-20260726-0001-ca
 
+clientController:
+  enabled: true
+  serviceAccountName: hydra-maester-account
+
+oauthClient:
+  enabled: true
+  id: otaru-mcp
+  name: Otaru MCP machine client
+  secretName: otaru-mcp
+  scopes:
+    - mcp
+  tokenEndpointAuthSigningAlg: ES256
+  accessTokenLifespan: 15m
+  jwksUri: https://raw.githubusercontent.com/siutsin/otaru/master/jwks/otaru-mcp-oauth.jwks.json
+  externalSecret:
+    refreshInterval: 24h
+    secretStoreRef:
+      kind: ClusterSecretStore
+      name: onepassword-secret-store
+    remoteRef:
+      key: otaru-mcp
+      property: password
+
 hydra:
   fullnameOverride: hydra
   replicaCount: 2
@@ -152,9 +175,33 @@ hydra:
       minAvailable: 1
 
   maester:
-    # Client onboarding is paused; avoid running a controller and CRDs until
-    # there is an OAuth2Client for it to manage.
-    enabled: false
+    enabled: true
+
+  hydra-maester:
+    fullnameOverride: hydra-maester
+    singleNamespaceMode: true
+    image:
+      tag: v0.0.42@sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156
+    deployment:
+      extraEnv:
+        # Maester v0.0.42 scopes its controller cache from this environment
+        # variable; the --namespace flag alone only filters reconciliation.
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"
+      # Initial controller sizing: Maester reconciles one small client CR and
+      # has no live metrics yet. Start small and revisit after KRR has history.
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+          ephemeral-storage: 64Mi
+        limits:
+          memory: 64Mi
+          ephemeral-storage: 64Mi
+    pdb:
+      enabled: true
+      spec:
+        minAvailable: 1
 
   test:
     busybox:

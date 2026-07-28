@@ -22,9 +22,6 @@ spec:
             ports:
               - "4444"
 ---
-# Hydra's administrative API can create clients, keys, and trust relationships.
-# Keep it reachable only through explicit future service-level policy changes;
-# it must never inherit the public issuer's gateway access.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -36,4 +33,16 @@ spec:
     - group: ""
       kind: Service
       name: hydra-admin
+  {{- if .Values.clientController.enabled }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.clientController.serviceAccountName }}
+      to:
+        - operation:
+            ports:
+              - "4445"
+  {{- else }}
   rules: []
+  {{- end }}

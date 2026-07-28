@@ -1,0 +1,32 @@
+{{- if .Values.oauthClient.enabled }}
+apiVersion: hydra.ory.sh/v1alpha1
+kind: OAuth2Client
+metadata:
+  name: {{ .Values.oauthClient.id }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  accessTokenStrategy: jwt
+  # Explicit CRD defaults so Kubernetes defaulting does not leave Argo CD OutOfSync.
+  backChannelLogoutSessionRequired: false
+  clientName: {{ .Values.oauthClient.name | quote }}
+  deletionPolicy: delete
+  frontChannelLogoutSessionRequired: false
+  grantTypes:
+    - client_credentials
+  jwksUri: {{ .Values.oauthClient.jwksUri | quote }}
+  responseTypes:
+    - token
+  scopeArray:
+    {{- range .Values.oauthClient.scopes }}
+    - {{ . | quote }}
+    {{- end }}
+  secretName: {{ .Values.oauthClient.secretName }}
+  skipConsent: false
+  skipLogoutConsent: false
+  tokenEndpointAuthMethod: private_key_jwt
+  tokenEndpointAuthSigningAlg: {{ .Values.oauthClient.tokenEndpointAuthSigningAlg | quote }}
+  tokenLifespans:
+    client_credentials_grant_access_token_lifespan: {{ .Values.oauthClient.accessTokenLifespan | quote }}
+{{- end }}

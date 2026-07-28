@@ -25,6 +25,7 @@ clusterSecretStorePolicy:
     hydra:
       - b2-secret-cloudnative-pg
       - Ory
+      - otaru-mcp
     umami:
       - Umami
       - b2-secret-cloudnative-pg
