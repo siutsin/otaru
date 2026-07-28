@@ -181,13 +181,8 @@ with Diagram(
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
             unifi_gateway = icon_node("UniFi Cloud\nGateway", "unifi")
-            with Cluster(
-                "Workstation",
-                graph_attr={**cluster_attr, "fontsize": "20"},
-            ):
-                ai_agent = User("AI Agent")
-                agentgateway = Deployment("Local\nagentgateway")
-
+            ai_agent = User("AI Agent")
+            agentgateway = Deployment("Local\nagentgateway")
             with Cluster("K3s Cluster", graph_attr=cluster_attr):
                 with Cluster(
                     "Cluster Platform",
@@ -218,15 +213,6 @@ with Diagram(
                 applications = Deployment("Applications")
 
                 with Cluster(
-                    "MCP",
-                    graph_attr={**cluster_attr, "fontsize": "20"},
-                ):
-                    hydra = Deployment("Ory Hydra")
-                    k8s_mcp = Deployment("Kubernetes\nMCP")
-                    unifi_mcp = Deployment("UniFi MCP")
-                    align_horizontally(hydra, k8s_mcp, unifi_mcp)
-
-                with Cluster(
                     "GitOps",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
@@ -237,6 +223,13 @@ with Diagram(
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
                     openclaw = icon_node("OpenClaw", "openclaw")
+
+                with Cluster(
+                    "MCP",
+                    graph_attr={**cluster_attr, "fontsize": "20"},
+                ):
+                    hydra = Deployment("Ory Hydra")
+                    mcp_servers = Deployment("Kubernetes MCP\nand UniFi MCP")
 
                 with Cluster(
                     "Certificate Management",
@@ -476,12 +469,22 @@ with Diagram(
     (cloudflare >> edge("OIDC JWKS", colour=COLOUR_OIDC) >> api_server)
     applications >> edge("Use AWS APIs", colour=COLOUR_OIDC) >> aws_app_services
 
-    # MCP JWT edge auth and local front door
+    # MCP JWT: workstation front door -> Hydra + Envoy -> MCP servers.
+    # constraint=false avoids pinning MCP to the right of Connectivity.
     ai_agent >> edge("Local MCP", colour=COLOUR_OIDC) >> agentgateway
-    (agentgateway >> edge("Mint access\ntoken", colour=COLOUR_OIDC) >> hydra)
-    (agentgateway >> edge("Bearer JWT", colour=COLOUR_OIDC) >> envoy_gateway)
-    (envoy_gateway >> edge("Validate JWT\nvia JWKS", colour=COLOUR_OIDC) >> hydra)
-    (envoy_gateway >> edge("Kubernetes\nMCP", colour=COLOUR_OIDC) >> k8s_mcp)
-    (envoy_gateway >> edge("UniFi MCP", colour=COLOUR_OIDC) >> unifi_mcp)
-    k8s_mcp >> edge("Pod SA", colour=COLOUR_OIDC) >> api_server
-    (unifi_mcp >> edge("Controller\nAPI", colour=COLOUR_OIDC) >> unifi_gateway)
+    (
+        agentgateway
+        >> edge("Mint token", colour=COLOUR_OIDC, constraint="false")
+        >> hydra
+    )
+    (
+        agentgateway
+        >> edge("Bearer JWT", colour=COLOUR_OIDC, constraint="false")
+        >> envoy_gateway
+    )
+    (envoy_gateway >> edge("JWKS", colour=COLOUR_OIDC, constraint="false") >> hydra)
+    (
+        envoy_gateway
+        >> edge("MCP", colour=COLOUR_OIDC, constraint="false")
+        >> mcp_servers
+    )
