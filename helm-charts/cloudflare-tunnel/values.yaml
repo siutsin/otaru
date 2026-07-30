@@ -1,6 +1,11 @@
 name: cloudflare-tunnel
 namespace: cloudflare-tunnel
 
+# VPA 2026-07-30: onboarded after a steady-state usage check (7d usage
+# consistently 17-45Mi against a 128Mi request, no incident history).
+vpa:
+  enabled: true
+
 image:
   repository: cloudflare/cloudflared
   tag: "2026.7.3@sha256:e39ee8da81ad5e05d77f38d2f51c60ca51bf2a8450ac3abab50c17fdb91d91bf"
