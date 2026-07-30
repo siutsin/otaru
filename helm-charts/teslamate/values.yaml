@@ -1,5 +1,13 @@
 name: teslamate
 namespace: teslamate
+
+# VPA 2026-07-30: onboarded the main teslamate app after a steady-state
+# usage check (7d avg/max ~223/230Mi against a 320Mi request, ratio ~1.03,
+# no incident history). Deliberately excludes teslamate-grafana, which has
+# a documented OOMKill history (128Mi -> 512Mi) and stays on manual KRR.
+vpa:
+  enabled: true
+
 database:
   host: teslamate-20260412-0619-rw.teslamate
   name: app
