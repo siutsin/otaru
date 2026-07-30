@@ -1,6 +1,13 @@
 name: openclaw
 namespace: openclaw
 
+# VPA 2026-07-30: onboarded after a steady-state usage check (7d avg/max
+# ~489/623Mi against a 768Mi request, ratio ~1.27 -- more variance than the
+# other candidates but no incident history and no periodic-spike shape,
+# so kept a wider maxAllowed margin below).
+vpa:
+  enabled: true
+
 image:
   repository: ghcr.io/openclaw/openclaw
   tag: 2026.5.22@sha256:dcfd148777401d1bbdc63eab5c2f280bbfa912dfb1818566f9d66bb96ffb3f95

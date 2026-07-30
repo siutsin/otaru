@@ -1,6 +1,14 @@
 name: hydra
 namespace: hydra
 
+# VPA 2026-07-30: onboarded after a steady-state usage check (7d avg/max
+# ~56/60Mi against a 128Mi request, no incident history). Directly
+# addresses the "no live KRR history yet, revisit after 14 days" note on
+# the resources block below -- only targets the main hydra Deployment,
+# not hydra-maester.
+vpa:
+  enabled: true
+
 gateway:
   name: gateway
   namespace: gateway

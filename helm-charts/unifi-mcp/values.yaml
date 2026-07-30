@@ -1,6 +1,13 @@
 name: unifi-mcp
 namespace: unifi-mcp
 
+# VPA 2026-07-30: onboarded after a steady-state usage check (7d avg
+# 70-137Mi, max up to 191Mi across recent pod instances, no incident
+# history). Directly addresses the "revisit after real data" note on the
+# resources block below.
+vpa:
+  enabled: true
+
 gateway:
   name: gateway
   namespace: gateway
