@@ -94,8 +94,12 @@ browser:
     # but needed 1199m; every other node was short on memory instead.
     # Reduced to 700m, which fits raspberrypi-03 with ~155m spare. Full
     # KRR target deferred to a later pass once cluster headroom improves.
+    # KRR 2026-07-30: completing the deferred upsize to the full 1189m
+    # target. The pod now runs on raspberrypi-00, which has CPU headroom
+    # (about 71 percent requested, no CPU limit set cluster-wide), so the
+    # full 489m bump fits without touching memory, which stays unchanged.
     requests:
-      cpu: 700m
+      cpu: 1189m
       memory: 1408Mi
       ephemeral-storage: 1Gi
     limits:
