@@ -7,12 +7,30 @@ argo-cd:
     addPrometheusAnnotations: true
   _shared:
     controllerResources: &controllerResources
-      # Keep memory at 2Gi: sync spikes can queue many repo comparisons at once,
-      # and Argo CD tends to concentrate that work in a single controller pod, so
-      # extra replicas do not materially reduce peak memory on the active pod.
+      # Keep the limit at 2Gi: sync spikes can queue many repo comparisons at
+      # once, and Argo CD tends to concentrate that work in a single
+      # controller pod, so extra replicas do not materially reduce peak
+      # memory on the active pod.
+      #
+      # 2026-07-30 (overcommit): same request-vs-limit split already used
+      # for blocky and changedetection-browser. 7d and 14d working-set both
+      # topped out around 909Mi (14d max: 909.3Mi), well under the 2Gi
+      # request/limit that had been reserved since day one. Lowered the
+      # request to 1280Mi -- about 40 percent above the highest measured
+      # peak, wider margin than the other overcommit changes because this
+      # pod runs `replicas: 1` with no redundancy: an eviction here stalls
+      # GitOps reconciliation for all Applications until it reschedules and
+      # rebuilds its full watch cache, not just one workload's blip. The
+      # limit stays at 2Gi unchanged, so hard OOM-kill protection for a
+      # genuine sync-spike is identical to before -- that is governed by
+      # the limit, not the request. Note this pod is already `Burstable`
+      # QoS (no CPU limit is set, per this repo's convention), so this
+      # change does not newly expose it to eviction ranking; it only
+      # narrows the margin during the rare case of a real sync-spike
+      # coinciding with node memory pressure.
       requests:
         cpu: 250m
-        memory: 2Gi
+        memory: 1280Mi
         ephemeral-storage: 256Mi
       limits:
         memory: 2Gi
