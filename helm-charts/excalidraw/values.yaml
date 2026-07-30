@@ -1,6 +1,14 @@
 name: excalidraw
 namespace: excalidraw
 
+# VPA 2026-07-30: onboarded memory-only after a steady-state usage check
+# (7d usage only 7-8Mi against a 128Mi request, no incident history). CPU
+# is left to the existing HPA. The HPA's memory trigger was switched from
+# Utilization to AverageValue (see templates/hpa.yaml) to decouple it from
+# the request this VPA adjusts -- same fix blocky's HPA needed.
+vpa:
+  enabled: true
+
 deployment:
   image:
     repository: docker.io/excalidraw/excalidraw

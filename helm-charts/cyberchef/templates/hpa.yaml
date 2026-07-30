@@ -15,9 +15,13 @@ spec:
       type: Resource
     - resource:
         name: memory
+        # 2026-07-30: switched from Utilization (% of request) to a fixed
+        # AverageValue so the memory-only VPA added alongside this HPA can
+        # adjust the request without moving this trigger point. 70Mi keeps
+        # the same absolute trigger as the previous 70%-of-100Mi target.
         target:
-          averageUtilization: 70
-          type: Utilization
+          type: AverageValue
+          averageValue: 70Mi
       type: Resource
   minReplicas: 2
   scaleTargetRef:

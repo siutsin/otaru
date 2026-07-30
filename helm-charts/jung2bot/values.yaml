@@ -1,6 +1,16 @@
 name: jung2bot
 namespace: jung2bot
 
+# VPA 2026-07-30: onboarded memory-only after a steady-state usage check
+# (7d avg/max ~95Mi against a 192Mi request, ratio ~1.0, no incident
+# history). CPU is left to the existing KEDA ScaledObject. The
+# ScaledObject's memory trigger was switched from Utilization to
+# AverageValue (see templates/scaled-object.yaml) to decouple it from the
+# request this VPA adjusts -- same fix blocky's HPA needed. Applies to
+# both jung2bot and jung2bot-dev (same chart, dev values file override).
+vpa:
+  enabled: true
+
 secret:
   remoteRef:
     key: jung2bot
