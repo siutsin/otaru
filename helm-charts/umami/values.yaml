@@ -1,6 +1,11 @@
 name: umami
 namespace: umami
 
+# VPA 2026-07-30: onboarded after a steady-state usage check (7d avg/max
+# ~221/250Mi against a 320Mi request, ratio ~1.13, no incident history).
+vpa:
+  enabled: true
+
 image:
   repository: ghcr.io/umami-software/umami
   tag: postgresql-latest@sha256:8edfe4beaef13f9d1300619fa264ef250a3688df9cc54d24ca830ca31cb475ec
