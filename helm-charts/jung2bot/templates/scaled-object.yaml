@@ -16,9 +16,14 @@ spec:
       metadata:
         value: "75"
     - type: memory
-      metricType: Utilization
+      # 2026-07-30: switched from Utilization (% of request) to a fixed
+      # AverageValue so the memory-only VPA added alongside this
+      # ScaledObject can adjust the request without moving this trigger
+      # point. 144Mi keeps the same absolute trigger as the previous
+      # 75%-of-192Mi target.
+      metricType: AverageValue
       metadata:
-        value: "75"
+        value: "144Mi"
     - type: cron
       metadata:
         timezone: "Asia/Hong_Kong"
