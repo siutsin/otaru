@@ -98,12 +98,27 @@ browser:
     # target. The pod now runs on raspberrypi-00, which has CPU headroom
     # (about 71 percent requested, no CPU limit set cluster-wide), so the
     # full 489m bump fits without touching memory, which stays unchanged.
+    #
+    # 2026-07-30 (overcommit): same technique as blocky's exception to the
+    # repo's "memory request equal to limit" convention. Measured 7-day
+    # working-set across five recent pod instances: steady-state averages
+    # 47-270Mi, but real recurring peaks of 764-1365Mi during Amazon watch
+    # / screenshot-stitching bursts (matching the "Playwright browser
+    # peaked at ~1.08Gi" note above) -- no OOMKill history at 1408Mi, but
+    # only ~3 percent headroom over the highest observed peak. Lowered
+    # request to 350Mi (comfortably above steady-state, well under any
+    # observed peak) and raised the limit to 1536Mi for real headroom
+    # above the measured 1365Mi peak. Frees ~1058Mi of previously
+    # reserved-but-idle memory per replica -- this pod's node
+    # (raspberrypi-00) was at 99 percent memory requested, contributing to
+    # cluster-wide scheduling pressure (see the 2026-07-30 PITR verify
+    # scheduling failure in .scratchpad/SELF_HEALING.md).
     requests:
       cpu: 1189m
-      memory: 1408Mi
+      memory: 350Mi
       ephemeral-storage: 1Gi
     limits:
-      memory: 1408Mi
+      memory: 1536Mi
       ephemeral-storage: 1Gi
 
 service:
