@@ -78,12 +78,17 @@ prometheus:
       # memory-request headroom improves (same pattern as
       # changedetection-browser's deferred CPU target -- see that entry
       # above this chart's history for a comparable case).
+      # KRR 2026-07-31: completing the deferred upsize. 14d peak is now
+      # ~3730Mi; the pod relocated off nuc-00 to raspberrypi-00 (which had
+      # 867Mi free requested-memory capacity, well above the 466Mi needed)
+      # after a series of overcommit/VPA changes freed real headroom
+      # cluster-wide over the past day. Bumped to 3730Mi.
       requests:
         cpu: 200m
-        memory: 3264Mi
+        memory: 3730Mi
         ephemeral-storage: 256Mi
       limits:
-        memory: 3264Mi
+        memory: 3730Mi
         ephemeral-storage: 256Mi
     persistentVolume:
       size: 100Gi
