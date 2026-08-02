@@ -13,9 +13,9 @@ category and its place in the investigation order do not need to change.
 ## Triage
 
 - `Degraded` or `Unknown` → P0; diagnose then GitOps-fix or escalate.
-- `OutOfSync` for more than one hourly loop cycle with no in-flight PR →
-  investigate drift; GitOps-fix when the live diff is wrong, otherwise
-  escalate if sync needs prune/force.
+- `OutOfSync` for more than one loop cycle (currently 30 minutes) with no
+  in-flight PR → investigate drift; GitOps-fix when the live diff is wrong,
+  otherwise escalate if sync needs prune/force.
 - **`Progressing`:** do not treat "the current pod reached Ready" as proof
   the issue is resolved. A single point-in-time check cannot tell a
   one-off restart apart from a workload that is being repeatedly killed

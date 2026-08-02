@@ -14,7 +14,8 @@ After branch, commit, push, and PR open:
   `gh pr checks <number> --watch --fail-fast` (see `AGENTS.md`). In
   **unattended/loop** mode bound the wait (for example stop after ~15
   minutes, journal `result: open` with the PR URL, and re-check next cycle).
-  Do not park the whole hourly fire on an unbounded watch.
+  Do not park the whole fire (currently a 30-minute cycle) on an unbounded
+  watch.
 2. Address review feedback if any.
 3. Then apply the class below.
 

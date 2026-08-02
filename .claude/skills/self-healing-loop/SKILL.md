@@ -1,18 +1,18 @@
 ---
 name: "self-healing-loop"
 description: >-
-  Use when starting, renewing, or extending the session-only hourly self-healing
-  schedule to the platform max TTL (currently 7 days from this run). Not for
-  one-off cluster investigation or GitOps fixes (use /self-healing). Every
-  invoke: create a full-window /loop job, confirm, delete other matchers, run
-  /self-healing once when possible, report timing.
+  Use when starting, renewing, or extending the session-only 30-minute
+  self-healing schedule to the platform max TTL (currently 7 days from this
+  run). Not for one-off cluster investigation or GitOps fixes (use
+  /self-healing). Every invoke: create a full-window /loop job, confirm,
+  delete other matchers, run /self-healing once when possible, report timing.
 metadata:
-  short-description: "Bootstrap/renew hourly self-healing schedule to max TTL"
+  short-description: "Bootstrap/renew 30-minute self-healing schedule to max TTL"
 ---
 
 # Self-healing loop (orchestrator)
 
-**Role:** **every** invoke **bootstraps or renews** the hourly session loop to
+**Role:** **every** invoke **bootstraps or renews** the 30-minute session loop to
 the **platform maximum TTL** (currently **7 days from this run**), keeps a
 **single** matching job, then **delegates one** `/self-healing` after a
 successful renew (or skips when investigation already ran this round). Composes
@@ -42,7 +42,7 @@ Running `/self-healing-loop` **always** resets the schedule clock to
 - treat agent-written body timestamps alone as proof when platform metadata
   shows a shorter remaining TTL
 
-Always: **create a new** session-only hourly job with
+Always: **create a new** session-only 30-minute job with
 `created_local = now` and `expires_local = now + MAX_WINDOW`, **confirm**
 full-window success, **then** delete every other matcher so exactly one job
 remains with remaining **≥ MAX_WINDOW − 1 hour** at confirm. That is both
@@ -127,7 +127,7 @@ fields and `n/a` where unknown. Set **Round end** only when the run stops
 (after Step 5 investigate/skip/**failure**, or on earlier fail-closed).
 
 | Field                | Meaning                                                                 |
-| -------------------- | ----------------------------------------------------------------------- |
+|----------------------|-------------------------------------------------------------------------|
 | Round start          | Skill entry (local)                                                     |
 | Round end            | When this run stops (local)                                             |
 | Keeper job_id        | Confirmed new keeper, or `n/a`                                          |
@@ -164,12 +164,13 @@ expire/remaining if present, and
 match already exists — renew requires a new full-window job.
 
 **Step 2. Create the new schedule first (max window from now).** Prefer Claude
-native `/loop` with a **fixed hourly** interval (not bare maintenance `/loop`,
-not dynamic-only). Prefer cadence off wall-clock `:00` / `:30` when the
-platform lets you pin cron; otherwise `/loop 1h`. Example shape:
+native `/loop` with a **fixed 30-minute** interval (not bare maintenance
+`/loop`, not dynamic-only). Prefer cadence off wall-clock `:00` / `:30` when
+the platform lets you pin cron (for example minutes `4` and `34`); otherwise
+`/loop 30m`. Example shape:
 
 ```text
-/loop 1h
+/loop 30m
 otaru-self-healing-loop-fire
 job_id: pending
 created_local: <now>
@@ -206,7 +207,7 @@ at create (both `/loop` and CronCreate).
 ```text
 recurring: true
 durable:   false   # session-only; do not omit
-cron:      37 * * * *   # hourly; any fixed minute except :00/:30 if 37 taken
+cron:      4,34 * * * *   # every 30 minutes; any two minutes 30 apart, avoiding :00/:30
 prompt:    <verbatim fire template with absolute timestamps>
 ```
 
