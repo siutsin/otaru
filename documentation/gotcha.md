@@ -807,6 +807,46 @@ make unlock nuc-00
 
 Once booted, Longhorn re-attaches its volumes automatically.
 
+## PoE Switch Budget Alert Cuts Power to a Raspberry Pi Node
+
+A Raspberry Pi node can lose power outright when the PoE switch's power
+budget is exceeded and it sheds a port, rather than from a kernel panic,
+OOM, or a clean/unclean reboot triggered on the host itself. The user gets
+a PoE budget alert from the switch at the same moment the node goes
+NotReady.
+
+### Symptoms: PoE Power Loss
+
+- A node goes NotReady abruptly (`Kubelet stopped posting node status`,
+  all conditions flip to `Unknown`), with no prior `DiskPressure` /
+  `MemoryPressure` warning and no graceful-shutdown log lines.
+- The user separately reports a PoE budget alert from the switch around
+  the same timestamp.
+- Once power returns, the node behaves exactly like any other
+  LUKS-root reboot: `ping` succeeds (initramfs network stack is up), plain
+  SSH on port 22 is refused, and initramfs `dropbear` on port `1024`
+  (`documentation/luks_remote_unlock.md`) answers with an SSH banner --
+  the node is waiting in initramfs for the LUKS passphrase, not dead.
+
+### Cause: PoE Budget Exceeded
+
+The switch's total PoE power budget was exceeded (for example another
+device drawing more power, or a fluctuation pushing a port over its
+allocation), so the switch cut power to the Pi's port to protect the
+budget. This is a switch-side decision, external to the node and to k3s.
+
+### Resolution: Treat as a Standard LUKS Reboot Recovery
+
+No different from any other `raspberrypi-*` reboot once power is back --
+follow the normal escalate-and-unlock path
+(`.claude/skills/self-healing/runbooks/access-and-nodes.md`,
+`documentation/luks_remote_unlock.md`): confirm dropbear on port 1024,
+then `make unlock <node-name>`. Do not attempt an unattended
+reboot/power-cycle command; the node is already powered and simply
+waiting for the passphrase. If PoE alerts recur, the switch's port power
+budget or the device mix drawing from it needs review -- that is a
+switch-configuration question, not a k3s/self-healing fix.
+
 ## MetalLB LoadBalancer VIP Unreachable When nuc-00 Announces It
 
 ### Symptoms: LoadBalancer VIP Unreachable
