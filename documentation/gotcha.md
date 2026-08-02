@@ -1346,6 +1346,61 @@ block unrelated PRs -- only a confirmed mispin does.
 
 ---
 
+## A Floating-Tag Digest Pin Can Be Garbage-Collected Upstream
+
+**Problem:** `teslamate`'s image was pinned to
+`ghcr.io/teslamate-org/teslamate:main@sha256:9d8df31...` as a documented
+temporary hotfix (no stable release tag existed yet). It worked fine for
+days, then a fresh pull on a node that had never run the image before
+(`raspberrypi-03`, rejoining after an outage) failed with `rpc error:
+code = NotFound ... failed to resolve reference ... not found` -- not the
+`exec format error` of the two gotchas above.
+
+**Why it happens:** `main` is a floating tag that keeps moving forward
+with new commits. The registry can garbage-collect a manifest once no
+tag points at it directly, even though the pinned reference still names
+its digest. This is a *different* failure mode from both digest gotchas
+above: those are wrong-content problems (corrupted local cache, or a
+single-arch digest) where the referenced content is fine but something
+about resolving/using it is wrong. Here the digest itself becomes
+completely unresolvable -- the content is simply gone from the registry
+-- and only surfaces on a node that needs a fresh pull; any node with the
+layers already cached keeps running indefinitely, masking the problem.
+
+### Symptoms: Stale Floating-Tag Digest
+
+- `ImagePullBackOff` / `ErrImagePull` with `not found` or `failed to
+  resolve reference` in the event message -- not `exec format error`.
+- Only affects **new** pulls: a pod already running on that digest stays
+  healthy; the failure appears on a new node, a fresh rollout, or after
+  local image cache eviction.
+- The chart pins a mutable branch tag (`main`, `latest`, `edge`, ...) by
+  digest rather than an immutable release tag.
+
+### Resolution: Re-Pin to the Current Digest, Prefer a Release Tag
+
+Resolve the tag's current digest directly against the registry (works
+for GHCR too, not just Docker Hub):
+
+```shell
+TOKEN=$(curl -s "https://ghcr.io/token?scope=repository:<org>/<image>:pull" \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+curl -s -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+  -I "https://ghcr.io/v2/<org>/<image>/manifests/<tag>" \
+  | grep -i docker-content-digest
+```
+
+Confirm the response `content-type` is an index/manifest-list (not a
+single-platform manifest -- see "A Pinned Digest Can Silently Be
+Single-Arch" above), then re-pin the chart. This only fixes the symptom;
+the pin will go stale again on some future upstream push. Move to a
+stable, immutable release tag as soon as the upstream project publishes
+one -- these charts already carry a comment saying exactly that for this
+reason.
+
+---
+
 ## ArgoCD Cannot Sync Some Large CRDs -- No Safe Fix Found, Accepted As-Is
 
 **Problem:** forcing a fresh sync of the `external-secrets` Application
