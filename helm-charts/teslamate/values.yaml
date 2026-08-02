@@ -27,10 +27,13 @@ deployment:
   image:
     # Pull from GHCR (ghcr.io/teslamate-org/teslamate), not Docker Hub.
     # Temporary hotfix for Tesla Owner API 403 after v4.0.0 (teslamate-org/teslamate#5399).
-    # main@6a9a33b includes merged PR #5406 (TLS 1.3 + HTTP/2 for auth.tesla.com).
     # Pin to a stable GHCR release tag once 4.0.1+ is published.
+    # 2026-08-02: the previous main@9d8df31 digest was garbage-collected
+    # upstream (ghcr.io returned "not found" on pull) once main moved
+    # forward -- a floating-tag digest pin like this can go stale without
+    # any action in this repo. Bumped to the current main digest.
     repository: ghcr.io/teslamate-org/teslamate
-    tag: main@sha256:9d8df3175b83825de03faf42eb457a6f3e427322c8239ebf3bb49df610cd0d1c
+    tag: main@sha256:f1502d4c7fdf9bc081dc691276fe1d531550d88a933d634786549ce34855fe3b
   envFrom:
     - secretRef:
         name: teslamate
