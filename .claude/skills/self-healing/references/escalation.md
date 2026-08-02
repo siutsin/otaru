@@ -27,8 +27,13 @@ merge).
   **resize or delete** on DB volumes, operator topology changes.
 - **Storage** — volume delete, restore, recurring-job backup target changes,
   crypto secret rotation, stuck-volume webhook work.
-- **Disk encryption / nodes** — unlock (`make unlock`), hardware replace,
-  stale node-password cleanup, plain reboot of LUKS-root nodes.
+- **Disk encryption / nodes** — hardware replace, stale node-password
+  cleanup, plain reboot of LUKS-root nodes. **Unlock** (`make unlock`) is
+  the one exception: auto-fix directly when the documented
+  waiting-in-initramfs signature is confirmed (see
+  `runbooks/access-and-nodes.md` LUKS / initramfs section) — still
+  escalate for `nuc-00` and for any known hardware-fault pattern (e1000e
+  NIC hang, RPi5 Wi-Fi loop) even if the same signature is present.
 - **Cluster ops** — full teardown, version upgrade, reboot-all maintenance
   (`make nuke`, `make upgrade`, `make maintenance`), etcd repair, k3s
   reinstall.

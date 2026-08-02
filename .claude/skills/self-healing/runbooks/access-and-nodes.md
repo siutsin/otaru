@@ -30,10 +30,41 @@ initramfs until unlock and will not rejoin without intervention.
 - **Forbidden unattended:** `reboot`, `shutdown`, `systemctl reboot`,
   `kubectl debug` reboot paths, or Ansible's generic `reboot` module. See
   `AGENTS.md` Node Reboot Policy.
-- **Escalate unlock / planned reboot** to the user. Documented paths:
-  `make unlock <node-name>` when initramfs dropbear is already waiting;
-  `make maintenance` for rolling LUKS-aware reboots. Details:
-  `documentation/luks_remote_unlock.md`, `documentation/gotcha.md`.
+- **Auto-unlock when the signature is confirmed.** Run `make unlock
+  <node-name>` directly — no escalation needed — when **all** of these
+  hold:
+  - the node is a Raspberry Pi (`raspberrypi-*`), not `nuc-00` (see the
+    NIC-hang bullet below — always escalate that one instead)
+  - the node is listed in `luks_root_nodes` (`ansible/inventory.yaml`)
+  - the node IP responds to ping (network layer is up)
+  - regular SSH (port 22) is refused or times out
+  - the LUKS dropbear-initramfs port (`luks_dropbear_port` in the
+    inventory; `1024` in this cluster) answers with an SSH banner
+    (`documentation/luks_remote_unlock.md`)
+
+  This combination uniquely matches "node powered back on and is waiting
+  in initramfs for the passphrase" (for example after a PoE budget
+  power-loss event, see `documentation/gotcha.md`) — not an unresolved
+  hardware fault, not still fully down.
+
+  `make unlock` reads the passphrase from `OTARU_LUKS_PASSWORD` via
+  `direnv` internally (`--env-passfifo`). **Never read, print, echo, or
+  otherwise inspect that variable yourself** — call the `make` target and
+  let it flow straight through.
+
+  After it returns, poll `kubectl get node <name>` for `Ready` (a few
+  minutes is normal) before continuing the pass. If the command fails, or
+  the node does not reach `Ready` within a reasonable wait, stop retrying
+  and escalate with what was tried.
+
+  **Still escalate:** planned/rolling reboots (`make maintenance` —
+  full-cluster package update and reboot, a much larger action than
+  recovering one already-down node); `nuc-00` and the other known
+  hardware-fault patterns below, even if the same dropbear signature is
+  present, since those need human awareness of a recurring fault, not
+  just a one-off unlock; and any case where the signature above does not
+  fully match (for example SSH also unreachable, or dropbear itself
+  unreachable).
 
 **Hardware replace + stale node password.** If a node was replaced in place
 and reuses the same name, look for `kube-system/<node>.node-password.k3s`
