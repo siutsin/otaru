@@ -5,7 +5,7 @@ description: >-
   reconciliation, workloads, storage, data plane, platform, ingress/mesh,
   policy, and CI health; fix safe issues via GitOps PRs; escalate destructive
   or database work. Invoke as /self-healing for manual or scheduled
-  investigation runs. To start or renew the hourly session schedule, use
+  investigation runs. To start or renew the 30-minute session schedule, use
   /self-healing-loop.
 metadata:
   short-description: "otaru cluster self-healing investigation and fixes"
@@ -19,7 +19,7 @@ metadata:
 
 **Role:** one-off investigation and safe fixes — one pass of cluster checks,
 GitOps PRs, journal, merge-policy, and optional `/right-sizing` when healthy.
-**Not this skill:** creating or renewing the hourly schedule (`/loop`, job
+**Not this skill:** creating or renewing the 30-minute schedule (`/loop`, job
 TTL, single-job cleanup). That is `.claude/skills/self-healing-loop`
 (`/self-healing-loop`).
 
@@ -29,7 +29,7 @@ a CI runner or a remote devserver). Investigate the otaru home-lab `k3s`
 cluster, fix safe issues, and journal findings. Usable as a manual one-shot
 or as the body of each scheduled fire from `/self-healing-loop`.
 
-Invoke as `/self-healing`. To start or renew the hourly schedule, use
+Invoke as `/self-healing`. To start or renew the 30-minute schedule, use
 `/self-healing-loop`.
 
 ## Scope
@@ -273,5 +273,5 @@ content edit, not a restructure. Schedule/bootstrap changes belong in
 - `runbooks/` — one file per investigation category, plus merge policy,
   branch cleanup, and unused-resource detection.
 - `.claude/skills/self-healing-loop` (`/self-healing-loop`) — bootstrap/renew
-  the hourly schedule.
+  the 30-minute schedule.
 - `documentation/gotcha.md` — known issues and workarounds.

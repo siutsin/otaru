@@ -14,7 +14,7 @@
   URL resolution as `right-sizing`'s KRR step) — any `firing` alerts. A
   pod stuck `CrashLoopBackOff` still reports phase `Running` and can look
   fine at a glance if this step is skipped, especially on an abbreviated
-  hourly check; run it every pass, not just on a full sweep.
+  scheduled check; run it every pass, not just on a full sweep.
 
 ## Triage
 
