@@ -838,14 +838,19 @@ budget. This is a switch-side decision, external to the node and to k3s.
 ### Resolution: Treat as a Standard LUKS Reboot Recovery
 
 No different from any other `raspberrypi-*` reboot once power is back --
-follow the normal escalate-and-unlock path
-(`.claude/skills/self-healing/runbooks/access-and-nodes.md`,
-`documentation/luks_remote_unlock.md`): confirm dropbear on port 1024,
-then `make unlock <node-name>`. Do not attempt an unattended
-reboot/power-cycle command; the node is already powered and simply
-waiting for the passphrase. If PoE alerts recur, the switch's port power
-budget or the device mix drawing from it needs review -- that is a
-switch-configuration question, not a k3s/self-healing fix.
+confirm dropbear on port 1024, then `make unlock <node-name>`. This
+specific signature (ping OK, SSH refused, dropbear open, node in
+`luks_root_nodes`, not `nuc-00`) is exactly the case
+`.claude/skills/self-healing/runbooks/access-and-nodes.md` auto-fixes
+directly with `make unlock` -- no escalation needed, and the fix does not
+depend on PoE being the cause. The signature only proves the node is
+waiting in initramfs, not why it lost power in the first place; PoE is
+just the trigger observed so far, and the same recovery applies whichever
+way a Pi loses power. Do not attempt an unattended reboot/power-cycle
+command; the node is already powered and simply waiting for the
+passphrase. If PoE alerts recur, the switch's port power budget or the
+device mix drawing from it needs review -- that is a switch-configuration
+question, not a k3s/self-healing fix.
 
 ## MetalLB LoadBalancer VIP Unreachable When nuc-00 Announces It
 
