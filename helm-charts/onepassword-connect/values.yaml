@@ -2,14 +2,19 @@ vpa:
   enabled: true
 
 _shared:
+  # 2026-08-03: ephemeral-storage bumped 64Mi -> 96Mi. 14d peak across pod
+  # history reached ~49.9Mi (78% of the old 64Mi limit); the live pod was
+  # at 70.95%. No eviction history, but headroom was thin. Memory/cpu
+  # unaffected -- VPA (enabled below) manages memory live and does not
+  # control ephemeral-storage.
   resources: &resources
     requests:
       cpu: 50m
       memory: 64Mi
-      ephemeral-storage: 64Mi
+      ephemeral-storage: 96Mi
     limits:
       memory: 64Mi
-      ephemeral-storage: 64Mi
+      ephemeral-storage: 96Mi
   preferredPodAntiAffinity: &preferredPodAntiAffinity
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
