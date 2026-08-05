@@ -1,7 +1,7 @@
 dependencies:
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
-  version: 29.19.0
+  version: 29.20.0
 - name: prometheus-blackbox-exporter
   repository: https://prometheus-community.github.io/helm-charts
   version: 11.16.0
@@ -17,5 +17,5 @@ dependencies:
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
   version: 1.21.3
-digest: sha256:6ca9f22c4354f0e7fadbbf71fcbe8cce14ca9eac7147740125b6abaf2f021c34
-generated: "2026-08-04T21:51:43.112615529Z"
+digest: sha256:aae14615704b7c75773623d08177fa0355b3bf2afa4e7fa982d339e5f296edec
+generated: "2026-08-05T05:36:58.37997197Z"
