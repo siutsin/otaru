@@ -28,12 +28,13 @@ deployment:
     # Pull from GHCR (ghcr.io/teslamate-org/teslamate), not Docker Hub.
     # Temporary hotfix for Tesla Owner API 403 after v4.0.0 (teslamate-org/teslamate#5399).
     # Pin to a stable GHCR release tag once 4.0.1+ is published.
-    # 2026-08-02: the previous main@9d8df31 digest was garbage-collected
-    # upstream (ghcr.io returned "not found" on pull) once main moved
-    # forward -- a floating-tag digest pin like this can go stale without
-    # any action in this repo. Bumped to the current main digest.
+    # 2026-08-05: the previous main@f1502d4 digest (itself a 2026-08-02
+    # replacement for a garbage-collected digest) was garbage-collected
+    # upstream in turn -- confirms this is a recurring failure mode for any
+    # floating-tag digest pin here, not a one-off. Bumped to the current
+    # main digest again.
     repository: ghcr.io/teslamate-org/teslamate
-    tag: main@sha256:f1502d4c7fdf9bc081dc691276fe1d531550d88a933d634786549ce34855fe3b
+    tag: main@sha256:5e4a1b91e5d08159f91d747cf82f64a0e37cb88afd31dc6ce6f82cdb1fe35f36
   envFrom:
     - secretRef:
         name: teslamate
