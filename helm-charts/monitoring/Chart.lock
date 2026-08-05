@@ -7,7 +7,7 @@ dependencies:
   version: 11.16.0
 - name: loki
   repository: https://grafana.github.io/helm-charts
-  version: 7.1.0
+  version: 7.2.0
 - name: fluent-bit
   repository: https://fluent.github.io/helm-charts
   version: 0.57.9
@@ -17,5 +17,5 @@ dependencies:
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
   version: 1.21.3
-digest: sha256:aae14615704b7c75773623d08177fa0355b3bf2afa4e7fa982d339e5f296edec
-generated: "2026-08-05T05:36:58.37997197Z"
+digest: sha256:42318e59d5d805c61085053868f7c2c636451df2dd054446d9389b9211124e2d
+generated: "2026-08-05T23:07:45.185910839Z"
