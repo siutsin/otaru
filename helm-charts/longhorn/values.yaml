@@ -100,14 +100,24 @@ longhorn:
     # several 100+Gi filesystems at once (one PVC is 320Gi). This is a real,
     # measured floor, not a guess -- raised to 4Gi to give solid margin above
     # the ~845MiB KDF baseline plus overhead.
+    # right-sizing 2026-08-06: longhorn-csi-plugin, node-driver-registrar,
+    # and longhorn-liveness-probe ephemeral-storage bumped 32Mi -> 48Mi.
+    # These three (the longhorn-csi-plugin DaemonSet pod's containers) were
+    # a "no data yet" placeholder reusing the gateway chart's convention,
+    # unlike the incident-driven memory sizing above. Prometheus showed the
+    # DaemonSet pod on raspberrypi-03 (spcgc) peaking at ~23.55Mi over 14d
+    # (73% of the old 32Mi limit); other node instances ranged 2-22Mi. The
+    # exporter only reports pod-level usage, not per-container, so the
+    # true per-container split is unknown -- bumped conservatively rather
+    # than assuming the full pod total lands on one container.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"32Mi"}},
-      "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}}}
+      "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"48Mi"}},
+      "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}},
+      "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}}}
   defaultBackupStore:
     backupTarget: ~
     backupTargetCredentialSecret: b2-secret
