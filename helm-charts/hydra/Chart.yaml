@@ -6,5 +6,5 @@ version: 0.1.0
 icon: https://raw.githubusercontent.com/ory/docs/master/docs/static/img/logo-hydra.svg
 dependencies:
   - name: hydra
-    version: 0.62.1
+    version: 0.63.0
     repository: https://k8s.ory.com/helm/charts
