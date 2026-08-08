@@ -40,7 +40,12 @@ merge).
 - **Mass impact** — cluster-wide restart, draining **multiple** nodes, bulk
   deletes across namespaces.
 - **Infrastructure as code** — any Terraform/OpenTofu/Terragrunt apply,
-  Ansible setup/disk-encryption playbooks.
+  Ansible setup/disk-encryption playbooks. **One narrow exception:** the
+  Cloudflare Access WebGazer IP allowlist refresh — see
+  `runbooks/ingress-mesh.md` ("Heartbeat down: Cloudflare Access WebGazer
+  IP allowlist stale"), user-authorised 2026-08-08 as routine because the
+  blast radius is a single static IP list feeding one bypass policy, not
+  the Access application itself.
 - **Secrets** — editing chart secret payloads, password-manager items,
   ExternalSecret source keys.
 - **GitOps controller** — Application/resource delete, force sync with prune,
