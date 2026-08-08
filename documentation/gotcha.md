@@ -1826,6 +1826,12 @@ minute.
 `Jwt is expired`, while a direct request to the cluster hostname with a
 fresh Bearer token succeeds.
 
+A stale in-process token can also surface as a garbled proxy error instead of
+a clean 401, for example `HTTP 400: Invalid OAuth error response:
+SyntaxError: JSON Parse error: Unexpected identifier "mcp"` (seen on UniFi
+MCP, 2026-08-08). Same cause, same fix below -- do not chase the JSON parse
+error itself.
+
 ### Cause
 
 The token refresh LaunchAgent updates the cache file, but agentgateway may
