@@ -7,4 +7,9 @@ spec:
   maxUnavailable: 1
   selector:
     matchLabels:
+      # app.kubernetes.io/name added so Kyverno's require-pdb-for-deployment
+      # policy recognises this PDB; pod: cloudflared alone already matched
+      # every pod (see templates/deployment.yaml), so this only satisfies
+      # the policy check and does not change which pods are protected.
+      app.kubernetes.io/name: {{ .Values.name }}
       pod: cloudflared
