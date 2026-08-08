@@ -74,8 +74,11 @@ dashboard/log retention unrelated to backup storage, non-secret feature
 flags that do not change exposure/auth/privilege, adding a
 PodDisruptionBudget with `minAvailable: 1` to a single-replica hand-written
 app chart (or enabling a bundled subchart's native PDB values option) that
-has no PDB at all, and manifest nits to satisfy an **existing** policy (no
-policy chart rewrite). Do not auto-merge `hostNetwork`, privileged
+has no PDB at all, manifest nits to satisfy an **existing** policy (no
+policy chart rewrite), and the Cloudflare Access WebGazer IP allowlist
+refresh described in `runbooks/ingress-mesh.md` (the one named exception to
+the infrastructure-as-code escalate rule in `references/escalation.md`,
+scoped strictly to that file and that `terragrunt plan` shape). Do not auto-merge `hostNetwork`, privileged
 `securityContext`, Service exposure, or auth flag changes — treat those as
 non-trivial. Excluding a workload from this PDB fix (vendored/generated
 operator manifests, or anything where an eviction mid-operation has a
