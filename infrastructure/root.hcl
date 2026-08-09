@@ -21,6 +21,10 @@ locals {
   needs_github = startswith(local.unit_path, "cloud/cloudflare/access")
   needs_unifi  = startswith(local.unit_path, "local/")
 
+  # Only read tfconfig for units that need it, so a missing/invalid file does
+  # not block plans for stacks that have nothing to do with UniFi.
+  unifi_api_url = local.needs_unifi ? jsondecode(file(get_env("OTARU_TF_CONFIG_FILE"))).unifi.controller.api_url : ""
+
   required_providers_hcl = join("\n", compact([
     local.needs_aws ? <<-EOT
     aws = {
@@ -79,8 +83,14 @@ EOT
     local.needs_cloudflare ? "provider \"cloudflare\" {}" : "",
     # Credentials: GITHUB_TOKEN
     local.needs_github ? "provider \"github\" {}" : "",
-    # Credentials: UNIFI_USERNAME, UNIFI_PASSWORD, UNIFI_API
-    local.needs_unifi ? "provider \"unifi\" {}" : "",
+    # Credentials: UNIFI_USERNAME, UNIFI_PASSWORD. The controller URL is not a
+    # credential -- it comes from tfconfig (unifi.controller.api_url) below, not env.
+    local.needs_unifi ? <<-EOT
+provider "unifi" {
+  api_url = "${local.unifi_api_url}"
+}
+EOT
+    : "",
   ]))
 }
 
@@ -88,7 +98,9 @@ EOT
 terraform_binary = "tofu"
 
 # Provider credentials are read from the process environment (see documentation/secrets.md).
-# Do not interpolate secrets into this generate block — they would land in .terragrunt-cache.
+# Do not interpolate secrets into this generate block -- they would land in
+# .terragrunt-cache. tfconfig-sourced non-secret config (e.g. unifi.controller.api_url)
+# is the one exception; it is not credential material.
 generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite"

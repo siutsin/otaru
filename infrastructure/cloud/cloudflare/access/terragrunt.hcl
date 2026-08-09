@@ -3,11 +3,12 @@ include {
 }
 
 locals {
-  account_id = get_env("CLOUDFLARE_ACCOUNT_ID")
-  zone       = get_env("CLOUDFLARE_ZONE")
-  zone_id    = get_env("CLOUDFLARE_ZONE_ID")
-  subdomain  = get_env("CLOUDFLARE_ZONE_SUBDOMAIN")
-  ip_list    = jsondecode(get_env("CLOUDFLARE_ZONE_TUNNEL_IP_LIST", "[]"))
+  tfconfig   = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
+  account_id = local.tfconfig.cloudflare.account.id
+  zone       = local.tfconfig.cloudflare.zone.hostname
+  zone_id    = local.tfconfig.cloudflare.zone.id
+  subdomain  = local.tfconfig.cloudflare.zone.subdomain
+  ip_list    = local.tfconfig.cloudflare.zone.tunnel_ip_list
 }
 
 terraform {

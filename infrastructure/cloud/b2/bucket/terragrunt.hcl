@@ -7,8 +7,9 @@ terraform {
 }
 
 locals {
-  media_storage_bucket = get_env("B2_MEDIA_STORAGE_BUCKET")
-  cnpg_backup_bucket   = get_env("B2_CNPG_BACKUP_BUCKET")
+  tfconfig             = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
+  media_storage_bucket = local.tfconfig.b2.bucket.media_storage
+  cnpg_backup_bucket   = local.tfconfig.b2.bucket.cnpg_backup
 }
 
 inputs = {
