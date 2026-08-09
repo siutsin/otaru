@@ -7,7 +7,10 @@ kind: PersistentVolume
 metadata:
   name: {{ $key }}-pv
   annotations:
-    longhorn.io/volume-scheduling-error: ''
+    # longhorn.io/volume-scheduling-error is written and cleared by the
+    # Longhorn CSI driver at runtime; asserting it here as empty causes
+    # perpetual Argo CD drift once Longhorn sets it during a transient
+    # scheduling event and does not reset it back to empty afterwards.
     pv.kubernetes.io/provisioned-by: driver.longhorn.io
     volume.kubernetes.io/provisioner-deletion-secret-name: longhorn-crypto
     volume.kubernetes.io/provisioner-deletion-secret-namespace: longhorn-system
