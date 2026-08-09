@@ -1848,3 +1848,36 @@ still inject a previously read token until the process restarts.
 Architecture: [MCP authentication](mcp-auth.md).
 
 ---
+
+## `tfconfig` Hex-Looking IDs Silently Break `jsondecode()` Without Quotes
+
+### Symptom: Terragrunt Plan Fails to Parse `tfconfig`
+
+`terragrunt plan`/`apply` fails with `jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))`
+errors such as `Expecting ',' delimiter` at the line holding an account or
+zone ID, or (if the file happens to parse) locals end up missing an expected
+nested key entirely.
+
+### Cause: Unquoted Hex-String ID
+
+Cloudflare account/zone IDs are 32-character lowercase hex strings (`0-9a-f`).
+When hand-edited into the `tfconfig` 1Password Document as a bare value
+(`"id": 1033b99f3b339da676a3a416423b88f3`), the leading digits make it look
+like a JSON number to a careless editor, but the trailing hex letters make it
+invalid JSON syntax outright -- it is not a case of the wrong type, the file
+does not parse at all past that point.
+
+### Resolution: Quote Hex IDs and Re-sync
+
+Always quote hex-string IDs as JSON strings: `"id": "1033b99f3b339da676a3a416423b88f3"`.
+After any edit to the `tfconfig` Document, re-sync the local file and validate
+before trusting a `terragrunt plan`:
+
+```bash
+op document get tfconfig --vault github-otaru > "$OTARU_TF_CONFIG_FILE"
+python3 -c "import json, os; json.load(open(os.environ['OTARU_TF_CONFIG_FILE']))"
+```
+
+See [Secrets](secrets.md) `tfconfig` for the full schema and sync workflow.
+
+---

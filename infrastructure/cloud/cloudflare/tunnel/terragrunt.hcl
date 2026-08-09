@@ -3,10 +3,11 @@ include {
 }
 
 locals {
-  zone_id       = get_env("CLOUDFLARE_ZONE_ID")
-  zone          = get_env("CLOUDFLARE_ZONE")
-  account_id    = get_env("CLOUDFLARE_ACCOUNT_ID")
-  name          = get_env("CLOUDFLARE_ZONE_SUBDOMAIN")
+  tfconfig      = jsondecode(file(get_env("OTARU_TF_CONFIG_FILE")))
+  zone_id       = local.tfconfig.cloudflare.zone.id
+  zone          = local.tfconfig.cloudflare.zone.hostname
+  account_id    = local.tfconfig.cloudflare.account.id
+  name          = local.tfconfig.cloudflare.zone.subdomain
   tunnel_secret = get_env("CLOUDFLARE_TUNNEL_SECRET")
 }
 

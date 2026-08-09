@@ -40,23 +40,13 @@ export OTARU_TF_CONFIG_FILE="${OTARU_SECRETS_DIR}/tfconfig"
 
 export B2_APPLICATION_KEY=...
 export B2_APPLICATION_KEY_ID=...
-export B2_CNPG_BACKUP_BUCKET=...
-export B2_MEDIA_STORAGE_BUCKET=...
 
-export CLOUDFLARE_ACCOUNT_ID=...
 export CLOUDFLARE_API_TOKEN=...
 export CLOUDFLARE_TUNNEL_SECRET=...
-export CLOUDFLARE_ZONE=example.com
-export CLOUDFLARE_ZONE_ID=...
-export CLOUDFLARE_ZONE_SUBDOMAIN=subdomain
-export CLOUDFLARE_ZONE_TUNNEL_IP_LIST='["1.2.3.4/32"]'
-export CLOUDFLARE_DNS_IP=192.168.12.34
-export CLOUDFLARE_DNS_SUBDOMAINS='["subdomain1.internal","subdomain2.internal"]'
 
-# UniFi provider reads UNIFI_API (not UNIFI_API_URL). Keep both if other tools
-# still use UNIFI_API_URL.
-export UNIFI_API_URL=...
-export UNIFI_API="${UNIFI_API_URL}"
+# Controller URL is not an env var -- it comes from tfconfig
+# (unifi.controller.api_url), interpolated into the generated provider block
+# in infrastructure/root.hcl.
 export UNIFI_USERNAME=...
 export UNIFI_PASSWORD=...
 export UNIFI_LHR_WLAN01_PASSWORD=...
@@ -78,13 +68,39 @@ export GITHUB_TOKEN="$(gh auth token)"
 Terraform configuration that should stay outside the public repository belongs
 in `~/dotfiles/secrets/otaru/tfconfig`. Keep this local JSON file synchronized
 with the `tfconfig` Document item in the `github-otaru` 1Password vault,
-matching the existing `envrc` Document pattern. Only sensitive Terraform values
-belong here. Keep stable keys, fixed IPs, device roles, and other non-sensitive
-desired configuration in HCL:
+matching the existing `envrc` Document pattern. This covers Terraform values
+that are not credential secrets but would still reveal personal or home-network
+details if committed (Cloudflare zone/account identifiers, tunnel egress IP
+ranges, internal subdomain naming, UniFi client/device MACs). Keep everything
+else (module structure, non-identifying defaults) in HCL:
 
 ```json
 {
+  "b2": {
+    "bucket": {
+      "cnpg_backup": "example-cnpg-backup",
+      "media_storage": "example-media-storage"
+    }
+  },
+  "cloudflare": {
+    "account": {
+      "id": "..."
+    },
+    "zone": {
+      "hostname": "example.com",
+      "id": "...",
+      "subdomain": "example-subdomain",
+      "tunnel_ip_list": ["1.2.3.4/32"],
+      "dns_ip": "192.168.12.34"
+    },
+    "dns": {
+      "device-key": "subdomain.internal"
+    }
+  },
   "unifi": {
+    "controller": {
+      "api_url": "https://unifi.example.com"
+    },
     "clients": {
       "device-name": {
         "mac": "00:00:00:00:00:00"
@@ -99,16 +115,17 @@ desired configuration in HCL:
 }
 ```
 
-OpenTofu/Terragrunt providers take credentials from the environment only
-(see `infrastructure/root.hcl`):
+OpenTofu/Terragrunt providers take credentials from the environment
+(see `infrastructure/root.hcl`); UniFi's controller URL is the one non-secret
+exception, sourced from `tfconfig` instead:
 
-| Provider   | Environment variables                                                      |
-| ---------- | -------------------------------------------------------------------------- |
-| AWS        | standard AWS SDK chain (`AWS_PROFILE`, keys, etc.)                         |
-| B2         | `B2_APPLICATION_KEY`, `B2_APPLICATION_KEY_ID`                              |
-| Cloudflare | `CLOUDFLARE_API_TOKEN`                                                     |
-| GitHub     | `GITHUB_TOKEN`                                                             |
-| UniFi      | `UNIFI_USERNAME`, `UNIFI_PASSWORD`, `UNIFI_API`                            |
+| Provider   | Environment variables                              |
+|------------|----------------------------------------------------|
+| AWS        | standard AWS SDK chain (`AWS_PROFILE`, keys, etc.) |
+| B2         | `B2_APPLICATION_KEY`, `B2_APPLICATION_KEY_ID`      |
+| Cloudflare | `CLOUDFLARE_API_TOKEN`                             |
+| GitHub     | `GITHUB_TOKEN`                                     |
+| UniFi      | `UNIFI_USERNAME`, `UNIFI_PASSWORD`                 |
 
 Run `gh auth login` before Terraform targets or Helm OCI chart updates that
 need GitHub. Export `GITHUB_TOKEN` as above so the GitHub provider does not
