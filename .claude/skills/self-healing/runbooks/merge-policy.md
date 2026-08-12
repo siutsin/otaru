@@ -55,6 +55,32 @@ Merge automatically once green when **all** of the following hold:
   concerns.
 - Tests already passed for this branch (`make test` before open; CI green)
 
+### Incident-revert exception
+
+Auto-merge once green even when the diff would otherwise be non-trivial
+(including a GitOps controller's own chart, e.g. `helm-charts/argocd`) when
+**all** of the following hold:
+
+- The PR fixes a currently active incident: a GitOps `Application` reporting
+  `Degraded`, a pod stuck `CrashLoopBackOff`/`ImagePullBackOff`, or an
+  equivalent live-broken state confirmed in this pass, not a hypothetical or
+  future risk.
+- The diff is a straight revert of a version/tag/digest field to the exact
+  value that was deployed and healthy immediately before the incident began
+  (confirm via `git log` / journal, not a guess) — not a new forward change,
+  workaround, or anything touching secrets, RBAC, exposure, or destructive
+  operations (those stay governed by `references/escalation.md` regardless
+  of incident framing).
+- `make test` passed and CI is green.
+
+This does not relax the secrets/destructive boundaries in
+`references/escalation.md` — an incident fixed by, say, a database restore
+or a secret rotation is still escalate-only. It only covers the case where
+the fix is provably identical to a prior known-good state.
+Precedent: `argocd` chart reverted `10.2.3`/`10.3.0` -> `10.2.2` after a
+same-day Renovate bump broke the repo-server (`--client-ca-path`/
+`--disable-tls` conflict), PR #3034, 2026-08-12.
+
 ## Non-trivial
 
 Push, watch CI to green, address review feedback, then stop and leave the
@@ -64,7 +90,10 @@ resource/image/probe/sync-wave tweaks (topology, schedule, storage class,
 PVC size, crypto, restore), mesh/gateway policy, cluster-wide policy-chart
 rewrites, multi-app bulk edits of **non-resource** fields, or any fix not
 confidently low-risk. Pure resource/image pins on a database or storage chart
-remain trivial when they meet the bullets above.
+remain trivial when they meet the bullets above. A revert fixing an active
+incident stays trivial when it meets the Incident-revert exception above,
+even if it would otherwise land here (e.g. it touches a GitOps controller's
+own chart).
 
 ## Allowed unattended GitOps edits
 
