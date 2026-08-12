@@ -26,5 +26,14 @@
       ],
       abandonmentThreshold: null,
     },
+    {
+      // 10.2.3's repo-server crash-loops with reposerver.disable.tls: true
+      // (see helm-charts/argocd/Chart.yaml comment). Remove this pin once
+      // the fix is confirmed in a later argo-cd chart release.
+      matchDepNames: [
+        'argo-cd',
+      ],
+      allowedVersions: '<=10.2.2',
+    },
   ],
 }

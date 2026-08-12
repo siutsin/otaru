@@ -6,5 +6,13 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: argo-cd
-  version: 10.3.0
+  # Pinned below latest: 10.2.3's repo-server unconditionally derives
+  # --client-ca-path even with reposerver.disable.tls: true set (no
+  # argocd-repo-server-tls secret present here), and the repo-server CLI
+  # rejects that combination outright -- CrashLoopBackOff on every repo-server
+  # pod. Confirmed the same failure persists in 10.3.0 (2026-08-12), so this
+  # is not version-specific to 10.2.3. Reverted to the last known-good
+  # 10.2.2 until upstream fixes this; do not bump past 10.2.2 without
+  # confirming the regression is resolved.
+  version: 10.2.2
   repository: https://argoproj.github.io/argo-helm
