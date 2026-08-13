@@ -157,12 +157,20 @@ argo-cd:
     # non-empty --client-ca-path outright (cmd/argocd-repo-server/commands/
     # argocd_repo_server.go), regardless of whether that file exists --
     # CrashLoopBackOff on every repo-server pod (see helm-charts/argocd/
-    # Chart.yaml). The chart does not wire the new reposerver.client.ca.path
-    # argocd-cmd-params-cm key into an env var, so override the flag's
-    # underlying env var directly to restore the pre-3.5 empty default.
-    env:
-      - name: ARGOCD_REPO_SERVER_CLIENT_CA_PATH
-        value: ""
+    # Chart.yaml).
+    #
+    # 2026-08-13: an env var override (ARGOCD_REPO_SERVER_CLIENT_CA_PATH: "")
+    # does NOT work and caused a live CrashLoopBackOff after merge -- confirmed
+    # via upstream source (util/env.StringFromEnv, called without the
+    # AllowEmpty option for this flag) that an env var explicitly set to ""
+    # is indistinguishable from unset and silently falls back to the
+    # non-empty default. Even upstream's own documented
+    # argocd-cmd-params-cm.yaml example (reposerver.client.ca.path: "") has
+    # this same bug when combined with --disable-tls. Only an explicit CLI
+    # flag override works, since pflag treats an explicitly-passed argument
+    # as authoritative regardless of the computed default.
+    extraArgs:
+      - --client-ca-path=
     metrics:
       enabled: true
     replicas: 1
