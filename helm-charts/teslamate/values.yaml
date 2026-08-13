@@ -115,7 +115,11 @@ grafana:
   image:
     registry: ghcr.io
     repository: teslamate-org/teslamate/grafana
-    tag: main@sha256:afb325ae46b9276828679b14ecb4197d1cc7a5d485d75e2fac80df61b53ec716
+    # 2026-08-13: the previous main@afb325ae digest was garbage-collected
+    # upstream -- same recurring failure mode as the main teslamate image
+    # (see the deployment.image comment above). Bumped to the current main
+    # digest again.
+    tag: main@sha256:fe24cb24d8543cb9742cbcb662aeb00ac10aeeab9a53d4c8af5cf329d20cef0b
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
