@@ -1881,3 +1881,51 @@ python3 -c "import json, os; json.load(open(os.environ['OTARU_TF_CONFIG_FILE']))
 See [Secrets](secrets.md) `tfconfig` for the full schema and sync workflow.
 
 ---
+
+## An Env Var Set to an Empty String Can Silently Be Treated as Unset
+
+### Symptom: Config Override Renders Cleanly but Has No Effect at Runtime
+
+A Helm values override adds a container environment variable set to an
+empty string, intending to blank out a component's built-in non-empty
+default. `helm template` and `make test` both pass, the rendered manifest
+shows the env var exactly as written -- but the running container still
+behaves as if the default were in effect, and if that default conflicts
+with another setting, the pod crash-loops on the *identical* error the
+override was meant to fix.
+
+### Cause: Empty-String-vs-Unset Ambiguity in the Component's Own Config Parsing
+
+Some Go-based controllers resolve a flag's default value from an
+environment variable using a helper that only returns the variable's
+actual value when it is non-empty (unless the specific call site opts in
+to allowing empty values). An environment variable explicitly set to `""`
+is then indistinguishable from an unset one, and the flag silently falls
+back to its non-empty built-in default. Static validation (a clean
+`helm template` render, `make test`) cannot catch this, because the
+override looks correct in the rendered manifest -- the bug only shows up
+in the running process's actual resolved config.
+
+This bit `helm-charts/argocd/values.yaml`: an env var override intended to
+blank out a repo-server flag rendered correctly but had no effect,
+producing a live `CrashLoopBackOff` after merge even though CI was green
+and the pre-merge render looked exactly as intended.
+
+### Resolution: Prefer an Explicit CLI Argument, and Verify Against the Live Pod
+
+When overriding a component's flag to an *empty* value specifically (not
+just a non-default non-empty value), prefer passing it as an explicit
+command-line argument on the container (`extraArgs`-style values.yaml
+keys, when the chart exposes one) rather than an environment variable. A
+CLI argument passed at the process level is authoritative regardless of
+how the binary computes its default, so this does not depend on the
+component's own env-parsing behaviour.
+
+More generally: after any fix intended to change a component's resolved
+runtime config, verify against the live or rendered *container spec*
+(`kubectl get pod ... -o json`, or the exact `args`/`env` in
+`helm template` output) that the value actually took effect, not just
+that the values.yaml diff looks right and CI is green. A clean render is
+necessary but not sufficient evidence that an override works.
+
+---
