@@ -150,6 +150,19 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
+    # argo-cd 10.2.3+ (Argo CD v3.5.0) added mTLS support (argoproj/argo-cd#26715)
+    # and changed --client-ca-path to default to a non-empty path
+    # (/app/config/reposerver/mtls/client-ca.crt) even when no mTLS secret is
+    # configured. The repo-server rejects --disable-tls together with any
+    # non-empty --client-ca-path outright (cmd/argocd-repo-server/commands/
+    # argocd_repo_server.go), regardless of whether that file exists --
+    # CrashLoopBackOff on every repo-server pod (see helm-charts/argocd/
+    # Chart.yaml). The chart does not wire the new reposerver.client.ca.path
+    # argocd-cmd-params-cm key into an env var, so override the flag's
+    # underlying env var directly to restore the pre-3.5 empty default.
+    env:
+      - name: ARGOCD_REPO_SERVER_CLIENT_CA_PATH
+        value: ""
     metrics:
       enabled: true
     replicas: 1
