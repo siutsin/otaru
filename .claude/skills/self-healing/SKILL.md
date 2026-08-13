@@ -175,17 +175,38 @@ user-facing app down → everything else.
 
 Default to GitOps:
 
-1. Diagnose in the live cluster.
+1. Diagnose in the live cluster. For anything beyond a known/routine
+    pattern (a genuine root-cause investigation, not a digest/version
+    bump), check official documentation for the affected component before
+    deciding on a fix — prefer the properly documented configuration over
+    a guess or workaround. If documentation gives a real answer,
+    implement that fix, not a stopgap. Verify the fix actually took
+    effect against the live/rendered state (for example the rendered
+    container spec), not just that `helm template` / `make test` pass —
+    a config override can render without error yet still be a no-op at
+    runtime (see `documentation/gotcha.md` for a case where this happened).
 2. Patch the otaru repo (`helm-charts/`, `argocd/`, manifests).
 3. Run `make test` in the otaru repo before opening a PR. If it fails on
     unrelated drift, journal the failure and escalate — do not bypass
     checks.
 4. Before opening, check journal `pr` and `gh pr list --state open` for the
     same root cause; continue an in-flight PR when one exists.
-5. Branch, commit, push, open a PR.
-6. Classify and merge per `runbooks/merge-policy.md`. Journal the PR URL
+5. Branch, commit, push, open a PR labelled `automated` (`gh pr edit
+    <number> --add-label automated`; create the label first if it does not
+    exist yet). For a non-trivial root-cause fix (not a routine
+    digest/version bump), also open a tracking Issue in this repo
+    (labelled `automated`) describing the problem and fix, and reference
+    it from the PR body (`Closes #<n>`).
+6. Never name, link, or reference another GitHub repository — by org/repo
+    name, issue/PR number, commit SHA, or file path within that repo — in
+    any commit message, Issue, or PR body in this repo. Describe upstream
+    behaviour in our own words instead (for example "the underlying
+    controller's default changed in its 3.5 release line", not a link to
+    the PR that changed it). This applies even when the upstream project
+    is public.
+7. Classify and merge per `runbooks/merge-policy.md`. Journal the PR URL
     and whether merge was auto or held.
-7. Immediately after this PR's outcome is known (merged, or held green for
+8. Immediately after this PR's outcome is known (merged, or held green for
     the user), run `runbooks/branch-cleanup.md` — do not wait for the next
     scheduled run. A PR can merge before you notice; continuing to commit
     to a closed PR's branch wastes work.
