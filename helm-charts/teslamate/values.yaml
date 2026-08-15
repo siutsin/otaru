@@ -34,7 +34,10 @@ deployment:
     # for any floating-tag digest pin here. Bumped to the current main
     # digest again.
     repository: ghcr.io/teslamate-org/teslamate
-    tag: main@sha256:10690d2d3f810812cfd1da74e8e0962f24e6d0594c3e7d93609bca8cb4161fca
+    # 2026-08-15: previous main@10690d2d digest was garbage-collected
+    # upstream in turn -- fourth occurrence of this recurring failure mode.
+    # Bumped to the current main digest again.
+    tag: main@sha256:ed3d6109e9245b7c8eb11a55e91efb51865f85fec8fc3f2c00a8c63942cd8ade
   envFrom:
     - secretRef:
         name: teslamate
