@@ -14,5 +14,5 @@ dependencies:
   # ARGOCD_REPO_SERVER_CLIENT_CA_PATH="" via values.yaml repoServer.env
   # (see comment there). Bumped to the current latest now that the
   # underlying regression has a confirmed fix.
-  version: 10.3.2
+  version: 10.3.3
   repository: https://argoproj.github.io/argo-helm
