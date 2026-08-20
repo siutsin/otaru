@@ -10,12 +10,12 @@ dependencies:
   version: 7.3.0
 - name: fluent-bit
   repository: https://fluent.github.io/helm-charts
-  version: 0.57.9
+  version: 0.58.0
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 10.5.15
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
   version: 1.21.3
-digest: sha256:720672c6cc7cde12439f10854ca71aad5e2478fc3c85134e2e4a9d3a10072f5d
-generated: "2026-08-19T06:34:25.804753156Z"
+digest: sha256:584244f4ad4c43624295b075af676aac858a8803898e8607af0c56095af0225d
+generated: "2026-08-20T21:13:47.204910257Z"
