@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "kubernetes": {
+      "type": "http",
+      "url": "http://127.0.0.1:13000/mcp"
+    },
+    "unifi-network": {
+      "type": "http",
+      "url": "http://127.0.0.1:13001/mcp"
+    }
+  }
+}
