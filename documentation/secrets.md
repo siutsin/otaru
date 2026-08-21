@@ -94,7 +94,11 @@ else (module structure, non-identifying defaults) in HCL:
       "dns_ip": "192.168.12.34"
     },
     "dns": {
-      "device-key": "subdomain.internal"
+      "device-key": "subdomain.internal",
+      "lan-device-key": {
+        "name": "device.internal",
+        "ip": "192.168.12.41"
+      }
     }
   },
   "unifi": {

@@ -4,11 +4,9 @@ variable "zone_id" {
 }
 
 variable "subdomains" {
-  type      = map(string)
-  sensitive = true
-}
-
-variable "ip" {
-  type      = string
+  type = map(object({
+    name = string
+    ip   = string
+  }))
   sensitive = true
 }
