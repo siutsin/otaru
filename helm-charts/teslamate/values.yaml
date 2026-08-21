@@ -34,10 +34,11 @@ deployment:
     # for any floating-tag digest pin here. Bumped to the current main
     # digest again.
     repository: ghcr.io/teslamate-org/teslamate
-    # 2026-08-15: previous main@10690d2d digest was garbage-collected
-    # upstream in turn -- fourth occurrence of this recurring failure mode.
+    # 2026-08-21: previous main@ed3d6109 digest was garbage-collected
+    # upstream in turn -- fifth occurrence of this recurring failure mode
+    # (ImagePullBackOff, confirmed NotFound against the registry).
     # Bumped to the current main digest again.
-    tag: main@sha256:ed3d6109e9245b7c8eb11a55e91efb51865f85fec8fc3f2c00a8c63942cd8ade
+    tag: main@sha256:3751c1ebb9023618bf2869b176b6ff25cc03e97c90b12afc67e3d067c0adc283
   envFrom:
     - secretRef:
         name: teslamate
