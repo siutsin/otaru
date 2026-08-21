@@ -49,7 +49,7 @@ inputs = {
       port_overrides = {
         port01 = {
           index                 = 1
-          native_network_id_key = "vlan01"
+          native_network_id_key = "vlan10" # JetKVM reservation 192.168.10.41
         }
       }
     }
