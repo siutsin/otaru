@@ -10,10 +10,9 @@ vpa:
   enabled: false
 
 app:
-  # Pinned here so dev and prod can run different images. JS is 5.x, Go is 6.x,
-  # same repository, so a rollback is one line.
+  # Pinned here so dev and prod can diverge if needed; rollback is one line.
   image:
-    tag: jung2bot-6.0.0-alpha.1@sha256:d0e17f968aafac1910ce60d39410972279d84af30b67dccdebdf2fa23a33f694
+    tag: jung2bot-6.0.0-rc.1@sha256:f2cb74887fbc0212a09b75363618f2401b121443b87f9f6d2184c2e4354630c1
   env:
     chatIdTable: jung2bot-dev-chatIds
     logLevel: debug
