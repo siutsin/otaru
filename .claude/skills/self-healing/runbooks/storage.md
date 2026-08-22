@@ -69,6 +69,32 @@
   an unrelated scheduling failure on a busy cluster. Check cluster-wide
   `kubectl describe node` memory-request percentages before and after any
   such bump.
+- **New replica launch fails with "instance manager is unable to launch
+  the replica" right after a Longhorn chart upgrade, while existing
+  replicas on the same node keep running fine:** check whether that
+  node's `InstanceManager` CR is still pinned to the pre-upgrade image
+  (`kubectl get instancemanager.longhorn.io -n longhorn-system -o
+  wide`, then `.spec.image` on the one for the affected node) even
+  though the cluster's default instance-manager image setting
+  (`kubectl get settings.longhorn.io default-instance-manager-image -n
+  longhorn-system`) has already moved on. Longhorn provisions a
+  replacement `InstanceManager` with the new image during the upgrade
+  but leaves the old one running (idle, alongside it) as long as it
+  still hosts active replicas/engines, so it never gets a chance to
+  launch anything new. Fix: `kubectl delete instancemanager.longhorn.io
+  <old-instance-manager-name> -n longhorn-system` — the already-waiting
+  new-image `InstanceManager` takes over immediately and every replica
+  it was serving relaunches on it within about a minute. This briefly
+  interrupts **every** volume that instance-manager was serving (can be
+  10+ on a busy node), so confirm user approval first; it is not a
+  volume delete or crypto change, and the new `InstanceManager` object
+  already exists before you delete the old one, so this is lower-risk
+  than most storage-layer live mutations, but still needs a human
+  call given the blast radius. Verify recovery via
+  `kubectl get replicas.longhorn.io -n longhorn-system -o
+  custom-columns='NAME:.metadata.name,NODE:.spec.nodeID,STATE:.status.currentState'`
+  and by watching the CNPG/Application fallout wave clear the same way
+  as a node-reboot fallout wave.
 - **Faulted single-replica volume with zero live replicas:** eviction
   needs a live source and does not apply. Check
   `auto-salvage` (`kubectl get settings.longhorn.io auto-salvage -n
