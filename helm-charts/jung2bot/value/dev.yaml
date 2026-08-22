@@ -1,5 +1,10 @@
 namespace: jung2bot-dev
 
+# onOffFromWork/onScaleUp were reachable from the public internet with no
+# auth in dev (inherited from JS, which never validated the scheduler
+# token). This routes them to only the in-cluster CronJobs instead.
+adminRoutesInternalOnly: true
+
 secret:
   remoteRef:
     key: jung2bot-dev

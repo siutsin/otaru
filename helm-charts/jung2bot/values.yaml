@@ -11,6 +11,11 @@ namespace: jung2bot
 vpa:
   enabled: true
 
+# Restricts onOffFromWork/onScaleUp to in-cluster callers instead of the
+# public Gateway route. Off here until the dev-verified rollout lands here
+# too in a follow-up change.
+adminRoutesInternalOnly: false
+
 secret:
   remoteRef:
     key: jung2bot

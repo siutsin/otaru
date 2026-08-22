@@ -1,6 +1,7 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $stagePrefix := printf "/jung2bot/%s" .Values.app.env.stage -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -21,3 +22,19 @@ spec:
         - operation:
             ports:
               - "3000"
+{{- if .Values.adminRoutesInternalOnly }}
+            paths:
+              - {{ $stagePrefix }}/
+              - {{ $stagePrefix }}/ping
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/default
+      to:
+        - operation:
+            ports:
+              - "3000"
+            paths:
+              - {{ $stagePrefix }}/onOffFromWork
+              - {{ $stagePrefix }}/onScaleUp
+{{- end }}
