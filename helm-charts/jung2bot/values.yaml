@@ -21,7 +21,7 @@ irsa:
 app:
   image:
     repository: ghcr.io/siutsin/telegram-jung2-bot
-    tag: jung2bot-5.2.1@sha256:a75c29f70aa9b1c961386989c223b777b8c85502c50a9ac333349786102ed94d
+    tag: jung2bot-6.0.0-rc.1@sha256:f2cb74887fbc0212a09b75363618f2401b121443b87f9f6d2184c2e4354630c1
   env:
     awsRegion: eu-west-1
     chatIdTable: jung2bot-prod-chatIds
