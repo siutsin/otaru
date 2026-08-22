@@ -22,7 +22,6 @@ spec:
         - operation:
             ports:
               - "3000"
-{{- if .Values.adminRoutesInternalOnly }}
             paths:
               - {{ $stagePrefix }}/
               - {{ $stagePrefix }}/ping
@@ -37,4 +36,3 @@ spec:
             paths:
               - {{ $stagePrefix }}/onOffFromWork
               - {{ $stagePrefix }}/onScaleUp
-{{- end }}
