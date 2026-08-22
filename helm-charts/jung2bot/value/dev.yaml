@@ -4,12 +4,23 @@ secret:
   remoteRef:
     key: jung2bot-dev
 
+# Off while dev trials the Go rewrite. The VPA is memory-only and would shrink
+# the request to fit Go, so a rollback to the heavier JS image would OOMKill.
+vpa:
+  enabled: false
+
 app:
+  # Pinned here so dev and prod can run different images. JS is 5.x, Go is 6.x,
+  # same repository, so a rollback is one line.
+  image:
+    tag: jung2bot-5.2.1@sha256:a75c29f70aa9b1c961386989c223b777b8c85502c50a9ac333349786102ed94d
   env:
     chatIdTable: jung2bot-dev-chatIds
     logLevel: debug
     messageTable: jung2bot-dev-messages
-    scaleUpReadCapacity: 1
+    # Must exceed the tables' provisioned read capacity of 1, or UpdateTable is
+    # a no-op that the service reports as success.
+    scaleUpReadCapacity: 5
     stage: dev
   autoscaling:
     min: 1
