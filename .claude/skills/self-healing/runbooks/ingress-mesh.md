@@ -29,6 +29,51 @@ clients, also consider RPi ARP/promisc issues documented in
 `documentation/gotcha.md` — host networking fixes are **escalate** (not
 unattended GitOps).
 
+### Envoy Gateway upgrade drops UDPRoute/TCPRoute after a Gateway API CRD version gap
+
+**Symptom:** after bumping `helm-charts/envoy-gateway` (`gateway-helm`) to a
+newer version, UDP/TCP-based routes stop working — this cluster's shared
+Gateway VIP `192.168.10.51` serves DNS (Blocky, 53 TCP/UDP), CoAP
+(Home Assistant, UDP 5683), and SFTP (Jellyfin, TCP 2022) alongside normal
+HTTPS — while `HTTPRoute`-based ingress on the same VIP keeps working fine.
+`kubectl get gateway <name> -n <ns> -o jsonpath='{range
+.status.listeners[*]}{.name}{": "}{.attachedRoutes}{"\n"}{end}'` shows
+`attachedRoutes: 0` for the affected TCP/UDP listeners while `https` stays
+non-zero.
+
+**Cause:** a newer Envoy Gateway version can require Gateway API **v1**
+`TCPRoute`/`UDPRoute` CRDs. If this cluster's `gateway-api` CRD chart still
+only serves `v1alpha2`, the controller logs (on the `envoy-gateway` pod)
+exactly this at startup:
+
+```text
+UDPRoute CRD not found, skipping UDPRoute watch
+TCPRoute CRD not found, skipping TCPRoute watch
+```
+
+Confirm which API versions are actually served:
+`kubectl get crd udproutes.gateway.networking.k8s.io
+tcproutes.gateway.networking.k8s.io -o jsonpath='{.spec.versions[*].name}'`.
+
+**Fix (GitOps, trivial):** bump `helm-charts/gateway-api`'s CRDs to a version
+that serves `v1` for `TCPRoute`/`UDPRoute` (this cluster: `v1.6.1`), and
+update any `TCPRoute`/`UDPRoute` manifests' `apiVersion` from `v1alpha2` to
+`v1` to match. After merge, apply the new CRDs server-side and restart
+`envoy-gateway` rather than waiting for its own reconcile loop:
+
+```bash
+kubectl apply --server-side --force-conflicts -f helm-charts/gateway-api/crds/
+kubectl rollout restart deployment/envoy-gateway -n envoy-gateway-system
+```
+
+Precedent: `gateway-helm` `1.9.0` (PR #3086) broke this; fixed by bumping
+`gateway-api` CRDs to `1.6.1` (PR #3087), 2026-08-22.
+
+**Verification caveat:** `attachedRoutes` on the Gateway status can lag —
+it stayed `0` in one observed case even after Argo synced the fix and live
+traffic had already recovered. Verify with a real protocol-level test
+(e.g. `dig @<vip> <host>` for DNS) rather than trusting the counter alone.
+
 ## Heartbeat down: Cloudflare Access 403
 
 **Symptom:** `kubectl get heartbeat -A` (or a user-reported "otaru heartbeat

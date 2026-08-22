@@ -97,6 +97,27 @@
   - This is now a recurring-enough pattern to spot-check on any
     `Progressing` finding, not just wait for a report.
 
+- **`tcpSocket`-only probes hide a wedged application layer.** A pod can
+  show `1/1 Running`, `0` restarts, and pass both readiness and liveness
+  probes indefinitely while its actual application has stopped processing
+  requests entirely — if both probes are `tcpSocket` (checking only that
+  the listener socket accepts connections), Kubernetes has no way to detect
+  a deadlocked or wedged process that leaves the socket open but never
+  responds. Confirmed on `unifi-mcp`: pod `Ready` for 17+ hours with zero
+  log activity, silently failing every real tool call, while `kubectl get
+  deployment unifi-mcp -o jsonpath='{.spec.template.spec.containers[0].readinessProbe}{"\n"}{.livenessProbe}'`
+  showed `tcpSocket` for both.
+  - **Detect:** the probe check above, plus comparing recent log timestamps
+    against when traffic was actually being sent to the pod — a long silent
+    gap despite active use is the tell.
+  - **Fix (live, allowlisted):** `kubectl rollout restart deployment/<name>`
+    — matches the existing "misbehaving Deployment, config already correct
+    in Git" entry in `runbooks/merge-policy.md`.
+  - **Durable fix (GitOps, trivial, single-app probe tweak):** if the
+    workload exposes a real HTTP health endpoint, switch both probes to
+    `httpGet` in its chart so a future hang is actually caught instead of
+    needing another manual restart.
+
 - **VPA-driven resource changes are expected, not an incident.**
   `helm-charts/vpa/` runs a live admission-controller and updater for a
   growing set of workloads (`kubectl get vpa -A` lists them). A pod whose
