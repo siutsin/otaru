@@ -34,6 +34,18 @@ vertical-pod-autoscaler:
       renewBefore: 360h
   recommender:
     replicas: 1
+    # 2026-08-22: the recommender's compiled-in defaults
+    # (--pod-recommendation-min-memory-mb=250,
+    # --pod-recommendation-min-cpu-millicores=25) are a global floor that
+    # overrides every VPA's own tuned per-workload minAllowed. Idle
+    # workloads (cyberchef, jsoncrack, excalidraw, reloader, k8s-cleaner --
+    # real usage 4-29Mi) were all being clamped up to ~250Mi regardless of
+    # their own minAllowed (32Mi). Set both flags near zero so each VPA's
+    # own minAllowed/maxAllowed does the real work instead of this
+    # one-size-fits-all default.
+    extraArgs:
+      - --pod-recommendation-min-memory-mb=1
+      - --pod-recommendation-min-cpu-millicores=1
     resources:
       requests:
         cpu: 50m
