@@ -157,7 +157,7 @@ inputs = {
     wan00 = {
       name        = "Internet 1"
       wan_dns     = []
-      wan_type_v6 = "dhcpv6"
+      wan_type_v6 = "disabled"
     }
   }
   vlan = {
