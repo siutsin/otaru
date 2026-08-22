@@ -26,16 +26,8 @@ spec:
               env:
                 - name: CRON_INTERVAL
                   value: {{ .Values.cron.offWork.env.cronInterval | quote }}
-{{- if .Values.adminRoutesInternalOnly }}
                 - name: OFF_FROM_WORK_URL
                   value: {{ printf "%s%s/onOffFromWork" $internalBaseURL $stagePrefix | quote }}
-{{- else }}
-                - name: OFF_FROM_WORK_URL
-                  valueFrom:
-                    secretKeyRef:
-                      key: OFF_FROM_WORK_URL
-                      name: jung2bot-secrets
-{{- end }}
               resources:
                 requests:
                   cpu: "0.1"
@@ -90,16 +82,8 @@ spec:
                 - "5"
                 - "$(SCALE_UP_URL)"
               env:
-{{- if .Values.adminRoutesInternalOnly }}
                 - name: SCALE_UP_URL
                   value: {{ printf "%s%s/onScaleUp" $internalBaseURL $stagePrefix | quote }}
-{{- else }}
-                - name: SCALE_UP_URL
-                  valueFrom:
-                    secretKeyRef:
-                      key: SCALE_UP_URL
-                      name: jung2bot-secrets
-{{- end }}
               resources:
                 requests:
                   cpu: "0.5"
