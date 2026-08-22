@@ -86,11 +86,11 @@ spec:
                   value: {{ printf "%s%s/onScaleUp" $internalBaseURL $stagePrefix | quote }}
               resources:
                 requests:
-                  cpu: "0.5"
-                  memory: "500Mi"
+                  cpu: "0.05"
+                  memory: "16Mi"
                   ephemeral-storage: "100Mi"
                 limits:
-                  memory: "500Mi"
+                  memory: "16Mi"
                   ephemeral-storage: "100Mi"
               readinessProbe:
                 exec:
