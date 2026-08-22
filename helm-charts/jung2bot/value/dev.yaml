@@ -13,7 +13,7 @@ app:
   # Pinned here so dev and prod can run different images. JS is 5.x, Go is 6.x,
   # same repository, so a rollback is one line.
   image:
-    tag: jung2bot-5.2.1@sha256:a75c29f70aa9b1c961386989c223b777b8c85502c50a9ac333349786102ed94d
+    tag: jung2bot-6.0.0-alpha.1@sha256:d0e17f968aafac1910ce60d39410972279d84af30b67dccdebdf2fa23a33f694
   env:
     chatIdTable: jung2bot-dev-chatIds
     logLevel: debug
