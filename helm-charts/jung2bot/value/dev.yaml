@@ -4,11 +4,6 @@ secret:
   remoteRef:
     key: jung2bot-dev
 
-# Off while dev trials the Go rewrite. The VPA is memory-only and would shrink
-# the request to fit Go, so a rollback to the heavier JS image would OOMKill.
-vpa:
-  enabled: false
-
 app:
   # Pinned here so dev and prod can diverge if needed; rollback is one line.
   image:
