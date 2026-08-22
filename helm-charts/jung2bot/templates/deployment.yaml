@@ -54,10 +54,10 @@ spec:
           resources:
             requests:
               cpu: "0.1"
-              memory: "192Mi"
+              memory: "64Mi"
               ephemeral-storage: "100Mi"
             limits:
-              memory: "192Mi"
+              memory: "64Mi"
               ephemeral-storage: "100Mi"
           env:
             - name: PROFILE
