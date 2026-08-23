@@ -57,12 +57,6 @@ workloadResourcesPolicy:
     - kube-public
     - kube-system
     - kyverno
-  excludedWorkloads:
-    # amazon-eks-pod-identity-webhook: upstream chart's values.schema.json
-    # hard-rejects an ephemeral-storage resources key, so it cannot comply.
-    # User-accepted exception, 2026-08-23.
-    - namespace: default
-      name: amazon-eks-pod-identity-webhook-*
 
 meshAuthorizationPolicy:
   enabled: true

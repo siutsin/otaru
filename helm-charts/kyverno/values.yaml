@@ -24,6 +24,15 @@ _metricsScrape: &metricsScrape
     prometheus.io/port: "8000"
 
 kyverno:
+  # Lets kyverno-policy grant narrow, auditable per-workload exceptions
+  # (kind: PolicyException) instead of growing bespoke exclude lists inside
+  # each ClusterPolicy. Restricted to this namespace, alongside the
+  # ClusterPolicies themselves, so an exception can't be self-granted from
+  # an arbitrary workload namespace.
+  features:
+    policyExceptions:
+      enabled: true
+      namespace: kyverno
   admissionController:
     resources: *resources
     podDisruptionBudget: *pdb

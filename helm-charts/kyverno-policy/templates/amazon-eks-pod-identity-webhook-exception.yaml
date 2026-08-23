@@ -1,0 +1,23 @@
+# amazon-eks-pod-identity-webhook cannot set resources.limits.ephemeral-storage:
+# the upstream chart's values.schema.json hard-rejects that key, so the
+# workload can never comply with require-workload-resources. User-accepted
+# exception, 2026-08-23.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: amazon-eks-pod-identity-webhook-ephemeral-storage
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-workload-resources
+      ruleNames:
+        - require-container-resource-requests-and-limits
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+          namespaces:
+            - default
+          names:
+            - amazon-eks-pod-identity-webhook-*

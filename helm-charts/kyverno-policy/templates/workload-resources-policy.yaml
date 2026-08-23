@@ -15,24 +15,13 @@ spec:
           - resources:
               kinds:
                 - Pod
-{{- $excludedNamespaces := .Values.workloadResourcesPolicy.excludedNamespaces }}
-{{- $excludedWorkloads := .Values.workloadResourcesPolicy.excludedWorkloads }}
-{{- if or $excludedNamespaces $excludedWorkloads }}
+{{- with .Values.workloadResourcesPolicy.excludedNamespaces }}
       exclude:
         any:
-{{- with $excludedNamespaces }}
           - resources:
               namespaces:
 {{- range . }}
                 - {{ . }}
-{{- end }}
-{{- end }}
-{{- range $excludedWorkloads }}
-          - resources:
-              namespaces:
-                - {{ .namespace }}
-              names:
-                - {{ .name }}
 {{- end }}
 {{- end }}
       validate:
