@@ -1,11 +1,11 @@
 {{- $prometheusPrincipal := "cluster.local/ns/monitoring/sa/monitoring-prometheus-server" -}}
 {{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 {{- $components := list
-  (dict "name" "argocd-application-controller" "port" "8082")
-  (dict "name" "argocd-server" "port" "8083")
-  (dict "name" "argocd-repo-server" "port" "8084")
-  (dict "name" "argocd-applicationset-controller" "port" "8080")
-  (dict "name" "argocd-redis" "port" "9121")
+  (dict "name" "argocd-application-controller" "port" "8082" "hasMetricsService" true)
+  (dict "name" "argocd-server" "port" "8083" "hasMetricsService" true)
+  (dict "name" "argocd-repo-server" "port" "8084" "hasMetricsService" true)
+  (dict "name" "argocd-applicationset-controller" "port" "8080" "hasMetricsService" true)
+  (dict "name" "argocd-redis" "port" "9121" "hasMetricsService" false)
 -}}
 {{- range $components }}
 ---
@@ -16,40 +16,21 @@ metadata:
   namespace: {{ $.Values.namespace }}
 spec:
   action: ALLOW
+{{- if .hasMetricsService }}
   targetRefs:
     - group: ""
       kind: Service
       name: {{ .name }}-metrics
-  rules:
-    - from:
-        - source:
-            principals:
-              - {{ $prometheusPrincipal }}
-              - {{ $waypointPrincipal }}
-      to:
-        - operation:
-            ports:
-              - {{ .port | quote }}
+{{- else }}
+  # No dedicated -metrics Service exists for this component (its metrics
+  # port is scraped directly off the pod), so a Service targetRef would be
+  # a dangling reference -- Kyverno's require-mesh-authorization-policy
+  # check only looks at Service-backed traffic, so it never flagged this
+  # one. Stay on pod-selector targeting.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .name }}
 {{- end }}
-{{- $metricsServices := list
-  (dict "name" "argocd-application-controller-metrics" "port" "8082")
-  (dict "name" "argocd-server-metrics" "port" "8083")
-  (dict "name" "argocd-repo-server-metrics" "port" "8084")
-  (dict "name" "argocd-applicationset-controller-metrics" "port" "8080")
--}}
-{{- range $metricsServices }}
----
-apiVersion: security.istio.io/v1
-kind: AuthorizationPolicy
-metadata:
-  name: {{ .name }}-svc
-  namespace: {{ $.Values.namespace }}
-spec:
-  action: ALLOW
-  targetRefs:
-    - group: ""
-      kind: Service
-      name: {{ .name }}
   rules:
     - from:
         - source:
