@@ -157,7 +157,7 @@ prometheus:
     podDisruptionBudget:
       minAvailable: 1
     resources: *smallResources
-    securityContext:
+    containerSecurityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
