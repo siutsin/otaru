@@ -1,0 +1,51 @@
+---
+{{- if .Values.config.podIdentityWebhookMap.enabled }}
+{{- $fullName := include "amazon-eks-pod-identity-webhook.fullname" . }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - update
+      - patch
+    resourceNames:
+      {{- /* This is the service account name, ref: https://github.com/aws/amazon-eks-pod-identity-webhook/blob/ac3554488585c1a35bea552f771ef3bd4e6e0ddd/pkg/handler/handler.go#L436 */}}
+      - "{{ include "amazon-eks-pod-identity-webhook.serviceAccountName" . }}"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $fullName }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $fullName }}
+    namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+{{- end }}

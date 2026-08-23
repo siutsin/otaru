@@ -1,0 +1,18 @@
+{{- if and .Values.podDisruptionBudget.enabled (gt (.Values.replicaCount | int) 1) -}}
+apiVersion: {{ include "amazon-eks-pod-identity-webhook.pdb.apiVersion" . }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- end  }}
+  {{- if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- end  }}
+  selector:
+    matchLabels:
+      {{- include "amazon-eks-pod-identity-webhook.selectorLabels" . | nindent 6 }}
+{{- end -}}

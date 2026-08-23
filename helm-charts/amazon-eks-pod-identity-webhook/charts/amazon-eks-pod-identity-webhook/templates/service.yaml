@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "amazon-eks-pod-identity-webhook.fullname" . }}
+  namespace: {{ include "amazon-eks-pod-identity-webhook.namespace" . }}
+  labels:
+    {{- include "amazon-eks-pod-identity-webhook.labels" . | nindent 4 }}
+    {{- with .Values.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.config.ports.webhook }}
+      targetPort: https
+      protocol: TCP
+      appProtocol: https
+      name: https
+    - port: {{ .Values.config.ports.metrics }}
+      targetPort: metrics
+      appProtocol: http
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "amazon-eks-pod-identity-webhook.selectorLabels" . | nindent 4 }}

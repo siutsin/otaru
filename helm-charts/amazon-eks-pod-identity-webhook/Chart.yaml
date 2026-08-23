@@ -4,6 +4,15 @@ description: A Helm chart for Kubernetes
 type: application
 version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+# charts/amazon-eks-pod-identity-webhook is a vendored, patched copy of this
+# dependency (see charts/amazon-eks-pod-identity-webhook/values.schema.json),
+# not a `helm dependency build` output: upstream's schema hard-rejects an
+# `ephemeral-storage` resources key, which CLAUDE.md requires on every
+# workload. `make validate-helm-charts` accepts an "unpacked" dependency, so
+# this stays in place across `helm lint`/`helm template`. Bumping `version`
+# here does not refresh the vendored copy -- re-run `helm dependency build`,
+# re-apply the ephemeral-storage schema patch, then delete the refreshed
+# `.tgz` and re-extract it into this directory.
 dependencies:
 - name: amazon-eks-pod-identity-webhook
   alias: pod-identity-webhook
