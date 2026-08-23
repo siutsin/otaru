@@ -16,10 +16,12 @@ metadata:
   namespace: {{ $.Values.namespace }}
 spec:
   action: ALLOW
-  targetRefs:
-    - group: ""
-      kind: Service
-      name: {{ .name }}-metrics
+  # The Prometheus scrape reaches the pod through ztunnel, so this policy
+  # must continue to attach to the workload. The Service policy below is
+  # additionally required for waypoint-routed traffic and Kyverno coverage.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .name }}
   rules:
     - from:
         - source:
