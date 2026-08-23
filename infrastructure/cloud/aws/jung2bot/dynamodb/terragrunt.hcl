@@ -26,6 +26,7 @@ inputs = {
       hash_key            = "chatId"
       name                = "jung2bot-prod-messages"
       range_key           = "dateCreated"
+      read_capacity       = 10
     }
   }
 }
