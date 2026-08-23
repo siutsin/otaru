@@ -8,6 +8,50 @@
 {{- $fluentBitPrincipal := printf "cluster.local/ns/%s/sa/monitoring-fluent-bit" .Values.namespace -}}
 {{- $lokiPrincipal := printf "cluster.local/ns/%s/sa/monitoring-loki" .Values.namespace -}}
 {{- $lokiCanaryPrincipal := printf "cluster.local/ns/%s/sa/loki-canary" .Values.namespace -}}
+{{- $alertmanagerPrincipal := printf "cluster.local/ns/%s/sa/monitoring-alertmanager" .Values.namespace -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-alertmanager
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-alertmanager
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $alertmanagerPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9093"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-alertmanager-headless
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-alertmanager-headless
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $alertmanagerPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9093"
+---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:

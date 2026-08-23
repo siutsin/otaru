@@ -250,6 +250,10 @@ argo-cd:
             done
             echo "Secret argocd-jsonnet-secret found!"
         securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
           runAsUser: 1000
         resources:
           requests:
@@ -295,6 +299,10 @@ argo-cd:
         command:
           - /var/run/argocd/argocd-cmp-server
         securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
           runAsNonRoot: true
           runAsUser: 999
         image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0-rc1-202603220524@sha256:7ae80ae8875c82a2bbb239ad476146188435eea0c46d6ee5f55a32b84221ce7f

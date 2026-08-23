@@ -30,7 +30,11 @@ spec:
             urlPath: "/apis/policy/v1/namespaces/{{ "{{" }} request.namespace {{ "}}" }}/poddisruptionbudgets"
             jmesPath: >-
               items[?spec.selector.matchLabels."app.kubernetes.io/name" ==
-              '{{ "{{" }} request.object.spec.template.metadata.labels."app.kubernetes.io/name" {{ "}}" }}']
+              '{{ "{{" }} request.object.spec.template.metadata.labels."app.kubernetes.io/name" || '' {{ "}}" }}' ||
+              spec.selector.matchLabels.app ==
+              '{{ "{{" }} request.object.spec.template.metadata.labels.app || '' {{ "}}" }}' ||
+              spec.selector.matchLabels."gateway.networking.k8s.io/gateway-name" ==
+              '{{ "{{" }} request.object.spec.template.metadata.labels."gateway.networking.k8s.io/gateway-name" || '' {{ "}}" }}']
               | length(@)
       validate:
         allowExistingViolations: true

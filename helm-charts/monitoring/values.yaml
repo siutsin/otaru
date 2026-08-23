@@ -90,6 +90,11 @@ prometheus:
       limits:
         memory: 3730Mi
         ephemeral-storage: 256Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
     persistentVolume:
       size: 100Gi
       labels:
@@ -111,6 +116,11 @@ prometheus:
     podDisruptionBudget:
       minAvailable: 1
     resources: *smallResources
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
     persistence:
       enabled: true
       size: 1Gi
@@ -147,6 +157,11 @@ prometheus:
     podDisruptionBudget:
       minAvailable: 1
     resources: *smallResources
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
   serverFiles:
     recording_rules.yml:
       groups:
@@ -575,6 +590,11 @@ fluent-bit:
         - rm
         - -f
         - /var/log/fluent-bit-tail.db
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
       resources:
         requests:
           cpu: 10m
@@ -594,6 +614,11 @@ fluent-bit:
     - name: fluent-bit-state
       mountPath: /var/fluent-bit-state
   resources: *smallResources
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   tolerations:
     - key: node-role.kubernetes.io/control-plane
       operator: Exists
