@@ -55,12 +55,23 @@ spec:
     - policyName: require-container-hardening
       ruleNames:
         - require-allow-privilege-escalation-false
+        - autogen-require-allow-privilege-escalation-false
+        - autogen-cronjob-require-allow-privilege-escalation-false
         - require-drop-all-capabilities
+        - autogen-require-drop-all-capabilities
+        - autogen-cronjob-require-drop-all-capabilities
   match:
     any:
       - resources:
           kinds:
             - Pod
+            - DaemonSet
+            - Deployment
+            - Job
+            - ReplicaSet
+            - ReplicationController
+            - StatefulSet
+            - CronJob
           namespaces:
             - istio-system
             - kube-system
@@ -79,12 +90,17 @@ spec:
     - policyName: require-container-hardening
       ruleNames:
         - require-allow-privilege-escalation-false
+        - autogen-require-allow-privilege-escalation-false
+        - autogen-cronjob-require-allow-privilege-escalation-false
         - require-drop-all-capabilities
+        - autogen-require-drop-all-capabilities
+        - autogen-cronjob-require-drop-all-capabilities
   match:
     any:
       - resources:
           kinds:
             - Pod
+            - DaemonSet
           namespaces:
             - monitoring
           selector:
