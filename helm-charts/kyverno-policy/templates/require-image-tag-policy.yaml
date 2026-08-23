@@ -15,15 +15,6 @@ spec:
           - resources:
               kinds:
                 - Pod
-{{- with .Values.requireImageTagPolicy.excludedNamespaces }}
-      exclude:
-        any:
-          - resources:
-              namespaces:
-{{- range . }}
-                - {{ . }}
-{{- end }}
-{{- end }}
       validate:
         allowExistingViolations: true
         failureAction: Audit
@@ -41,15 +32,6 @@ spec:
           - resources:
               kinds:
                 - Pod
-{{- with .Values.requireImageTagPolicy.excludedNamespaces }}
-      exclude:
-        any:
-          - resources:
-              namespaces:
-{{- range . }}
-                - {{ . }}
-{{- end }}
-{{- end }}
       validate:
         allowExistingViolations: true
         failureAction: Audit

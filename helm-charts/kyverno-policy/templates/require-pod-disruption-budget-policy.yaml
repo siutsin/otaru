@@ -15,15 +15,6 @@ spec:
               kinds:
                 - Deployment
                 - StatefulSet
-{{- with .Values.requirePodDisruptionBudgetPolicy.excludedNamespaces }}
-      exclude:
-        any:
-          - resources:
-              namespaces:
-{{- range . }}
-                - {{ . }}
-{{- end }}
-{{- end }}
       context:
         - name: matchingPdbCount
           apiCall:

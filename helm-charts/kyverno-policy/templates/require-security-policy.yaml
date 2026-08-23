@@ -17,17 +17,6 @@ spec:
               operations:
                 - CREATE
                 - UPDATE
-{{- with .Values.requireSecurityPolicy.excludedRoutes }}
-      exclude:
-        any:
-{{- range . }}
-          - resources:
-              namespaces:
-                - {{ .namespace }}
-              names:
-                - {{ .name }}
-{{- end }}
-{{- end }}
       context:
         - name: securityPolicyCount
           apiCall:
@@ -48,17 +37,13 @@ spec:
           targetRefs pointing at that HTTPRoute, at least one jwt.providers
           entry, and authorization.defaultAction Deny. Envoy Gateway can
           resolve backends to pod IPs and bypass Service waypoints, so mesh
-          AuthorizationPolicy alone is not enough. Pre-existing routes are
-          listed under requireSecurityPolicy.excludedRoutes; for a one-off
-          opt-out set gateway.otaru.io/skip-security-policy=true.
+          AuthorizationPolicy alone is not enough. Every exception must be an
+          explicit, GitOps-managed PolicyException.
         deny:
           conditions:
             all:
               - key: "{{ `{{ securityPolicyCount }}` }}"
                 operator: Equals
                 value: 0
-              - key: {{ printf "{{ request.object.metadata.annotations.\"gateway.otaru.io/skip-security-policy\" || '' }}" | quote }}
-                operator: NotEquals
-                value: "true"
   validationFailureAction: {{ .Values.requireSecurityPolicy.failureAction }}
 {{- end }}

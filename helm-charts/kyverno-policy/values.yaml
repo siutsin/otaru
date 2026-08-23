@@ -52,11 +52,6 @@ clusterSecretStorePolicy:
 
 workloadResourcesPolicy:
   enabled: true
-  excludedNamespaces:
-    - kube-node-lease
-    - kube-public
-    - kube-system
-    - kyverno
 
 meshAuthorizationPolicy:
   enabled: true
@@ -68,61 +63,11 @@ meshAuthorizationPolicy:
 # Cluster-wide: every HTTPRoute needs a companion Envoy Gateway
 # SecurityPolicy (JWT + deny-by-default). EG can hit pod IPs and bypass
 # Service waypoints, so mesh AuthorizationPolicy alone is not enough.
-# excludedRoutes lists pre-existing routes grandfathered without JWT;
-# remove entries only when that route gains a real SecurityPolicy.
-# k8s-mcp-internal and unifi-mcp-internal are intentionally not listed.
+# Grandfathered routes are declared as explicit PolicyExceptions in
+# templates/policy-exceptions.yaml, not as exclusions on this policy.
 requireSecurityPolicy:
   enabled: true
   failureAction: Enforce
-  excludedRoutes:
-    - namespace: argocd
-      name: argocd-internal
-    - namespace: argocd
-      name: argocd-public
-    - namespace: blocky
-      name: blocky-internal-doh
-    - namespace: changedetection
-      name: changedetection-internal
-    - namespace: cyberchef
-      name: cyberchef-internal
-    - namespace: excalidraw
-      name: excalidraw-internal
-    - namespace: gateway
-      name: kiali-internal
-    - namespace: home-assistant
-      name: home-assistant-internal
-    - namespace: httpbin
-      name: httpbin-public
-    - namespace: hydra
-      name: hydra-internal
-    - namespace: jellyfin
-      name: jellyfin-internal
-    - namespace: jellyfin
-      name: jellyfin-sftpgo-internal-http
-    - namespace: jsoncrack
-      name: jsoncrack-internal
-    - namespace: jung2bot
-      name: jung2bot-public
-    - namespace: jung2bot-dev
-      name: jung2bot-public
-    - namespace: longhorn-system
-      name: longhorn-internal
-    - namespace: monitoring
-      name: monitoring-grafana-internal
-    - namespace: monitoring
-      name: monitoring-loki-internal
-    - namespace: monitoring
-      name: monitoring-prometheus-internal
-    - namespace: openclaw
-      name: openclaw-internal
-    - namespace: teslamate
-      name: teslamate-grafana-internal
-    - namespace: teslamate
-      name: teslamate-internal
-    - namespace: umami
-      name: umami-collect
-    - namespace: umami
-      name: umami-internal
 
 barmanObjectStorePolicy:
   enabled: true
@@ -145,35 +90,17 @@ barmanObjectStorePolicy:
 
 requireImageTagPolicy:
   enabled: true
-  excludedNamespaces:
-    - kube-node-lease
-    - kube-public
-    - kube-system
-    - kyverno
 
 requireContainerHardeningPolicy:
   enabled: true
-  excludedNamespaces:
-    - longhorn-system
-    - istio-system
-    - metallb-system
-    - kube-system
 
 # 2026-07-25: audit-only policy added after the missing-PDB
 # eviction-storm pattern caused real outages for umami, home-assistant,
 # and prometheus-server on the same day (see documentation/gotcha.md).
-# Excluded namespaces are the same system-managed/dynamic components
-# already established as out of scope for hand-written PDB fixes
-# (helm-charts/*/templates -- Longhorn CSI/UI/driver-deployer are
-# created directly by longhorn-manager, not by any chart here).
+# System-managed and dynamic components are explicitly excepted in
+# templates/policy-exceptions.yaml. Longhorn CSI/UI/driver-deployer are
+# created directly by longhorn-manager, not by a chart here.
 # Audit mode first: this reports violations without blocking anything,
-# so the initial run against ~30+ pre-existing gaps does not need every
-# exclusion tuned up front.
+# so initial reports do not block workload admission.
 requirePodDisruptionBudgetPolicy:
   enabled: true
-  excludedNamespaces:
-    - longhorn-system
-    - kube-system
-    - kube-node-lease
-    - kube-public
-    - kyverno
