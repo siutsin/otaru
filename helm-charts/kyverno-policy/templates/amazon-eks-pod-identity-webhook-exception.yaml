@@ -2,6 +2,12 @@
 # the upstream chart's values.schema.json hard-rejects that key, so the
 # workload can never comply with require-workload-resources. User-accepted
 # exception, 2026-08-23.
+#
+# require-workload-resources autogenerates a second rule
+# (autogen-require-container-resource-requests-and-limits) that runs the same
+# check against the controller kinds (Deployment, ReplicaSet, ...), not just
+# Pod -- both rules need excepting, or violation events keep firing on the
+# ReplicaSet/Deployment even once the Pod-level rule is excepted.
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
@@ -12,12 +18,15 @@ spec:
     - policyName: require-workload-resources
       ruleNames:
         - require-container-resource-requests-and-limits
+        - autogen-require-container-resource-requests-and-limits
   match:
     any:
       - resources:
           kinds:
             - Pod
+            - Deployment
+            - ReplicaSet
           namespaces:
             - default
           names:
-            - amazon-eks-pod-identity-webhook-*
+            - amazon-eks-pod-identity-webhook*
