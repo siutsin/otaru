@@ -15,21 +15,6 @@ spec:
           - resources:
               kinds:
                 - Pod
-{{- with .Values.requireContainerHardeningPolicy.excludedNamespaces }}
-      exclude:
-        any:
-          - resources:
-              namespaces:
-{{- range . }}
-                - {{ . }}
-{{- end }}
-          - resources:
-              namespaces:
-                - monitoring
-              selector:
-                matchLabels:
-                  app.kubernetes.io/name: prometheus-node-exporter
-{{- end }}
       validate:
         allowExistingViolations: true
         failureAction: Audit
@@ -49,21 +34,6 @@ spec:
           - resources:
               kinds:
                 - Pod
-{{- with .Values.requireContainerHardeningPolicy.excludedNamespaces }}
-      exclude:
-        any:
-          - resources:
-              namespaces:
-{{- range . }}
-                - {{ . }}
-{{- end }}
-          - resources:
-              namespaces:
-                - monitoring
-              selector:
-                matchLabels:
-                  app.kubernetes.io/name: prometheus-node-exporter
-{{- end }}
       validate:
         allowExistingViolations: true
         failureAction: Audit
