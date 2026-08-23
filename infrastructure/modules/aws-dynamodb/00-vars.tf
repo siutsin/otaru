@@ -8,5 +8,7 @@ variable "tables" {
     hash_key            = string
     name                = string
     range_key           = optional(string)
+    read_capacity       = optional(number, 1)
+    write_capacity      = optional(number, 1)
   }))
 }

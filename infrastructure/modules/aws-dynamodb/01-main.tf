@@ -12,8 +12,8 @@ module "dynamodb_table" {
   hash_key            = each.value.hash_key
   name                = each.value.name
   range_key           = each.value.range_key
-  read_capacity       = each.value.billing_mode == "PROVISIONED" ? 1 : null
-  write_capacity      = each.value.billing_mode == "PROVISIONED" ? 1 : null
+  read_capacity       = each.value.billing_mode == "PROVISIONED" ? each.value.read_capacity : null
+  write_capacity      = each.value.billing_mode == "PROVISIONED" ? each.value.write_capacity : null
 
   point_in_time_recovery_enabled = true
   stream_enabled                 = true

@@ -26,6 +26,8 @@ inputs = {
       hash_key            = "chatId"
       name                = "jung2bot-prod-messages"
       range_key           = "dateCreated"
+      # Raised from 1: /allJung was throttling.
+      read_capacity       = 10
     }
   }
 }
