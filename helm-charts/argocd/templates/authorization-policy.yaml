@@ -16,9 +16,10 @@ metadata:
   namespace: {{ $.Values.namespace }}
 spec:
   action: ALLOW
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ .name }}
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .name }}-metrics
   rules:
     - from:
         - source:

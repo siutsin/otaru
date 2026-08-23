@@ -14,17 +14,3 @@ spec:
   # no way back. Backups are incremental to S3, so the extra copies are cheap.
   retain: 4
   concurrency: 1
----
-apiVersion: longhorn.io/v1beta2
-kind: RecurringJob
-metadata:
-  name: trim
-  namespace: {{ .Values.namespace }}
-spec:
-  cron: "55 * * * *"
-  task: filesystem-trim
-  groups:
-    - trim
-  name: trim
-  retain: 0
-  concurrency: 1
