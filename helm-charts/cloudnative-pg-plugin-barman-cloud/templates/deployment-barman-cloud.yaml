@@ -17,6 +17,10 @@ spec:
     metadata:
       labels:
         app: barman-cloud
+        # Kyverno's require-pod-disruption-budget policy looks up PDB
+        # coverage by this label; the Deployment's own pod-selector label
+        # stays `app` above (immutable, unrelated).
+        app.kubernetes.io/name: barman-cloud
         # CNPG operator reaches the plugin over direct gRPC; keep it off the ambient dataplane.
         istio.io/dataplane-mode: none
     spec:

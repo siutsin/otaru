@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: barman-cloud
+  namespace: cnpg-system
+spec:
+  # Single-replica Deployment with no native PDB option (hand-written
+  # manifest, not a Helm chart with a podDisruptionBudget value). Without
+  # this, descheduler eviction has zero protection against evicting the
+  # only replica -- see documentation/gotcha.md ("Descheduler Eviction
+  # Storms Look Like Self-Resolving Blips, One Check At A Time").
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: barman-cloud
