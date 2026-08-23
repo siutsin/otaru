@@ -30,3 +30,33 @@ spec:
             ports:
               - {{ .port | quote }}
 {{- end }}
+{{- $metricsServices := list
+  (dict "name" "argocd-application-controller-metrics" "port" "8082")
+  (dict "name" "argocd-server-metrics" "port" "8083")
+  (dict "name" "argocd-repo-server-metrics" "port" "8084")
+  (dict "name" "argocd-applicationset-controller-metrics" "port" "8080")
+-}}
+{{- range $metricsServices }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .name }}-svc
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - {{ .port | quote }}
+{{- end }}
