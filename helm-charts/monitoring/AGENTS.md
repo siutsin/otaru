@@ -11,6 +11,7 @@ Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 | Key                         | Grafana title                 | Notes                                                                                         |
 |-----------------------------|-------------------------------|-----------------------------------------------------------------------------------------------|
 | `blocky`                    | Blocky                        | Custom SRE layout; v0.28 metric names                                                         |
+| `jung2bot`                  | jung2bot                      | Custom layout; `environment` dropdown (var `ns`) selects prod (`jung2bot`, default) or dev    |
 | `kyverno-policy-metrics`    | Kyverno Policy Metrics        | Custom layout; requires `helm-charts/kyverno`'s `metricsService.annotations` scrape config    |
 | `onzack-cluster-monitoring` | Standard Cluster Monitoring   | ONZACK 17404 + recording rules + otaru sections                                               |
 | `prometheus-stats`          | Prometheus Stats              | Prometheus process stats                                                                      |

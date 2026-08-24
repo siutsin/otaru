@@ -1,0 +1,2211 @@
+grafana:
+  dashboards:
+    default:
+      jung2bot:
+        json: |
+          {
+            "annotations": {
+              "list": [
+                {
+                  "builtIn": 1,
+                  "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                  },
+                  "enable": true,
+                  "hide": true,
+                  "iconColor": "rgba(0, 211, 255, 1)",
+                  "name": "Annotations & Alerts",
+                  "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                  },
+                  "type": "dashboard"
+                }
+              ]
+            },
+            "editable": true,
+            "fiscalYearStartMonth": 0,
+            "graphTooltip": 1,
+            "links": [
+              {
+                "icon": "external link",
+                "tags": [],
+                "title": "telegram-jung2-bot @ GitHub",
+                "tooltip": "open GitHub repo",
+                "type": "link",
+                "url": "https://github.com/siutsin/telegram-jung2-bot"
+              }
+            ],
+            "liveNow": false,
+            "panels": [
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 0
+                },
+                "id": 1,
+                "panels": [],
+                "title": "Health",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "jung2bot pods currently reporting metrics for the selected environment",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "orange",
+                          "value": 1
+                        },
+                        {
+                          "color": "green",
+                          "value": 2
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 0,
+                  "y": 1
+                },
+                "id": 2,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(up{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"} == 1)",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "Replicas",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_ready: whether the service considers itself ready for traffic (lowest value across pods)",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "NOT READY",
+                            "color": "red"
+                          },
+                          "1": {
+                            "text": "READY",
+                            "color": "green"
+                          }
+                        }
+                      }
+                    ],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "green",
+                          "value": 1
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 4,
+                  "y": 1
+                },
+                "id": 3,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "min(telegram_jung2_bot_ready{namespace=\"$ns\"})",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "Ready",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Deployed jung2bot image tag, from the pod's app.kubernetes.io/version label",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 8,
+                  "y": 1
+                },
+                "id": 5,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "name",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "max by (app_kubernetes_io_version) (up{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"})",
+                    "legendFormat": "{{app_kubernetes_io_version}}",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "Version",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_http_requests_in_flight summed across pods",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "orange",
+                          "value": 20
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 12,
+                  "y": 1
+                },
+                "id": 6,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(telegram_jung2_bot_http_requests_in_flight{namespace=\"$ns\"})",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "In-flight HTTP requests",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Container restarts across all jung2bot pods in the last hour",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "orange",
+                          "value": 1
+                        },
+                        {
+                          "color": "red",
+                          "value": 3
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 16,
+                  "y": 1
+                },
+                "id": 7,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$ns\",container=\"jung2bot\"}[1h]))",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "Restarts (1h)",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 4
+                },
+                "id": 8,
+                "panels": [],
+                "title": "Resources (per pod)",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Resident set size per jung2bot pod (process RAM). Container memory limit is 64Mi.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "bytes",
+                    "decimals": 1,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 5
+                },
+                "id": 9,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (pod) (process_resident_memory_bytes{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"})",
+                    "legendFormat": "{{pod}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Memory by pod",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "CPU cores used by each jung2bot pod (1.0 = one full core). From process_cpu_seconds_total.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "none",
+                    "decimals": 3,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "cores",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 5
+                },
+                "id": 10,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (pod) (rate(process_cpu_seconds_total{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"}[$__rate_interval]))",
+                    "legendFormat": "{{pod}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "CPU by pod",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 12
+                },
+                "id": 11,
+                "panels": [],
+                "title": "Availability and autoscaling",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Per-pod scrape state: 1 = /metrics reachable, 0 = scrape failing",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    },
+                    "min": 0,
+                    "max": 1
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 13
+                },
+                "id": 12,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "up{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"}",
+                    "legendFormat": "{{pod}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Pod up",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "KEDA HPA current vs desired replicas, and the configured min/max bounds",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 13
+                },
+                "id": 13,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(kube_horizontalpodautoscaler_status_current_replicas{namespace=\"$ns\",horizontalpodautoscaler=\"keda-hpa-jung2bot\"})",
+                    "legendFormat": "current",
+                    "range": true,
+                    "refId": "A"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"$ns\",horizontalpodautoscaler=\"keda-hpa-jung2bot\"})",
+                    "legendFormat": "desired",
+                    "range": true,
+                    "refId": "B"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(kube_horizontalpodautoscaler_spec_min_replicas{namespace=\"$ns\",horizontalpodautoscaler=\"keda-hpa-jung2bot\"})",
+                    "legendFormat": "min",
+                    "range": true,
+                    "refId": "C"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "max(kube_horizontalpodautoscaler_spec_max_replicas{namespace=\"$ns\",horizontalpodautoscaler=\"keda-hpa-jung2bot\"})",
+                    "legendFormat": "max",
+                    "range": true,
+                    "refId": "D"
+                  }
+                ],
+                "title": "Replica count",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 20
+                },
+                "id": 14,
+                "panels": [],
+                "title": "HTTP (public routes)",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_http_requests_total: requests/min per fixed public route",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 21
+                },
+                "id": 15,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (route) (rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{route}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Request rate by route",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_http_requests_total: responses/min by HTTP status code, stacked",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 40,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "normal"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 21
+                },
+                "id": 16,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (code) (rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{code}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Response codes",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_http_request_duration_seconds: 95th percentile latency per route",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "s",
+                    "decimals": 3,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 24,
+                  "x": 0,
+                  "y": 28
+                },
+                "id": 17,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95,sum by(le,route)(rate(telegram_jung2_bot_http_request_duration_seconds_bucket{namespace=\"$ns\"}[$__rate_interval])))",
+                    "legendFormat": "{{route}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "p95 request duration by route",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 35
+                },
+                "id": 18,
+                "panels": [],
+                "title": "Telegram webhook",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_webhook_updates_total: accepted Telegram updates/min by outcome",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 36
+                },
+                "id": 19,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (outcome) (rate(telegram_jung2_bot_webhook_updates_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{outcome}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Updates by outcome",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_webhook_commands_enqueued_total: commands/min queued from webhook updates",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 36
+                },
+                "id": 20,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (action) (rate(telegram_jung2_bot_webhook_commands_enqueued_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{action}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Commands enqueued by action",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 43
+                },
+                "id": 21,
+                "panels": [],
+                "title": "Worker and dependencies",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_worker_actions_total: queue actions/min by action and outcome",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 44
+                },
+                "id": 22,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (action, outcome) (rate(telegram_jung2_bot_worker_actions_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{action}} {{outcome}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Worker actions by outcome",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_worker_action_duration_seconds: 95th percentile queue action processing time",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "s",
+                    "decimals": 3,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 44
+                },
+                "id": 23,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95,sum by(le,action)(rate(telegram_jung2_bot_worker_action_duration_seconds_bucket{namespace=\"$ns\"}[$__rate_interval])))",
+                    "legendFormat": "{{action}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "p95 worker action duration",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_dependency_requests_total: outbound calls/min by dependency, operation and result",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 51
+                },
+                "id": 24,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (dependency, operation, result) (rate(telegram_jung2_bot_dependency_requests_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{dependency}} {{operation}} {{result}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Dependency calls by result",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_dependency_request_duration_seconds: 95th percentile outbound call latency, per dependency",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "s",
+                    "decimals": 3,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 51
+                },
+                "id": 25,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                "expr": "histogram_quantile(0.95,sum by(le,dependency)(rate(telegram_jung2_bot_dependency_request_duration_seconds_bucket{namespace=\"$ns\"}[$__rate_interval])))",
+                    "legendFormat": "{{dependency}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "p95 dependency latency",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 58
+                },
+                "id": 26,
+                "panels": [],
+                "title": "Scheduler",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_off_work_reports_enqueued_total: scheduled report enqueue attempts/min by result",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 0,
+                  "y": 59
+                },
+                "id": 27,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (result) (rate(telegram_jung2_bot_off_work_reports_enqueued_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{result}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Off-work reports enqueued",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "telegram_jung2_bot_scale_up_total: DynamoDB scale-up attempts/min by result",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 2,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 12,
+                  "x": 12,
+                  "y": 59
+                },
+                "id": 28,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (result) (rate(telegram_jung2_bot_scale_up_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{result}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "DynamoDB scale-up attempts",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 66
+                },
+                "id": 29,
+                "panels": [],
+                "title": "Restarts",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Container restarts per graph step ($__rate_interval), broken down by pod",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "bars",
+                      "fillOpacity": 80,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "linear",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "normal"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 7,
+                  "w": 24,
+                  "x": 0,
+                  "y": 67
+                },
+                "id": 30,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (pod) (increase(kube_pod_container_status_restarts_total{namespace=\"$ns\",container=\"jung2bot\"}[$__rate_interval]))",
+                    "legendFormat": "{{pod}}",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Restarts by pod",
+                "transparent": true,
+                "type": "timeseries"
+              }
+            ],
+            "refresh": "auto",
+            "schemaVersion": 39,
+            "tags": [
+              "jung2bot",
+              "telegram",
+              "otaru"
+            ],
+            "templating": {
+              "list": [
+                {
+                  "current": {
+                    "selected": true,
+                    "text": "prod",
+                    "value": "jung2bot"
+                  },
+                  "hide": 0,
+                  "includeAll": false,
+                  "label": "environment",
+                  "multi": false,
+                  "name": "ns",
+                  "options": [
+                    {
+                      "selected": true,
+                      "text": "prod",
+                      "value": "jung2bot"
+                    },
+                    {
+                      "selected": false,
+                      "text": "dev",
+                      "value": "jung2bot-dev"
+                    }
+                  ],
+                  "query": "prod : jung2bot,dev : jung2bot-dev",
+                  "type": "custom"
+                }
+              ]
+            },
+            "time": {
+              "from": "now-3h",
+              "to": "now"
+            },
+            "timepicker": {
+              "refresh_intervals": [
+                "5s",
+                "10s",
+                "30s",
+                "1m",
+                "5m",
+                "15m",
+                "30m",
+                "1h",
+                "2h",
+                "1d"
+              ]
+            },
+            "timezone": "browser",
+            "title": "jung2bot",
+            "uid": "jung2bot",
+            "version": 3,
+            "weekStart": ""
+          }
