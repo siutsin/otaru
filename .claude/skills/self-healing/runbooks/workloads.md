@@ -85,15 +85,15 @@
     the correct fix instead of hand-writing a template (see
     `helm-charts/monitoring/values.yaml`'s `prometheus.server` block,
     PR #2922).
-  - **Not a candidate for this fix:** vendored/generated operator
-    manifests (helmify-style, hardcoded labels, no `.Values.name`
-    convention) and anything serving live shared-cluster traffic where
-    an eviction mid-operation has a different risk profile (e.g. a CNPG
-    backup plugin mid-backup) — these need a case-by-case decision, not
-    the same-day automated fix. `heartbeats`,
-    `k3s-apiserver-loadbalancer`, and
-    `cloudnative-pg-plugin-barman-cloud` were identified with this same
-    gap and deliberately left unpatched for that reason.
+  - **Not a candidate for this fix:** a vendored/generated operator
+    manifest with a genuinely immutable selector (no way to add a label
+    without breaking the controller), and anything serving live
+    shared-cluster traffic where an eviction mid-operation has a
+    different risk profile (e.g. a CNPG backup plugin mid-backup) —
+    these need a case-by-case decision, not the same-day automated fix.
+    A missing `app.kubernetes.io/name` label alone is **not** grounds
+    for this bucket: it is usually fixable additively (see
+    `runbooks/policy.md`'s `require-pdb-for-deployment` entry).
   - This is now a recurring-enough pattern to spot-check on any
     `Progressing` finding, not just wait for a report.
 

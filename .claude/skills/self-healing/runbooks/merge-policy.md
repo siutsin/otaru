@@ -88,8 +88,12 @@ merge to the user. Includes: anything outside the allowlist, borderline
 `values.yaml` edits, database/storage backup changes that are not pure
 resource/image/probe/sync-wave tweaks (topology, schedule, storage class,
 PVC size, crypto, restore), mesh/gateway policy, cluster-wide policy-chart
-rewrites, multi-app bulk edits of **non-resource** fields, or any fix not
-confidently low-risk. Pure resource/image pins on a database or storage chart
+rewrites, multi-app bulk edits of **non-resource** fields, granting a new
+Kyverno `PolicyException` or enabling the `policyExceptions` feature flag
+(`runbooks/policy.md`), or any fix not confidently low-risk. A scope
+correction to an **already-approved** `PolicyException` (for example adding
+a missed autogen rule name) stays trivial when it is the only change in the
+diff. Pure resource/image pins on a database or storage chart
 remain trivial when they meet the bullets above. A revert fixing an active
 incident stays trivial when it meets the Incident-revert exception above,
 even if it would otherwise land here (e.g. it touches a GitOps controller's
