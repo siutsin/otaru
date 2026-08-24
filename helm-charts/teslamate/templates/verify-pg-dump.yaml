@@ -16,6 +16,11 @@ spec:
           containers:
             - name: verify-pg-dump
               image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               command: ["/bin/sh", "-c"]
               args:
                 - |
@@ -109,6 +114,11 @@ spec:
 
             - name: postgres-sidecar
               image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               env:
                 - name: POSTGRES_USER
                   valueFrom:

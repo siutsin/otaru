@@ -79,6 +79,11 @@ spec:
           containers:
             - name: verify-pitr
               image: alpine/kubectl:1.35.2@sha256:ec8f734b0a103ae63b5c008b99477f240f4109a8449c2f4947aa231e69b11745
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               command: ["/bin/sh", "-c"]
               args:
                 - |

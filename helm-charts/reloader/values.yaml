@@ -10,6 +10,11 @@ reloader:
       enabled: true
       minAvailable: 1
     deployment:
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
       resources:
         requests:
           cpu: 50m
@@ -24,4 +29,3 @@ reloader:
             - weight: 100
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
-
