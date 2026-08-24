@@ -16,6 +16,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
         app.kubernetes.io/version: {{ $version | quote }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: /metrics
     spec:
       affinity:
         podAntiAffinity:
@@ -41,6 +45,8 @@ spec:
                 - ALL
           ports:
             - containerPort: 3000
+            - name: metrics
+              containerPort: 9090
           livenessProbe:
             httpGet:
               path: "jung2bot/{{ .Values.app.env.stage }}/ping"

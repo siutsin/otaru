@@ -2,6 +2,10 @@
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $stagePrefix := printf "/jung2bot/%s" .Values.app.env.stage -}}
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -36,3 +40,16 @@ spec:
             paths:
               - {{ $stagePrefix }}/onOffFromWork
               - {{ $stagePrefix }}/onScaleUp
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            methods:
+              - GET
+            ports:
+              - "9090"
+            paths:
+              - /metrics
