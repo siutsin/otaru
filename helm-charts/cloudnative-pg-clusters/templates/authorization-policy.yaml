@@ -10,6 +10,7 @@ spec:
   action: ALLOW
   selector:
     matchLabels:
+      app.kubernetes.io/name: postgresql
       cnpg.io/cluster: {{ $clusterConfig.clusterName }}
       cnpg.io/podRole: instance
   rules:

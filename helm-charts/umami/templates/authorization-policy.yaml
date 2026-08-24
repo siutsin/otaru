@@ -2,6 +2,7 @@
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 {{- $heartbeatPrincipal := "cluster.local/ns/heartbeats-operator-system/sa/heartbeats-operator-controller-manager" -}}
+{{- $databaseName := .Values.database.secretName -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -23,3 +24,27 @@ spec:
         - operation:
             ports:
               - {{ .Values.service.port | quote }}
+{{- range $suffix := list "r" "ro" "rw" }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-%s" $databaseName $suffix }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ printf "%s-%s" $databaseName $suffix }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/default
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $databaseName }}
+      to:
+        - operation:
+            ports:
+              - "5432"
+{{- end }}
