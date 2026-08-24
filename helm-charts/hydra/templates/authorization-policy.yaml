@@ -1,6 +1,7 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $databaseName := .Values.database.secretName -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -46,3 +47,28 @@ spec:
   {{- else }}
   rules: []
   {{- end }}
+{{- range $suffix := list "r" "ro" "rw" }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-%s" $databaseName $suffix }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ printf "%s-%s" $databaseName $suffix }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/hydra
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/hydra-job
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $databaseName }}
+      to:
+        - operation:
+            ports:
+              - "5432"
+{{- end }}
