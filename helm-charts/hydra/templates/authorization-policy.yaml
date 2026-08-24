@@ -64,6 +64,7 @@ spec:
     - from:
         - source:
             principals:
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/default
               - cluster.local/ns/{{ $.Values.namespace }}/sa/hydra
               - cluster.local/ns/{{ $.Values.namespace }}/sa/hydra-job
               - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $databaseName }}
