@@ -1085,12 +1085,38 @@ already busy cluster.
 
 ---
 
+## Longhorn Generated Workloads Cannot Set All Resources
+
+**Problem:** Kyverno reports missing resource requests and limits for Longhorn engine-image, instance-manager,
+manager, UI, driver-deployer, and recurring-backup workloads.
+
+Longhorn Manager creates these workloads after Helm applies the chart. Longhorn 1.12.1 provides resource settings
+for Longhorn Manager and selected CSI components only. The instance-manager setting reserves CPU only. It does not
+set memory or ephemeral-storage resources. [Longhorn settings][longhorn-settings]
+
+Do not patch the generated Pods. Longhorn Manager replaces them, and a live change can disrupt storage operations.
+Do not use one generic resource value. In the 14 days before this exception, instance managers used up to 855Mi of
+memory, while engine-image, UI, and driver-deployer Pods used less than 36Mi.
+
+### Resolution: Keep a Narrow Resource Policy Exception
+
+`helm-charts/kyverno-policy/templates/longhorn-resource-policy-exception.yaml` excludes only the generated
+Longhorn component labels from the three `require-workload-resources` rules. The exception does not exclude the
+namespace or other Longhorn workloads.
+
+Keep `longhornManager.resources` and `systemManagedCSIComponentsResourceLimits` in
+`helm-charts/longhorn/values.yaml`. Review this exception after every Longhorn upgrade. Remove a component match
+when Longhorn supports full resource settings for that component.
+
+---
+
 [envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
 [metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
 [longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
 [longhorn-6645]: https://github.com/longhorn/longhorn/issues/6645
+[longhorn-settings]: https://longhorn.io/docs/1.12.1/references/settings/
 
 ---
 
