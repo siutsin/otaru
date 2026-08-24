@@ -182,11 +182,13 @@ generate-diagrams: poetry-install format-python ## Generate architecture diagram
 	@echo "$(GREEN)Architecture diagrams generated at assets/$(OUTPUT_FILE).png$(NC)"
 
 # Validation and linting targets
+# Chart archives are ignored, so validation restores the exact versions in Chart.lock.
 .PHONY: validate-helm-charts
 validate-helm-charts: ## Validate all Helm charts
 	@echo "$(GREEN)Validating Helm charts...$(NC)"
 	@for chart in helm-charts/*/; do \
 		if [ -f "$$chart/Chart.yaml" ]; then \
+			helm dependency build "$$chart" > /dev/null || exit 1; \
 			helm dependency list "$$chart" | awk ' \
 				NR > 1 && NF > 0 && $$4 !~ /^(ok|unpacked)$$/ { \
 					print "Helm dependency not current in " chart ": " $$0; \
