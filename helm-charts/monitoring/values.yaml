@@ -49,6 +49,11 @@ prometheus:
   configmapReload:
     prometheus:
       resources: *smallResources
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
   server:
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: blackbox-scrape-config
@@ -116,7 +121,7 @@ prometheus:
     podDisruptionBudget:
       minAvailable: 1
     resources: *smallResources
-    containerSecurityContext:
+    securityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
