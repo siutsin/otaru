@@ -8,15 +8,15 @@ diagnostics, then backport.
 
 Path: `dashboards/*.yaml` (Grafana helm `grafana.dashboards.default` embeds).
 
-| Key                         | Grafana title                 | Notes                                                                                          |
-|-----------------------------|-------------------------------|------------------------------------------------------------------------------------------------|
-| `blocky`                    | Blocky                        | Custom SRE layout; v0.28 metric names                                                          |
-| `jung2bot`                  | jung2bot                      | Custom layout; `namespace` dropdown selects prod (`jung2bot`, default) or dev (`jung2bot-dev`) |
-| `kyverno-policy-metrics`    | Kyverno Policy Metrics        | Custom layout; requires `helm-charts/kyverno`'s `metricsService.annotations` scrape config     |
-| `onzack-cluster-monitoring` | Standard Cluster Monitoring   | ONZACK 17404 + recording rules + otaru sections                                                |
-| `prometheus-stats`          | Prometheus Stats              | Prometheus process stats                                                                       |
-| `container-log-dashboard`   | (gnet 16966)                  | Loki logs; `gnetId`+`revision` download                                                        |
-| `vpa`                       | VPA (Vertical Pod Autoscaler) | Custom layout; requires `helm-charts/vpa`'s hand-written metrics Services (no native support)  |
+| Key                         | Grafana title                 | Notes                                                                                         |
+|-----------------------------|-------------------------------|-----------------------------------------------------------------------------------------------|
+| `blocky`                    | Blocky                        | Custom SRE layout; v0.28 metric names                                                         |
+| `jung2bot`                  | jung2bot                      | Custom layout; `environment` dropdown (var `ns`) selects prod (`jung2bot`, default) or dev    |
+| `kyverno-policy-metrics`    | Kyverno Policy Metrics        | Custom layout; requires `helm-charts/kyverno`'s `metricsService.annotations` scrape config    |
+| `onzack-cluster-monitoring` | Standard Cluster Monitoring   | ONZACK 17404 + recording rules + otaru sections                                               |
+| `prometheus-stats`          | Prometheus Stats              | Prometheus process stats                                                                      |
+| `container-log-dashboard`   | (gnet 16966)                  | Loki logs; `gnetId`+`revision` download                                                       |
+| `vpa`                       | VPA (Vertical Pod Autoscaler) | Custom layout; requires `helm-charts/vpa`'s hand-written metrics Services (no native support) |
 
 **Dashboards are vendored GitOps artifacts**, not live upstream sync (except
 `container-log-dashboard`, which pins a Grafana.com revision). Editing UI is
