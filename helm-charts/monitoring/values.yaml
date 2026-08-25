@@ -433,6 +433,9 @@ yace:
         - ALL
     readOnlyRootFilesystem: true
     runAsNonRoot: true
+    # 2026-08-25: YACE declares the named BusyBox user `nobody`, so kubelet
+    # could not verify runAsNonRoot and left the pod in CreateContainerConfigError.
+    runAsUser: 65534
   # Initial budget for one exporter that polls six CloudWatch metrics each minute.
   resources: *smallResources
   extraArgs:
