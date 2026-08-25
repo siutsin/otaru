@@ -64,7 +64,7 @@ meshAuthorizationPolicy:
 # SecurityPolicy (JWT + deny-by-default). EG can hit pod IPs and bypass
 # Service waypoints, so mesh AuthorizationPolicy alone is not enough.
 # Grandfathered routes are declared as explicit PolicyExceptions in
-# templates/policy-exceptions.yaml, not as exclusions on this policy.
+# templates/require-security-exception.yaml, not as exclusions on this policy.
 requireSecurityPolicy:
   enabled: true
   failureAction: Enforce
@@ -98,7 +98,7 @@ requireContainerHardeningPolicy:
 # eviction-storm pattern caused real outages for umami, home-assistant,
 # and prometheus-server on the same day (see documentation/gotcha.md).
 # System-managed and dynamic components are explicitly excepted in
-# templates/policy-exceptions.yaml. Longhorn CSI/UI/driver-deployer are
+# templates/workload-resources-exception.yaml. Longhorn CSI/UI/driver-deployer are
 # created directly by longhorn-manager, not by a chart here.
 # Audit mode first: this reports violations without blocking anything,
 # so initial reports do not block workload admission.
