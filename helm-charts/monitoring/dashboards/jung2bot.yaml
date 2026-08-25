@@ -928,7 +928,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1027,7 +1027,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1238,7 +1238,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1337,7 +1337,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1449,7 +1449,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1647,7 +1647,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1858,7 +1858,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -1957,7 +1957,7 @@ grafana:
                         }
                       ]
                     },
-                    "unit": "short",
+                    "unit": "suffix: /min",
                     "decimals": 2,
                     "custom": {
                       "axisBorderShow": false,
@@ -2206,6 +2206,6 @@ grafana:
             "timezone": "browser",
             "title": "jung2bot",
             "uid": "jung2bot",
-            "version": 3,
+            "version": 4,
             "weekStart": ""
           }
