@@ -509,7 +509,7 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
                   "y": 5
@@ -524,7 +524,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -608,7 +610,7 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
                   "y": 5
@@ -623,7 +625,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -654,7 +658,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 12
+                  "y": 15
                 },
                 "id": 11,
                 "panels": [],
@@ -722,10 +726,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 13
+                  "y": 16
                 },
                 "id": 12,
                 "options": {
@@ -737,7 +741,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -821,10 +827,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 13
+                  "y": 16
                 },
                 "id": 13,
                 "options": {
@@ -836,7 +842,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -900,7 +908,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 20
+                  "y": 26
                 },
                 "id": 14,
                 "panels": [],
@@ -966,10 +974,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 21
+                  "y": 27
                 },
                 "id": 15,
                 "options": {
@@ -981,7 +989,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1065,10 +1075,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 21
+                  "y": 27
                 },
                 "id": 16,
                 "options": {
@@ -1080,7 +1090,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1164,10 +1176,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 24,
                   "x": 0,
-                  "y": 28
+                  "y": 37
                 },
                 "id": 17,
                 "options": {
@@ -1179,7 +1191,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1210,7 +1224,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 35
+                  "y": 47
                 },
                 "id": 18,
                 "panels": [],
@@ -1276,10 +1290,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 36
+                  "y": 48
                 },
                 "id": 19,
                 "options": {
@@ -1291,7 +1305,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1375,10 +1391,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 36
+                  "y": 48
                 },
                 "id": 20,
                 "options": {
@@ -1390,7 +1406,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1421,7 +1439,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 43
+                  "y": 58
                 },
                 "id": 21,
                 "panels": [],
@@ -1487,10 +1505,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 44
+                  "y": 59
                 },
                 "id": 22,
                 "options": {
@@ -1502,7 +1520,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1586,10 +1606,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 44
+                  "y": 59
                 },
                 "id": 23,
                 "options": {
@@ -1601,7 +1621,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1685,10 +1707,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 51
+                  "y": 69
                 },
                 "id": 24,
                 "options": {
@@ -1700,7 +1722,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1784,10 +1808,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 51
+                  "y": 69
                 },
                 "id": 25,
                 "options": {
@@ -1799,7 +1823,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1830,7 +1856,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 58
+                  "y": 79
                 },
                 "id": 26,
                 "panels": [],
@@ -1896,10 +1922,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 0,
-                  "y": 59
+                  "y": 80
                 },
                 "id": 27,
                 "options": {
@@ -1911,7 +1937,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -1995,10 +2023,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 12,
                   "x": 12,
-                  "y": 59
+                  "y": 80
                 },
                 "id": 28,
                 "options": {
@@ -2010,7 +2038,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -2041,7 +2071,7 @@ grafana:
                   "h": 1,
                   "w": 24,
                   "x": 0,
-                  "y": 66
+                  "y": 90
                 },
                 "id": 29,
                 "panels": [],
@@ -2107,10 +2137,10 @@ grafana:
                   "overrides": []
                 },
                 "gridPos": {
-                  "h": 7,
+                  "h": 10,
                   "w": 24,
                   "x": 0,
-                  "y": 67
+                  "y": 91
                 },
                 "id": 30,
                 "options": {
@@ -2122,7 +2152,9 @@ grafana:
                     ],
                     "displayMode": "table",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                   },
                   "tooltip": {
                     "mode": "multi",
@@ -2148,7 +2180,7 @@ grafana:
                 "type": "timeseries"
               }
             ],
-            "refresh": "auto",
+            "refresh": "1m",
             "schemaVersion": 39,
             "tags": [
               "jung2bot",
@@ -2206,6 +2238,6 @@ grafana:
             "timezone": "browser",
             "title": "jung2bot",
             "uid": "jung2bot",
-            "version": 4,
+            "version": 5,
             "weekStart": ""
           }
