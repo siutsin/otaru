@@ -246,7 +246,7 @@ lint-zizmor: ## Run zizmor audit on workflows
 
 .PHONY: lint-editorconfig
 lint-editorconfig: ## Check .editorconfig compliance
-	# Note: Excluding gateway-api and monitoring helm charts due to auto-generated CRD files with long lines
+	# Note: Excluding gateway-api, monitoring, and snapshot-controller generated CRD files with upstream long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
 	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
@@ -254,7 +254,7 @@ lint-editorconfig: ## Check .editorconfig compliance
 			echo "$(RED)editorconfig-checker is required but not installed. Install editorconfig-checker and re-run make lint-editorconfig.$(NC)"; \
 			exit 1; \
 		fi; \
-		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 			echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 			exit 1; \
 		}

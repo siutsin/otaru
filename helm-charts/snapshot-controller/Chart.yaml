@@ -1,0 +1,7 @@
+apiVersion: v2
+name: snapshot-controller
+description: Kubernetes CSI snapshot controller and CRDs
+type: application
+version: 1.0.0
+appVersion: v8.6.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
