@@ -22,5 +22,9 @@ inputs = {
       actions   = ["cloudwatch:GetMetricStatistics"]
       resources = ["*"]
     }
+    iam = {
+      actions   = ["iam:ListAccountAliases"]
+      resources = ["*"]
+    }
   }
 }
