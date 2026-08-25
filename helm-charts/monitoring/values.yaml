@@ -454,6 +454,8 @@ yace:
         customTags:
           - key: environment
             value: prod
+          - key: namespace
+            value: jung2bot
         metrics:
           - name: ApproximateAgeOfOldestMessage
             statistics:
@@ -480,6 +482,8 @@ yace:
         customTags:
           - key: environment
             value: dev
+          - key: namespace
+            value: jung2bot-dev
         metrics:
           - name: ApproximateAgeOfOldestMessage
             statistics:
