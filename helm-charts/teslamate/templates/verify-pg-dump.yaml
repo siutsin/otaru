@@ -114,11 +114,29 @@ spec:
 
             - name: postgres-sidecar
               image: postgres:{{ .Values.backup.database.postgresVersion }}-alpine
+              # 2026-08-25: PR #3112 dropped ALL capabilities here, but this
+              # container runs the stock postgres image's own entrypoint,
+              # which chowns/chmods its data dir as root then setuids to the
+              # postgres user before starting the server -- that needs
+              # CHOWN/DAC_OVERRIDE/FOWNER/SETGID/SETUID. Without them the
+              # entrypoint failed ("chmod: ... Operation not permitted",
+              # "failed switching to 'postgres': operation not permitted"),
+              # postgres never started, and teslamate-verify-pg-dump hit
+              # BackoffLimitExceeded (first run after #3112, 2026-08-25
+              # 12:00 UTC). The sibling verify-pg-dump container only runs
+              # psql/pg_isready as a client and never setuids, so it keeps
+              # dropping ALL.
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop:
                     - ALL
+                  add:
+                    - CHOWN
+                    - DAC_OVERRIDE
+                    - FOWNER
+                    - SETGID
+                    - SETUID
               env:
                 - name: POSTGRES_USER
                   valueFrom:
