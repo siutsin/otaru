@@ -91,4 +91,4 @@ spec:
                   key: EVENT_QUEUE_URL
                   name: jung2bot-secrets
             - name: MESSAGE_SAVE_QUEUE_URL
-              value: {{ printf "https://sqs.%s.amazonaws.com/%s/%s" .Values.app.env.awsRegion .Values.irsa.awsAccountId .Values.app.env.messageSaveQueueName | quote }}
+              value: {{ printf "https://sqs.%s.amazonaws.com/%v/%s" .Values.app.env.awsRegion .Values.irsa.awsAccountId .Values.app.env.messageSaveQueueName | quote }}
