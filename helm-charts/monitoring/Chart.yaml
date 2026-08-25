@@ -11,6 +11,10 @@ dependencies:
 - name: prometheus-blackbox-exporter
   version: 11.17.2
   repository: https://prometheus-community.github.io/helm-charts
+- name: prometheus-yet-another-cloudwatch-exporter
+  alias: yace
+  version: 0.47.0
+  repository: https://prometheus-community.github.io/helm-charts
 - name: loki
   version: 7.3.0
   repository: https://grafana.github.io/helm-charts

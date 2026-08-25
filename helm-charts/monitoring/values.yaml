@@ -408,6 +408,92 @@ prometheus-blackbox-exporter:
     minAvailable: 1
   resources: *smallResources
 
+yace:
+  fullnameOverride: monitoring-yace
+  nameOverride: yace
+  irsa:
+    awsAccountId: ~
+  image:
+    tag: v0.67.0@sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb
+  serviceAccount:
+    name: monitoring-yace
+    annotations:
+      eks.amazonaws.com/role-arn: 'arn:aws:iam::{{ .Values.irsa.awsAccountId }}:role/monitoring-yace'
+  podAnnotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "5000"
+    prometheus.io/scrape: "true"
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+  # Initial budget for one exporter that polls six CloudWatch metrics each minute.
+  resources: *smallResources
+  extraArgs:
+    scraping-interval: 60
+  config: |-
+    apiVersion: v1alpha1
+    sts-region: eu-west-1
+    static:
+      - name: sqs-prod
+        namespace: AWS/SQS
+        regions:
+          - eu-west-1
+        dimensions:
+          - name: QueueName
+            value: jung2bot-prod-event-queue
+        customTags:
+          - key: environment
+            value: prod
+        metrics:
+          - name: ApproximateAgeOfOldestMessage
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+          - name: ApproximateNumberOfMessagesVisible
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+          - name: ApproximateNumberOfMessagesNotVisible
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+      - name: sqs-dev
+        namespace: AWS/SQS
+        regions:
+          - eu-west-1
+        dimensions:
+          - name: QueueName
+            value: jung2bot-dev-event-queue
+        customTags:
+          - key: environment
+            value: dev
+        metrics:
+          - name: ApproximateAgeOfOldestMessage
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+          - name: ApproximateNumberOfMessagesVisible
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+          - name: ApproximateNumberOfMessagesNotVisible
+            statistics:
+              - Maximum
+            period: 60
+            length: 300
+
 k8s-ephemeral-storage-metrics:
   deploy_type: Deployment
   pod_labels:

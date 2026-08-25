@@ -165,6 +165,10 @@ local _grafanaDashboards = [
 ];
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
+local monitoringHelm = {
+  parameters: [{ name: 'yace.irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }],
+  valueFiles: _grafanaDashboards,
+};
 local cnpgHelm = {
   releaseName: 'cloudnative-pg',
   valuesObject: {
@@ -280,7 +284,7 @@ local monitoring = [
     wave: '10',
     name: 'monitoring',
     namespace: 'monitoring',
-    helm: { valueFiles: _grafanaDashboards },
+    helm: monitoringHelm,
     serverSideDiff: 'true',
     syncOptions: ['RespectIgnoreDifferences=true'],
     ignoreDifferences: _ignoreDifferences.monitoring.alertmanager,
