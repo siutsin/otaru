@@ -17,7 +17,10 @@ spec:
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
         minAllowed:
-          memory: 16Mi
+          # VPA repeatedly attempted a 47Mi in-place downsize while the Pod used ~74Mi,
+          # producing ResizeError events. Keep the established 100Mi KRR guardrail.
+          # The matching Deployment request and limit are both 100Mi.
+          memory: 100Mi
         maxAllowed:
           memory: 128Mi
       - containerName: descheduler
