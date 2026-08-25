@@ -16,13 +16,35 @@ spec:
         spec:
           containers:
             - name: off-work
-              image: {{ .Values.cron.image.repository }}:{{ .Values.cron.image.tag }}
+              image: curlimages/curl:8.21.0
               securityContext:
                 runAsNonRoot: true
+                # curlimages/curl's non-root user ("curl_user") is named, not
+                # numeric, in the image metadata. Kubelet cannot verify
+                # runAsNonRoot from a named user alone, so without an
+                # explicit numeric runAsUser the Job got stuck in
+                # CreateContainerConfigError. UID 100 is curlimages/curl's
+                # documented curl_user.
+                runAsUser: 100
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop:
                     - ALL
+              command: [ "sh", "-c" ]
+              args:
+                # Floors "now" down to the CRON_INTERVAL boundary before
+                # calling onOffFromWork, matching the retired Node cron
+                # image: without flooring, Job start jitter (image pull,
+                # scheduling delay) can push the timestamp a minute past
+                # the boundary, so WindowFromTime's offTime never matches
+                # any chat's configured schedule and that fire is silently
+                # skipped.
+                - |
+                  interval_secs=$((CRON_INTERVAL * 60))
+                  now=$(date -u +%s)
+                  floored=$(( now - now % interval_secs ))
+                  timeString=$(date -u -d @$floored +%Y-%m-%dT%H:%M:%SZ)
+                  curl -v -m 5 "$OFF_FROM_WORK_URL?timeString=$timeString"
               env:
                 - name: CRON_INTERVAL
                   value: {{ .Values.cron.offWork.env.cronInterval | quote }}

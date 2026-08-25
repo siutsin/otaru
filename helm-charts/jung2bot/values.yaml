@@ -35,9 +35,6 @@ app:
     max: 10
 
 cron:
-  image:
-    repository: ghcr.io/siutsin/telegram-jung2-bot-cron
-    tag: cron-1.1.1@sha256:b309fcbd4bf83452fb35d155b4bae264edb47bfbbce74b6cd7dc6032868122d0
   offWork:
     env:
       cronInterval: 15
