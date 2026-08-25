@@ -33,7 +33,7 @@ spec:
               command: [ "sh", "-c" ]
               args:
                 # Zeroes seconds so onOffFromWork sees a clean minute mark.
-                - curl -v -m 5 "$OFF_FROM_WORK_URL?timeString=$(date -u +%Y-%m-%dT%H:%M:00Z)"
+                - curl -f -v -m 5 "$OFF_FROM_WORK_URL?timeString=$(date -u +%Y-%m-%dT%H:%M:00Z)"
               env:
                 - name: OFF_FROM_WORK_URL
                   value: {{ printf "%s%s/onOffFromWork" $internalBaseURL $stagePrefix | quote }}
