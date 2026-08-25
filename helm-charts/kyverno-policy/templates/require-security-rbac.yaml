@@ -31,4 +31,33 @@ subjects:
   - kind: ServiceAccount
     name: kyverno-reports-controller
     namespace: {{ .Values.namespace }}
+---
+# The reports controller lists policy match kinds to build PolicyReports. Give
+# it only the HTTPRoute permission that require-security needs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyverno-reports-httproutes
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - httproutes
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kyverno-reports-httproutes
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kyverno-reports-httproutes
+subjects:
+  - kind: ServiceAccount
+    name: kyverno-reports-controller
+    namespace: {{ .Values.namespace }}
 {{- end }}
