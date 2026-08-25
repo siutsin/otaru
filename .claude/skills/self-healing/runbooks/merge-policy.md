@@ -81,6 +81,27 @@ Precedent: `argocd` chart reverted `10.2.3`/`10.3.0` -> `10.2.2` after a
 same-day Renovate bump broke the repo-server (`--client-ca-path`/
 `--disable-tls` conflict), PR #3034, 2026-08-12.
 
+### Scoped application-logic bugfix exception
+
+Auto-merge once green, even off the allowlist and not a revert, when **all**
+hold:
+
+- Fixes a currently active incident confirmed this pass (`Degraded`
+  Application, `CrashLoopBackOff`/`ImagePullBackOff` pod, or equivalent).
+- Single, narrow correction to existing app/template logic already in the
+  chart (wrong format verb, typo'd field/env reference, off-by-one) — not a
+  new feature, resource, chart rewrite, or CRD change.
+- No secrets, RBAC, auth, exposure, mesh/gateway, or cluster-wide policy
+  touched.
+- Verified against rendered/live output (e.g. `helm template`), not lint
+  alone.
+- `make test` (or the affected chart's `helm lint`/`template` if `make test`
+  is blocked by a known unrelated gap) passed and CI is green.
+
+Precedent: `jung2bot` `MESSAGE_SAVE_QUEUE_URL` `printf %s` on an int64 →
+literal `%!s(int64=...)`, invalid URL, crash loop; fixed to `%v`, PR #3144,
+2026-08-25.
+
 ## Non-trivial
 
 Push, watch CI to green, address review feedback, then stop and leave the
