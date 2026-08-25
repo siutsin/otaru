@@ -61,7 +61,13 @@ spec:
 # for ALL traffic, not just the ports it lists, so port 3000 (gateway
 # ingress and the onOffFromWork/onScaleUp cron calls) must be re-allowed
 # here too -- L7 path restriction for those routes still comes from the
-# targetRefs policy above.
+# targetRefs policy above. The waypoint's own identity must also be listed:
+# traffic that reaches this pod via the waypoint (gateway ingress, cron
+# calls -- anything routed through the Service) arrives at ztunnel as the
+# waypoint's SPIFFE identity, not the original caller's, so omitting it
+# here causes ztunnel to reject the waypoint's proxied connection outright
+# (503 "upstream connect error", ztunnel log "policy rejection: allow
+# policies exist, but none allowed" -- caused a live outage 2026-08-25).
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -78,6 +84,7 @@ spec:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
               - cluster.local/ns/{{ .Values.namespace }}/sa/default
+              - {{ $waypointPrincipal }}
       to:
         - operation:
             ports:
