@@ -16,8 +16,14 @@ spec:
       - containerName: {{ .Values.name }}
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
+        # 2026-08-25: VPA had resized memory down to 64Mi, then ~47Mi (its
+        # own target), causing repeated OOMKilled (exit 137) restarts on
+        # both new KEDA scale-out pods and previously-stable long-running
+        # pods during a scale-out burst. Raised the floor above the VPA's
+        # own observed upperBound (~93Mi) so it can no longer resize into
+        # the range that was already crash-looping.
         minAllowed:
-          memory: 16Mi
+          memory: 128Mi
         maxAllowed:
           memory: 192Mi
 {{- end }}
