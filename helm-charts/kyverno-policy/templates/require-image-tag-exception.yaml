@@ -1,0 +1,35 @@
+# Kubernetes and Kyverno manage these platform namespaces. Their workloads are
+# not fully owned by this repository, so image tags cannot be corrected here.
+# Keep the namespace scope explicit and auditable.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: platform-image-tag-policy-exceptions
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-image-tag
+      ruleNames:
+        - require-container-image-tag
+        - autogen-require-container-image-tag
+        - autogen-cronjob-require-container-image-tag
+        - disallow-latest-image-tag
+        - autogen-disallow-latest-image-tag
+        - autogen-cronjob-disallow-latest-image-tag
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - DaemonSet
+            - Deployment
+            - Job
+            - ReplicaSet
+            - ReplicationController
+            - StatefulSet
+            - CronJob
+          namespaces:
+            - kube-node-lease
+            - kube-public
+            - kube-system
+            - kyverno

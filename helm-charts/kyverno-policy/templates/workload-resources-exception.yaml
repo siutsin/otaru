@@ -1,0 +1,137 @@
+# Kubernetes and Kyverno manage these platform namespaces. Their workloads are
+# not fully owned by this repository, so resource requirements cannot be
+# corrected here. Keep the namespace scope explicit and auditable.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: platform-workload-policy-exceptions
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-workload-resources
+      ruleNames:
+        - require-container-resource-requests-and-limits
+        - autogen-require-container-resource-requests-and-limits
+        - autogen-cronjob-require-container-resource-requests-and-limits
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - DaemonSet
+            - Deployment
+            - Job
+            - ReplicaSet
+            - ReplicationController
+            - StatefulSet
+            - CronJob
+          namespaces:
+            - kube-node-lease
+            - kube-public
+            - kube-system
+            - kyverno
+---
+# amazon-eks-pod-identity-webhook cannot set resources.limits.ephemeral-storage:
+# the upstream chart's values.schema.json rejects that key. The workload cannot
+# meet require-workload-resources. User-accepted exception, 2026-08-23.
+#
+# require-workload-resources autogenerates a second rule that applies the same
+# check to controller kinds. Both rules need an exception, or events continue
+# for the ReplicaSet and Deployment after the Pod rule is excepted.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: amazon-eks-pod-identity-webhook-ephemeral-storage
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-workload-resources
+      ruleNames:
+        - require-container-resource-requests-and-limits
+        - autogen-require-container-resource-requests-and-limits
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+            - ReplicaSet
+          namespaces:
+            - default
+          names:
+            - amazon-eks-pod-identity-webhook*
+---
+# Longhorn Manager creates these workload types after Helm applies this chart.
+# Longhorn 1.12.1 has no resource template for them. The resource policy cannot
+# be met without changing storage control-plane Pods at runtime. Keep this
+# exception limited to generated component labels and stable names. Longhorn
+# Manager and CSI resources remain in helm-charts/longhorn/values.yaml.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: longhorn-generated-workload-resources
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-workload-resources
+      ruleNames:
+        - require-container-resource-requests-and-limits
+        - autogen-require-container-resource-requests-and-limits
+        - autogen-cronjob-require-container-resource-requests-and-limits
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - DaemonSet
+          namespaces:
+            - longhorn-system
+          selector:
+            matchLabels:
+              longhorn.io/component: engine-image
+      - resources:
+          kinds:
+            - Pod
+          namespaces:
+            - longhorn-system
+          selector:
+            matchLabels:
+              longhorn.io/component: instance-manager
+      - resources:
+          kinds:
+            - Pod
+            - DaemonSet
+          namespaces:
+            - longhorn-system
+          selector:
+            matchLabels:
+              app: longhorn-manager
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+            - ReplicaSet
+          namespaces:
+            - longhorn-system
+          selector:
+            matchLabels:
+              app: longhorn-ui
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+            - ReplicaSet
+          namespaces:
+            - longhorn-system
+          names:
+            - longhorn-driver-deployer*
+      - resources:
+          kinds:
+            - Pod
+            - Job
+            - CronJob
+          namespaces:
+            - longhorn-system
+          selector:
+            matchLabels:
+              recurring-job.longhorn.io: backup

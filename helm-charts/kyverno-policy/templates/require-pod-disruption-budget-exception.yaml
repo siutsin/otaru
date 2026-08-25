@@ -1,0 +1,24 @@
+# Longhorn and Kubernetes control-plane workloads are dynamically generated,
+# so this repository cannot safely attach PDBs to all of them.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: platform-pod-disruption-budget-exceptions
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-pod-disruption-budget
+      ruleNames:
+        - require-pdb-for-deployment
+  match:
+    any:
+      - resources:
+          kinds:
+            - Deployment
+            - StatefulSet
+          namespaces:
+            - kube-node-lease
+            - kube-public
+            - kube-system
+            - kyverno
+            - longhorn-system
