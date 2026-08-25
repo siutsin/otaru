@@ -3,6 +3,8 @@
 # cannot be satisfied without mutating storage control-plane Pods at runtime.
 # Keep this exception limited to the generated component labels. The Longhorn
 # Manager and CSI resources remain configured in helm-charts/longhorn/values.yaml.
+# The driver-deployer Deployment has no component label. Its generated resources
+# use the stable longhorn-driver-deployer prefix instead.
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
@@ -60,9 +62,8 @@ spec:
             - ReplicaSet
           namespaces:
             - longhorn-system
-          selector:
-            matchLabels:
-              app: longhorn-driver-deployer
+          names:
+            - longhorn-driver-deployer*
       - resources:
           kinds:
             - Pod
