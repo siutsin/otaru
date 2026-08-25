@@ -11,6 +11,7 @@ app:
   env:
     chatIdTable: jung2bot-dev-chatIds
     logLevel: debug
+    messageSaveQueueName: jung2bot-dev-message-save-queue.fifo
     messageTable: jung2bot-dev-messages
     # Must exceed the tables' provisioned read capacity of 1, or UpdateTable is
     # a no-op that the service reports as success.

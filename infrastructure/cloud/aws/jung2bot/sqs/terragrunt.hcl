@@ -11,5 +11,9 @@ inputs = {
     event = {
       name = "jung2bot-prod-event-queue"
     }
+    message_save = {
+      name = "jung2bot-prod-message-save-queue.fifo"
+      fifo = true
+    }
   }
 }
