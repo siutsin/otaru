@@ -26,6 +26,7 @@ app:
     awsRegion: eu-west-1
     chatIdTable: jung2bot-prod-chatIds
     logLevel: info
+    messageSaveQueueName: jung2bot-prod-message-save-queue.fifo
     messageTable: jung2bot-prod-messages
     profile: default
     scaleUpReadCapacity: 600

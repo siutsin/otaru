@@ -35,6 +35,7 @@ inputs = {
       actions = ["sqs:*"]
       resources = [
         "arn:aws:sqs:*:*:${local.name}-prod-event-queue",
+        "arn:aws:sqs:*:*:${local.name}-prod-message-save-queue.fifo",
       ]
     }
     sqs-generic = {

@@ -7,6 +7,7 @@ module "sqs" {
   for_each = var.sqss
 
   name                              = each.value.name
+  fifo_queue                        = each.value.fifo
   visibility_timeout_seconds        = 600
   kms_master_key_id                 = "alias/aws/sqs"
   kms_data_key_reuse_period_seconds = 86400
