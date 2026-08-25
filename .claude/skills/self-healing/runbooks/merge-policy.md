@@ -102,6 +102,33 @@ Precedent: `jung2bot` `MESSAGE_SAVE_QUEUE_URL` `printf %s` on an int64 →
 literal `%!s(int64=...)`, invalid URL, crash loop; fixed to `%v`, PR #3144,
 2026-08-25.
 
+### Scoped hardening-regression fix exception
+
+Auto-merge once green, even though it touches a container's
+`securityContext`/capabilities, when **all** hold:
+
+- A recent, identifiable commit (via `git log`) added a hardening change
+  (`capabilities: drop: [ALL]`, `readOnlyRootFilesystem`, `runAsNonRoot`,
+  etc.) that is the confirmed root cause of a currently active incident.
+- Root cause is confirmed via concrete evidence (container/Job logs — Loki
+  if the pod is already gone — showing the exact permission/capability
+  error), not guessed from the diff.
+- The fix restores only the minimal capability/permission that error
+  needs (name the exact capabilities to `add` back) — not a blanket
+  revert of the hardening commit, not disabling the policy, and no RBAC,
+  auth, network exposure, mesh/gateway, or cluster-wide policy touched.
+- Verified against rendered output (`helm template`), not lint alone.
+- `make test` (or the affected chart's `helm lint`/`template` if blocked
+  by a known unrelated gap) passed and CI is green.
+
+Precedent: `teslamate` `verify-pg-dump`'s `postgres-sidecar` container got
+`capabilities: drop: [ALL]` (PR #3112), breaking the stock postgres
+image's own entrypoint (chowns/chmods its data dir and setuids to
+`postgres` as root first) — confirmed via Loki logs showing `chmod: ...
+Operation not permitted` / `failed switching to 'postgres': operation not
+permitted`. Fixed by adding back only `CHOWN`, `DAC_OVERRIDE`, `FOWNER`,
+`SETGID`, `SETUID`, PR #3156, 2026-08-25.
+
 ## Non-trivial
 
 Push, watch CI to green, address review feedback, then stop and leave the

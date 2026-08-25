@@ -224,6 +224,22 @@ and `k8s-cleaner` are the initial trial (`helm-charts/reloader/values.yaml`,
     recommendation when the pod is next recreated for an unrelated reason,
     which may never happen for a long-lived Deployment -- not a real
     alternative for actually getting the fix applied.
+5. Set `minAllowed` with real headroom above observed peaks, not just
+    above steady-state. VPA's own `target`/`upperBound` can still settle
+    below a value that already caused an OOMKill if steady-state samples
+    outweigh a brief burst in its 8-day window — the `minAllowed` floor,
+    not the recommendation, is what actually prevents a repeat. Confirmed
+    on `jung2bot` (2026-08-25): a KEDA scale-out burst OOMKilled pods at
+    the then-current 64Mi limit; VPA's own target then settled to ~47Mi
+    (below the value that had just OOMKilled), so raising `minAllowed`
+    to 128Mi — above VPA's observed `upperBound` (~93Mi), not just above
+    the failure point — was the actual fix (PR #3154). Raising the floor
+    trades one problem for a smaller one: a higher per-replica memory
+    request can increase descheduler `HighNodeUtilization` and VPA's own
+    `InPlaceOrRecreate` eviction frequency on memory-tight nodes — see
+    `.claude/skills/self-healing/runbooks/workloads.md`'s "VPA +
+    descheduler eviction churn" gotcha before treating a resulting
+    increase in pod churn as a separate, unrelated incident.
 
 ## Journal
 

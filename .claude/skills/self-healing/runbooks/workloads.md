@@ -15,6 +15,20 @@
   pod stuck `CrashLoopBackOff` still reports phase `Running` and can look
   fine at a glance if this step is skipped, especially on an abbreviated
   scheduled check; run it every pass, not just on a full sweep.
+- **Eviction/resize churn on a healthy-looking multi-replica workload:**
+  `kubectl get events -A --sort-by='.lastTimestamp' | grep -E
+  'EvictedByVPA|HighNodeUtilization|ResizeDeferred'` — a single
+  `--field-selector reason=X,reason=Y` call ANDs the values (a match
+  needs both reasons on the same event, which never happens) and
+  silently returns nothing, so grep the reason column instead, or run
+  one `--field-selector reason=<X>` call per reason. A Deployment with a
+  PDB
+  covering it (`maxUnavailable: 1` or similar) can churn a pod every few
+  minutes indefinitely with the Application staying `Synced`/`Healthy`
+  and the Deployment staying `Available`/`MinimumReplicasAvailable` the
+  entire time — neither surfaces single-replica-at-a-time disruption. Run
+  this check every pass, not only when something already looks unhealthy;
+  see the gotcha below for why aggregate health alone misses it.
 
 ## Triage
 
@@ -128,6 +142,53 @@
   Check `kubectl get vpa -n <namespace>` before treating this as drift or an
   issue. See `.claude/skills/right-sizing/SKILL.md` **VPA-managed workloads**
   for how these are configured and vetted.
+
+- **VPA + descheduler eviction churn on a multi-replica workload is
+  invisible at the Application/Deployment level.** A PDB
+  (`maxUnavailable: 1` or similar) correctly caps blast radius to one pod
+  at a time, but that same cap means the ArgoCD `Application` can stay
+  `Synced`/`Healthy` and the Deployment can stay
+  `Available`/`MinimumReplicasAvailable` continuously while a pod is
+  still being replaced every few minutes, indefinitely — neither field
+  reflects single-replica-at-a-time disruption. The only visible symptom
+  can be a per-pod readiness panel on an external dashboard (e.g.
+  Grafana) showing brief "not ready" blips, with nothing in
+  `kubectl get applications`/`kubectl get deploy` pointing at it.
+  Confirmed on `jung2bot` (2026-08-25): raising a VPA's `minAllowed`
+  memory floor to fix an OOMKill loop (see the `right-sizing` VPA section
+  below) roughly doubled the per-replica memory request, which increased
+  how often `sigs.k8s.io/descheduler`'s `HighNodeUtilization` strategy
+  evicted this workload's pods on already memory-tight nodes, compounding
+  with VPA's own `InPlaceOrRecreate` evictions
+  (`EvictedByVPA`/`InPlaceResizedByVPA` events) applying the same
+  recommendation repeatedly. Both are individually legitimate
+  (descheduler protecting node balance, VPA applying its own target) but
+  together produced near-continuous one-pod-at-a-time churn.
+  - **Detect:** the eviction/resize churn check above; also
+    `ResizeDeferred` events with a message like `Node didn't have enough
+    resource: memory, requested: X, used: Y, capacity: Z` mean the node's
+    *requested* (not actual) memory is saturated — cross-check
+    `kubectl describe node <name> | grep -A5 "Allocated resources"` to
+    confirm requests are near 100% while `kubectl top node` shows real
+    usage well below that (the same requests-vs-usage gap as
+    `documentation/gotcha.md`'s "Multi-Container Pods Fail to Schedule
+    Despite 'Enough' Free Cluster Memory", applied here to live resize
+    instead of initial scheduling).
+  - **Not itself a new incident if the workload's PDB is intact and pods
+    keep reaching `Ready` shortly after each replacement** — the
+    self-healing/right-sizing fix that raised the memory floor was still
+    the correct call (an OOMKill loop is worse than brief readiness
+    blips). Journal it as a known, accepted side effect rather than
+    re-chasing it as a fresh mystery, and only escalate if churn
+    frequency keeps climbing or a replacement pod stops reaching `Ready`
+    within a normal startup window.
+  - **Durable fix, if this recurs often enough to matter:** either free
+    real headroom on the affected nodes (the cluster's existing paired
+    descheduler `HighNodeUtilization` + kube-scheduler `MostAllocated`
+    tuning already aims at this) or lower `helm-charts/vpa`'s update
+    frequency/thresholds for this specific workload — do not lower the
+    VPA floor back down as the fix, that reopens the original OOMKill
+    loop.
 
 ## Known data-durability gotchas
 
