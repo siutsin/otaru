@@ -44,3 +44,17 @@ category and its place in the investigation order do not need to change.
 - Before suggesting Application deletes or prune/force sync, check Helm
   chart / Application annotations for **sync waves** and prune behaviour.
   Destructive sync is escalate-only (`references/escalation.md`).
+- **`Degraded` persisting for hours after a one-off `CronJob`/`Job`
+  failure, with every tracked resource in `status.resources[]` showing
+  `health: None` and no `Job` object even present any more:** this can be
+  a stale `status.health` field that never got recomputed after the
+  failed Job was garbage-collected, not an ongoing problem. Confirm live
+  (pods `Running`, no `Job` resource, `Heartbeat`/`ExternalSecret`/`PDB`/
+  `VPA` all healthy) before treating the app-level field as ground truth
+  — same category of lag as `attachedRoutes` in
+  `runbooks/ingress-mesh.md`, but here the field can stay stuck well past
+  the next successful reconcile (`status.reconciledAt` moving forward
+  does not guarantee `status.health` gets re-evaluated). Observed on
+  `teslamate` for 2+ hours after its daily `verify-pg-dump` Job failed
+  and was cleaned up, 2026-08-25. No fix needed; a live protocol/resource
+  check is the source of truth, not this field, in this specific case.
