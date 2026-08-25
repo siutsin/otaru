@@ -489,9 +489,6 @@ grafana:
 loki:
   deploymentMode: SingleBinary
   lokiCanary:
-    podLabels:
-      # loki-canary performs direct Loki health checks and should not be intercepted by ambient mesh.
-      istio.io/dataplane-mode: none
     resources: *smallResources
   gateway:
     resources: *smallResources
