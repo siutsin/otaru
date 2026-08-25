@@ -2222,6 +2222,240 @@ grafana:
                 "title": "Restarts by pod",
                 "transparent": true,
                 "type": "timeseries"
+              },
+              {
+                "collapsed": false,
+                "gridPos": {
+                  "h": 1,
+                  "w": 24,
+                  "x": 0,
+                  "y": 101
+                },
+                "id": 31,
+                "panels": [],
+                "title": "SQS message queue",
+                "type": "row"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Approximate messages in the selected environment's queue. Visible messages wait for a worker. In-flight messages are being processed.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": true,
+                      "axisColorMode": "text",
+                      "axisLabel": "messages",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 10,
+                  "w": 12,
+                  "x": 0,
+                  "y": 102
+                },
+                "id": 32,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "aws_sqs_approximate_number_of_messages_visible_maximum{custom_tag_environment=\"${ns:text}\"}",
+                    "legendFormat": "visible",
+                    "range": true,
+                    "refId": "A"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "aws_sqs_approximate_number_of_messages_not_visible_maximum{custom_tag_environment=\"${ns:text}\"}",
+                    "legendFormat": "in-flight",
+                    "range": true,
+                    "refId": "B"
+                  }
+                ],
+                "title": "Messages by state",
+                "transparent": true,
+                "type": "timeseries"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Age of the oldest unprocessed message in the selected environment's queue. A sustained increase shows that workers cannot keep up.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "orange",
+                          "value": 60
+                        },
+                        {
+                          "color": "red",
+                          "value": 300
+                        }
+                      ]
+                    },
+                    "unit": "s",
+                    "decimals": 0,
+                    "custom": {
+                      "axisBorderShow": false,
+                      "axisCenteredZero": true,
+                      "axisColorMode": "text",
+                      "axisLabel": "seconds",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 15,
+                      "gradientMode": "scheme",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "insertNulls": false,
+                      "lineInterpolation": "smooth",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "never",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "line"
+                      }
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 10,
+                  "w": 12,
+                  "x": 12,
+                  "y": 102
+                },
+                "id": 33,
+                "options": {
+                  "legend": {
+                    "calcs": [
+                      "mean",
+                      "max",
+                      "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                  },
+                  "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                  }
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "aws_sqs_approximate_age_of_oldest_message_maximum{custom_tag_environment=\"${ns:text}\"}",
+                    "legendFormat": "oldest message",
+                    "range": true,
+                    "refId": "A"
+                  }
+                ],
+                "title": "Oldest message age",
+                "transparent": true,
+                "type": "timeseries"
               }
             ],
             "refresh": "1m",
@@ -2282,6 +2516,6 @@ grafana:
             "timezone": "browser",
             "title": "jung2bot",
             "uid": "jung2bot",
-            "version": 5,
+            "version": 6,
             "weekStart": ""
           }
