@@ -1101,8 +1101,8 @@ memory, while engine-image, UI, and driver-deployer Pods used less than 36Mi.
 ### Resolution: Keep a Narrow Resource Policy Exception
 
 `helm-charts/kyverno-policy/templates/longhorn-resource-policy-exception.yaml` excludes only the generated
-Longhorn component labels from the three `require-workload-resources` rules. The exception does not exclude the
-namespace or other Longhorn workloads.
+Longhorn component labels and the `longhorn-driver-deployer*` resource prefix from the three
+`require-workload-resources` rules. The exception does not exclude the namespace or other Longhorn workloads.
 
 Keep `longhornManager.resources` and `systemManagedCSIComponentsResourceLimits` in
 `helm-charts/longhorn/values.yaml`. Review this exception after every Longhorn upgrade. Remove a component match
