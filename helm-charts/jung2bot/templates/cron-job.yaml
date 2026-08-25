@@ -32,22 +32,9 @@ spec:
                     - ALL
               command: [ "sh", "-c" ]
               args:
-                # Floors "now" down to the CRON_INTERVAL boundary before
-                # calling onOffFromWork, matching the retired Node cron
-                # image: without flooring, Job start jitter (image pull,
-                # scheduling delay) can push the timestamp a minute past
-                # the boundary, so WindowFromTime's offTime never matches
-                # any chat's configured schedule and that fire is silently
-                # skipped.
-                - |
-                  interval_secs=$((CRON_INTERVAL * 60))
-                  now=$(date -u +%s)
-                  floored=$(( now - now % interval_secs ))
-                  timeString=$(date -u -d @$floored +%Y-%m-%dT%H:%M:%SZ)
-                  curl -v -m 5 "$OFF_FROM_WORK_URL?timeString=$timeString"
+                # Zeroes seconds so onOffFromWork sees a clean minute mark.
+                - curl -f -v -m 5 "$OFF_FROM_WORK_URL?timeString=$(date -u +%Y-%m-%dT%H:%M:00Z)"
               env:
-                - name: CRON_INTERVAL
-                  value: {{ .Values.cron.offWork.env.cronInterval | quote }}
                 - name: OFF_FROM_WORK_URL
                   value: {{ printf "%s%s/onOffFromWork" $internalBaseURL $stagePrefix | quote }}
               resources:
