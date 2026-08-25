@@ -1006,10 +1006,32 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (route) (rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\"}[$__rate_interval])) * 60",
-                    "legendFormat": "{{route}}",
+                    "expr": "sum(rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\",route=\"stage_ping\"}[$__rate_interval])) * 60",
+                    "legendFormat": "/ping",
                     "range": true,
                     "refId": "A"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\",route=\"stage_webhook\"}[$__rate_interval])) * 60",
+                    "legendFormat": "/",
+                    "range": true,
+                    "refId": "B"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (route) (rate(telegram_jung2_bot_http_requests_total{namespace=\"$ns\",route!~\"stage_ping|stage_webhook\"}[$__rate_interval])) * 60",
+                    "legendFormat": "{{route}}",
+                    "range": true,
+                    "refId": "C"
                   }
                 ],
                 "title": "Request rate by route",
@@ -1208,10 +1230,32 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.95,sum by(le,route)(rate(telegram_jung2_bot_http_request_duration_seconds_bucket{namespace=\"$ns\"}[$__rate_interval])))",
-                    "legendFormat": "{{route}}",
+                    "expr": "histogram_quantile(0.95,sum by(le)(rate(telegram_jung2_bot_http_request_duration_seconds_bucket{namespace=\"$ns\",route=\"stage_ping\"}[$__rate_interval])))",
+                    "legendFormat": "/ping",
                     "range": true,
                     "refId": "A"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95,sum by(le)(rate(telegram_jung2_bot_http_request_duration_seconds_bucket{namespace=\"$ns\",route=\"stage_webhook\"}[$__rate_interval])))",
+                    "legendFormat": "/",
+                    "range": true,
+                    "refId": "B"
+                  },
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95,sum by(le,route)(rate(telegram_jung2_bot_http_request_duration_seconds_bucket{namespace=\"$ns\",route!~\"stage_ping|stage_webhook\"}[$__rate_interval])))",
+                    "legendFormat": "{{route}}",
+                    "range": true,
+                    "refId": "C"
                   }
                 ],
                 "title": "p95 request duration by route",
