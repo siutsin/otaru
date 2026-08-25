@@ -304,6 +304,7 @@ local security = [
 ];
 
 local storage = [
+  { wave: '03', name: 'snapshot-controller', namespace: 'kube-system' },
   { wave: '04', name: 'longhorn', namespace: 'longhorn-system', helm: longhornHelm },
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];

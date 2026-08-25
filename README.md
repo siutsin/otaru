@@ -144,6 +144,7 @@ Key addresses on the Server network:
 | Security     | [Kyverno](https://github.com/kyverno/kyverno)                                                       | Kubernetes policy engine                                                                                                                                                |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                                                                                              |
 | Security     | [Ory Hydra](https://www.ory.com/hydra)                                                               | OAuth 2.0 and OpenID Connect issuer for machine clients and JWT validation                                                                                              |
+| Storage      | [CSI Snapshot Controller](https://github.com/kubernetes-csi/external-snapshotter)                   | Kubernetes CSI VolumeSnapshot CRDs and controller used by Longhorn                                                                                                     |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                                                                        |
 <!-- markdownlint-enable MD060 -->
 
