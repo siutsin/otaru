@@ -1432,6 +1432,18 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
+  snapshot-controller:
+  - apiVersion: v2
+    appVersion: v8.6.0
+    created: "2026-08-25T02:02:40.910954155Z"
+    description: Kubernetes CSI snapshot controller and CRDs
+    digest: fce4aa5182cc9384f51a12382906101b828c7db6279ca5cf2032bcfc11d90acc
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: snapshot-controller
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/snapshot-controller-1.0.0/snapshot-controller-1.0.0.tgz
+    version: 1.0.0
   teslamate:
   - apiVersion: v2
     created: "2025-07-25T06:31:13.887500171Z"
@@ -1558,4 +1570,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-08-22T16:10:55.241449511Z"
+generated: "2026-08-25T02:02:41.16502435Z"
