@@ -53,3 +53,27 @@ spec:
               - "9090"
             paths:
               - /metrics
+---
+# Kyverno's require-mesh-authorization-policy checks for a workload-selector
+# policy separately from the Service targetRefs one above: Prometheus scrapes
+# the pod IP directly, which targetRefs policies don't cover.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "9090"
