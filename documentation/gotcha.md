@@ -6,20 +6,6 @@ repo root.
 
 ---
 
-## Inability to Create a Service for Selecting Kubernetes API Server IPs
-
-In **k3s**, the API server runs as a binary on the host rather than as a pod. This means there is no API server pod available for selection.
-The only way to retrieve the IP addresses of the master nodes is by using the `kubernetes` service in the `default` namespace.
-
-To enable external access to the API server, the `kubernetes` service needs to be changed to a `LoadBalancer` type. However, when a new master node joins or is restarted,
-the `kubernetes` service will be automatically updated, reverting any changes made to it.
-
-### Resolution: API Server Load Balancer
-
-A custom operator, `k3s-apiserver-loadbalancer`, was created to monitor and update the service type to `LoadBalancer` whenever a change is detected in the `kubernetes` service.
-
----
-
 ## Reused K3s Node Name Cannot Join After Hardware Replacement
 
 When replacing a node in place, the new host may reuse the same Kubernetes node name. K3s stores a per-node
@@ -83,81 +69,6 @@ cd infrastructure/cloud/cloudflare/dns
 terragrunt plan
 terragrunt apply
 ```
-
----
-
-## Envoy Image Recompilation Issue
-
-There is an issue with the current Envoy image that requires recompilation when running on certain platforms. This issue is discussed in detail in the [Envoy GitHub issue][envoy-issue].
-
-### Resolution: Ubuntu Server 24.04 LTS
-
-Switching to **Ubuntu Server 24.04 LTS** resolves this issue, avoiding the need for Envoy image recompilation.
-
----
-
-## Inaccessibility of Services Over Network Interfaces on Raspberry Pi
-
-When using **network interfaces** (e.g., Wi-Fi or Ethernet) on devices such as Raspberry Pi, services may become unreachable after an initial successful connection.
-This issue is caused by the device not responding to ARP requests, leading to service inaccessibility after a short period.
-
-### Symptoms: Network Interface Issues
-
-- The service is initially accessible but becomes unreachable over time.
-- `arping` commands result in timeouts, and the service cannot be reached.
-- `sudo tcpdump -i <interface> arp` shows no response to ARP requests.
-- **cilium_l2_responder_v4** map shows no responses sent:
-
-```shell
-$ kubectl -n kube-system exec ds/cilium -- bpftool map dump pinned /sys/fs/bpf/tc/globals/cilium_l2_responder_v4
-[{
-        "key": {
-            "ip4": 855746752,
-            "ifindex": 3
-        },
-        "value": {
-            "responses_sent": 0
-        }
-    }
-]
-```
-
-### Resolution: Enable Promiscuous Mode
-
-Enable **promiscuous mode** on the network interface using the following command can temporarily resolve this issue.
-Replace `<interface>` with the actual interface name (e.g., `wlan0`, `eth0`).
-
-```bash
-sudo ifconfig <interface> promisc
-```
-
-A permanent solution is to add the following configuration to the `/etc/systemd/system/promisc-mode.service` file, replacing `<interface>` with the correct interface name:
-
-```shell
-[Unit]
-Description=Enable promiscuous mode for <interface>
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart=/sbin/ifconfig <interface1> promisc
-ExecStart=/sbin/ifconfig <interface2> promisc
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then run the following commands to enable and start the service:
-
-```shell
-sudo systemctl daemon-reload
-sudo systemctl enable promisc-mode.service
-sudo systemctl start promisc-mode.service
-```
-
-This configuration ensures the Raspberry Pi can respond to ARP requests, keeping services accessible over the network interface.
-
-For more details, see the [MetalLB troubleshooting guide][metallb-troubleshooting].
 
 ---
 
@@ -1110,8 +1021,6 @@ when Longhorn supports full resource settings for that component.
 
 ---
 
-[envoy-issue]: https://github.com/envoyproxy/envoy/issues/23339
-[metallb-troubleshooting]: https://metallb.universe.tf/troubleshooting/#using-wifi-and-cant-reach-the-service
 [cilium-issue]: https://github.com/cilium/cilium/issues/19038
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
 [longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
@@ -1424,98 +1333,6 @@ the pin will go stale again on some future upstream push. Move to a
 stable, immutable release tag as soon as the upstream project publishes
 one -- these charts already carry a comment saying exactly that for this
 reason.
-
----
-
-## ArgoCD Cannot Sync Some Large CRDs -- No Safe Fix Found, Accepted As-Is
-
-**Problem:** forcing a fresh sync of the `external-secrets` Application
-reproducibly failed with:
-
-```text
-CustomResourceDefinition.apiextensions.k8s.io
-"clustersecretstores.external-secrets.io" is invalid:
-metadata.annotations: Too long: may not be more than 262144 bytes
-```
-
-Live objects were small and healthy (tens of bytes of annotations,
-nowhere near the 256KiB cap), and a plain `kubectl apply --server-side`
-or `kubectl replace` of the identical rendered manifest succeeded
-cleanly every time run directly. **Only ArgoCD's own sync attempt for
-these two specific CRDs fails -- there is no live impact.** The CRDs
-stay `Synced` and functional; the `onepassword-secret-store`
-`ClusterSecretStore` and every `ExternalSecret` in the cluster keep
-working throughout.
-
-**Four fixes were tried and investigated; none were safe/effective:**
-
-1. `ServerSideApply=true` in `syncOptions` -- already the repo default
-    for every Application. No effect.
-2. `argocd.argoproj.io/compare-options: ServerSideDiff=true` -- a
-    separate setting from `ServerSideApply` (the former governs the
-    *diff* step, the latter the *apply* step). Tested live with a fresh
-    forced sync: identical failure.
-3. `Replace=true` in `syncOptions` -- ArgoCD's own docs describe this
-    as the fix for "resource specifications too large for the standard
-    last-applied-configuration annotation" and say it takes precedence
-    over Server-Side Apply. Tested live (automated sync disabled first
-    so `selfHeal` couldn't silently revert the test config).
-    `argocd-application-controller` logs still showed
-    `serverSideApply:false` and the identical error -- not actually
-    honored for this resource in this ArgoCD version.
-4. `helm.skipCrds: true` -- has no effect here because these CRDs are
-    rendered via a normal Helm *template*
-    (`templates/crds/clustersecretstore.yaml`), not the dedicated Helm
-    `crds/` directory convention that `skipCrds` actually targets.
-    Confirmed live: identical failure, and the CRDs correctly stayed
-    `Synced`/not-pruned throughout (this option would have been
-    dangerous if it *had* worked as originally assumed -- removing a
-    still-referenced CRD from the desired manifest with `prune: true`
-    enabled marks it for deletion, cascading to delete every live
-    custom resource of that kind).
-5. **Considered, ruled out without testing:** the upstream chart does
-    expose `crds.createClusterSecretStore`/`processClusterStore` (and
-    the `SecretStore` equivalents) to disable these CRDs entirely at
-    the chart level. Not used -- disabling `processClusterStore` stops
-    the operator from reconciling `ClusterSecretStore` at all, which
-    would break the `onepassword-secret-store` this entire cluster's
-    secret-fetching depends on. A real fix for the sync error, but with
-    consequences far worse than the problem it solves.
-
-**Why it happens:** not fully root-caused at the ArgoCD-internals
-level -- despite three different documented sync-option fixes and one
-Helm-level toggle, this specific combination of a very large CRD
-(`external-secrets`' generator CRDs carry huge embedded OpenAPI
-schemas) and this ArgoCD version's sync engine could not be made to
-apply it successfully through any option tried. The failure is
-specific to ArgoCD's own sync/apply codepath for these two resources,
-not the objects themselves, not the cluster, and not anything that
-depends on them.
-
-### Current status: real upstream fix identified, waiting on a stable release
-
-Confirmed via the upstream issue tracker (2026-07-14) that this is a
-known bug, root-caused and properly fixed upstream:
-[argoproj/argo-cd#28440][argocd-28440] ("fix: fix failure on Sync of
-resources that do not fit into last-applied-configuration") replaces
-the previous broken client-dry-run/server-dry-run workaround with a
-proper one, and adds e2e tests specifically for manifests over 256KiB.
-
-- Merged into `argoproj/argo-cd` main on 2026-06-30.
-- Cherry-picked into `v3.5.0-rc2` (pre-release, 2026-07-01) --
-  confirmed present in that release's changelog.
-- **Not** in `v3.4.5` (latest *stable* release, 2026-07-09) -- checked
-  its changelog directly, this fix is not cherry-picked into the 3.4.x
-  line. This cluster runs `v3.4.4`.
-
-**Decision:** wait for `v3.5.0` to reach a stable (non-`-rc`) release
-rather than run a release candidate on the GitOps control plane for a
-cosmetic issue with zero live impact. Revisit this Application's sync
-once the cluster's ArgoCD version is upgraded to `v3.5.0` or later --
-check the release changelog for `#28440`/`#28421` to confirm the fix
-landed before assuming it's resolved.
-
-[argocd-28440]: https://github.com/argoproj/argo-cd/pull/28440
 
 ---
 
@@ -1953,5 +1770,71 @@ runtime config, verify against the live or rendered *container spec*
 `helm template` output) that the value actually took effect, not just
 that the values.yaml diff looks right and CI is green. A clean render is
 necessary but not sufficient evidence that an override works.
+
+---
+
+## ArgoCD Application Stuck Re-Applying an Old Revision After a Fix Is Merged
+
+**Problem:** a bad chart-version pin was merged, synced live, and caused a
+component (`longhorn-manager`, a DaemonSet) to crash-loop permanently
+(Longhorn refuses to downgrade an already-upgraded install). The fix was
+merged shortly after and `argocd/manifest.jsonnet`'s Application correctly
+showed `status.sync.revision` at the new, fixed commit -- but the live
+DaemonSet kept getting re-applied with the *old*, broken image, and the
+crash-loop continued for over 20 minutes past the fix landing.
+
+**Why it happens:** the application-controller's `.status.operationState`
+persists the original (stuck) sync operation, and the controller *resumes*
+that in-flight operation on every reconcile rather than starting fresh --
+including across a full pod restart of `argocd-repo-server` and
+`argocd-application-controller`, since it resumes from the Application
+CRD's own `.status`, not from a fresh git/cache lookup. Restarting both
+pods (to rule out a stale repo-server cache or checkout) did not help;
+`kubectl get application <name> -o jsonpath='{.status.operationState.operation.sync.revision}'`
+kept showing the old commit even on a freshly-started controller.
+
+### Symptoms: Fix Merged, `status.sync.revision` Correct, Live Resource Still Wrong
+
+- `status.sync.revision` on the Application shows the new (fixed) commit.
+- The live resource (check the specific Deployment/DaemonSet's own
+  `.spec.template.spec.containers[].image`) still matches the *old*
+  broken commit's content.
+- `status.operationState.operation.sync.revision` shows the *old* commit,
+  even immediately after manually patching `.operation` to target the new
+  one, and even after restarting `argocd-repo-server` and
+  `argocd-application-controller`.
+- A hard-refresh annotation
+  (`kubectl annotate application <name> -n argocd
+  argocd.argoproj.io/refresh=hard --overwrite`) correctly flips individual
+  resources to `OutOfSync` (proving the *diff* calculation is correct),
+  but the next automated sync still re-applies the old content.
+
+### Resolution: Clear `.status.operationState`, Not Just `.spec.operation`
+
+Clearing the spec-level field alone is not enough:
+
+```bash
+kubectl patch application <name> -n argocd --type json \
+  -p '[{"op": "remove", "path": "/operation"}]'
+```
+
+The persisted status field is what the controller actually resumes from
+on every reconcile. Clear that directly instead:
+
+```bash
+kubectl patch application <name> -n argocd --type merge \
+  -p '{"status":{"operationState":null}}'
+```
+
+(`--subresource=status` fails with `NotFound` for this CRD -- Argo CD's
+Application does not register status as a protected Kubernetes
+subresource, so a plain merge patch against the whole resource is what
+works.) After clearing it, a fresh automated sync (or a manually patched
+`.operation`) proceeds against the *current* correct revision. If the
+underlying resource is a DaemonSet/Deployment whose pods were already
+created under the old, broken spec, they will not roll automatically just
+because the object's `.spec` changed -- follow up with the normal
+allowlisted `kubectl rollout restart <kind>/<name>` once the live object's
+`.spec` is confirmed correct.
 
 ---
