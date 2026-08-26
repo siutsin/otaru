@@ -58,3 +58,11 @@ category and its place in the investigation order do not need to change.
   `teslamate` for 2+ hours after its daily `verify-pg-dump` Job failed
   and was cleaned up, 2026-08-25. No fix needed; a live protocol/resource
   check is the source of truth, not this field, in this specific case.
+- **Fix merged, `status.sync.revision` shows the new commit, but the
+  live resource still runs the old broken content:** the
+  application-controller can get stuck resuming an old sync operation
+  from `status.operationState`, which persists across a controller/
+  repo-server pod restart. Clearing `.spec.operation` alone does not
+  fix it — see `documentation/gotcha.md` ("ArgoCD Application Stuck
+  Re-Applying an Old Revision After a Fix Is Merged") for the
+  `.status.operationState` clear that does.

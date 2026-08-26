@@ -1955,3 +1955,69 @@ that the values.yaml diff looks right and CI is green. A clean render is
 necessary but not sufficient evidence that an override works.
 
 ---
+
+## ArgoCD Application Stuck Re-Applying an Old Revision After a Fix Is Merged
+
+**Problem:** a bad chart-version pin was merged, synced live, and caused a
+component (`longhorn-manager`, a DaemonSet) to crash-loop permanently
+(Longhorn refuses to downgrade an already-upgraded install). The fix was
+merged shortly after and `argocd/manifest.jsonnet`'s Application correctly
+showed `status.sync.revision` at the new, fixed commit -- but the live
+DaemonSet kept getting re-applied with the *old*, broken image, and the
+crash-loop continued for over 20 minutes past the fix landing.
+
+**Why it happens:** the application-controller's `.status.operationState`
+persists the original (stuck) sync operation, and the controller *resumes*
+that in-flight operation on every reconcile rather than starting fresh --
+including across a full pod restart of `argocd-repo-server` and
+`argocd-application-controller`, since it resumes from the Application
+CRD's own `.status`, not from a fresh git/cache lookup. Restarting both
+pods (to rule out a stale repo-server cache or checkout) did not help;
+`kubectl get application <name> -o jsonpath='{.status.operationState.operation.sync.revision}'`
+kept showing the old commit even on a freshly-started controller.
+
+### Symptoms: Fix Merged, `status.sync.revision` Correct, Live Resource Still Wrong
+
+- `status.sync.revision` on the Application shows the new (fixed) commit.
+- The live resource (check the specific Deployment/DaemonSet's own
+  `.spec.template.spec.containers[].image`) still matches the *old*
+  broken commit's content.
+- `status.operationState.operation.sync.revision` shows the *old* commit,
+  even immediately after manually patching `.operation` to target the new
+  one, and even after restarting `argocd-repo-server` and
+  `argocd-application-controller`.
+- A hard-refresh annotation
+  (`kubectl annotate application <name> -n argocd
+  argocd.argoproj.io/refresh=hard --overwrite`) correctly flips individual
+  resources to `OutOfSync` (proving the *diff* calculation is correct),
+  but the next automated sync still re-applies the old content.
+
+### Resolution: Clear `.status.operationState`, Not Just `.spec.operation`
+
+Clearing the spec-level field alone is not enough:
+
+```bash
+kubectl patch application <name> -n argocd --type json \
+  -p '[{"op": "remove", "path": "/operation"}]'
+```
+
+The persisted status field is what the controller actually resumes from
+on every reconcile. Clear that directly instead:
+
+```bash
+kubectl patch application <name> -n argocd --type merge \
+  -p '{"status":{"operationState":null}}'
+```
+
+(`--subresource=status` fails with `NotFound` for this CRD -- Argo CD's
+Application does not register status as a protected Kubernetes
+subresource, so a plain merge patch against the whole resource is what
+works.) After clearing it, a fresh automated sync (or a manually patched
+`.operation`) proceeds against the *current* correct revision. If the
+underlying resource is a DaemonSet/Deployment whose pods were already
+created under the old, broken spec, they will not roll automatically just
+because the object's `.spec` changed -- follow up with the normal
+allowlisted `kubectl rollout restart <kind>/<name>` once the live object's
+`.spec` is confirmed correct.
+
+---
