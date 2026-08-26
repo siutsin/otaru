@@ -1027,7 +1027,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "telegram_jung2_bot_http_requests_total: responses/s by HTTP status code, stacked",
+                "description": "telegram_jung2_bot_http_requests_total: responses/s by HTTP status code",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1053,7 +1053,7 @@ grafana:
                       "axisPlacement": "auto",
                       "barAlignment": 0,
                       "drawStyle": "line",
-                      "fillOpacity": 40,
+                      "fillOpacity": 15,
                       "gradientMode": "none",
                       "hideFrom": {
                         "legend": false,
@@ -1071,7 +1071,7 @@ grafana:
                       "spanNulls": false,
                       "stacking": {
                         "group": "A",
-                        "mode": "normal"
+                        "mode": "none"
                       },
                       "thresholdsStyle": {
                         "mode": "off"
@@ -1782,7 +1782,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "telegram_jung2_bot_dependency_request_duration_seconds: 95th percentile outbound call latency, per dependency",
+                "description": "p95 outbound call latency per dependency. Omits SQS receive, which includes the long poll wait.",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -1868,7 +1868,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                "expr": "histogram_quantile(0.95,sum by(le,dependency)(rate(telegram_jung2_bot_dependency_request_duration_seconds_bucket{namespace=\"$ns\"}[$__rate_interval])))",
+                "expr": "histogram_quantile(0.95,sum by(le,dependency)(rate(telegram_jung2_bot_dependency_request_duration_seconds_bucket{namespace=\"$ns\",operation!=\"receive\"}[$__rate_interval])))",
                     "legendFormat": "{{dependency}}",
                     "range": true,
                     "refId": "A"
@@ -2480,7 +2480,7 @@ grafana:
               ]
             },
             "time": {
-              "from": "now-3h",
+              "from": "now-24h",
               "to": "now"
             },
             "timepicker": {
@@ -2500,6 +2500,6 @@ grafana:
             "timezone": "browser",
             "title": "jung2bot",
             "uid": "jung2bot",
-            "version": 8,
+            "version": 9,
             "weekStart": ""
           }
