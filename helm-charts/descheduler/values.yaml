@@ -97,12 +97,21 @@ descheduler:
               # labelSelector is an allow-list (only matching pods are
               # eligible for eviction under this profile), so excluding
               # blocky here is the correct mechanism.
+              # 2026-08-26: teslamate-verify-pg-dump added -- every attempt
+              # of this daily backup-verification Job was evicted mid-run
+              # by this profile's HighNodeUtilization on an over-committed
+              # node, exhausting backoffLimit (5/5 failed) even though the
+              # restore+verify logic itself completed successfully before
+              # eviction cut it off. Short-lived, bounded-duration batch
+              # Job -- excluding it here only defers node consolidation by
+              # the run's own duration, not indefinitely.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
                     operator: NotIn
                     values:
                       - blocky
+                      - teslamate-verify-pg-dump
           - name: HighNodeUtilization
             args:
               thresholds:
