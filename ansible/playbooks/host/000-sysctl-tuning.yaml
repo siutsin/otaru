@@ -1,0 +1,37 @@
+---
+- hosts: k3s_cluster
+  become: true
+  gather_facts: false
+
+  # Ubuntu/Raspberry Pi OS default fs.inotify.max_user_instances (128) is a
+  # per-UID limit, and k3s/containerd run almost everything as root on the
+  # host -- so every container's file watchers, containerd-shims, envoy
+  # sidecars, and k3s-agent itself all share the same 128-instance budget.
+  # A busy node exhausts this quietly (no node-level alert), then the next
+  # container that needs an inotify watch fails outright.
+  #
+  # Hit live on nuc-00, 2026-08-26: a mass pod reschedule during a
+  # raspberrypi-03 outage pushed usage past 128, and an app pod's dotnet
+  # runtime crash-looped with "Unhandled exception. System.IO.IOException:
+  # The configured user limit (128) on the number of inotify instances has
+  # been reached" every restart. See documentation/gotcha.md - Host
+  # fs.inotify.max_user_instances Exhausted by Container Density.
+  tasks:
+    - name: Raise fs.inotify.max_user_instances for container density
+      copy:
+        dest: /etc/sysctl.d/90-otaru-inotify.conf
+        content: |
+          # Default (128) is a per-UID limit; k3s/containerd run almost
+          # everything as root, so every container shares one budget.
+          # See documentation/gotcha.md - Host fs.inotify.max_user_instances
+          # Exhausted by Container Density.
+          fs.inotify.max_user_instances = 1024
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload sysctl settings
+
+  handlers:
+    - name: Reload sysctl settings
+      command: sysctl --system
+      changed_when: true
