@@ -6,5 +6,16 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: longhorn
-  version: 1.12.0
-  repository: https://charts.longhorn.io
+  version: 1.12.1
+  # 2026-08-26: the longhorn-1.12.1 release artifact was removed from
+  # GitHub Releases upstream (404 on the download URL), breaking dependency
+  # fetches for every PR and, more seriously, causing a live incident when
+  # the version was reverted to 1.12.0 -- Longhorn's own manager explicitly
+  # refuses to downgrade an already-upgraded cluster ("failed to upgrade
+  # since downgrading from v1.12.1 to v1.12.0 is not supported") and
+  # crash-looped on every node. Vendored the exact 1.12.1 chart source
+  # (from the longhorn/charts git tag, not the deleted release binary)
+  # under vendor/longhorn-1.12.1 and depend on it locally so neither CI nor
+  # ArgoCD needs the broken upstream URL. Revert to a real charts.longhorn.io
+  # source once a newer release is published there.
+  repository: file://vendor/longhorn-1.12.1
