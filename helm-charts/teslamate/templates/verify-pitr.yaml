@@ -373,9 +373,13 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.labels['batch.kubernetes.io/job-name']
+              # KRR 2026-08-26: 14d peak ~208m CPU against a 50m request (OK,
+              # ~4x under). This container polls the CNPG cluster/psql in a
+              # tight loop during restore, so real usage is above the
+              # original guess. Memory unchanged (still GOOD at 128Mi).
               resources:
                 requests:
-                  cpu: 50m
+                  cpu: 200m
                   memory: 128Mi
                   ephemeral-storage: 128Mi
                 limits:
