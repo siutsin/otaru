@@ -1838,3 +1838,50 @@ allowlisted `kubectl rollout restart <kind>/<name>` once the live object's
 `.spec` is confirmed correct.
 
 ---
+
+## Host `fs.inotify.max_user_instances` Exhausted by Container Density
+
+**Problem:** an app pod crash-looped on `nuc-00` with `Unhandled exception.
+System.IO.IOException: The configured user limit (128) on the number of
+inotify instances has been reached, or the per-process limit on the number
+of open file descriptors has been reached.` Hit during a mass pod reschedule
+while `raspberrypi-03` was recovering from an outage.
+
+**Why it happens:** Ubuntu's default `fs.inotify.max_user_instances` (128)
+is a per-UID limit. k3s/containerd run almost every container process as
+root on the host, so every container's file watcher, every
+`containerd-shim`, and k3s's own processes all draw from the *same*
+128-instance budget. A node running dozens of pods can exhaust this quietly
+-- there is no node condition or alert for it -- and the next process that
+tries to open an inotify instance just fails outright. Confirmed live: `ssh`
+onto the node and counting open `anon_inode:inotify` file descriptors across
+all processes showed ~151 in use, already past the 128 cap.
+
+### Symptoms: Inotify Instance Exhaustion
+
+- A container crash-loops with an inotify/file-descriptor-limit error in its
+  own application log (`.NET`'s `FileSystemWatcher`, `inotify_init` failing
+  in any language runtime that watches files).
+- Often coincides with a burst of rescheduling onto the node (a node outage
+  recovering elsewhere, a rollout, `PodLifeTime` repaving) rather than
+  steady-state load.
+- `sysctl fs.inotify.max_user_instances` on the affected node shows the
+  Ubuntu default of `128`.
+
+### Resolution: Raise the Per-UID Instance Limit
+
+Raise the limit persistently via `ansible/playbooks/host/000-sysctl-tuning.yaml`
+(`hosts: k3s_cluster`, runs on every node via `make setup`), which drops
+`fs.inotify.max_user_instances = 1024` into `/etc/sysctl.d/90-otaru-inotify.conf`.
+To recover a node live without waiting for a full `make setup` re-run:
+
+```shell
+ssh <user>@<node-ip> "sudo sysctl -w fs.inotify.max_user_instances=1024"
+kubectl delete pod -n <namespace> <crash-looping-pod>
+```
+
+The live `sysctl -w` takes effect immediately with no reboot; the pod delete
+just forces an instant retry instead of waiting out `CrashLoopBackOff`'s
+backoff timer.
+
+---

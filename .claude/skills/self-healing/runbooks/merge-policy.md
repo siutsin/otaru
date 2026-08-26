@@ -10,12 +10,11 @@ boundaries.
 
 After branch, commit, push, and PR open:
 
-1. Watch CI to green. Prefer
-  `gh pr checks <number> --watch --fail-fast` (see `AGENTS.md`). In
-  **unattended/loop** mode bound the wait (for example stop after ~15
-  minutes, journal `result: open` with the PR URL, and re-check next cycle).
-  Do not park the whole fire (currently a 30-minute cycle) on an unbounded
-  watch.
+1. Watch CI to green. Prefer `gh pr checks <number> --watch --fail-fast`
+  (see `AGENTS.md`). In **unattended/loop** mode bound the wait (for
+  example stop after ~15 minutes, journal `result: open` with the PR URL,
+  and re-check next cycle). Do not park the whole fire (currently a
+  30-minute cycle) on an unbounded watch.
 2. Address review feedback if any.
 3. Then apply the class below.
 
@@ -55,79 +54,28 @@ Merge automatically once green when **all** of the following hold:
   concerns.
 - Tests already passed for this branch (`make test` before open; CI green)
 
-### Incident-revert exception
+### Incident-fix exception
 
-Auto-merge once green even when the diff would otherwise be non-trivial
-(including a GitOps controller's own chart, e.g. `helm-charts/argocd`) when
-**all** of the following hold:
+Auto-merge once green, even outside the allowlist above, when **all** hold:
 
-- The PR fixes a currently active incident: a GitOps `Application` reporting
-  `Degraded`, a pod stuck `CrashLoopBackOff`/`ImagePullBackOff`, or an
-  equivalent live-broken state confirmed in this pass, not a hypothetical or
-  future risk.
-- The diff is a straight revert of a version/tag/digest field to the exact
-  value that was deployed and healthy immediately before the incident began
-  (confirm via `git log` / journal, not a guess) — not a new forward change,
-  workaround, or anything touching secrets, RBAC, exposure, or destructive
-  operations (those stay governed by `references/escalation.md` regardless
-  of incident framing).
-- `make test` passed and CI is green.
-
-This does not relax the secrets/destructive boundaries in
-`references/escalation.md` — an incident fixed by, say, a database restore
-or a secret rotation is still escalate-only. It only covers the case where
-the fix is provably identical to a prior known-good state.
-Precedent: `argocd` chart reverted `10.2.3`/`10.3.0` -> `10.2.2` after a
-same-day Renovate bump broke the repo-server (`--client-ca-path`/
-`--disable-tls` conflict), PR #3034, 2026-08-12.
-
-### Scoped application-logic bugfix exception
-
-Auto-merge once green, even off the allowlist and not a revert, when **all**
-hold:
-
-- Fixes a currently active incident confirmed this pass (`Degraded`
-  Application, `CrashLoopBackOff`/`ImagePullBackOff` pod, or equivalent).
-- Single, narrow correction to existing app/template logic already in the
-  chart (wrong format verb, typo'd field/env reference, off-by-one) — not a
-  new feature, resource, chart rewrite, or CRD change.
+- Fixes a currently active incident confirmed this pass with concrete
+  evidence (logs, a live command's output, a matching error) — not a
+  hypothetical or future risk.
+- The fix is either a straight revert to the exact prior value that was
+  deployed and healthy immediately before the incident (confirmed via
+  `git log`/journal, not a guess), or a single narrow correction scoped to
+  exactly what the evidence points at — not a new feature, a chart/template
+  rewrite, a CRD change, or a blanket revert of unrelated changes.
 - No secrets, RBAC, auth, exposure, mesh/gateway, or cluster-wide policy
-  touched.
-- Verified against rendered/live output (e.g. `helm template`), not lint
-  alone.
-- `make test` (or the affected chart's `helm lint`/`template` if `make test`
-  is blocked by a known unrelated gap) passed and CI is green.
+  touched. `references/escalation.md` still governs regardless of incident
+  framing — a database restore or secret rotation stays escalate-only.
+- Verified against rendered/live output (not lint/syntax-check alone) that
+  the fix resolves the confirmed symptom.
+- Tests/syntax-check passed and CI is green.
 
-Precedent: `jung2bot` `MESSAGE_SAVE_QUEUE_URL` `printf %s` on an int64 →
-literal `%!s(int64=...)`, invalid URL, crash loop; fixed to `%v`, PR #3144,
-2026-08-25.
-
-### Scoped hardening-regression fix exception
-
-Auto-merge once green, even though it touches a container's
-`securityContext`/capabilities, when **all** hold:
-
-- A recent, identifiable commit (via `git log`) added a hardening change
-  (`capabilities: drop: [ALL]`, `readOnlyRootFilesystem`, `runAsNonRoot`,
-  etc.) that is the confirmed root cause of a currently active incident.
-- Root cause is confirmed via concrete evidence (container/Job logs — Loki
-  if the pod is already gone — showing the exact permission/capability
-  error), not guessed from the diff.
-- The fix restores only the minimal capability/permission that error
-  needs (name the exact capabilities to `add` back) — not a blanket
-  revert of the hardening commit, not disabling the policy, and no RBAC,
-  auth, network exposure, mesh/gateway, or cluster-wide policy touched.
-- Verified against rendered output (`helm template`), not lint alone.
-- `make test` (or the affected chart's `helm lint`/`template` if blocked
-  by a known unrelated gap) passed and CI is green.
-
-Precedent: `teslamate` `verify-pg-dump`'s `postgres-sidecar` container got
-`capabilities: drop: [ALL]` (PR #3112), breaking the stock postgres
-image's own entrypoint (chowns/chmods its data dir and setuids to
-`postgres` as root first) — confirmed via Loki logs showing `chmod: ...
-Operation not permitted` / `failed switching to 'postgres': operation not
-permitted`. Fixed by adding back only `CHOWN`, `DAC_OVERRIDE`, `FOWNER`,
-`SETGID`, `SETUID`, PR #3156, 2026-08-25.
+Applies regardless of file type — Helm chart, Ansible, Terraform, or
+anything else the fix touches; the criteria above are what matter, not
+what kind of file changed.
 
 ## Non-trivial
 
@@ -142,8 +90,8 @@ Kyverno `PolicyException` or enabling the `policyExceptions` feature flag
 correction to an **already-approved** `PolicyException` (for example adding
 a missed autogen rule name) stays trivial when it is the only change in the
 diff. Pure resource/image pins on a database or storage chart
-remain trivial when they meet the bullets above. A revert fixing an active
-incident stays trivial when it meets the Incident-revert exception above,
+remain trivial when they meet the bullets above. A fix for an active
+incident stays trivial when it meets the Incident-fix exception above,
 even if it would otherwise land here (e.g. it touches a GitOps controller's
 own chart).
 
@@ -159,14 +107,15 @@ has no PDB at all, manifest nits to satisfy an **existing** policy (no
 policy chart rewrite), and the Cloudflare Access WebGazer IP allowlist
 refresh described in `runbooks/ingress-mesh.md` (the one named exception to
 the infrastructure-as-code escalate rule in `references/escalation.md`,
-scoped strictly to that file and that `terragrunt plan` shape). Do not auto-merge `hostNetwork`, privileged
-`securityContext`, Service exposure, or auth flag changes — treat those as
-non-trivial. Excluding a workload from this PDB fix (vendored/generated
-operator manifests, or anything where an eviction mid-operation has a
-different risk profile — see `runbooks/workloads.md`) is a judgement call,
-not a mechanical trivial/non-trivial split; when in doubt, leave it
-unpatched and note it rather than auto-merge. See `references/escalation.md`
-for the secrets boundary.
+scoped strictly to that file and that `terragrunt plan` shape). Do not
+auto-merge `hostNetwork`, privileged `securityContext`, Service exposure,
+or auth flag changes — treat those as non-trivial. Excluding a workload
+from this PDB fix (vendored/generated operator manifests, or anything
+where an eviction mid-operation has a different risk profile — see
+`runbooks/workloads.md`) is a judgement call, not a mechanical
+trivial/non-trivial split; when in doubt, leave it unpatched and note it
+rather than auto-merge. See `references/escalation.md` for the secrets
+boundary.
 
 ## Live mutations
 
@@ -189,6 +138,9 @@ Closed live-action allowlist (journal each one):
 - Scale a Deployment **down** only as far as the PDB allows, and **up** at
   most +1 replica above the current ready count unless the user approves a
   larger step. Prefer GitOps replica changes over live scale when practical.
+- Live host-level command (`sysctl -w`, a one-off `systemctl restart`) to
+  restore service immediately when a durable GitOps/ansible fix is opened
+  in the same pass.
 
 No other live mutations. Escalate everything else.
 
