@@ -307,3 +307,4 @@ planning/
 
 # Agent / self-healing local journal and session scratch (do not commit)
 .scratchpad/
+.playwright-cli/
