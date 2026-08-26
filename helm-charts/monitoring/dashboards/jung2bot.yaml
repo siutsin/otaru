@@ -59,7 +59,7 @@ grafana:
                   "type": "prometheus",
                   "uid": "PBFA97CFB590B2093"
                 },
-                "description": "jung2bot pods currently reporting metrics for the selected environment",
+                "description": "jung2bot pods currently reporting /metrics for the selected environment",
                 "fieldConfig": {
                   "defaults": {
                     "color": {
@@ -91,7 +91,7 @@ grafana:
                 "gridPos": {
                   "h": 3,
                   "w": 4,
-                  "x": 0,
+                  "x": 8,
                   "y": 1
                 },
                 "id": 2,
@@ -127,7 +127,7 @@ grafana:
                     "instant": true
                   }
                 ],
-                "title": "Replicas",
+                "title": "Scraped pods",
                 "transparent": true,
                 "type": "stat"
               },
@@ -178,7 +178,7 @@ grafana:
                 "gridPos": {
                   "h": 3,
                   "w": 4,
-                  "x": 4,
+                  "x": 0,
                   "y": 1
                 },
                 "id": 3,
@@ -247,7 +247,7 @@ grafana:
                 "gridPos": {
                   "h": 3,
                   "w": 4,
-                  "x": 8,
+                  "x": 4,
                   "y": 1
                 },
                 "id": 5,
@@ -320,7 +320,7 @@ grafana:
                 "gridPos": {
                   "h": 3,
                   "w": 4,
-                  "x": 12,
+                  "x": 16,
                   "y": 1
                 },
                 "id": 6,
@@ -356,7 +356,7 @@ grafana:
                     "instant": true
                   }
                 ],
-                "title": "In-flight HTTP requests",
+                "title": "In-flight HTTP",
                 "transparent": true,
                 "type": "stat"
               },
@@ -397,7 +397,7 @@ grafana:
                 "gridPos": {
                   "h": 3,
                   "w": 4,
-                  "x": 16,
+                  "x": 20,
                   "y": 1
                 },
                 "id": 7,
@@ -434,6 +434,93 @@ grafana:
                   }
                 ],
                 "title": "Restarts (1h)",
+                "transparent": true,
+                "type": "stat"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "PBFA97CFB590B2093"
+                },
+                "description": "Lowest scrape state across jung2bot pods: UP means /metrics is reachable on every pod.",
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "thresholds"
+                    },
+                    "mappings": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "DOWN",
+                            "color": "red"
+                          },
+                          "1": {
+                            "text": "UP",
+                            "color": "green"
+                          }
+                        }
+                      }
+                    ],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "green",
+                          "value": 1
+                        }
+                      ]
+                    },
+                    "unit": "short",
+                    "decimals": 0
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 3,
+                  "w": 4,
+                  "x": 12,
+                  "y": 1
+                },
+                "id": 12,
+                "options": {
+                  "colorMode": "value",
+                  "graphMode": "none",
+                  "justifyMode": "auto",
+                  "orientation": "auto",
+                  "percentChangeColorMode": "standard",
+                  "reduceOptions": {
+                    "calcs": [
+                      "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                  },
+                  "showPercentChange": false,
+                  "textMode": "auto",
+                  "wideLayout": true
+                },
+                "pluginVersion": "11.2.1",
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "prometheus",
+                      "uid": "PBFA97CFB590B2093"
+                    },
+                    "editorMode": "code",
+                    "expr": "min(up{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"})",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A",
+                    "instant": true
+                  }
+                ],
+                "title": "Scrape",
                 "transparent": true,
                 "type": "stat"
               },
@@ -662,111 +749,8 @@ grafana:
                 },
                 "id": 11,
                 "panels": [],
-                "title": "Availability and autoscaling",
+                "title": "Autoscaling",
                 "type": "row"
-              },
-              {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "PBFA97CFB590B2093"
-                },
-                "description": "Lowest scrape state across jung2bot pods: 1 = /metrics reachable, 0 = a scrape is failing.",
-                "fieldConfig": {
-                  "defaults": {
-                    "color": {
-                      "mode": "palette-classic"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        }
-                      ]
-                    },
-                    "unit": "short",
-                    "decimals": 0,
-                    "custom": {
-                      "axisBorderShow": false,
-                      "axisCenteredZero": false,
-                      "axisColorMode": "text",
-                      "axisLabel": "",
-                      "axisPlacement": "auto",
-                      "barAlignment": 0,
-                      "drawStyle": "line",
-                      "fillOpacity": 15,
-                      "gradientMode": "none",
-                      "hideFrom": {
-                        "legend": false,
-                        "tooltip": false,
-                        "viz": false
-                      },
-                      "insertNulls": false,
-                      "lineInterpolation": "smooth",
-                      "lineWidth": 1,
-                      "pointSize": 5,
-                      "scaleDistribution": {
-                        "type": "linear"
-                      },
-                      "showPoints": "never",
-                      "spanNulls": false,
-                      "stacking": {
-                        "group": "A",
-                        "mode": "none"
-                      },
-                      "thresholdsStyle": {
-                        "mode": "off"
-                      }
-                    },
-                    "min": 0,
-                    "max": 1
-                  },
-                  "overrides": []
-                },
-                "gridPos": {
-                  "h": 10,
-                  "w": 12,
-                  "x": 0,
-                  "y": 16
-                },
-                "id": 12,
-                "options": {
-                  "legend": {
-                    "calcs": [
-                      "mean",
-                      "max",
-                      "lastNotNull"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true,
-                    "sortBy": "Mean",
-                    "sortDesc": true
-                  },
-                  "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                  }
-                },
-                "pluginVersion": "11.2.1",
-                "targets": [
-                  {
-                    "datasource": {
-                      "type": "prometheus",
-                      "uid": "PBFA97CFB590B2093"
-                    },
-                    "editorMode": "code",
-                    "expr": "min(up{app_kubernetes_io_name=\"jung2bot\",namespace=\"$ns\"})",
-                    "legendFormat": "",
-                    "range": true,
-                    "refId": "A"
-                  }
-                ],
-                "title": "Metrics scrape",
-                "transparent": true,
-                "type": "timeseries"
               },
               {
                 "datasource": {
@@ -828,8 +812,8 @@ grafana:
                 },
                 "gridPos": {
                   "h": 10,
-                  "w": 12,
-                  "x": 12,
+                  "w": 24,
+                  "x": 0,
                   "y": 16
                 },
                 "id": 13,
@@ -2516,6 +2500,6 @@ grafana:
             "timezone": "browser",
             "title": "jung2bot",
             "uid": "jung2bot",
-            "version": 7,
+            "version": 8,
             "weekStart": ""
           }
