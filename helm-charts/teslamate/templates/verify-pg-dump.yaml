@@ -11,6 +11,9 @@ spec:
       ttlSecondsAfterFinished: {{ .Values.backup.ttlSecondsAfterFinished }}
       backoffLimit: {{ .Values.backup.backoffLimit }}
       template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: teslamate-verify-pg-dump
         spec:
           shareProcessNamespace: true
           containers:
