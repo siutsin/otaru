@@ -766,7 +766,7 @@ grafana:
                 ],
                 "title": "Metrics scrape",
                 "transparent": true,
-                "type": "stat"
+                "type": "timeseries"
               },
               {
                 "datasource": {
@@ -900,7 +900,7 @@ grafana:
                 ],
                 "title": "Replica count",
                 "transparent": true,
-                "type": "stat"
+                "type": "timeseries"
               },
               {
                 "collapsed": false,
