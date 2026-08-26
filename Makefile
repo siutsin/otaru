@@ -221,7 +221,7 @@ check-markdown: ## Check Markdown files with markdownlint-cli2
 			echo "$(RED)markdownlint-cli2 is required but not installed. Install markdownlint-cli2 and re-run make check-markdown.$(NC)"; \
 			exit 1; \
 		fi; \
-		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**" "#**/.scratchpad/**"
+		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**" "#**/.scratchpad/**" "#helm-charts/longhorn/vendor/**"
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
 .PHONY: lint-terraform
@@ -248,13 +248,14 @@ lint-zizmor: ## Run zizmor audit on workflows
 lint-editorconfig: ## Check .editorconfig compliance
 	# Note: Excluding gateway-api, monitoring, and snapshot-controller generated CRD files with upstream long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
+	# Excluding longhorn/vendor -- unmodified upstream chart source (see helm-charts/longhorn/Chart.yaml)
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
 	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
 		if [ -z "$$ec_bin" ]; then \
 			echo "$(RED)editorconfig-checker is required but not installed. Install editorconfig-checker and re-run make lint-editorconfig.$(NC)"; \
 			exit 1; \
 		fi; \
-		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 			echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 			exit 1; \
 		}
