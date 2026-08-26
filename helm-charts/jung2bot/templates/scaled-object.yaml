@@ -1,4 +1,16 @@
 apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ .Values.name }}-aws
+  namespace: {{ .Values.namespace }}
+spec:
+  # Use the workload IRSA role (sqs:* on the event queue). The KEDA
+  # operator has no AWS credentials of its own.
+  podIdentity:
+    provider: aws
+    identityOwner: workload
+---
+apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: {{ .Values.name }}
@@ -30,3 +42,14 @@ spec:
         start: "55 17 * * 1-5"  # Scale up at 5:55 PM, Monday to Friday, Hong Kong time
         end: "15 18 * * 1-5"    # Scale down at 6:15 PM, Monday to Friday, Hong Kong time
         desiredReplicas: {{ .Values.app.autoscaling.max | quote }}
+    # Off-work fan-out dumps one SQS message per due chat. CPU/memory stay
+    # low, so scale on visible queue depth. Target 2 waiting messages per
+    # pod; in-flight messages are already being sent.
+    - type: aws-sqs-queue
+      authenticationRef:
+        name: {{ .Values.name }}-aws
+      metadata:
+        queueURL: {{ printf "https://sqs.%s.amazonaws.com/%v/%s" .Values.app.env.awsRegion .Values.irsa.awsAccountId .Values.app.env.eventQueueName | quote }}
+        queueLength: "2"
+        awsRegion: {{ .Values.app.env.awsRegion | quote }}
+        scaleOnInFlight: "false"
