@@ -20,4 +20,5 @@ app:
     stage: dev
   autoscaling:
     min: 1
+    cron: 2
     max: 4
