@@ -24,6 +24,12 @@ spec:
                 capabilities:
                   drop:
                     - ALL
+                  # 2026-08-27: the final `pkill -TERM postgres` stops the
+                  # sidecar postmaster (postgres user) so the pod exits;
+                  # that needs KILL. #3112 dropped it with ALL, so the Job
+                  # hung at 1/2 and the app showed Degraded.
+                  add:
+                    - KILL
               command: ["/bin/sh", "-c"]
               args:
                 - |
