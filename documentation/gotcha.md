@@ -267,7 +267,8 @@ workload SA token. There was no operator IRSA.
 
 **Solution:** Role `keda` (`infrastructure/cloud/aws/keda/iam-irsa`) with
 `sqs:GetQueueAttributes` on the event queues. Annotate `keda-operator`
-with that role. Apply Terraform before GitOps. Do not use workload IRSA.
+with that role. Set trigger `identityOwner: operator`. Apply Terraform
+before GitOps. Do not use `identityOwner: workload`.
 
 ---
 
