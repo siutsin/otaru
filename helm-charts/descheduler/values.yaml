@@ -105,6 +105,10 @@ descheduler:
               # eviction cut it off. Short-lived, bounded-duration batch
               # Job -- excluding it here only defers node consolidation by
               # the run's own duration, not indefinitely.
+              # 2026-08-27: teslamate-verify-pitr added for the same reason
+              # -- its scheduled 14:00 UTC run failed 5/5 the same way, the
+              # script pod evicted mid-restore while the CNPG recovery was
+              # still progressing.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -112,6 +116,7 @@ descheduler:
                     values:
                       - blocky
                       - teslamate-verify-pg-dump
+                      - teslamate-verify-pitr
           - name: HighNodeUtilization
             args:
               thresholds:
