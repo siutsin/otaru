@@ -24,18 +24,10 @@ spec:
                 capabilities:
                   drop:
                     - ALL
-                  # 2026-08-27: PR #3112 dropped ALL here too, which removed
-                  # KILL. This container runs as root but the sibling
-                  # postgres-sidecar's postmaster runs as the postgres user,
-                  # so the final `pkill -TERM postgres` (which stops the
-                  # sidecar so the pod can complete) needs KILL to signal a
-                  # process it does not own. Without it busybox pkill
-                  # silently no-ops, the sidecar keeps running, the pod
-                  # stays 1/2, the Job never completes, and
-                  # teslamate-verify-pg-dump shows Degraded until it is
-                  # manually cleared (first stuck run 2026-08-25 12:00 UTC,
-                  # once postgres:17-alpine's busybox stopped surfacing the
-                  # EPERM).
+                  # 2026-08-27: the final `pkill -TERM postgres` stops the
+                  # sidecar postmaster (postgres user) so the pod exits;
+                  # that needs KILL. #3112 dropped it with ALL, so the Job
+                  # hung at 1/2 and the app showed Degraded.
                   add:
                     - KILL
               command: ["/bin/sh", "-c"]
