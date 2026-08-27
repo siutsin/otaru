@@ -69,6 +69,11 @@ Auto-merge once green, even outside the allowlist above, when **all** hold:
 - No secrets, RBAC, auth, exposure, mesh/gateway, or cluster-wide policy
   touched. `references/escalation.md` still governs regardless of incident
   framing — a database restore or secret rotation stays escalate-only.
+  Exception: restoring a `securityContext` / capability value to what was
+  deployed and healthy right before the incident (confirmed via
+  `git log`/journal) is allowed here even though it adds a capability —
+  it is a revert, not a new privilege grant. A capability or privilege
+  beyond that prior baseline still stays held.
 - Verified against rendered/live output (not lint/syntax-check alone) that
   the fix resolves the confirmed symptom.
 - Tests/syntax-check passed and CI is green.
