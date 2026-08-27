@@ -30,11 +30,12 @@ spec:
         start: "55 17 * * 1-5"  # Scale up at 5:55 PM, Monday to Friday, Hong Kong time
         end: "15 18 * * 1-5"    # Scale down at 6:15 PM, Monday to Friday, Hong Kong time
         desiredReplicas: {{ .Values.app.autoscaling.cron | quote }}
-    # Visible queue depth. identityOwner operator uses keda-operator IRSA.
+    # Count in-flight too. Off-work lag was hidden messages, not visible depth.
+    # identityOwner operator uses keda-operator IRSA.
     - type: aws-sqs-queue
       metadata:
         queueURL: {{ printf "https://sqs.%s.amazonaws.com/%v/%s" .Values.app.env.awsRegion .Values.irsa.awsAccountId .Values.app.env.eventQueueName | quote }}
         queueLength: "2"
         awsRegion: {{ .Values.app.env.awsRegion | quote }}
-        scaleOnInFlight: "false"
+        scaleOnInFlight: "true"
         identityOwner: operator
