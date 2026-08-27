@@ -192,13 +192,20 @@ spec:
                   fi
 
                   VERIFY_RAW_TARGET_TIME="${VERIFY_TARGET_TIME}"
+                  # Clamp into the recoverable window: no later than the last
+                  # archived WAL, and no earlier than the backup we restore
+                  # from. The lower bound matters when the source DB is idle
+                  # (TeslaMate logs nothing while the car is away), so
+                  # max(data timestamp) predates every retained backup and
+                  # PITR would never reach the target.
                   VERIFY_TARGET_TIME=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
-                    psql -d postgres -Atq -c "SELECT LEAST(
-                      '${VERIFY_RAW_TARGET_TIME}'::timestamptz,
-                      '${VERIFY_ARCHIVER_LAST_ARCHIVED_TIME}'::timestamptz - interval '30 seconds'
-                    )")
+                    psql -d postgres -Atq -c "SELECT CASE WHEN lo > hi THEN NULL
+                        ELSE GREATEST(LEAST('${VERIFY_RAW_TARGET_TIME}'::timestamptz, hi), lo) END
+                      FROM (SELECT
+                        '${VERIFY_BACKUP_STOPPED_AT}'::timestamptz + interval '1 minute' AS lo,
+                        '${VERIFY_ARCHIVER_LAST_ARCHIVED_TIME}'::timestamptz - interval '30 seconds' AS hi) w")
                   if [ -z "${VERIFY_TARGET_TIME}" ]; then
-                    echo "Error: failed to derive a recoverable target time."
+                    echo "Error: no recoverable PITR window (backup stoppedAt ${VERIFY_BACKUP_STOPPED_AT} vs last archived ${VERIFY_ARCHIVER_LAST_ARCHIVED_TIME})."
                     exit 1
                   fi
                   if [ -n "${VERIFY_BACKUP_TIMELINE}" ] && [ -n "${VERIFY_CLUSTER_TIMELINE}" ] && [ "${VERIFY_BACKUP_TIMELINE}" != "${VERIFY_CLUSTER_TIMELINE}" ]; then
