@@ -74,6 +74,9 @@ spec:
       backoffLimit: {{ .Values.backup.backoffLimit }}
       activeDeadlineSeconds: {{ .Values.backup.verifyPitr.activeDeadlineSeconds }}
       template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: teslamate-verify-pitr
         spec:
           serviceAccountName: {{ .Values.name }}-verify-pitr
           containers:
@@ -140,41 +143,11 @@ spec:
                   VERIFY_BACKUP_STOPPED_AT=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f1)
                   VERIFY_BACKUP_ID=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f2)
                   VERIFY_BACKUP_TIMELINE=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f4)
-                  VERIFY_TARGET_SCAN_COUNT=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
-                  SELECT count(*)
-                  FROM information_schema.columns
-                  WHERE table_schema = 'public'
-                    AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date');
-                  SQL
-                  )
-                  VERIFY_TARGET_TIME=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -Atq <<'SQL'
-                  WITH generated AS (
-                    SELECT 'SELECT max(max_value) FROM (' ||
-                      string_agg(
-                        format(
-                          'SELECT max(%I::timestamptz) AS max_value FROM %I.%I',
-                          column_name,
-                          table_schema,
-                          table_name
-                        ),
-                        ' UNION ALL '
-                      ) ||
-                      ') t'
-                      AS sql
-                    FROM information_schema.columns
-                    WHERE table_schema = 'public'
-                      AND data_type IN ('timestamp without time zone', 'timestamp with time zone', 'date')
-                  )
-                  SELECT sql FROM generated \gexec
-                  SQL
-                  )
-
-                  if [ -z "${VERIFY_SOURCE_PRIMARY}" ] || [ -z "${VERIFY_BACKUP_ID}" ] || [ -z "${VERIFY_TARGET_TIME}" ] || [ -z "${VERIFY_BACKUP_STOPPED_AT}" ]; then
+                  if [ -z "${VERIFY_SOURCE_PRIMARY}" ] || [ -z "${VERIFY_BACKUP_ID}" ] || [ -z "${VERIFY_BACKUP_STOPPED_AT}" ]; then
                     echo "Error: failed to derive PITR inputs."
                     echo "VERIFY_SOURCE_PRIMARY=${VERIFY_SOURCE_PRIMARY}"
                     echo "VERIFY_BACKUP_ID=${VERIFY_BACKUP_ID}"
                     echo "VERIFY_BACKUP_STOPPED_AT=${VERIFY_BACKUP_STOPPED_AT}"
-                    echo "VERIFY_TARGET_TIME=${VERIFY_TARGET_TIME}"
                     exit 1
                   fi
 
@@ -191,46 +164,24 @@ spec:
                     fi
                   fi
 
-                  VERIFY_RAW_TARGET_TIME="${VERIFY_TARGET_TIME}"
-                  # Clamp into the recoverable window: no later than the last
-                  # archived WAL, and no earlier than the backup we restore
-                  # from. The lower bound matters when the source DB is idle
-                  # (TeslaMate logs nothing while the car is away), so
-                  # max(data timestamp) predates every retained backup and
-                  # PITR would never reach the target.
-                  VERIFY_TARGET_TIME=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
-                    psql -d postgres -Atq -c "SELECT CASE WHEN lo > hi THEN NULL
-                        ELSE GREATEST(LEAST('${VERIFY_RAW_TARGET_TIME}'::timestamptz, hi), lo) END
-                      FROM (SELECT
-                        '${VERIFY_BACKUP_STOPPED_AT}'::timestamptz + interval '1 minute' AS lo,
-                        '${VERIFY_ARCHIVER_LAST_ARCHIVED_TIME}'::timestamptz - interval '30 seconds' AS hi) w")
-                  if [ -z "${VERIFY_TARGET_TIME}" ]; then
-                    echo "Error: no recoverable PITR window (backup stoppedAt ${VERIFY_BACKUP_STOPPED_AT} vs last archived ${VERIFY_ARCHIVER_LAST_ARCHIVED_TIME})."
-                    exit 1
-                  fi
-                  if [ -n "${VERIFY_BACKUP_TIMELINE}" ] && [ -n "${VERIFY_CLUSTER_TIMELINE}" ] && [ "${VERIFY_BACKUP_TIMELINE}" != "${VERIFY_CLUSTER_TIMELINE}" ]; then
-                    VERIFY_TARGET_TIME=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
-                      psql -d postgres -Atq -c "SELECT LEAST(
-                        '${VERIFY_TARGET_TIME}'::timestamptz,
-                        '${VERIFY_BACKUP_STOPPED_AT}'::timestamptz
-                      )")
-                    echo "Backup timeline ${VERIFY_BACKUP_TIMELINE} differs from cluster timeline ${VERIFY_CLUSTER_TIMELINE}; capping targetTime to backup stoppedAt."
-                  fi
-                  if [ "${VERIFY_TARGET_TIME}" != "${VERIFY_RAW_TARGET_TIME}" ]; then
-                    echo "Capped targetTime from ${VERIFY_RAW_TARGET_TIME} to recoverable ${VERIFY_TARGET_TIME}"
-                  fi
-
-                  kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
-                    psql -d postgres -Atq -c "SELECT pg_logical_emit_message(false, 'teslamate_verify_pitr', 'archive target WAL')" >/dev/null
-
+                  # Recover to a WAL LSN, not a wall-clock time. TeslaMate's
+                  # source DB is often idle (nothing logged while the car is
+                  # away), and recovery_target_time matches transaction commit
+                  # timestamps -- with no commits after the base backup a time
+                  # target is never reached and Postgres aborts with "recovery
+                  # ended before configured recovery target was reached". An
+                  # LSN always advances: the logical message below writes a
+                  # real WAL record past the backup and returns its LSN.
+                  VERIFY_TARGET_LSN=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
+                    psql -d postgres -Atq -c "SELECT pg_logical_emit_message(false, 'teslamate_verify_pitr', 'recovery target marker')")
                   VERIFY_TARGET_WAL=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
-                    psql -d postgres -Atq -c "SELECT pg_walfile_name(pg_current_wal_lsn())")
-                  if [ -z "${VERIFY_TARGET_WAL}" ]; then
-                    echo "Error: failed to determine current WAL file."
+                    psql -d postgres -Atq -c "SELECT pg_walfile_name('${VERIFY_TARGET_LSN}'::pg_lsn)")
+                  if [ -z "${VERIFY_TARGET_LSN}" ] || [ -z "${VERIFY_TARGET_WAL}" ]; then
+                    echo "Error: failed to emit or locate the recovery target LSN."
                     exit 1
                   fi
 
-                  echo "Forcing WAL switch so targetTime is archived in ${VERIFY_TARGET_WAL}"
+                  echo "Forcing WAL switch so target LSN ${VERIFY_TARGET_LSN} is archived in ${VERIFY_TARGET_WAL}"
                   kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
                     psql -d postgres -Atq -c "SELECT pg_switch_wal()" >/dev/null
 
@@ -256,8 +207,7 @@ spec:
                   echo "Using source primary ${VERIFY_SOURCE_PRIMARY}"
                   echo "Using backupID ${VERIFY_BACKUP_ID} (timeline ${VERIFY_BACKUP_TIMELINE:-unknown}, stoppedAt ${VERIFY_BACKUP_STOPPED_AT})"
                   echo "Using cluster timeline ${VERIFY_CLUSTER_TIMELINE:-unknown}"
-                  echo "Scanned ${VERIFY_TARGET_SCAN_COUNT} timestamp-like columns in public"
-                  echo "Using targetTime ${VERIFY_TARGET_TIME}"
+                  echo "Using targetLSN ${VERIFY_TARGET_LSN}"
 
                   cat <<EOF | kubectl apply -f -
                   apiVersion: postgresql.cnpg.io/v1
@@ -316,7 +266,7 @@ spec:
                         owner: ${VERIFY_OWNER}
                         recoveryTarget:
                           backupID: "${VERIFY_BACKUP_ID}"
-                          targetTime: "${VERIFY_TARGET_TIME}"
+                          targetLSN: "${VERIFY_TARGET_LSN}"
                     externalClusters:
                       - name: verify-pitr-source
                         plugin:
