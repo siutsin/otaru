@@ -256,6 +256,21 @@ kubectl get apiservice v1beta1.external.metrics.k8s.io
 
 ---
 
+## KEDA SQS Scaler Needs Operator IRSA
+
+**Problem:** `identityOwner: workload` on this k3s cluster does not give
+KEDA AWS credentials. The operator hits EC2 IMDS, SQS metric reads fail,
+and the HPA goes Degraded.
+
+**Cause:** The scaler runs in the operator. KEDA 2.20 does not mint a
+workload SA token. There was no operator IRSA.
+
+**Solution:** Role `keda` (`infrastructure/cloud/aws/keda/iam-irsa`) with
+`sqs:GetQueueAttributes` on the event queues. Annotate `keda-operator`
+with that role. Apply Terraform before GitOps. Do not use workload IRSA.
+
+---
+
 ## Metrics Server API Fails Through Ambient
 
 Metrics Server exposes `metrics.k8s.io` through a Kubernetes aggregated APIService. The kube-apiserver calls

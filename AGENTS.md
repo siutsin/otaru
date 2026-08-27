@@ -98,6 +98,9 @@ the previous value was too low.
 
 ## Cluster Access
 
+KEDA SQS scalers use operator IRSA, not workload identity. See
+`documentation/gotcha.md`.
+
 Use the Kubernetes MCP tools for live cluster inspection whenever they are
 available. Prefer them for read-only diagnostics such as listing Pods, reading
 events, checking Argo CD Applications, inspecting resources, logs, and metrics
