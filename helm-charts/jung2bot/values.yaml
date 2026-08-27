@@ -27,6 +27,7 @@ app:
     chatIdTable: jung2bot-prod-chatIds
     logLevel: info
     messageSaveQueueFlushSeconds: 10
+    eventQueueName: jung2bot-prod-event-queue
     messageSaveQueueName: jung2bot-prod-message-save-queue.fifo
     messageTable: jung2bot-prod-messages
     profile: default
@@ -34,7 +35,7 @@ app:
     stage: prod
   autoscaling:
     min: 3
-    max: 10
+    max: 20
 
 cron:
   offWork:
