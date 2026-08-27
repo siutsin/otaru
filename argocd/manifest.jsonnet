@@ -166,10 +166,17 @@ local _grafanaDashboards = [
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
 local kedaHelm = {
-  parameters: [{
-    name: 'keda.serviceAccount.operator.annotations.eks\\.amazonaws\\.com/role-arn',
-    value: 'arn:aws:iam::' + std.extVar('AWS_ACCOUNT_ID') + ':role/keda',
-  }],
+  valuesObject: {
+    keda: {
+      serviceAccount: {
+        operator: {
+          annotations: {
+            'eks.amazonaws.com/role-arn': 'arn:aws:iam::' + std.extVar('AWS_ACCOUNT_ID') + ':role/keda',
+          },
+        },
+      },
+    },
+  },
 };
 local monitoringHelm = {
   parameters: [{ name: 'yace.irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }],
