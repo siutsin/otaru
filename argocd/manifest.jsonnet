@@ -165,6 +165,12 @@ local _grafanaDashboards = [
 ];
 
 local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
+local kedaHelm = {
+  parameters: [{
+    name: 'keda.serviceAccount.operator.annotations.eks\\.amazonaws\\.com/role-arn',
+    value: 'arn:aws:iam::' + std.extVar('AWS_ACCOUNT_ID') + ':role/keda',
+  }],
+};
 local monitoringHelm = {
   parameters: [{ name: 'yace.irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }],
   valueFiles: _grafanaDashboards,
@@ -294,7 +300,7 @@ local monitoring = [
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
   { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling['k8s-cleaner'] },
-  { wave: '02', name: 'keda', namespace: 'keda' },
+  { wave: '02', name: 'keda', namespace: 'keda', helm: kedaHelm },
   { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.reloader },
   { wave: '05', name: 'vpa', namespace: 'vpa' },  // after cert-manager (wave 02)
 ];
