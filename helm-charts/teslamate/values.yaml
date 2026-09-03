@@ -38,7 +38,12 @@ deployment:
     # upstream in turn -- fifth occurrence of this recurring failure mode
     # (ImagePullBackOff, confirmed NotFound against the registry).
     # Bumped to the current main digest again.
-    tag: main@sha256:3751c1ebb9023618bf2869b176b6ff25cc03e97c90b12afc67e3d067c0adc283
+    # 2026-09-03: previous main@3751c1eb digest was garbage-collected
+    # upstream in turn -- sixth occurrence. teslamate Deployment could not
+    # roll a restart (new pod ImagePullBackOff, NotFound against ghcr.io);
+    # old pod kept serving so no outage, but the Application went Degraded.
+    # Bumped to the current multi-arch main digest (linux/amd64 + arm64).
+    tag: main@sha256:50dea666c3a360318c005e458077f6321f67aec87ec06b943746a9f3071351c8
   envFrom:
     - secretRef:
         name: teslamate
