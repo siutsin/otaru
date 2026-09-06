@@ -272,6 +272,23 @@ before GitOps. Do not use `identityOwner: workload`.
 
 ---
 
+## SQS Visibility Must Beat HTTP Timeout And FIFO Flush
+
+**Problem:** Event-queue retries showed as ~10 min `offFromWork` wait. The
+queue was not a 10 min backlog.
+
+**Cause:** `visibility_timeout_seconds` was 600. Queue wait is enqueue to
+the next pickup. A failed or interrupted receive comes back after that
+timeout. The bot HTTP client times out at 10 s. The FIFO save worker
+flushes every 10 s.
+
+**Solution:** Event queues default to 15 s (above the 10 s HTTP timeout,
+so a hang does not double-send). FIFO save queues stay at 30 s so a
+message cannot become visible mid-flush. Do not set event visibility at
+or below 10 s.
+
+---
+
 ## Metrics Server API Fails Through Ambient
 
 Metrics Server exposes `metrics.k8s.io` through a Kubernetes aggregated APIService. The kube-apiserver calls
