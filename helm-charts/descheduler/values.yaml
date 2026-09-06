@@ -109,6 +109,18 @@ descheduler:
               # -- its scheduled 14:00 UTC run failed 5/5 the same way, the
               # script pod evicted mid-restore while the CNPG recovery was
               # still progressing.
+              # 2026-09-06: cnpg.io/podRole=instance excluded -- the umami
+              # CloudNativePG replica hit the same disruptive no-op loop on
+              # raspberrypi-00 (evicted every ~5 minutes 19:05-20:15 UTC,
+              # rescheduled straight back, thrashing its Longhorn volume
+              # detach/attach each cycle). Required pod anti-affinity plus a
+              # near-uniform per-node memory picture leaves the evicted
+              # instance nowhere better to go. Excludes all CNPG database
+              # instance pods (teslamate, umami, hydra); they are stateful
+              # with attached volumes, so consolidation churn costs more
+              # than the packing it buys.
+              # matchExpressions are ANDed: a pod must satisfy every entry
+              # to be eligible for eviction under this profile.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -117,6 +129,10 @@ descheduler:
                       - blocky
                       - teslamate-verify-pg-dump
                       - teslamate-verify-pitr
+                  - key: cnpg.io/podRole
+                    operator: NotIn
+                    values:
+                      - instance
           - name: HighNodeUtilization
             args:
               thresholds:
