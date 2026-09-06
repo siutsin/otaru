@@ -274,18 +274,34 @@ before GitOps. Do not use `identityOwner: workload`.
 
 ## SQS Visibility Must Beat HTTP Timeout And FIFO Flush
 
-**Problem:** Event-queue retries showed as ~10 min `offFromWork` wait. The
-queue was not a 10 min backlog.
+**Problem:** Grafana showed ~10 min `offFromWork` queue wait after the
+evening fan-out, even with 20 pods and almost no visible SQS backlog.
+That looked like another drain failure. It was not.
 
-**Cause:** `visibility_timeout_seconds` was 600. Queue wait is enqueue to
-the next pickup. A failed or interrupted receive comes back after that
-timeout. The bot HTTP client times out at 10 s. The FIFO save worker
-flushes every 10 s.
+**Why it happens:** queue wait is enqueue time to the next pickup.
+`visibility_timeout_seconds` was 600 on every jung2bot queue, set in
+January 2024 with no workload reason. A failed or interrupted receive
+therefore came back after 10 minutes, and the histogram landed in the
+600 s bucket. The bot HTTP client times out at 10 s, so a hung Telegram
+send can last that long. The FIFO save worker flushes every 10 s, so a
+message that becomes visible mid-flush can be saved twice.
 
-**Solution:** Event queues default to 15 s (above the 10 s HTTP timeout,
-so a hang does not double-send). FIFO save queues stay at 30 s so a
-message cannot become visible mid-flush. Do not set event visibility at
-or below 10 s.
+### Symptoms: Long Wait With An Empty Visible Queue
+
+- `offFromWork` p95 wait hits 600 s in a short window while SQS visible
+  depth is 0 to 2 and in-flight is often 1.
+- Long waits cluster about 10 minutes after the first receive (for
+  example 18:11 HKT after an 18:01 pickup), or after cron scale-down
+  at 18:15 HKT.
+- `worker_actions_total{outcome="dropped"}` stays 0: the retry succeeds.
+
+### Resolution: 15 s Event, 30 s FIFO
+
+Event queues default to 15 s in `infrastructure/modules/aws-sqs`. That
+is above the 10 s HTTP timeout, so a hang does not double-send. FIFO
+save queues set `visibility_timeout_seconds = 30` so the 10 s flush can
+finish. Do not set event visibility at or below 10 s. Apply the SQS
+Terragrunt stacks after merge; this is AWS queue config, not Argo.
 
 ---
 
