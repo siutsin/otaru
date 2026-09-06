@@ -272,6 +272,39 @@ before GitOps. Do not use `identityOwner: workload`.
 
 ---
 
+## SQS Visibility Must Beat HTTP Timeout And FIFO Flush
+
+**Problem:** Grafana showed ~10 min `offFromWork` queue wait after the
+evening fan-out, even with 20 pods and almost no visible SQS backlog.
+That looked like another drain failure. It was not.
+
+**Why it happens:** queue wait is enqueue time to the next pickup.
+`visibility_timeout_seconds` was 600 on every jung2bot queue, set in
+January 2024 with no workload reason. A failed or interrupted receive
+therefore came back after 10 minutes, and the histogram landed in the
+600 s bucket. The bot HTTP client times out at 10 s, so a hung Telegram
+send can last that long. The FIFO save worker flushes every 10 s, so a
+message that becomes visible mid-flush can be saved twice.
+
+### Symptoms: Long Wait With An Empty Visible Queue
+
+- `offFromWork` p95 wait hits 600 s in a short window while SQS visible
+  depth is 0 to 2 and in-flight is often 1.
+- Long waits cluster about 10 minutes after the first receive (for
+  example 18:11 HKT after an 18:01 pickup), or after cron scale-down
+  at 18:15 HKT.
+- `worker_actions_total{outcome="dropped"}` stays 0: the retry succeeds.
+
+### Resolution: 15 s Event, 30 s FIFO
+
+Event queues default to 15 s in `infrastructure/modules/aws-sqs`. That
+is above the 10 s HTTP timeout, so a hang does not double-send. FIFO
+save queues set `visibility_timeout_seconds = 30` so the 10 s flush can
+finish. Do not set event visibility at or below 10 s. Apply the SQS
+Terragrunt stacks after merge; this is AWS queue config, not Argo.
+
+---
+
 ## Metrics Server API Fails Through Ambient
 
 Metrics Server exposes `metrics.k8s.io` through a Kubernetes aggregated APIService. The kube-apiserver calls

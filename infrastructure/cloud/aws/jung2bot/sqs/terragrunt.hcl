@@ -14,6 +14,8 @@ inputs = {
     message_save = {
       name = "jung2bot-prod-message-save-queue.fifo"
       fifo = true
+      # Flush interval is 10s. Visibility must last the whole batch.
+      visibility_timeout_seconds = 30
     }
   }
 }
