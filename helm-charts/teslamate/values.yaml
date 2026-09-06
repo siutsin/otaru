@@ -27,23 +27,18 @@ deployment:
   image:
     # Pull from GHCR (ghcr.io/teslamate-org/teslamate), not Docker Hub.
     # Temporary hotfix for Tesla Owner API 403 after v4.0.0 (teslamate-org/teslamate#5399).
-    # Pin to a stable GHCR release tag once 4.0.1+ is published.
-    # 2026-08-12: the previous main@5e4a1b91 digest (itself a 2026-08-05
-    # replacement for a garbage-collected digest) was garbage-collected
-    # upstream in turn -- third occurrence of this recurring failure mode
-    # for any floating-tag digest pin here. Bumped to the current main
-    # digest again.
+    # Pin to a stable GHCR release tag once 4.0.1+ is published. Upstream
+    # publishes no semver tags today, only the floating `main` tag, so the
+    # pin has to track a `main` digest.
+    # Recurring failure mode: upstream rebuilds `main` and garbage-collects
+    # the old digest, so the pinned digest becomes NotFound at ghcr.io. On
+    # a rollout restart the new pod then hits ImagePullBackOff while the old
+    # pod keeps serving, so no outage but the Application goes Degraded.
+    # Occurrences with a digest bump each time: 2026-08-05, 2026-08-12,
+    # 2026-08-21, 2026-09-03, 2026-09-06 (7th; digest 50dea666 gone).
     repository: ghcr.io/teslamate-org/teslamate
-    # 2026-08-21: previous main@ed3d6109 digest was garbage-collected
-    # upstream in turn -- fifth occurrence of this recurring failure mode
-    # (ImagePullBackOff, confirmed NotFound against the registry).
-    # Bumped to the current main digest again.
-    # 2026-09-03: previous main@3751c1eb digest was garbage-collected
-    # upstream in turn -- sixth occurrence. teslamate Deployment could not
-    # roll a restart (new pod ImagePullBackOff, NotFound against ghcr.io);
-    # old pod kept serving so no outage, but the Application went Degraded.
-    # Bumped to the current multi-arch main digest (linux/amd64 + arm64).
-    tag: main@sha256:50dea666c3a360318c005e458077f6321f67aec87ec06b943746a9f3071351c8
+    # Multi-arch main digest (linux/amd64 + arm64).
+    tag: main@sha256:4682b92780d3a83f0cef0db5f9378f430fee1acf4ad079e75c4bd81f896f5c8e
   envFrom:
     - secretRef:
         name: teslamate
@@ -124,11 +119,10 @@ grafana:
   image:
     registry: ghcr.io
     repository: teslamate-org/teslamate/grafana
-    # 2026-08-13: the previous main@afb325ae digest was garbage-collected
-    # upstream -- same recurring failure mode as the main teslamate image
-    # (see the deployment.image comment above). Bumped to the current main
-    # digest again.
-    tag: main@sha256:fe24cb24d8543cb9742cbcb662aeb00ac10aeeab9a53d4c8af5cf329d20cef0b
+    # Same recurring garbage-collection failure mode as the main teslamate
+    # image (see the deployment.image comment above). Digest bumps:
+    # 2026-08-13, 2026-09-06 (digest fe24cb24 gone).
+    tag: main@sha256:b75980232cb175d303ef5e722b2bd266893857845b0bbef9fbd2ab757358d2b4
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
