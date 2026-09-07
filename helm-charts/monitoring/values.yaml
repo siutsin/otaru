@@ -592,12 +592,16 @@ loki:
       istio.io/dataplane-mode: none
     resources:
       # KRR 2026-07-05: live peak ~583Mi working set; 512Mi request (#2567) left ~70Mi headroom.
+      # 2026-09-07: Loki wedged for ~7h at 606/608Mi (99.7%). Not OOMKilled --
+      # the Go runtime GC held it just under the limit, starving CPU: /ready
+      # probe timed out x75, pushes took 1m+ and 500'd, in-process gRPC
+      # connections dropped. App went Degraded. Raised to 1Gi for real headroom.
       requests:
         cpu: 100m
-        memory: 608Mi
+        memory: 1Gi
         ephemeral-storage: 128Mi
       limits:
-        memory: 608Mi
+        memory: 1Gi
         ephemeral-storage: 128Mi
   minio:
     enabled: false
