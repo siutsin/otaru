@@ -186,9 +186,12 @@ generate-diagrams: poetry-install format-python ## Generate architecture diagram
 .PHONY: validate-helm-charts
 validate-helm-charts: ## Validate all Helm charts
 	@echo "$(GREEN)Validating Helm charts...$(NC)"
+	@# Helm 4.2.4 can fail with "could not find : no matching version" when every
+	@# chart refreshes every duplicate repo. Update once, then skip-refresh.
+	@helm repo update
 	@for chart in helm-charts/*/; do \
 		if [ -f "$$chart/Chart.yaml" ]; then \
-			helm dependency build "$$chart" > /dev/null || exit 1; \
+			helm dependency build "$$chart" --skip-refresh > /dev/null || exit 1; \
 			helm dependency list "$$chart" | awk ' \
 				NR > 1 && NF > 0 && $$4 !~ /^(ok|unpacked)$$/ { \
 					print "Helm dependency not current in " chart ": " $$0; \

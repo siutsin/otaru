@@ -44,6 +44,24 @@ kubectl -n kube-system get secret raspberrypi-03.node-password.k3s
 
 ---
 
+## Helm 4 Dependency Build Fails With Empty Chart Name
+
+**Problem:** Local `make test` dies in `validate-helm-charts` with
+`could not find : no matching version` on `istio-base`, even though
+`helm search` shows `base` 1.30.4 and CI is green.
+
+**Why it happens:** Helm 4.2.4 refreshes every configured repo on each
+`helm dependency build`. This machine has the same Istio URL under several
+repo names. That refresh is flaky and sometimes resolves an empty chart
+name. CI runs `make update-helm-deps` first, so it often misses the race.
+
+**Solution:** `validate-helm-charts` runs `helm repo update` once, then
+`helm dependency build --skip-refresh` per chart. Do not remove
+`--skip-refresh`. Duplicate `helm repo add` entries for the same URL
+make the flake more likely.
+
+---
+
 ## Atlantis Is Unsafe for This Public Repo
 
 Atlantis is not a safe fit for this repository while it remains public.
