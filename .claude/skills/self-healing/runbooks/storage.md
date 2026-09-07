@@ -50,6 +50,16 @@
   deleting the source replica object, so a manual `kubectl delete
   replicas.longhorn.io <old-replica>` may still be needed to finish
   vacating it. The consuming pod does not need to restart.
+- **One volume stuck `attaching` on a specific node, engine crash-looping
+  (`exit status 1` right after "Adding backend" / "Shutting down iSCSI
+  device"), while its replicas stay `running` with empty `failedAt` and
+  other volumes attach fine on that node:** node-local stale iSCSI target
+  state for that IQN, usually left by a long run of failed attach retries
+  (often after the consumer moved nodes). Deleting the engine CR does not
+  clear it. Fix: `kubectl cordon <node>` then delete the consumer pod so it
+  reschedules elsewhere — the volume attaches cleanly on a node with no
+  stale target, then `kubectl uncordon`. Do this before touching replicas.
+  Confirmed 2026-09-07 (Loki, raspberrypi-00 -> nuc-00).
 - **Workload stuck `ContainerCreating`, every one of its volumes fails to
   mount at the same instant** (`connection refused` or `error reading from
   server: EOF` against the CSI socket): the symptom lives on the pod, but
