@@ -9,7 +9,7 @@ dependencies:
   version: 29.27.0
   repository: https://prometheus-community.github.io/helm-charts
 - name: prometheus-blackbox-exporter
-  version: 11.17.2
+  version: 11.18.0
   repository: https://prometheus-community.github.io/helm-charts
 - name: prometheus-yet-another-cloudwatch-exporter
   alias: yace
