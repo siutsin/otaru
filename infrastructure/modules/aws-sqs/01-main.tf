@@ -6,8 +6,8 @@ module "sqs" {
 
   for_each = var.sqss
 
-  name                              = each.value.name
-  fifo_queue                        = each.value.fifo
+  name       = each.value.name
+  fifo_queue = each.value.fifo
   # Event work is a few seconds. HTTP client timeout is 10s, so 15s is the floor.
   visibility_timeout_seconds        = coalesce(each.value.visibility_timeout_seconds, 15)
   kms_master_key_id                 = "alias/aws/sqs"
