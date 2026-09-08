@@ -119,6 +119,13 @@ descheduler:
               # instance pods (teslamate, umami, hydra); they are stateful
               # with attached volumes, so consolidation churn costs more
               # than the packing it buys.
+              # 2026-09-08: openclaw excluded -- same loop again. This
+              # single-replica Deployment with a Longhorn RWO volume was
+              # evicted from nuc-00/raspberrypi-00 every ~5 minutes for 40+
+              # minutes, each new pod stuck in Init on Multi-Attach /
+              # DeadlineExceeded while the volume was still detaching, then
+              # evicted again before it ever went Ready -- volume left
+              # state=attaching robustness=unknown, app down the whole time.
               # matchExpressions are ANDed: a pod must satisfy every entry
               # to be eligible for eviction under this profile.
               labelSelector:
@@ -127,6 +134,7 @@ descheduler:
                     operator: NotIn
                     values:
                       - blocky
+                      - openclaw
                       - teslamate-verify-pg-dump
                       - teslamate-verify-pitr
                   - key: cnpg.io/podRole
