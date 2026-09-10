@@ -35,10 +35,11 @@ deployment:
     # a rollout restart the new pod then hits ImagePullBackOff while the old
     # pod keeps serving, so no outage but the Application goes Degraded.
     # Occurrences with a digest bump each time: 2026-08-05, 2026-08-12,
-    # 2026-08-21, 2026-09-03, 2026-09-06 (7th; digest 50dea666 gone).
+    # 2026-08-21, 2026-09-03, 2026-09-06, 2026-09-10 (8th; digest
+    # 4682b927 gone).
     repository: ghcr.io/teslamate-org/teslamate
     # Multi-arch main digest (linux/amd64 + arm64).
-    tag: main@sha256:4682b92780d3a83f0cef0db5f9378f430fee1acf4ad079e75c4bd81f896f5c8e
+    tag: main@sha256:0d32891a6c3072ffa338fa5d6b4ff104900411666007ed85e9b1fccabd13a453
   envFrom:
     - secretRef:
         name: teslamate
