@@ -35,7 +35,7 @@ app:
     stage: prod
   autoscaling:
     min: 3
-    cron: 10
+    cron: 20
     max: 40
 
 cron:
