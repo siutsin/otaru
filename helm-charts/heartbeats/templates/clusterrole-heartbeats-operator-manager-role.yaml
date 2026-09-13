@@ -17,19 +17,9 @@ rules:
     resources:
       - heartbeats
     verbs:
-      - create
-      - delete
       - get
       - list
-      - patch
-      - update
       - watch
-  - apiGroups:
-      - monitoring.siutsin.com
-    resources:
-      - heartbeats/finalizers
-    verbs:
-      - update
   - apiGroups:
       - monitoring.siutsin.com
     resources:
