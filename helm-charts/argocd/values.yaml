@@ -305,7 +305,7 @@ argo-cd:
               - ALL
           runAsNonRoot: true
           runAsUser: 999
-        image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0-rc1-202603220524@sha256:7ae80ae8875c82a2bbb239ad476146188435eea0c46d6ee5f55a32b84221ce7f
+        image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0@sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206
         resources:
           requests:
             cpu: 100m
