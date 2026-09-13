@@ -1,0 +1,164 @@
+name: Auto Update K3s Apiserver Loadbalancer
+
+on:
+  schedule:
+    # Run daily at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+  packages: read
+  pull-requests: write
+
+# Prevent concurrent runs to avoid race conditions when creating branches/PRs
+# Scoped per workflow and branch to allow parallel runs on different branches
+# New runs wait for current run to complete rather than cancelling it
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  update-k3s-apiserver-loadbalancer:
+    # Prevent execution from forks to protect PAT-backed operations
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    environment: automation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install markdownlint-cli2
+        run: npm ci
+
+      - name: Add node_modules/.bin to PATH
+        run: echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "${GITHUB_PATH}"
+
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@95fc563100306ca9918e9d18f38e85430ba285bc # 1.1.1
+
+      - name: Install Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2
+        with:
+          tofu_version: '1.12.4'
+
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@aefb0a43c4f5503a91fefb307745c4d51c26ed0e # v3
+        with:
+          terragrunt-version: '1.1.1'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install editorconfig-checker
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v3.6.1 --repo editorconfig-checker/editorconfig-checker --pattern 'ec-linux-amd64.tar.gz' --output /tmp/ec.tar.gz
+          tar -xzf /tmp/ec.tar.gz -C /tmp bin/ec-linux-amd64
+          chmod +x /tmp/bin/ec-linux-amd64
+          sudo mv /tmp/bin/ec-linux-amd64 /usr/local/bin/ec
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Install go-jsonnet
+        run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+
+      - name: Update Helm dependencies
+        run: make update-helm-deps
+
+      - name: Run k3s-apiserver-loadbalancer upgrade
+        id: upgrade
+        run: |
+          cd helm-charts/k3s-apiserver-loadbalancer
+          make run
+
+      - name: Run tests
+        run: make test
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+
+      - name: Get new version
+        if: steps.check_changes.outputs.changes == 'true'
+        id: version
+        run: |
+          # Render Helm template and extract the manager container image
+          TEMPLATE=$(helm template k3s-apiserver-loadbalancer ./helm-charts/k3s-apiserver-loadbalancer)
+          IMAGE=$(echo "$TEMPLATE" | yq eval \
+            'select(.kind == "Deployment" and .metadata.name == "k3s-apiserver-loadbalancer-controller-manager") |
+            .spec.template.spec.containers[] |
+            select(.name == "manager") |
+            .image' -)
+
+          # Validate image format before extracting version
+          if [[ -z "$IMAGE" ]] || [[ "$IMAGE" != *:* ]]; then
+            echo "Error: Invalid or empty image format: '$IMAGE'" >&2
+            exit 1
+          fi
+
+          # Extract version tag by removing everything up to and including the last colon
+          # e.g., "ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.259.0" becomes "v1.259.0"
+          NEW_VERSION="${IMAGE##*:}"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate App Token
+        if: steps.check_changes.outputs.changes == 'true'
+        id: app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changes == 'true'
+        id: create_pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          base: ${{ github.event.repository.default_branch }}
+          commit-message: |
+            chore: update k3s-apiserver-loadbalancer operator to ${{ steps.version.outputs.new_version }}
+
+            Created by .github/workflows/auto-update-k3s-apiserver-loadbalancer.yaml
+          branch: automated/k3s-apiserver-loadbalancer-update-${{ steps.version.outputs.new_version }}
+          delete-branch: true
+          title: 'chore: update k3s-apiserver-loadbalancer operator to ${{ steps.version.outputs.new_version }}'
+          body: |
+            Automated update of k3s-apiserver-loadbalancer operator to ${{ steps.version.outputs.new_version }}.
+          labels: |
+            automated
+            dependencies
+            k3s-apiserver-loadbalancer
+
+      - name: Enable auto-merge
+        if: steps.create_pr.outputs.pull-request-number && steps.create_pr.outputs.pull-request-operation == 'created'
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          PR_NUMBER: ${{ steps.create_pr.outputs.pull-request-number }}
+        run: gh pr merge "$PR_NUMBER" --auto --squash
