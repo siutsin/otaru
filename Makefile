@@ -249,7 +249,8 @@ lint-editorconfig: ## Check .editorconfig compliance
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	# Excluding longhorn/vendor -- unmodified upstream chart source (see helm-charts/longhorn/Chart.yaml)
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@ec -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+	@editorconfig-checker \
+		-exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 			echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 			exit 1; \
 		}
@@ -302,7 +303,7 @@ install-deps: ## Install development dependencies
 	@command -v ansible-playbook >/dev/null 2>&1 || { echo "$(RED)Ansible is required but not installed.$(NC)"; exit 1; }
 	@command -v curl >/dev/null 2>&1 || { echo "$(RED)curl is required but not installed.$(NC)"; exit 1; }
 	@command -v direnv >/dev/null 2>&1 || { echo "$(RED)direnv is required but not installed.$(NC)"; exit 1; }
-	@command -v ec >/dev/null 2>&1 || { echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; exit 1; }
+	@command -v editorconfig-checker >/dev/null 2>&1 || { echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; exit 1; }
 	@command -v gh >/dev/null 2>&1 || { echo "$(RED)GitHub CLI (gh) is required but not installed.$(NC)"; exit 1; }
 	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
 	@command -v jq >/dev/null 2>&1 || { echo "$(RED)jq is required but not installed.$(NC)"; exit 1; }
