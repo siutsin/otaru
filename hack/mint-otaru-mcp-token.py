@@ -8,7 +8,7 @@ to healthy pods.
 
 Requires cryptography, for example:
 
-uvx --with cryptography python hack/mint-otaru-mcp-token.py
+mise exec -- uvx --with cryptography python hack/mint-otaru-mcp-token.py
 
 Environment:
 
@@ -167,7 +167,7 @@ def main() -> int:
     except ImportError:
         print(
             "cryptography is required; run via: "
-            "uvx --with cryptography python ...",
+            "mise exec -- uvx --with cryptography python ...",
             file=sys.stderr,
         )
         return 2

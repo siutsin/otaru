@@ -20,9 +20,7 @@
     },
     {
       matchPackageNames: [
-        'autero1/action-terragrunt',
         'helm/chart-releaser-action',
-        'vegardit/gha-setup-yq',
       ],
       abandonmentThreshold: null,
     },

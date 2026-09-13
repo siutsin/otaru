@@ -1,0 +1,22 @@
+{
+  "config": {
+    "MD013": {
+      "line_length": 180,
+      "tables": false,
+      "code_blocks": false
+    },
+    "MD029": {
+      "style": "ordered"
+    }
+  },
+  "globs": [
+    "**/*.md"
+  ],
+  "ignores": [
+    "**/node_modules/**",
+    "**/.terraform/**",
+    "**/.venv/**",
+    "**/.scratchpad/**",
+    "helm-charts/longhorn/vendor/**"
+  ]
+}

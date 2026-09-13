@@ -1,7 +1,0 @@
-{
-  "name": "otaru",
-  "private": true,
-  "devDependencies": {
-    "markdownlint-cli2": "0.23.2"
-  }
-}
