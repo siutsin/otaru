@@ -721,19 +721,19 @@ url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/522028033"
 provenance = "cosign"
 
 [[tools."aqua:opentofu/opentofu"]]
-version = "1.12.4"
+version = "1.12.6"
 backend = "aqua:opentofu/opentofu"
-specifiers = ["1.12.4"]
+specifiers = ["1.12.6"]
 
 [tools."aqua:opentofu/opentofu"."platforms.linux-x64"]
-checksum = "sha256:81836d0f12b4fe9013b85586349f993def9429b6383bb77cdd6c2f3a9d9aac24"
-url = "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/475646677"
+checksum = "sha256:50a6106fa4de523d09c87af85f3db1dd47535fc005727fdca6852146476b88ec"
+url = "https://github.com/opentofu/opentofu/releases/download/v1.12.6/tofu_1.12.6_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/520762723"
 
 [tools."aqua:opentofu/opentofu"."platforms.macos-arm64"]
-checksum = "sha256:7c06e4390d9ccd467773e37ff1c3d833c7ca0c24742cd9e9ad47284bea472247"
-url = "https://github.com/opentofu/opentofu/releases/download/v1.12.4/tofu_1.12.4_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/475646544"
+checksum = "sha256:f958ec5e511063be9feb180ca015a4cb7977566a9cf6a8550bba8c2a9b5aba74"
+url = "https://github.com/opentofu/opentofu/releases/download/v1.12.6/tofu_1.12.6_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/520762710"
 
 [[tools."aqua:zizmorcore/zizmor"]]
 version = "1.30.1"
