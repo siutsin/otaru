@@ -1,4 +1,5 @@
 # Variables
+SHELL := mise exec -- sh
 ANSIBLE_INVENTORY := ansible/inventory.yaml
 INFRASTRUCTURE_DIR := infrastructure
 HACK_DIR := hack
@@ -219,12 +220,7 @@ check-image-digests: ## Verify pinned image digests reference the multi-arch ind
 .PHONY: check-markdown
 check-markdown: ## Check Markdown files with markdownlint-cli2
 	@echo "$(GREEN)Checking Markdown files...$(NC)"
-	@markdownlint_cli2="$$(command -v /opt/homebrew/bin/markdownlint-cli2 || command -v /usr/local/bin/markdownlint-cli2 || command -v markdownlint-cli2)"; \
-		if [ -z "$$markdownlint_cli2" ]; then \
-			echo "$(RED)markdownlint-cli2 is required but not installed. Install markdownlint-cli2 and re-run make check-markdown.$(NC)"; \
-			exit 1; \
-		fi; \
-		"$$markdownlint_cli2" "**/*.md" "#**/node_modules/**" "#**/.terraform/**" "#**/.venv/**" "#**/.scratchpad/**" "#helm-charts/longhorn/vendor/**"
+	@markdownlint-cli2
 	@echo "$(GREEN)Markdown linting passed!$(NC)"
 
 .PHONY: lint-terraform
@@ -253,12 +249,7 @@ lint-editorconfig: ## Check .editorconfig compliance
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
 	# Excluding longhorn/vendor -- unmodified upstream chart source (see helm-charts/longhorn/Chart.yaml)
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
-	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
-		if [ -z "$$ec_bin" ]; then \
-			echo "$(RED)editorconfig-checker is required but not installed. Install editorconfig-checker and re-run make lint-editorconfig.$(NC)"; \
-			exit 1; \
-		fi; \
-		"$$ec_bin" -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+	@ec -exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 			echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 			exit 1; \
 		}
@@ -285,9 +276,9 @@ format-python: poetry-install ## Format Python code with black
 	@echo "$(GREEN)Python code formatting complete!$(NC)"
 
 .PHONY: validate-grafana-dashboards
-validate-grafana-dashboards: ## Validate Grafana dashboard embeds (PromQL targets / obsolete selectors)
+validate-grafana-dashboards: poetry-install ## Validate Grafana dashboard embeds (PromQL targets / obsolete selectors)
 	@echo "$(GREEN)Validating Grafana dashboards...$(NC)"
-	@python3 hack/validate-grafana-dashboards.py
+	@cd diagrams && poetry run python ../hack/validate-grafana-dashboards.py
 	@echo "$(GREEN)Grafana dashboard validation passed!$(NC)"
 
 .PHONY: test
@@ -311,21 +302,13 @@ install-deps: ## Install development dependencies
 	@command -v ansible-playbook >/dev/null 2>&1 || { echo "$(RED)Ansible is required but not installed.$(NC)"; exit 1; }
 	@command -v curl >/dev/null 2>&1 || { echo "$(RED)curl is required but not installed.$(NC)"; exit 1; }
 	@command -v direnv >/dev/null 2>&1 || { echo "$(RED)direnv is required but not installed.$(NC)"; exit 1; }
-	@ec_bin="$$(command -v /opt/homebrew/bin/editorconfig-checker || command -v /usr/local/bin/editorconfig-checker || command -v editorconfig-checker || command -v ec)"; \
-		if [ -z "$$ec_bin" ]; then \
-			echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; \
-			exit 1; \
-		fi
+	@command -v ec >/dev/null 2>&1 || { echo "$(RED)editorconfig-checker is required but not installed.$(NC)"; exit 1; }
 	@command -v gh >/dev/null 2>&1 || { echo "$(RED)GitHub CLI (gh) is required but not installed.$(NC)"; exit 1; }
 	@command -v helm >/dev/null 2>&1 || { echo "$(RED)Helm is required but not installed.$(NC)"; exit 1; }
 	@command -v jq >/dev/null 2>&1 || { echo "$(RED)jq is required but not installed.$(NC)"; exit 1; }
 	@command -v jsonnet >/dev/null 2>&1 || { echo "$(RED)jsonnet is required but not installed.$(NC)"; exit 1; }
 	@command -v kubectl >/dev/null 2>&1 || { echo "$(RED)kubectl is required but not installed.$(NC)"; exit 1; }
-	@markdownlint_cli2="$$(command -v /opt/homebrew/bin/markdownlint-cli2 || command -v /usr/local/bin/markdownlint-cli2 || command -v markdownlint-cli2)"; \
-		if [ -z "$$markdownlint_cli2" ]; then \
-			echo "$(RED)markdownlint-cli2 is required but not installed.$(NC)"; \
-			exit 1; \
-		fi
+	@command -v mise >/dev/null 2>&1 || { echo "$(RED)mise is required but not installed.$(NC)"; exit 1; }
 	@command -v tofu >/dev/null 2>&1 || { echo "$(RED)tofu (OpenTofu) is required but not installed.$(NC)"; exit 1; }
 	@command -v terragrunt >/dev/null 2>&1 || { echo "$(RED)terragrunt is required but not installed.$(NC)"; exit 1; }
 	@command -v yq >/dev/null 2>&1 || { echo "$(RED)yq is required but not installed.$(NC)"; exit 1; }

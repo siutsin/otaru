@@ -178,23 +178,20 @@ Key addresses on the Server network:
 1. **Install Tooling**
 
     ```shell
-    brew install \
-      ansible \
-      direnv \
-      editorconfig-checker \
-      gh \
-      go-jsonnet \
-      helm \
-      jq \
-      kubectl \
-      markdownlint-cli2 \
-      opentofu \
-      terragrunt \
-      yq \
-      zizmor
+    brew install mise
     ```
 
 2. **Configure Tooling**
+
+    Install the tools in `mise.toml`.
+
+    ```shell
+    mise trust
+    mise install
+    ```
+
+    Activate Mise in your shell so direct tool commands use the versions in
+    `mise.toml`.
 
     Authenticate the GitHub CLI before Terraform/Terragrunt or Helm OCI
     dependency updates need GitHub access.

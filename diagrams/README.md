@@ -4,14 +4,11 @@ Architecture diagrams using [diagrams](https://diagrams.mingrammer.com/).
 
 ## Prerequisites
 
-- Python 3.10 or higher
-- Graphviz (required by the `diagrams` library)
-- Poetry (for dependency management)
-
-Install system dependencies on macOS:
+- Mise manages Python, Graphviz, and Poetry. From the repository root, run:
 
 ```bash
-brew install graphviz poetry
+mise trust
+mise install
 ```
 
 ## Generate Diagrams
