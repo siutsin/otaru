@@ -126,6 +126,16 @@ descheduler:
               # DeadlineExceeded while the volume was still detaching, then
               # evicted again before it ever went Ready -- volume left
               # state=attaching robustness=unknown, app down the whole time.
+              # 2026-09-15: envoy (the gateway namespace's Envoy Gateway
+              # data-plane pods, label app.kubernetes.io/name=envoy) excluded
+              # -- evicted from raspberrypi-00/raspberrypi-02 every ~5
+              # minutes for over an hour (12 evictions, HighNodeUtilization
+              # events for pods 6r728 through x2mvn), each replacement
+              # landing back on a similarly-loaded node and getting evicted
+              # again. No outage (2 replicas, PDB minAvailable:1 held), but
+              # this is the load-bearing north-south gateway VIP -- constant
+              # pod churn costs more than the packing it buys, same
+              # reasoning as blocky.
               # matchExpressions are ANDed: a pod must satisfy every entry
               # to be eligible for eviction under this profile.
               labelSelector:
@@ -137,6 +147,7 @@ descheduler:
                       - openclaw
                       - teslamate-verify-pg-dump
                       - teslamate-verify-pitr
+                      - envoy
                   - key: cnpg.io/podRole
                     operator: NotIn
                     values:
