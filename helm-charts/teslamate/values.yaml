@@ -81,13 +81,19 @@ grafana:
   podDisruptionBudget:
     minAvailable: 1
   resources:
-    # Keep memory at 512Mi: TeslaMate dashboard usage pushed Grafana against the 128Mi limit and caused OOMKills.
+    # 128Mi -> 512Mi: TeslaMate dashboard usage pushed Grafana against the 128Mi limit and caused OOMKills.
+    # Not following the repo convention (memory request = limit): deliberate exception for a spiky workload, same as blocky.
+    # 2026-09-19: OOMKilled (exit 137) at the 512Mi limit while searching trips ran slow dashboard queries (~28s).
+    # Spiky like blocky: 14d steady state per pod is p50 ~220-340Mi and p99 ~260-390Mi, with rare bursts to 456Mi and 512Mi (the kill).
+    # The 512Mi peak was capped by the old limit, so the real burst is unknown. The request drops 512Mi -> 384Mi (about the
+    # steady-state p99) and the limit rises 512Mi -> 2Gi. An unused limit reserves nothing. Watch the node: raspberrypi-00 had ~1.5Gi
+    # available at its worst in 7d, so a full 2Gi burst would squeeze it.
     requests:
       cpu: 50m
-      memory: 512Mi
+      memory: 384Mi
       ephemeral-storage: 128Mi
     limits:
-      memory: 512Mi
+      memory: 2Gi
       ephemeral-storage: 128Mi
   affinity:
     podAntiAffinity:
