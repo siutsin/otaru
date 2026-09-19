@@ -27,9 +27,10 @@ deployment:
   image:
     # Pull from GHCR (ghcr.io/teslamate-org/teslamate), not Docker Hub.
     # Temporary hotfix for Tesla Owner API 403 after v4.0.0 (teslamate-org/teslamate#5399).
-    # Pin to a stable GHCR release tag once 4.0.1+ is published. Upstream
-    # publishes no semver tags today, only the floating `main` tag, so the
-    # pin has to track a `main` digest.
+    # Stay on `main` until the next upstream release (4.3.0), then switch to
+    # its Docker Hub release tag. GHCR publishes only the floating `main` tag,
+    # so the pin tracks a `main` digest. Renovate refreshes it without the
+    # release-age delay (see renovate.json5).
     # Recurring failure mode: upstream rebuilds `main` and garbage-collects
     # the old digest, so the pinned digest becomes NotFound at ghcr.io. On
     # a rollout restart the new pod then hits ImagePullBackOff while the old
