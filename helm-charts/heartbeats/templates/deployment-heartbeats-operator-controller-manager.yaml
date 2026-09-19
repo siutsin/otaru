@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: heartbeats-operator
-    app.kubernetes.io/version: v0.218.0
+    app.kubernetes.io/version: v0.218.1
     control-plane: controller-manager
   name: heartbeats-operator-controller-manager
   namespace: heartbeats-operator-system
@@ -20,7 +20,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         app.kubernetes.io/name: heartbeats-operator
-        app.kubernetes.io/version: v0.218.0
+        app.kubernetes.io/version: v0.218.1
         control-plane: controller-manager
     spec:
       containers:
@@ -30,7 +30,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/heartbeats:v0.218.0
+          image: ghcr.io/siutsin/heartbeats:v0.218.1
           livenessProbe:
             httpGet:
               path: /healthz
