@@ -40,7 +40,7 @@ deployment:
     # 0d32891a gone).
     repository: ghcr.io/teslamate-org/teslamate
     # Multi-arch main digest (linux/amd64 + arm64).
-    tag: main@sha256:1f69d5cefe103cfc1f36eeaab5e6821544cc3bb3f93c101452da1ced278c34d9
+    tag: main@sha256:756eafd56e3e42e4ae17ae2f674e1f1afcf1d3527f7a63e73111f1726a8d184f
   envFrom:
     - secretRef:
         name: teslamate
