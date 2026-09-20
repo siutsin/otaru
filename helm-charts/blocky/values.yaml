@@ -42,12 +42,18 @@ deployment:
     # in templates/hpa.yaml: it must be decoupled from this request, or a
     # lower request alone would push HPA's 60%-of-request memory target
     # permanently over threshold at ordinary steady-state usage.
+    #
+    # 2026-09-20: both replicas OOMKilled (exit 137) at 1280Mi within 19s of
+    # each other at 12:06 UTC, and one pod had 5 OOM restarts in 24h. The refresh
+    # spike is larger than the estimate above: 3d working-set peaks reached
+    # 1.05-1.23Gi on pods that survived. Limit raised to 1792Mi; the 350Mi
+    # request is unchanged, so no extra node capacity is reserved.
     requests:
       cpu: 100m
       memory: 350Mi
       ephemeral-storage: 100Mi
     limits:
-      memory: 1280Mi
+      memory: 1792Mi
       ephemeral-storage: 100Mi
 
 hpa:
