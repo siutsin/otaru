@@ -10,15 +10,17 @@
 # records) — and prints only pods that need attention.
 #
 # Usage: pods-sweep.sh [--parallel N] [--restarts N]
-# Exit 0 always; prints "OK: ..." when nothing bad is found.
-set -u
+# Exit 0 normally; the caller greps stdout for BAD / QUERY_FAILED / OK /
+# RESULT: markers. Exits 1 only when the namespace list itself cannot be
+# fetched (nothing can be swept at all).
+set -uo pipefail
 
 PARALLEL=12
 RESTART_ALERT=20
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --parallel) PARALLEL="$2"; shift 2 ;;
-    --restarts) RESTART_ALERT="$2"; shift 2 ;;
+    --parallel) PARALLEL="${2:?--parallel needs a value}"; shift 2 ;;
+    --restarts) RESTART_ALERT="${2:?--restarts needs a value}"; shift 2 ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -39,6 +41,10 @@ for line in t.splitlines()[1:]:
 }
 
 sweep_ns() {
+  # pipefail must be set inside the function: run_job executes in a
+  # child bash spawned by xargs, which does not inherit -o pipefail
+  # from the parent shell.
+  set -o pipefail
   local ns="$1"
   "$MCP" call-tool --endpoint k8s --name pods_list_in_namespace \
     --arguments-json "{\"namespace\":\"$ns\"}" 2>/dev/null \
@@ -61,6 +67,10 @@ export -f sweep_ns
 
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
+# run_job/sweep_ns execute in child bash processes spawned by xargs:
+# everything they touch must be exported, or they silently see empty
+# values (unexported tmpdir once made every sweep report a false OK).
+export tmpdir RESTART_ALERT
 
 ns_names > "$tmpdir/ns.txt"
 total_ns=$(wc -l < "$tmpdir/ns.txt")
@@ -84,13 +94,25 @@ export -f run_job
 
 xargs -a "$tmpdir/jobs.tsv" -P "$PARALLEL" -n2 bash -c 'run_job "$0" "$1"' 2>/dev/null
 
-cat "$tmpdir"/ns-*.out 2>/dev/null | sort > "$tmpdir/bad.txt"
+out_files=( "$tmpdir"/ns-*.out )
+if [[ ! -e ${out_files[0]} ]]; then
+  # No per-namespace output at all (xargs failed outright) — never OK.
+  echo "QUERY_FAILED: no namespace sweep output files produced"
+  echo "RESULT: SWEEP_INCOMPLETE"
+  exit 0
+fi
 
-if grep -q '^BAD ' "$tmpdir/bad.txt"; then
-  grep '^BAD ' "$tmpdir/bad.txt"
+cat "${out_files[@]}" | sort > "$tmpdir/bad.txt"
+
+bad_lines=$(grep '^BAD ' "$tmpdir/bad.txt" || true)
+qf_lines=$(grep '^QUERY_FAILED' "$tmpdir/bad.txt" || true)
+
+# Always surface incomplete-sweep evidence, even alongside bad pods.
+[[ -n "$qf_lines" ]] && echo "$qf_lines"
+if [[ -n "$bad_lines" ]]; then
+  echo "$bad_lines"
   echo "RESULT: BAD_PODS_FOUND"
-elif grep -q '^QUERY_FAILED' "$tmpdir/bad.txt"; then
-  grep '^QUERY_FAILED' "$tmpdir/bad.txt"
+elif [[ -n "$qf_lines" ]]; then
   echo "RESULT: SWEEP_INCOMPLETE"
 else
   echo "OK: $total_ns namespaces swept, no bad pods"
