@@ -118,11 +118,19 @@ concurrent category results first, never append from parallel processes):
 
 ### pass status
 
-- **categories:** access-and-nodes=ok, gitops-reconciliation=ok,
-  workloads=ok, storage=ok, data-plane=ok, platform=ok, ingress-mesh=ok,
-  policy=ok, monitoring=ok, ci-cd=ok, unused-resources=skipped
+- **categories:** access-and-nodes=ok (12s), gitops-reconciliation=ok (20s),
+  workloads=ok (65s), storage=ok (30s), data-plane=ok (45s), platform=ok (18s),
+  ingress-mesh=ok (25s), policy=ok (15s), monitoring=ok (10s), ci-cd=ok (22s),
+  unused-resources=skipped
+- **wall-clock:** 1140s (18:27–18:46 Europe/London)
 - **result:** `healthy` | `issues-found` | `degraded`
 ```
+
+Record each category's wall-clock duration in seconds next to `ok` and
+`partial` verdicts (`skipped` carries no duration) — a slow pass is
+undiagnosable without them. Time with `date +%s` before/after each
+category. The aggregating step collects each duration with its verdict;
+durations are never appended from parallel processes.
 
 Category values: `ok` | `partial` | `skipped`. `partial` means the
 category overran its 150s budget or returned incomplete data — its checks
