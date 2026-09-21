@@ -67,7 +67,7 @@ try:
     lines = text.splitlines()
     for i, line in enumerate(lines):
         parts = line.split()
-        if parts and parts[0] == "NAME":
+        if "NAME" in parts:
             name_idx = parts.index("NAME")
             start = i + 1
             break
@@ -135,6 +135,10 @@ def parse_table(text):
     Consume the group as part of RESTARTS before reading AGE/NODE.
     """
     rows, header = [], None
+    if not text.strip():
+        # The connector returns empty text (no table at all) for a
+        # namespace with zero pods. That is not a failure signal.
+        return rows
     for line in text.splitlines():
         parts = line.split()
         if not parts:
@@ -164,8 +168,9 @@ def parse_table(text):
             })
         except (IndexError, ValueError):
             continue  # ragged row: skip rather than misparse
-    # An ok:true envelope with no table at all (error text, garbage) must
-    # not sweep as clean: a real empty namespace still returns a header.
+    # An ok:true envelope with non-empty non-table text (error text,
+    # garbage) must not sweep as clean: a namespace with zero pods yields
+    # empty text, which is handled above, not here.
     if header is None:
         raise ValueError("no table header in response")
     return rows
