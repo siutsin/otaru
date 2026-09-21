@@ -25,8 +25,8 @@ After branch, commit, push, and PR open:
 - Merge once a clean reviewer APPROVE is recorded and CI is green — no need
   to wait for the user. Prefer `/pr-autofix` when that skill is available
   (Claude). Enable auto-merge only after the APPROVE is recorded.
-- Otherwise merge directly, for example:
-  `gh pr merge <number> --merge` (or the repo's usual merge method).
+- Otherwise merge directly with the repo's usual merge method, for example:
+  `gh pr merge <number> --squash`.
 - Journal the PR URL and that merge was auto.
 
 ### Non-trivial — stop at green
