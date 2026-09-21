@@ -239,6 +239,11 @@ under `jwks/`. Private key stays on the operator workstation (for example
 the cluster. Architecture and token path:
 [MCP authentication](mcp-auth.md).
 
+Client id `muse` uses the same grant and algorithm. Public JWK is
+`jwks/muse-oauth.jwks.json`. The matching private key stays in Muse. Do not
+load it into Git or the cluster. Envoy still allows only `sub: otaru-mcp`
+until that subject is added on MCP `SecurityPolicy`s.
+
 ## Check
 
 Run this before bootstrap:
