@@ -1,0 +1,47 @@
+externalSecret:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  remoteRef:
+    key: tailscale-operator
+
+# Advertise only the Envoy Gateway MetalLB VIP so tailnet clients reach
+# existing HTTPRoutes. Do not advertise pod, Service, or LAN CIDRs.
+connector:
+  enabled: true
+  name: gateway-vip
+  hostnamePrefix: otaru-gateway
+  advertiseRoutes:
+    - 192.168.10.51/32
+
+tailscale-operator:
+  # Leave oauth.clientId empty so the chart does not render a Secret from
+  # Helm values. ExternalSecret creates operator-oauth instead.
+  oauth:
+    clientId: ""
+    clientSecret: ""
+  installCRDs: true
+  annotations:
+    reloader.stakater.com/auto: "true"
+  apiServerProxyConfig:
+    mode: "false"
+  operatorConfig:
+    image:
+      repository: tailscale/k8s-operator
+      tag: v1.102.4@sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34
+      pullPolicy: IfNotPresent
+    resources:
+      # Initial guess before KRR data. Memory request equals limit. No CPU
+      # limit. Connector TUN proxies are created by the operator at runtime.
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+  proxyConfig:
+    image:
+      repository: tailscale/tailscale
+      tag: v1.102.4@sha256:2667499ed87ae29218f292556ba062918402dd5e92e93637af14867e4df12dd3

@@ -43,6 +43,8 @@ clusterSecretStorePolicy:
       - monitoring
     openclaw:
       - openclaw
+    tailscale:
+      - tailscale-operator
     teslamate:
       - b2-secret-cloudnative-pg
       - heartbeats

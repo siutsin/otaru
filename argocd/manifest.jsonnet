@@ -260,6 +260,7 @@ local bootstrap = [
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
   { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true } },
+  { wave: '02', name: 'tailscale-operator', namespace: 'tailscale', syncOptions: ['SkipDryRunOnMissingResource=true'] },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 

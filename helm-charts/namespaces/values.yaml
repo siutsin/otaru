@@ -39,6 +39,8 @@ namespaces:
   - name: openclaw
   - name: onepassword
   - name: reloader
+  - name: tailscale
+    ambient: false
   - name: teslamate
   - name: umami
   - name: unifi-mcp

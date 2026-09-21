@@ -1,0 +1,13 @@
+{{- if .Values.connector.enabled }}
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: {{ .Values.connector.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  hostnamePrefix: {{ .Values.connector.hostnamePrefix | quote }}
+  subnetRouter:
+    advertiseRoutes:
+      {{- toYaml .Values.connector.advertiseRoutes | nindent 6 }}
+{{- end }}
