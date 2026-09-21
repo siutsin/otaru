@@ -164,6 +164,23 @@ t_empty_namespace() {
   rm -rf "$STUB_DIR"
 }
 
+t_empty_text_namespace() {
+  # 2026-09-21: a namespace with zero pods returns empty text (no table
+  # at all). That is a clean sweep of the namespace, not a failed query.
+  new_stub
+  ns_json default
+  ok_env ""
+  local out
+  out=$(run_sweep)
+  assert_contains "empty-text OK" "$out" "OK: 1 namespaces swept, no bad pods"
+  if [[ "$out" == *"QUERY_FAILED"* ]]; then
+    not_ok "empty-text no QUERY_FAILED" "spurious failure: $out"
+  else
+    ok
+  fi
+  rm -rf "$STUB_DIR"
+}
+
 t_non_table_text() {
   # ok:true but unflagged non-table text must fail closed, never read as clean.
   new_stub
@@ -285,6 +302,25 @@ t_batch_08_chunks() {
   rm -rf "$STUB_DIR"
 }
 
+t_ns_header_apiversion() {
+  # 2026-09-21: the connector's namespace list now ships an
+  # APIVERSION/KIND-prefixed header; the sweep must still find NAME.
+  new_stub
+  python3 - "$STUB_DIR/ns.json" <<'EOF'
+import json, sys
+text = ("APIVERSION   KIND        NAME        STATUS   AGE   LABELS\n"
+        "v1           Namespace   default     Active   100d  <none>\n")
+json.dump([{"ok": True, "result": {"content": [{"text": text}]}}],
+          open(sys.argv[1], "w"))
+EOF
+  ok_env "$(pod_table "web-abc Running 0 10d raspberrypi-00")"
+  local out rc
+  out=$(run_sweep); rc=$?
+  assert_eq "ns-apiversion exit" "0" "$rc"
+  assert_contains "ns-apiversion OK" "$out" "OK: 1 namespaces swept, no bad pods"
+  rm -rf "$STUB_DIR"
+}
+
 t_bad_args() {
   local out rc
   out=$(MCP=/bin/false bash "$SWEEP" --batch 0 2>&1); rc=$?
@@ -308,8 +344,10 @@ t_restart_age_parens
 t_crashloop
 t_restart_threshold_boundary
 t_empty_namespace
+t_empty_text_namespace
 t_non_table_text
 t_ns_header_offset
+t_ns_header_apiversion
 t_failed_call
 t_null_envelope
 t_iserror_envelope
