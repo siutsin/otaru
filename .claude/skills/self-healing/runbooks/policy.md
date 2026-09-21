@@ -9,9 +9,11 @@ model) — never one process per call.
 ## Checks
 
 - `resources_list` with `apiVersion: wgpolicyk8s.io/v1alpha2`,
-  `kind: PolicyReport` / `ClusterPolicyReport` — policy failures blocking
-  workloads? If the listing fails, fall back to scoped Warning events
-  (`events_list` filtered to warnings) rather than losing the category.
+  `kind: ClusterPolicyReport` (cluster-scoped, small) and `kind: PolicyReport`
+  per namespace — never one cluster-wide PolicyReport list, it exceeds the
+  200KB tool-output cap. List namespaces first, then query each namespace.
+  If a listing fails, fall back to scoped Warning events (`events_list`
+  filtered to warnings) rather than losing the category.
 
 ## Triage
 

@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aquaproj/aqua/main/json-schema/registry.json
+# Custom aqua registry for tools missing from the standard registry.
+# Referenced from mise.toml: [settings] aqua.registries = ["aqua-registry.yaml"]
+packages:
+  - type: github_release
+    repo_owner: robusta-dev
+    repo_name: krr
+    description: Kubernetes Resource Recommender
+    asset: krr-macos-latest-{{.Version}}.zip
+    format: zip
+    overrides:
+      - goos: linux
+        asset: krr-ubuntu-latest-{{.Version}}.zip
+    files:
+      - name: krr
+        src: krr/krr
+    supported_envs:
+      - linux/amd64
+      - darwin/arm64
