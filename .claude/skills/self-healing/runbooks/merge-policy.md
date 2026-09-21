@@ -15,15 +15,18 @@ After branch, commit, push, and PR open:
   example stop after ~15 minutes, journal `result: open` with the PR URL,
   and re-check next cycle). Do not park the whole fire (currently a
   30-minute cycle) on an unbounded watch.
-2. Address review feedback if any.
+2. Independent review: every change needs the independent-reviewer workflow
+  (a reviewer reaching its own verdict on the raw diff) before merge.
+  Address review feedback; re-review until the verdict is a clean APPROVE.
 3. Then apply the class below.
 
-### Trivial — auto-merge once green
+### Trivial — merge once reviewed and green
 
-- Prefer `/pr-autofix` with default auto-merge when that skill is available
-  (Claude).
-- Otherwise enable GitHub auto-merge after green, for example:
-  `gh pr merge <number> --auto --squash` (or the repo's usual merge method).
+- Merge once a clean reviewer APPROVE is recorded and CI is green — no need
+  to wait for the user. Prefer `/pr-autofix` when that skill is available
+  (Claude). Enable auto-merge only after the APPROVE is recorded.
+- Otherwise merge directly with the repo's usual merge method, for example:
+  `gh pr merge <number> --squash`.
 - Journal the PR URL and that merge was auto.
 
 ### Non-trivial — stop at green
@@ -42,9 +45,11 @@ field) and continue an in-flight PR when one already covers it.
 
 ## Trivial
 
-Merge automatically once green when **all** of the following hold:
+Merge automatically once reviewed and green when **all** of the following hold:
 
-- Diff is only an allowed unattended edit (see below)
+- Diff is only an allowed unattended edit (see below), **or** a low-risk,
+  narrowly scoped, tested fix with no cluster-facing behavior change
+  (no secrets, exposure, auth, or privilege)
 - No secret-adjacent keys or paths (see `references/escalation.md`)
 - No chart/template structural rewrite, CRD change, or GitOps controller
   Application delete/disable/prune-force
