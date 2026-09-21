@@ -2,8 +2,17 @@
 
 ## Checks
 
-- `kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded`
-- Scan `kubectl get pods -A -o wide` (grep or read the table) for
+- Pod sweep: run `.claude/skills/self-healing/bin/pods-sweep.sh` from the
+  repo root. It queries `pods_list_in_namespace` for every namespace in
+  parallel (~25s for the whole fleet) and prints only pods that are not
+  `Running`/`Completed`/`Succeeded`, show
+  `CrashLoopBackOff`/`ImagePullBackOff`/`ErrImagePull`/`CreateContainerConfigError`/`ContainerCreating`,
+  or have >= 20 restarts. Do NOT use the MCP `pods_list` tool (output
+  truncates at ~20k chars) and do NOT sweep namespaces sequentially — a
+  stalled tailnet once blew the 1200s cron budget that way (2026-09-21).
+- Legacy manual equivalents (only if the script is unavailable):
+  `kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded`,
+  then scan `kubectl get pods -A -o wide` (grep or read the table) for
   `CrashLoopBackOff`, `ImagePullBackOff`, `ErrImagePull`,
   `CreateContainerConfigError`, or high `RESTARTS` — phase `Running` hides
   these from the field-selector above.
