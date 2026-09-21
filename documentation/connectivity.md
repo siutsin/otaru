@@ -14,6 +14,7 @@
 - `waypoint`: shared Envoy waypoint in `istio-waypoints` for L7 policy, routing, and HTTP/gRPC telemetry
 - `envoy-gateway`: controller in `envoy-gateway-system`
 - `gateway`: Envoy Gateway proxy in `gateway`
+- `tailscale-operator`: publishes the Envoy Gateway VIP onto a Tailscale tailnet
 - `kiali`: observability UI in ambient
 
 In sidecar mode, one Envoy sidecar did both jobs. In ambient mode, those roles
@@ -45,6 +46,7 @@ Connectivity roles:
 - `keda`: stays outside ambient because the Kubernetes aggregated external metrics API calls the KEDA metrics adapter directly
 - `metrics-server`: pods stay outside ambient because the Kubernetes aggregated resource metrics API calls metrics-server directly
 - `longhorn-system`: stays outside ambient because Longhorn admission webhook, CSI, and storage control-plane paths must remain direct Kubernetes/Longhorn traffic
+- `tailscale`: stays outside ambient because Connector and TUN-mode proxy pods configure netfilter in the pod network namespace
 
 The mesh AuthorizationPolicy guard checks ambient Services, but it skips explicitly annotated Services whose
 currently selected pods all opt out with `istio.io/dataplane-mode=none`. This covers pod-level platform
