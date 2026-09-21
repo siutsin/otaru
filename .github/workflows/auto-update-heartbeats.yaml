@@ -51,7 +51,9 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          if [[ -n $(git status --porcelain) ]]; then
+          # `make update-helm-deps` also refreshes other charts' lock files, so
+          # only count changes under the heartbeats chart.
+          if [[ -n $(git status --porcelain -- helm-charts/heartbeats) ]]; then
             echo "changes=true" >> $GITHUB_OUTPUT
             echo "Changes detected"
           else
@@ -99,6 +101,7 @@ jobs:
         with:
           token: ${{ steps.app_token.outputs.token }}
           base: ${{ github.event.repository.default_branch }}
+          add-paths: helm-charts/heartbeats
           commit-message: |
             chore: update heartbeats operator to ${{ steps.version.outputs.new_version }}
 
