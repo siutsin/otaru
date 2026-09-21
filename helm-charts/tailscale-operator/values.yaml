@@ -41,6 +41,13 @@ tailscale-operator:
       limits:
         memory: 128Mi
         ephemeral-storage: 64Mi
+    securityContext:
+      # Satisfies require-container-hardening (audit): drop all capabilities
+      # and forbid privilege escalation.
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
   proxyConfig:
     image:
       repository: tailscale/tailscale
