@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: k3s-apiserver-loadbalancer
-    app.kubernetes.io/version: v1.293.2
+    app.kubernetes.io/version: v1.293.3
     control-plane: controller-manager
   name: k3s-apiserver-loadbalancer-controller-manager-metrics-service
   namespace: k3s-apiserver-loadbalancer-system
