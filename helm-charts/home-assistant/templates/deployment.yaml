@@ -24,6 +24,38 @@ spec:
       {{- if .Values.deployment.affinity }}
       affinity: {{ toYaml .Values.deployment.affinity | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: seed-config-includes
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              for f in automations.yaml scripts.yaml scenes.yaml; do
+                if [ ! -e "/config/$f" ]; then
+                  printf '%s\n' '[]' > "/config/$f"
+                fi
+              done
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          resources:
+            # One-shot write of missing include files. Memory request equals
+            # limit. No CPU limit.
+            requests:
+              cpu: 10m
+              memory: 32Mi
+              ephemeral-storage: 32Mi
+            limits:
+              memory: 32Mi
+              ephemeral-storage: 32Mi
+          volumeMounts:
+            - mountPath: /config
+              name: config
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
