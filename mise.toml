@@ -1,5 +1,6 @@
 [settings]
 lockfile_platforms = ["linux-x64", "macos-arm64"]
+aqua.registries = ["aqua-registry.yaml"]
 
 [tool_config]
 locked = true
@@ -16,6 +17,8 @@ locked = true
 "aqua:kubernetes/kubernetes/kubectl" = "1.37.0"
 "aqua:mikefarah/yq" = "4.53.6"
 "aqua:opentofu/opentofu" = "1.12.6"
+"aqua:robusta-dev/krr" = "v1.30.0"
+"aqua:yonahd/kor" = "v0.6.9"
 "aqua:zizmorcore/zizmor" = "1.30.1"
 "conda:graphviz" = "14.1.2"
 node = "24"
