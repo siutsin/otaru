@@ -1,111 +1,236 @@
 #!/usr/bin/env bash
-# pods-sweep.sh — fast parallel bad-pod sweep for the self-healing loop.
+# pods-sweep.sh — batched bad-pod sweep for the self-healing loop.
 #
 # The MCP k8s `pods_list` tool truncates its output (~20k chars), so the
-# fleet-wide list is unusable. Querying `pods_list_in_namespace` one
-# namespace at a time is correct but too slow sequentially (43 namespaces
-# blew the 1200s cron budget when the tailnet stalled). This script runs
-# the per-namespace queries in parallel — each job writes to its own file
-# (sharing one stdout across -P jobs interleaves lines and corrupts
-# records) — and prints only pods that need attention.
+# fleet-wide list is unusable. This script batches `pods_list_in_namespace`
+# calls through `mcp-cli call-tools` — one MCP session per batch, at most
+# 15 namespaces per batch (larger batches risk the ~200 KB output cap,
+# which truncates silently into invalid JSON) — and prints only pods that
+# need attention.
 #
-# Usage: pods-sweep.sh [--parallel N] [--restarts N]
-# Exit 0 normally; the caller greps stdout for BAD / QUERY_FAILED / OK /
-# RESULT: markers. Exits 1 only when the namespace list itself cannot be
-# fetched (nothing can be swept at all).
+# Table parsing is header-derived, never positional: a fixed column layout
+# caused a merged defect (PR #3311) when the table gained a column.
+#
+# Usage: pods-sweep.sh [--restarts N] [--batch N]
+# Markers on stdout: BAD / QUERY_FAILED / OK / RESULT:.
+# Exits 1 only when the namespace list itself cannot be fetched (nothing
+# can be swept at all).
 set -uo pipefail
 
-PARALLEL=12
 RESTART_ALERT=20
+BATCH=15
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --parallel) PARALLEL="${2:?--parallel needs a value}"; shift 2 ;;
     --restarts) RESTART_ALERT="${2:?--restarts needs a value}"; shift 2 ;;
+    --batch) BATCH="${2:?--batch needs a value}"; shift 2 ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
-MCP="$HOME/workspace/skills/mcp/bin/mcp-cli"
-export MCP
+# Base-10 arithmetic: plain (( )) treats leading-zero values as octal.
+if ! [[ "$BATCH" =~ ^[0-9]+$ ]] || (( 10#$BATCH < 1 || 10#$BATCH > 15 )); then
+  echo "--batch must be an integer 1-15 (output-cap safety limit)" >&2
+  exit 2
+fi
+# Normalize: chunking below compares "$BATCH" textually, and [[ -ge ]]
+# treats leading-zero values as octal — --batch 08 would silently merge
+# every namespace into one batch, defeating the safety bound above.
+BATCH=$((10#$BATCH))
 
-ns_names() {
-  "$MCP" call-tool --endpoint k8s --name namespaces_list \
-    --arguments-json '{}' 2>/dev/null \
-  | python3 -c "
-import json,sys
-t=json.load(sys.stdin)['content'][0]['text']
-for line in t.splitlines()[1:]:
-    parts=line.split()
-    if len(parts)>=3: print(parts[2])
-"
-}
+if ! [[ "$RESTART_ALERT" =~ ^[0-9]+$ ]]; then
+  echo "--restarts must be a non-negative integer" >&2
+  exit 2
+fi
 
-sweep_ns() {
-  # pipefail must be set inside the function: run_job executes in a
-  # child bash spawned by xargs, which does not inherit -o pipefail
-  # from the parent shell.
-  set -o pipefail
-  local ns="$1"
-  "$MCP" call-tool --endpoint k8s --name pods_list_in_namespace \
-    --arguments-json "{\"namespace\":\"$ns\"}" 2>/dev/null \
-  | python3 -c "
-import json,sys
-t=json.load(sys.stdin)['content'][0]['text']
-print(t)
-" 2>/dev/null | awk -v ns="$ns" -v ra="$RESTART_ALERT" '
-NR==1 {next}
-NF<8 {next}
-{
-  status=$6; restarts=$7+0
-  if (status !~ /^(Running|Completed|Succeeded)$/ ||
-      $0 ~ /CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|ContainerCreating/ ||
-      restarts >= ra)
-    printf "BAD ns=%s pod=%s status=%s restarts=%s age=%s node=%s\n", ns, $4, status, $7, $8, $10
-}'
-}
-export -f sweep_ns
+# Overridable for the regression tests (tests/pods-sweep.test.sh); the
+# scheduled loop always uses the real connector binary.
+MCP="${MCP:-$HOME/workspace/skills/mcp/bin/mcp-cli}"
 
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
-# run_job/sweep_ns execute in child bash processes spawned by xargs:
-# everything they touch must be exported, or they silently see empty
-# values (unexported tmpdir once made every sweep report a false OK).
-export tmpdir RESTART_ALERT
 
-ns_names > "$tmpdir/ns.txt"
-total_ns=$(wc -l < "$tmpdir/ns.txt")
+# One session, one handshake, one call: list namespaces.
+"$MCP" call-tools --endpoint k8s \
+  --calls-json '[{"name":"namespaces_list","arguments":{}}]' \
+  2>/dev/null > "$tmpdir/ns.json" || true
+
+python3 - "$tmpdir/ns.json" > "$tmpdir/ns.txt" <<'EOF'
+import json, sys
+try:
+    env = json.load(open(sys.argv[1]))[0]
+    if not isinstance(env, dict) or not env.get("ok"):
+        raise ValueError("bad envelope")
+    text = env["result"]["content"][0]["text"]
+    # Scan for the NAME header like parse_table does; a leading junk or
+    # blank line must not shift the parse or crash the whole sweep.
+    name_idx, start = None, 0
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        parts = line.split()
+        if parts and parts[0] == "NAME":
+            name_idx = parts.index("NAME")
+            start = i + 1
+            break
+    if name_idx is None:
+        raise ValueError("no NAME header in namespace list")
+except Exception as e:
+    print("ns-list parse failed: %s" % e, file=sys.stderr)
+    lines, name_idx, start = [], 0, 0
+for line in lines[start:]:
+    parts = line.split()
+    if len(parts) > name_idx:
+        print(parts[name_idx])
+EOF
+
+total_ns=$(grep -c . "$tmpdir/ns.txt" || true)
 if [[ "$total_ns" -eq 0 ]]; then
   echo "QUERY_FAILED: could not list namespaces" >&2
   exit 1
 fi
 
-idx=0
-while IFS= read -r ns; do
-  printf '%s\t%s\n' "$idx" "$ns" >> "$tmpdir/jobs.tsv"
-  idx=$((idx+1))
-done < "$tmpdir/ns.txt"
+mapfile -t NS < "$tmpdir/ns.txt"
 
-run_job() {
-  # $1 = index, $2 = namespace (xargs splits the tsv line)
-  sweep_ns "$2" > "$tmpdir/ns-$1.out" 2>/dev/null || \
-    echo "QUERY_FAILED ns=$2" > "$tmpdir/ns-$1.out"
+# Chunk namespaces into batches of $BATCH; one call-tools run per chunk.
+batch=0
+chunk=()
+run_chunk() {
+  local calls='[' sep=''
+  local ns
+  for ns in "${chunk[@]}"; do
+    calls+="${sep}{\"name\":\"pods_list_in_namespace\",\"arguments\":{\"namespace\":\"$ns\"}}"
+    sep=','
+  done
+  calls+=']'
+  printf '%s\n' "${chunk[@]}" > "$tmpdir/batch-$batch.ns"
+  "$MCP" call-tools --endpoint k8s --calls-json "$calls" 2>/dev/null \
+    > "$tmpdir/batch-$batch.json" || echo "CALL_FAILED" > "$tmpdir/batch-$batch.json"
+  batch=$((batch + 1))
 }
-export -f run_job
+for ns in "${NS[@]}"; do
+  chunk+=("$ns")
+  if [[ "${#chunk[@]}" -ge "$BATCH" ]]; then
+    run_chunk
+    chunk=()
+  fi
+done
+[[ "${#chunk[@]}" -gt 0 ]] && run_chunk
 
-xargs -a "$tmpdir/jobs.tsv" -P "$PARALLEL" -n2 bash -c 'run_job "$0" "$1"' 2>/dev/null
+sweep_out="$tmpdir/sweep.out"
+# Any parser crash must fail closed: never leave sweep.out empty (or
+# partial) where the final tally would read it as a clean OK.
+if ! python3 - "$tmpdir" "$RESTART_ALERT" > "$sweep_out" <<'EOF'
+import json, glob, os, sys, re
 
-out_files=( "$tmpdir"/ns-*.out )
-if [[ ! -e ${out_files[0]} ]]; then
-  # No per-namespace output at all (xargs failed outright) — never OK.
-  echo "QUERY_FAILED: no namespace sweep output files produced"
-  echo "RESULT: SWEEP_INCOMPLETE"
-  exit 0
+tmpdir, restart_alert = sys.argv[1], int(sys.argv[2])
+bad_re = re.compile(
+    r"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|"
+    r"CreateContainerConfigError|ContainerCreating")
+GOOD = {"Running", "Completed", "Succeeded"}
+
+def parse_table(text):
+    """Header-derived parse -> rows with name/status/restarts/age/node.
+
+    The RESTARTS column can render as `28 (35d ago)` — the parenthesised
+    restart age contains spaces, so everything after RESTARTS shifts.
+    Consume the group as part of RESTARTS before reading AGE/NODE.
+    """
+    rows, header = [], None
+    for line in text.splitlines():
+        parts = line.split()
+        if not parts:
+            continue
+        if header is None:
+            try:
+                header = {t: parts.index(t)
+                          for t in ("NAME", "STATUS", "RESTARTS", "AGE", "NODE")}
+            except ValueError:
+                continue  # not the header line; keep looking
+            continue
+        try:
+            r_idx = header["RESTARTS"]
+            extra = 0
+            if (r_idx + 1 < len(parts) and parts[r_idx + 1].startswith("(")
+                    and not parts[r_idx + 1].endswith(")")):
+                j = r_idx + 1
+                while j < len(parts) and not parts[j].endswith(")"):
+                    j += 1
+                extra = j - r_idx
+            rows.append({
+                "NAME": parts[header["NAME"]],
+                "STATUS": parts[header["STATUS"]],
+                "RESTARTS": parts[r_idx],
+                "AGE": parts[header["AGE"] + extra],
+                "NODE": parts[header["NODE"] + extra],
+            })
+        except (IndexError, ValueError):
+            continue  # ragged row: skip rather than misparse
+    # An ok:true envelope with no table at all (error text, garbage) must
+    # not sweep as clean: a real empty namespace still returns a header.
+    if header is None:
+        raise ValueError("no table header in response")
+    return rows
+
+out = []
+for path in sorted(glob.glob(os.path.join(tmpdir, "batch-*.json"))):
+    tag = os.path.basename(path).replace(".json", "")
+    ns_path = os.path.join(tmpdir, tag + ".ns")
+    try:
+        namespaces = open(ns_path).read().split()
+    except OSError:
+        out.append("QUERY_FAILED %s: missing batch manifest" % tag)
+        continue
+    try:
+        envs = json.loads(open(path).read())
+    except Exception:
+        out.append("QUERY_FAILED %s: invalid JSON (truncated?)" % tag)
+        continue
+    if not isinstance(envs, list) or len(envs) != len(namespaces):
+        out.append("QUERY_FAILED %s: envelope mismatch" % tag)
+        continue
+    for ns, env in zip(namespaces, envs):
+        # A non-dict envelope (e.g. JSON null from a truncated batch) must
+        # surface as QUERY_FAILED, never crash into an empty false-OK sweep.
+        # The MCP server also reports tool-level errors as ok:true with
+        # result.isError:true — an error text has no table, so it must be
+        # rejected too, not swept as "no bad pods".
+        if not isinstance(env, dict) or not env.get("ok"):
+            out.append("QUERY_FAILED ns=%s" % ns)
+            continue
+        result = env.get("result")
+        if isinstance(result, dict) and result.get("isError"):
+            out.append("QUERY_FAILED ns=%s: tool error" % ns)
+            continue
+        try:
+            text = env["result"]["content"][0]["text"]
+        except Exception:
+            out.append("QUERY_FAILED ns=%s: bad envelope" % ns)
+            continue
+        try:
+            rows = parse_table(text)
+        except ValueError as e:
+            out.append("QUERY_FAILED ns=%s: %s" % (ns, e))
+            continue
+        for r in rows:
+            try:
+                restarts = int(r["RESTARTS"])
+            except ValueError:
+                restarts = 0
+            if (r["STATUS"] not in GOOD or bad_re.search(r["STATUS"]) or
+                    restarts >= restart_alert):
+                out.append(
+                    "BAD ns=%s pod=%s status=%s restarts=%s age=%s node=%s"
+                    % (ns, r["NAME"], r["STATUS"], r["RESTARTS"],
+                        r["AGE"], r["NODE"]))
+
+for line in out:
+    print(line)
+EOF
+then
+  echo "QUERY_FAILED: sweep parser crashed" > "$sweep_out"
 fi
 
-cat "${out_files[@]}" | sort > "$tmpdir/bad.txt"
-
-bad_lines=$(grep '^BAD ' "$tmpdir/bad.txt" || true)
-qf_lines=$(grep '^QUERY_FAILED' "$tmpdir/bad.txt" || true)
+bad_lines=$(grep '^BAD ' "$sweep_out" || true)
+qf_lines=$(grep '^QUERY_FAILED' "$sweep_out" || true)
 
 # Always surface incomplete-sweep evidence, even alongside bad pods.
 [[ -n "$qf_lines" ]] && echo "$qf_lines"

@@ -2,15 +2,25 @@
 
 ## Checks
 
+The `kubectl` commands in this checklist are home-machine-only: no
+kubeconfig exists on the remote runner, so they do not work there (see
+SKILL.md). Remote passes use the MCP equivalents.
+
 - Pod sweep: run `.claude/skills/self-healing/bin/pods-sweep.sh` from the
-  repo root. It queries `pods_list_in_namespace` for every namespace in
-  parallel (~25s for the whole fleet) and prints only pods that are not
-  `Running`/`Completed`/`Succeeded`, show
-  `CrashLoopBackOff`/`ImagePullBackOff`/`ErrImagePull`/`CreateContainerConfigError`/`ContainerCreating`,
-  or have >= 20 restarts. Do NOT use the MCP `pods_list` tool (output
-  truncates at ~20k chars) and do NOT sweep namespaces sequentially — a
-  stalled tailnet once blew the 1200s cron budget that way (2026-09-21).
-- Legacy manual equivalents (only if the script is unavailable):
+  repo root. It batches `pods_list_in_namespace` calls through
+  `mcp-cli call-tools` (≤15 namespaces per batch, ~65s for the whole
+  fleet) and prints only pods that are not `Running`/`Completed`/
+  `Succeeded`, show `CrashLoopBackOff`/`ImagePullBackOff`/`ErrImagePull`/
+  `CreateContainerConfigError`/`ContainerCreating`, or have >= 20
+  restarts. Table parsing is header-derived, never positional — a fixed
+  column layout caused a merged defect (PR #3311) when the RESTARTS
+  column rendered as `28 (35d ago)`. Do NOT use the MCP `pods_list` tool
+  (output truncates at ~20k chars) and do NOT sweep namespaces one
+  process at a time — a stalled tailnet once blew the 1200s cron budget
+  that way (2026-09-21).
+- Legacy manual equivalents (home machine only — no kubeconfig exists on
+  the remote runner, so these do not work there; only if the script is
+  unavailable AND you are on the home network):
   `kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded`,
   then scan `kubectl get pods -A -o wide` (grep or read the table) for
   `CrashLoopBackOff`, `ImagePullBackOff`, `ErrImagePull`,
@@ -19,11 +29,12 @@
 - `kubectl get deploy,sts,ds -A` — not fully available?
 - **Jobs:** `kubectl get jobs -A` — any `Failed` or `Running` beyond
   expected duration?
-- **Alerts:** `curl -s <prometheus-url-via-ingress>/api/v1/alerts` (same
-  URL resolution as `right-sizing`'s KRR step) — any `firing` alerts. A
-  pod stuck `CrashLoopBackOff` still reports phase `Running` and can look
-  fine at a glance if this step is skipped, especially on an abbreviated
-  scheduled check; run it every pass, not just on a full sweep.
+- **Alerts:** query Prometheus through the tunnel proxy (see
+  `runbooks/monitoring.md`): `ALERTS{alertstate="firing"}` — any firing
+  alerts. A pod stuck `CrashLoopBackOff` still reports phase `Running`
+  and can look fine at a glance if this step is skipped, especially on
+  an abbreviated scheduled check; run it every pass, not just on a full
+  sweep.
 - **Eviction/resize churn on a healthy-looking multi-replica workload:**
   `kubectl get events -A --sort-by='.lastTimestamp' | grep -E
   'EvictedByVPA|HighNodeUtilization|ResizeDeferred'` — a single

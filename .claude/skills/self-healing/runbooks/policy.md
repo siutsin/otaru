@@ -3,10 +3,15 @@
 Kyverno enforces admission policy on this cluster today; if that changes,
 update the commands below.
 
+Batch all reads with `mcp-cli call-tools` (see the skill's Execution
+model) — never one process per call.
+
 ## Checks
 
-- `kubectl get clusterpolicyreports,policyreports -A` — policy failures
-  blocking workloads?
+- `resources_list` with `apiVersion: wgpolicyk8s.io/v1alpha2`,
+  `kind: PolicyReport` / `ClusterPolicyReport` — policy failures blocking
+  workloads? If the listing fails, fall back to scoped Warning events
+  (`events_list` filtered to warnings) rather than losing the category.
 
 ## Triage
 
