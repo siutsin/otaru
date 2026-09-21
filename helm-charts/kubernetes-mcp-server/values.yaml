@@ -10,6 +10,7 @@ authentication:
   jwksUri: https://auth.siutsin.com/.well-known/jwks.json
   allowedSubjects:
     - otaru-mcp
+    - muse
   requiredScopes:
     - mcp
 

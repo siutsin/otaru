@@ -13,7 +13,7 @@ server may do in the cluster. Those trust domains stay separate.
 | Policy  | Kyverno `require-security-policy` on new `HTTPRoute`s                  | No unauthenticated routes slip in |
 | Cluster | Pod ServiceAccount and RBAC (`cluster_auth_mode = kubeconfig` for k8s) | What MCP may do after connect     |
 
-Hydra issues tokens for client `otaru-mcp` (scope `mcp`, ES256
+Hydra issues tokens for clients `otaru-mcp` and `muse` (scope `mcp`, ES256
 `private_key_jwt`). Public JWKs live under `jwks/`. Private keys never enter
 Git or the cluster.
 

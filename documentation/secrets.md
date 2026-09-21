@@ -241,8 +241,8 @@ the cluster. Architecture and token path:
 
 Client id `muse` uses the same grant and algorithm. Public JWK is
 `jwks/muse-oauth.jwks.json`. The matching private key stays in Muse. Do not
-load it into Git or the cluster. Envoy still allows only `sub: otaru-mcp`
-until that subject is added on MCP `SecurityPolicy`s.
+load it into Git or the cluster. MCP `SecurityPolicy`s allow `sub: muse`
+as well as `sub: otaru-mcp`.
 
 ## Check
 
