@@ -154,6 +154,7 @@ Key addresses on the Server network:
 <!-- markdownlint-disable MD060 -->
 | Category     | Name          | Service                                                                                  | Description                                  |
 |--------------|---------------|------------------------------------------------------------------------------------------|----------------------------------------------|
+| AI           | Meta          | [Muse](https://muse.ai)                                                                  | Personal AI agent                            |
 | CI/CD        | Anthropic     | [Claude Code](https://www.anthropic.com/claude-code)                                     | AI code review                               |
 | CI/CD        | GitHub        | [Actions](https://github.com/features/actions)                                           | Repository validation and release automation |
 | CI/CD        | Renovate      | [Dependency Updates](https://docs.renovatebot.com/)                                      | Automated dependency maintenance             |
