@@ -23,11 +23,14 @@ GitOps PRs, journal, merge-policy, and optional `/right-sizing` when healthy.
 TTL, single-job cleanup). That is `.claude/skills/self-healing-loop`
 (`/self-healing-loop`).
 
-Requires a kubeconfig reaching the cluster's API VIP over the local
-network — not usable from a machine without that network path (for example
-a CI runner or a remote devserver). Investigate the otaru home-lab `k3s`
-cluster, fix safe issues, and journal findings. Usable as a manual one-shot
-or as the body of each scheduled fire from `/self-healing-loop`.
+Runs remotely: every cluster read goes through the Kubernetes MCP
+connector (`~/workspace/skills/mcp/bin/mcp-cli --endpoint k8s`), which
+reaches the cluster over the tunnel proxy. No kubeconfig is needed and none
+should be configured — `kubectl` has no cluster access from the remote
+runner and never replaces the MCP identity gate. Investigate the otaru
+home-lab `k3s` cluster, fix safe issues, and journal findings. Usable as a
+manual one-shot or as the body of each scheduled fire from
+`/self-healing-loop`.
 
 Invoke as `/self-healing`. To start or renew the 30-minute schedule, use
 `/self-healing-loop`.
@@ -39,22 +42,22 @@ Invoke as `/self-healing`. To start or renew the 30-minute schedule, use
 - **GitOps repo:** this repo — the reconciler syncs from it; durable fixes
   belong here, not as orphaned live edits.
 - **Journal:** `.scratchpad/SELF_HEALING.md` at the repo root.
-- **Out of scope:** schedule bootstrap/renew, multi-session durable cron, and
-  any machine without a kubeconfig reaching the API VIP. If kubeconfig or the
-  repo checkout is missing, stop and tell the user.
+- **Out of scope:** schedule bootstrap/renew and multi-session durable
+  cron. If the repo checkout is missing, or the MCP connector cannot
+  authenticate, stop and tell the user.
 
 ## Runtime gate
 
-Before any cluster command or otaru repo write (**identity** only):
+Before any cluster read or otaru repo write (**identity** only):
 
 1. Confirm you are working from an otaru repo checkout.
-2. Confirm the API server is the otaru VIP `192.168.10.50` (with or without
-    `:6443` — both forms are fine). Prefer Kubernetes MCP for this check
-    when available; otherwise `kubectl cluster-info`.
-3. Confirm `kubectl get nodes -o wide` (or MCP equivalent) lists all five
-    expected names (Ready or not): `raspberrypi-00`, `raspberrypi-01`,
-    `raspberrypi-02`, `raspberrypi-03`, `nuc-00`. Wrong or missing names mean
-    the wrong cluster — stop.
+2. Via MCP (`call-tools`, a single call): `resources_list` with
+    `apiVersion: v1`, `kind: Node`. Confirm all five expected names appear
+    (Ready or not): `raspberrypi-00`, `raspberrypi-01`, `raspberrypi-02`,
+    `raspberrypi-03`, `nuc-00`. Wrong or missing names mean the wrong
+    cluster — stop.
+3. If MCP auth fails: stop. Do not mutate anything. Never fall back to a
+    locally configured kubeconfig — there is none by design.
 
 If any identity check fails, stop. Do not mutate a cluster. NotReady nodes
 are handled in `runbooks/access-and-nodes.md` — do not treat them as a gate
@@ -68,21 +71,66 @@ categories.
 
 ## Cluster inspection
 
-Prefer **Kubernetes MCP tools** for read-only diagnostics (list pods,
-events, Applications, logs, metrics) when they are available. Fall back to
-`kubectl` for the same checks or when MCP is unavailable. Exact resource
-checks in the runbooks remain the source of truth either way. Mutating
-operations stay GitOps-first (see Fixes).
+All read-only diagnostics go through the Kubernetes MCP connector
+(`mcp-cli --endpoint k8s`). Exact resource checks in the runbooks remain
+the source of truth. Mutating operations stay GitOps-first (see Fixes).
+
+## Execution model (batch mode)
+
+Every `mcp-cli call-tool` process pays ~4s of handshake (initialize,
+notifications/initialized, tools/call). Never run one process per call.
+
+- **Batch all reads** with `mcp-cli call-tools --endpoint k8s
+  --calls-json '[...]'` — one session, one handshake, per-call
+  `ok`/`error` envelopes. A failed call does not abort the rest.
+- **Batch size bound:** at most 15 namespace-scoped calls per batch.
+  Larger batches risk the ~200 KB output cap, which truncates silently
+  into invalid JSON. Keep expected output well under the cap; split
+  rather than hope.
+- **Per-category budget:** run each checklist category under
+  `timeout 150s`. Exit 124 means the category overran — record it as
+  `partial` (see Journal) and continue with the next category. Never let
+  one stuck category consume the pass.
+- **Concurrency:** independent categories may run concurrently (3–4
+  parallel batch processes). Aggregate their results and write the
+  journal once at pass end — concurrent appends interleave.
+- **Parsing:** MCP list tools return text tables; no structured JSON
+  output is available (verified 2026-09-21). Parse by header-derived
+  column positions, never fixed columns — positional parsing caused a
+  merged defect (PR #3311). Any parsing helper must have regression
+  tests covering: normal Running pod, Completed pod, restart text
+  containing `(… ago)`, genuinely bad status, empty namespace,
+  failed/truncated MCP response.
 
 ## Journal
 
-Write only when you find an issue or attempt a fix. Skip the journal when
-the cluster is healthy.
+Write a pass-status block at the end of every pass (healthy or not).
+Write `### issue` entries only when you find an issue or attempt a fix.
 
 Use simple, concise English. Every word must earn its place. Use local time
 in headings.
 
-Format:
+Pass status (one block per pass, written once at pass end — aggregate
+concurrent category results first, never append from parallel processes):
+
+```markdown
+## <YYYY-MM-DD> <HH:MM>
+
+### pass status
+
+- **categories:** access-and-nodes=ok, gitops-reconciliation=ok,
+  workloads=ok, storage=ok, data-plane=ok, platform=ok, ingress-mesh=ok,
+  policy=ok, monitoring=ok, ci-cd=ok, unused-resources=skipped
+- **result:** `healthy` | `issues-found` | `degraded`
+```
+
+Category values: `ok` | `partial` | `skipped`. `partial` means the
+category overran its 150s budget or returned incomplete data — its checks
+must be re-run or escalated, never silently dropped. `result: degraded`
+means one or more categories are `partial`. A degraded pass is reported to
+the side chat (a healthy pass stays silent).
+
+Issue format:
 
 ```markdown
 ## <YYYY-MM-DD> <HH:MM>
@@ -142,12 +190,14 @@ Start by reading the last few journal entries. For each latest entry with
 work. A run is healthy only when the checklist passes **and** every such
 entry is resolved or still correctly escalated.
 
-Then work through this checklist in order. On the first P0 (NotReady node
+Then work through this checklist in order. Each category runs as one or
+more `call-tools` batches under `timeout 150s` (see Execution model);
+independent categories may run concurrently. On the first P0 (NotReady node
 or a GitOps reconciler reporting degraded), fix or escalate before
 lower-priority categories.
 
-Prerequisites: otaru repo checkout, kubeconfig reaching API VIP
-`192.168.10.50`.
+Prerequisites: otaru repo checkout, working MCP connector (runtime gate
+passed).
 
 1. `runbooks/access-and-nodes.md` — cluster reachability, node readiness,
     node pressure. **P0.**
@@ -160,8 +210,9 @@ Prerequisites: otaru repo checkout, kubeconfig reaching API VIP
 7. `runbooks/ingress-mesh.md` — gateway, load-balancer VIP reachability,
     service mesh.
 8. `runbooks/policy.md` — admission policy failures.
-9. `runbooks/ci-cd.md` — scheduled workflow health.
-10. `runbooks/unused-resources.md` — orphan ConfigMaps, Secrets,
+9. `runbooks/monitoring.md` — Prometheus targets and firing alerts.
+10. `runbooks/ci-cd.md` — scheduled workflow health.
+11. `runbooks/unused-resources.md` — orphan ConfigMaps, Secrets,
     ServiceAccounts, StorageClasses. Lowest priority; cadence-gated, most
     passes skip this category entirely (see the runbook).
 
@@ -238,8 +289,12 @@ Each invocation is **one** investigation pass — whether the user ran
 - If healthy, report that the cluster is healthy: nodes Ready, no
   reconciler apps degraded, no lingering out-of-sync state without an
   in-flight PR, no open journal issues (escalated items waiting on the
-  user are OK — mention them). Skip issue journal entries; still allow
+  user are OK — mention them). Still allow
   right-sizing pass markers when `/right-sizing` runs.
+- If degraded (one or more categories `partial`), report which categories
+  were partial and what was not checked — the pass did not fully verify
+  the cluster. Re-run or escalate the partial categories; never silently
+  drop them.
 - If an issue persists, append a short update under the same `### issue`
   title with changed `action` / `result`, or a new timestamped block with
   delta only.

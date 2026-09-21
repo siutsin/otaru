@@ -282,10 +282,16 @@ validate-grafana-dashboards: poetry-install ## Validate Grafana dashboard embeds
 	@cd diagrams && poetry run python ../hack/validate-grafana-dashboards.py
 	@echo "$(GREEN)Grafana dashboard validation passed!$(NC)"
 
+.PHONY: test-pods-sweep
+test-pods-sweep: ## Regression tests for the self-healing pod sweep (stubbed MCP)
+	@echo "$(GREEN)Running pods-sweep regression tests...$(NC)"
+	@bash .claude/skills/self-healing/tests/pods-sweep.test.sh
+	@echo "$(GREEN)pods-sweep regression tests passed!$(NC)"
+
 .PHONY: test
 test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform \
 	lint-terragrunt check-markdown lint-zizmor validate-helm-charts \
-	check-image-digests validate-grafana-dashboards ## Run all validation and quality checks
+	check-image-digests validate-grafana-dashboards test-pods-sweep ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets
