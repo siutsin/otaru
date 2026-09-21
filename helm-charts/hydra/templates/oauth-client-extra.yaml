@@ -1,0 +1,46 @@
+{{- range .Values.oauthClient.extraClients }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .secretName }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+stringData:
+  # Unused at the token endpoint. Auth is private_key_jwt. The OAuth2Client
+  # CRD still requires a companion Secret with these keys.
+  CLIENT_ID: {{ .id | quote }}
+  CLIENT_SECRET: unused-private-key-jwt
+---
+apiVersion: hydra.ory.sh/v1alpha1
+kind: OAuth2Client
+metadata:
+  name: {{ .id }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  accessTokenStrategy: jwt
+  backChannelLogoutSessionRequired: false
+  clientName: {{ .name | quote }}
+  deletionPolicy: delete
+  frontChannelLogoutSessionRequired: false
+  grantTypes:
+    - client_credentials
+  jwksUri: {{ .jwksUri | quote }}
+  responseTypes:
+    - token
+  scopeArray:
+    {{- range .scopes }}
+    - {{ . | quote }}
+    {{- end }}
+  secretName: {{ .secretName }}
+  skipConsent: false
+  skipLogoutConsent: false
+  tokenEndpointAuthMethod: private_key_jwt
+  tokenEndpointAuthSigningAlg: {{ .tokenEndpointAuthSigningAlg | quote }}
+  tokenLifespans:
+    client_credentials_grant_access_token_lifespan: {{ .accessTokenLifespan | quote }}
+{{- end }}

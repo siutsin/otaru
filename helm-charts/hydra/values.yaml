@@ -44,6 +44,15 @@ oauthClient:
   tokenEndpointAuthSigningAlg: ES256
   accessTokenLifespan: 15m
   jwksUri: https://raw.githubusercontent.com/siutsin/otaru/master/jwks/otaru-mcp-oauth.jwks.json
+  extraClients:
+    - id: muse
+      name: Muse machine client
+      secretName: muse
+      scopes:
+        - mcp
+      tokenEndpointAuthSigningAlg: ES256
+      accessTokenLifespan: 15m
+      jwksUri: https://raw.githubusercontent.com/siutsin/otaru/master/jwks/muse-oauth.jwks.json
   externalSecret:
     refreshInterval: 24h
     secretStoreRef:
