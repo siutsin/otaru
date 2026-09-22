@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: k3s-apiserver-loadbalancer
-    app.kubernetes.io/version: v1.293.3
+    app.kubernetes.io/version: v1.293.4
     control-plane: controller-manager
   name: k3s-apiserver-loadbalancer-controller-manager
   namespace: k3s-apiserver-loadbalancer-system
@@ -21,7 +21,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         app.kubernetes.io/name: k3s-apiserver-loadbalancer
-        app.kubernetes.io/version: v1.293.3
+        app.kubernetes.io/version: v1.293.4
         control-plane: controller-manager
     spec:
       containers:
@@ -31,7 +31,7 @@ spec:
             - --health-probe-bind-address=:8081
           command:
             - /manager
-          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.293.3
+          image: ghcr.io/siutsin/k3s-apiserver-loadbalancer:v1.293.4
           livenessProbe:
             httpGet:
               path: /healthz

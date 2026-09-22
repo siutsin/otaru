@@ -1,6 +1,6 @@
 dependencies:
 - name: base
   repository: https://istio-release.storage.googleapis.com/charts
-  version: 1.30.4
-digest: sha256:6e061af296c35551d8c3e89c2472e526328cfb364cf5f75aee4ea8a48aa89a4a
-generated: "2026-08-28T20:32:43.740991854Z"
+  version: 1.30.5
+digest: sha256:48d33617f1f0d91a43d068a8f02d97036931cf38d710c0fd0b72119cf8e49994
+generated: "2026-09-22T13:46:24.908164202Z"
