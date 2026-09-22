@@ -411,6 +411,13 @@ prometheus-blackbox-exporter:
 yace:
   fullnameOverride: monitoring-yace
   nameOverride: yace
+  # 2026-09-22: single-replica workload with no PDB, flagged by Kyverno
+  # require-pdb-for-deployment and exposed to the descheduler
+  # HighNodeUtilization eviction-storm pattern (see
+  # documentation/gotcha.md). The subchart exposes a native PDB option,
+  # same pattern as the blackbox entry above (2026-07-25).
+  podDisruptionBudget:
+    enabled: true
   irsa:
     awsAccountId: ~
   image:
