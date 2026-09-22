@@ -138,6 +138,16 @@ descheduler:
               # reasoning as blocky.
               # matchExpressions are ANDed: a pod must satisfy every entry
               # to be eligible for eviction under this profile.
+              # 2026-09-22: Longhorn CSI control-plane components (label
+              # app=csi-attacher/csi-provisioner/csi-resizer/csi-snapshotter)
+              # excluded -- evicted from raspberrypi-00/raspberrypi-03 every
+              # ~5 minutes for 30+ minutes (28 HighNodeUtilization events,
+              # 06:31-07:01 UTC), each replacement landing back on a
+              # similarly-loaded node and getting evicted again. These run
+              # the attach/provision/resize/snapshot operations for every
+              # Longhorn volume -- constant churn on the storage control
+              # plane costs more than the packing it buys, same reasoning
+              # as envoy.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -148,6 +158,13 @@ descheduler:
                       - teslamate-verify-pg-dump
                       - teslamate-verify-pitr
                       - envoy
+                  - key: app
+                    operator: NotIn
+                    values:
+                      - csi-attacher
+                      - csi-provisioner
+                      - csi-resizer
+                      - csi-snapshotter
                   - key: cnpg.io/podRole
                     operator: NotIn
                     values:
