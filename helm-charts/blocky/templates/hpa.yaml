@@ -28,6 +28,12 @@ spec:
         # threshold, pinning replicas at max continuously. 500Mi keeps
         # roughly the same absolute trigger point as the previous
         # 60%-of-768Mi (~461Mi) target, decoupled from the request value.
+        #
+        # 2026-09-22: 30d p50 rose to 577Mi, so ordinary usage sat at/above
+        # the 500Mi target and the HPA was pinned at max replicas (verified
+        # live: desired 3, memory metric ~498Mi vs 500Mi target). Raised to
+        # 1222Mi (60% of the 2036Mi limit, same method as above) so normal
+        # usage holds 2 replicas and only refresh spikes scale to 3.
         target:
           type: AverageValue
-          averageValue: 500Mi
+          averageValue: 1222Mi
