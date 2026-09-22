@@ -6,9 +6,11 @@ waypoint:
   deployment:
     replicas: 2
     resources:
+      # 2026-09-22: relax req==limit (user-approved). Spiky; live ~90Mi.
+      # Request 160Mi, keep 256Mi limit for spikes.
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 160Mi
         ephemeral-storage: 128Mi
       limits:
         memory: 256Mi

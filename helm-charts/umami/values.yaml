@@ -37,9 +37,11 @@ deployment:
     # request; memory peak dropped to ~313Mi (GOOD), so downsized to match.
     # raspberrypi-01 (its current node, 81% CPU requests, 725m free) has
     # room for the RollingUpdate surge.
+    # 2026-09-22: relax req==limit (user-approved). Spiky; live ~187Mi,
+    # KRR 14d peak 313Mi stays covered by the 320Mi limit. Request 224Mi.
     requests:
       cpu: 359m
-      memory: 320Mi
+      memory: 224Mi
       ephemeral-storage: 256Mi
     limits:
       memory: 320Mi
