@@ -88,9 +88,11 @@ prometheus:
       # 867Mi free requested-memory capacity, well above the 466Mi needed)
       # after a series of overcommit/VPA changes freed real headroom
       # cluster-wide over the past day. Bumped to 3730Mi.
+      # 2026-09-22: relax req==limit (user-approved). Steady use ~2092Mi;
+      # keep the 3730Mi limit for retention growth. Request 3200Mi.
       requests:
         cpu: 200m
-        memory: 3730Mi
+        memory: 3200Mi
         ephemeral-storage: 256Mi
       limits:
         memory: 3730Mi
@@ -540,9 +542,11 @@ grafana:
   resources:
     # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
     # ephemeral-storage 2026-07-06: 14d peak ~50Mi against a 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) — bump to 128Mi for headroom.
+    # 2026-09-22: relax req==limit (user-approved). Steady use ~96Mi; keep the
+    # 512Mi limit for dashboard bursts. Request 256Mi.
     requests:
       cpu: 50m
-      memory: 512Mi
+      memory: 256Mi
       ephemeral-storage: 128Mi
     limits:
       memory: 512Mi
@@ -603,9 +607,11 @@ loki:
       # the Go runtime GC held it just under the limit, starving CPU: /ready
       # probe timed out x75, pushes took 1m+ and 500'd, in-process gRPC
       # connections dropped. App went Degraded. Raised to 1Gi for real headroom.
+      # 2026-09-22: relax req==limit (user-approved). Steady use ~680Mi; the
+      # 1Gi limit stays for ingestion bursts. Request 896Mi.
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 896Mi
         ephemeral-storage: 128Mi
       limits:
         memory: 1Gi
