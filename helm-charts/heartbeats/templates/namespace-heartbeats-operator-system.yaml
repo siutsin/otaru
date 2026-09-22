@@ -4,6 +4,6 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: heartbeats-operator
-    app.kubernetes.io/version: v0.218.2
+    app.kubernetes.io/version: v0.218.3
     control-plane: controller-manager
   name: heartbeats-operator-system
