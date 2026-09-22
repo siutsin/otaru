@@ -86,7 +86,7 @@ This executes:
 create missing values.yaml files, resolve template rendering issues.
 Memory sizing (all workloads): baseline = p50 usage over the trailing 30d of
 Prometheus data (KRR's 14d window as a sanity check); request = ceil(baseline /
-0.8) with a 32Mi floor; spike = max usage over the trailing 30d; limit =
+0.9) with a 32Mi floor; spike = max usage over the trailing 30d; limit =
 ceil(spike * 1.2). For workloads younger than 30d, use all available data.
 Never size below a past-incident guardrail recorded in the
 resource block's inline comment.
