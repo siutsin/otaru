@@ -92,9 +92,11 @@ containers:
       # New workload, no KRR history yet -- conservative starting estimate
       # for a single-replica async Python HTTP server with no persistent
       # state. Revisit after the first right-sizing pass has real data.
+      # 2026-09-22: relax req==limit (user-approved). Spiky; live ~72Mi.
+      # Request 128Mi, keep 192Mi limit for spikes.
       requests:
         cpu: 50m
-        memory: 192Mi
+        memory: 128Mi
         ephemeralStorage: 128Mi
       limits:
         memory: 192Mi

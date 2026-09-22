@@ -206,10 +206,12 @@ argo-cd:
     # (FailedScheduling: insufficient cpu). Reduced to 700m, which fits with
     # margin on raspberrypi-00/01/03 (~800-965m free each) -- still a large
     # improvement over the original 250m, just not the full KRR peak.
+    # 2026-09-22: relax req==limit (user-approved). Spiky; live ~88Mi,
+    # KRR 14d peak 380Mi stays covered by the 512Mi limit. Request 256Mi.
     resources:
       requests:
         cpu: 700m
-        memory: 512Mi
+        memory: 256Mi
         ephemeral-storage: 512Mi
       limits:
         memory: 512Mi

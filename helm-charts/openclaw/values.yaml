@@ -137,9 +137,11 @@ resources:
   # mispinned digest; PR #2842 removed that nodeSelector. Deployment uses
   # Recreate, so raspberrypi-03 (its current node, 62% CPU requests) frees
   # the old 320m before scheduling the new pod — 1150m fits comfortably.
+  # 2026-09-22: relax req==limit (user-approved). Spiky; live ~484Mi.
+  # Request 576Mi, keep 768Mi limit for spikes.
   requests:
     cpu: 1150m
-    memory: 768Mi
+    memory: 576Mi
     ephemeralStorage: 1Gi
   limits:
     memory: 768Mi
