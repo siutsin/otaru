@@ -148,6 +148,15 @@ descheduler:
               # Longhorn volume -- constant churn on the storage control
               # plane costs more than the packing it buys, same reasoning
               # as envoy.
+              # 2026-09-22: jung2bot excluded -- evicted from overutilized
+              # nodes (94-98% requested memory) every ~5 minutes. Each pod
+              # requests 100m CPU / 64Mi memory, so one eviction frees
+              # ~0.8% of node memory and never brings the node under the
+              # 90% threshold; the replacement can land back on a
+              # similarly-loaded node and get evicted again. Stateless
+              # Telegram bot (SQS + DynamoDB), so no outage -- but constant
+              # restart churn costs more than the packing it buys, same
+              # reasoning as envoy.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -158,6 +167,7 @@ descheduler:
                       - teslamate-verify-pg-dump
                       - teslamate-verify-pitr
                       - envoy
+                      - jung2bot
                   - key: app
                     operator: NotIn
                     values:
