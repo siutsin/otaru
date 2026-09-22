@@ -137,6 +137,18 @@ clusters:
       limits:
         memory: 256Mi
         ephemeral-storage: 512Mi
+    objectStore:
+      # 2026-09-22: relax req==limit (user-approved). Hydra never restores in
+      # production; keep the 512Mi limit for backup-upload bursts.
+      # Request 256Mi.
+      instanceSidecarResources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+          ephemeral-storage: 512Mi
+        limits:
+          memory: 512Mi
+          ephemeral-storage: 512Mi
     storage:
       size: 2Gi
       storageClass: longhorn-crypto-global
@@ -186,10 +198,14 @@ clusters:
       # production and stays lean at 512Mi. This also bumps teslamate's two
       # always-on production sidecars, since they share this same
       # ObjectStore with the verify-pitr recovery path.
+      # 2026-09-22: relax req==limit (user-approved). The 1Gi request was set
+      # for restore bursts (852Mi DB restore died at 512Mi); steady-state
+      # bootstrap uses far less. Request 512Mi, keep limit 1Gi. Frees 512Mi
+      # scheduled memory per replica.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 1Gi
+          memory: 512Mi
           ephemeral-storage: 1Gi
         limits:
           memory: 1Gi
@@ -247,10 +263,12 @@ clusters:
       # scheduled backup upload OOMKilled the sidecar (exit 137), failing 5
       # consecutive backups over ~15h. Bump to 512Mi to match teslamate's
       # equivalent sidecar, which has zero restarts and all backups completing.
+      # 2026-09-22: relax req==limit (user-approved). Keep the 512Mi limit
+      # for backup-upload bursts; steady use is far lower. Request 256Mi.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 512Mi
+          memory: 256Mi
           ephemeral-storage: 512Mi
         limits:
           memory: 512Mi
