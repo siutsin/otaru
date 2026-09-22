@@ -46,8 +46,9 @@ deployment:
     # 2026-09-20: both replicas OOMKilled (exit 137) at 1280Mi within 19s of
     # each other at 12:06 UTC, and one pod had 5 OOM restarts in 24h. The refresh
     # spike is larger than the estimate above: 3d working-set peaks reached
-    # 1.05-1.23Gi on pods that survived. Limit raised to 1792Mi; the 350Mi
-    # request is unchanged, so no extra node capacity is reserved.
+    # 1.05-1.23Gi on pods that survived. Limit was raised to 1792Mi and the
+    # 350Mi request left unchanged, so no extra node capacity was reserved then.
+    # (Superseded 2026-09-22 — see below.)
     #
     # 2026-09-22: 30d p50 is 576.7Mi (steady state roughly doubled since July),
     # 30d spike 1696.5Mi. Request raised to 641Mi (ceil 576.7/0.9) and limit to
