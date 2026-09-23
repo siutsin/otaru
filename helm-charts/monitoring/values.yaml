@@ -1,6 +1,12 @@
 name: monitoring
 namespace: monitoring
 
+vpa:
+  # 2026-09-23: recommendations only (updateMode Off in templates/vpa.yaml).
+  # Stateful monitoring workloads must not be auto-evicted on resize;
+  # recommendations feed the manual sizing PRs.
+  enabled: true
+
 # Longhorn Volume CR for the dynamically provisioned Prometheus PVC (name = bound PV).
 # Lookup: kubectl -n monitoring get pvc monitoring-prometheus-server -o jsonpath='{.spec.volumeName}'
 prometheusLonghornVolume:

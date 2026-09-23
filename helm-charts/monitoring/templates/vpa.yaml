@@ -1,0 +1,106 @@
+{{- if .Values.vpa.enabled }}
+# 2026-09-23: VPA in Off mode (recommendations only) for the stateful
+# monitoring workloads. Auto mode would evict and restart Prometheus, Loki,
+# and Grafana on every resize; recommendations feed the manual KRR-style
+# sizing PRs instead. minAllowed floors sit at the 2026-09-23 right-sized
+# requests, so VPA acts as a growth radar -- shrinkage stays with the
+# periodic manual review. Guardrails mirror the inline incident comments
+# in values.yaml.
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: monitoring-prometheus-server
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: monitoring-prometheus-server
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: prometheus-server
+        controlledResources: [memory]
+        controlledValues: RequestsAndLimits
+        minAllowed:
+          memory: 2652Mi
+        maxAllowed:
+          # Retention growth headroom. Above ~4Gi verify node scheduling
+          # headroom first -- 2026-07-22: 3840Mi failed to schedule.
+          memory: 6144Mi
+      - containerName: prometheus-server
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 200m
+        maxAllowed:
+          cpu: 400m
+{{- end }}
+---
+{{- if .Values.vpa.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: monitoring-grafana
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: monitoring-grafana
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: grafana
+        controlledResources: [memory]
+        controlledValues: RequestsAndLimits
+        minAllowed:
+          memory: 348Mi
+        maxAllowed:
+          # Matches the 512Mi limit guardrail (2026-07-25: dashboard use
+          # pushed Grafana against 128Mi and caused probe failures).
+          memory: 512Mi
+      - containerName: grafana
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 50m
+        maxAllowed:
+          cpu: 200m
+{{- end }}
+---
+{{- if .Values.vpa.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: monitoring-loki
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: monitoring-loki
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: loki
+        controlledResources: [memory]
+        controlledValues: RequestsAndLimits
+        minAllowed:
+          # 2026-09-07: Loki wedged for ~7h at 606/608Mi, just under the
+          # limit -- never recommend below the right-sized 649Mi request.
+          memory: 649Mi
+        maxAllowed:
+          # Ingestion burst headroom above the 1047Mi limit.
+          memory: 2048Mi
+      - containerName: loki
+        controlledResources: [cpu]
+        controlledValues: RequestsOnly  # this repo sets no cpu limits
+        minAllowed:
+          cpu: 100m
+        maxAllowed:
+          cpu: 400m
+{{- end }}
