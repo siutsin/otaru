@@ -44,13 +44,14 @@ spec:
               port: 8081
             initialDelaySeconds: 5
           resources:
+            # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
             limits:
               ephemeral-storage: 64Mi
-              memory: 128Mi
+              memory: 53Mi
             requests:
               cpu: 10m
               ephemeral-storage: 64Mi
-              memory: 128Mi
+              memory: 46Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
