@@ -19,6 +19,18 @@ record this category as `partial`, not `ok`.
 Grafana health (fallback liveness only):
 `https://grafana.internal.siutsin.com/api/health` → 200.
 
+## Retry
+
+The tunnel proxy drops requests often enough that a single-shot query
+misreads a transport blip as a finding (2026-09-23: `count(up == 0)`
+returned on three attempts while the other four checks failed the same
+way — transport, not the cluster). Run every PromQL check with up to 3
+attempts, 10–20s apart (each attempt keeps the 25s curl timeout). A
+check that errors on early attempts but returns an empty result on
+retry is transport noise, not a finding. A non-empty result on any
+attempt is a real finding — never dismiss it as noise. Record the
+category as `partial` only when all attempts fail.
+
 ## Checks (every pass)
 
 | Check | PromQL — result must be empty |
