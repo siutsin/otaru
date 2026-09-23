@@ -8,10 +8,10 @@ metrics-server:
   resources:
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 95Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 128Mi
+      memory: 110Mi
       ephemeral-storage: 64Mi
   replicas: 2
   podDisruptionBudget:

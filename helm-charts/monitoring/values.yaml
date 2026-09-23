@@ -48,7 +48,14 @@ prometheus:
             - k8s-ephemeral-storage-metrics.monitoring.svc.cluster.local:9100
   configmapReload:
     prometheus:
-      resources: *smallResources
+      resources:
+        requests:
+          cpu: 50m
+          memory: 32Mi
+          ephemeral-storage: 64Mi
+        limits:
+          memory: 45Mi
+          ephemeral-storage: 64Mi
       containerSecurityContext:
         allowPrivilegeEscalation: false
         capabilities:
@@ -122,7 +129,14 @@ prometheus:
     # prometheus-server the same day (see documentation/gotcha.md).
     podDisruptionBudget:
       minAvailable: 1
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 35Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 39Mi
+        ephemeral-storage: 64Mi
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -154,16 +168,37 @@ prometheus:
     # prometheus-server the same day (see documentation/gotcha.md).
     podDisruptionBudget:
       minAvailable: 1
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 88Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 112Mi
+        ephemeral-storage: 64Mi
   prometheus-node-exporter:
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 64Mi
   prometheus-pushgateway:
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
     podDisruptionBudget:
       minAvailable: 1
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 64Mi
     containerSecurityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -408,7 +443,14 @@ prometheus-blackbox-exporter:
   # prometheus-server the same day (see documentation/gotcha.md).
   podDisruptionBudget:
     minAvailable: 1
-  resources: *smallResources
+  resources:
+    requests:
+      cpu: 50m
+      memory: 36Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 49Mi
+      ephemeral-storage: 64Mi
 
 yace:
   fullnameOverride: monitoring-yace
@@ -446,7 +488,14 @@ yace:
     # could not verify runAsNonRoot and left the pod in CreateContainerConfigError.
     runAsUser: 65534
   # Initial budget for one exporter that polls six CloudWatch metrics each minute.
-  resources: *smallResources
+  resources:
+    requests:
+      cpu: 50m
+      memory: 34Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 43Mi
+      ephemeral-storage: 64Mi
   extraArgs:
     scraping-interval: 60
   config: |-
@@ -527,10 +576,10 @@ k8s-ephemeral-storage-metrics:
   resources:
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 50Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 128Mi
+      memory: 69Mi
       ephemeral-storage: 64Mi
 
 grafana:
@@ -593,9 +642,23 @@ grafana:
 loki:
   deploymentMode: SingleBinary
   lokiCanary:
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 40Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 53Mi
+        ephemeral-storage: 64Mi
   gateway:
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 64Mi
   singleBinary:
     replicas: 1
     podLabels:
@@ -623,16 +686,23 @@ loki:
   resultsCache:
     allocatedMemory: 128
     resources:
-      # KRR 2026-07-05: live peak ~100Mi working set; 154Mi request was never approached.
+      # 30d: p50 ~29Mi (req 32Mi), spike ~27Mi (limit 32Mi); the old KRR ~100Mi peak never recurred.
       requests:
         cpu: 100m
-        memory: 128Mi
+        memory: 32Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 32Mi
         ephemeral-storage: 64Mi
   memcachedExporter:
-    resources: *smallResources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 64Mi
   sidecar:
     resources: *smallResources
   memberlist:
@@ -725,7 +795,14 @@ fluent-bit:
   extraVolumeMounts:
     - name: fluent-bit-state
       mountPath: /var/fluent-bit-state
-  resources: *smallResources
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 66Mi
+      ephemeral-storage: 64Mi
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
