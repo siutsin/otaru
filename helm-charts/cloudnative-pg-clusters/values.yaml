@@ -126,25 +126,24 @@ clusters:
     instances: 1
     minSyncReplicas: 0
     maxSyncReplicas: 0
-    # Initial sizing: Hydra stores low-volume OAuth metadata and has no live
-    # database metrics yet. This matches the established lightweight database
-    # envelope while retaining vacuum headroom; revisit with KRR.
+    # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit);
+    # keep vacuum headroom.
     resources:
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 119Mi
         ephemeral-storage: 512Mi
       limits:
-        memory: 256Mi
+        memory: 183Mi
         ephemeral-storage: 512Mi
     objectStore:
       # 2026-09-22: relax req==limit (user-approved). Hydra never restores in
       # production; keep the 512Mi limit for backup-upload bursts.
-      # Request 256Mi.
+      # Request 47Mi.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 256Mi
+          memory: 47Mi
           ephemeral-storage: 512Mi
         limits:
           memory: 512Mi
@@ -185,6 +184,17 @@ clusters:
     instances: 2
     minSyncReplicas: 1
     maxSyncReplicas: 1
+    # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit).
+    # CPU and ephemeral-storage repeat the defaults: the template replaces
+    # the whole resources block when a per-cluster one is set.
+    resources:
+      requests:
+        cpu: 250m
+        memory: 267Mi
+        ephemeral-storage: 512Mi
+      limits:
+        memory: 386Mi
+        ephemeral-storage: 512Mi
     labels:
       cnpg.io/reload: "true"
       cnpg.io/skipEmptyWalArchiveCheck: "true"
@@ -200,12 +210,12 @@ clusters:
       # ObjectStore with the verify-pitr recovery path.
       # 2026-09-22: relax req==limit (user-approved). The 1Gi request was set
       # for restore bursts (852Mi DB restore died at 512Mi); steady-state
-      # bootstrap uses far less. Request 512Mi, keep limit 1Gi. Frees 512Mi
+      # bootstrap uses far less. Request 164Mi, keep limit 1Gi. Frees 860Mi
       # scheduled memory per replica.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 512Mi
+          memory: 164Mi
           ephemeral-storage: 1Gi
         limits:
           memory: 1Gi
@@ -249,14 +259,15 @@ clusters:
     affinity:
       podAntiAffinityType: required
     instances: 2
-    # Light analytics DB: live usage ~10m CPU / 74Mi; keep headroom for failover and vacuum.
+    # Light analytics DB: keep headroom for failover and vacuum.
+    # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit).
     resources:
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 111Mi
         ephemeral-storage: 512Mi
       limits:
-        memory: 256Mi
+        memory: 146Mi
         ephemeral-storage: 512Mi
     objectStore:
       # 2026-07-06: 128Mi only covered idle WAL-archiving usage (~44Mi); every
@@ -264,11 +275,11 @@ clusters:
       # consecutive backups over ~15h. Bump to 512Mi to match teslamate's
       # equivalent sidecar, which has zero restarts and all backups completing.
       # 2026-09-22: relax req==limit (user-approved). Keep the 512Mi limit
-      # for backup-upload bursts; steady use is far lower. Request 256Mi.
+      # for backup-upload bursts; steady use is far lower. Request 85Mi.
       instanceSidecarResources:
         requests:
           cpu: 50m
-          memory: 256Mi
+          memory: 85Mi
           ephemeral-storage: 512Mi
         limits:
           memory: 512Mi
