@@ -19,7 +19,9 @@ spec:
         minAllowed:
           memory: 128Mi
         maxAllowed:
-          memory: 320Mi
+          # 2026-09-23: recommender uncappedTarget ~363Mi (lowerBound ~309Mi,
+          # close to the 320Mi limit) -- usage outgrew the July KRR sizing.
+          memory: 512Mi
       - containerName: {{ .Values.name }}
         controlledResources: [cpu]
         controlledValues: RequestsOnly  # this repo sets no cpu limits
