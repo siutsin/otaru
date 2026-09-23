@@ -205,15 +205,16 @@ hydra:
         # variable; the --namespace flag alone only filters reconciliation.
         - name: NAMESPACE
           value: "{{ .Release.Namespace }}"
-      # Initial controller sizing: Maester reconciles one small client CR and
-      # has no live metrics yet. Start small and revisit after KRR has history.
+      # 2026-09-23: sized from 30-day p50 / 0.9 (request) and
+      # spike * 1.2 (limit) policy. Not VPA-managed: the live VPA only
+      # targets the hydra container, and this is a separate Deployment.
       resources:
         requests:
           cpu: 25m
-          memory: 64Mi
+          memory: 32Mi
           ephemeral-storage: 64Mi
         limits:
-          memory: 64Mi
+          memory: 56Mi
           ephemeral-storage: 64Mi
     pdb:
       enabled: true
