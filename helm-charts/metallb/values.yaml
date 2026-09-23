@@ -40,10 +40,11 @@ metallb:
         resources: *speakerResources
   controller:
     resources:
+      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
       requests:
         cpu: 50m
-        memory: 128Mi
+        memory: 136Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 153Mi
         ephemeral-storage: 64Mi

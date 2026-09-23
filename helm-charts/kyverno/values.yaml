@@ -34,7 +34,16 @@ kyverno:
       enabled: true
       namespace: kyverno
   admissionController:
-    resources: *resources
+    # 2026-09-23: split from the shared &resources anchor; sized on its own
+    # 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+    resources:
+      requests:
+        cpu: 50m
+        memory: 184Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 203Mi
+        ephemeral-storage: 64Mi
     podDisruptionBudget: *pdb
     metricsService: *metricsScrape
   backgroundController:
@@ -48,16 +57,18 @@ kyverno:
   reportsController:
     # KRR 2026-07-18: CPU WARNING, 14d peak needs ~335m against the shared
     # 50m request (memory unaffected, still GOOD at 128Mi). Split out from
-    # the shared &resources anchor so the other three controllers keep
-    # their existing 50m request. raspberrypi-00 (its current node, 77%
-    # CPU requests, 895m free) has room for the RollingUpdate surge.
+    # the shared &resources anchor so the other two controllers (background,
+    # cleanup) keep their existing 50m request. raspberrypi-00 (its current
+    # node, 77% CPU requests, 895m free) has room for the RollingUpdate surge.
+    # 2026-09-23: right-size memory on 30d Prometheus baseline
+    # (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     resources:
       requests:
         cpu: 335m
-        memory: 128Mi
+        memory: 125Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 152Mi
         ephemeral-storage: 64Mi
     podDisruptionBudget: *pdb
     metricsService: *metricsScrape
