@@ -7,7 +7,7 @@ secret:
 app:
   # Pinned here so dev and prod can diverge if needed; rollback is one line.
   image:
-    tag: jung2bot-6.1.4@sha256:1db2e606671e5df5fddcf5df771080d11b99e47b6dc5f603c009efdd2ab75884
+    tag: jung2bot-6.1.5@sha256:b1198776a153ccb15a1bab99e8e3dc2193828cbe05098391a98a25e916467096
   env:
     chatIdTable: jung2bot-dev-chatIds
     eventQueueName: jung2bot-dev-event-queue
