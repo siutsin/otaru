@@ -10,6 +10,9 @@ inputs = {
   sqss = {
     event = {
       name = "jung2bot-dev-event-queue"
+      # Telegram client timeout is 10s. Keep the message hidden for 60s
+      # while that call is still open.
+      visibility_timeout_seconds = 60
     }
     message_save = {
       name = "jung2bot-dev-message-save-queue.fifo"
