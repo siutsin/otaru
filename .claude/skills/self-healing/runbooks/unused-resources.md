@@ -10,6 +10,20 @@ Run only if there is no `### unused-resources pass` entry in
 `.scratchpad/SELF_HEALING.md` within the last 7 days. Otherwise skip this
 category entirely for the current pass.
 
+## Tooling check (after the cadence gate fires)
+
+`kor` needs a kubeconfig; the remote runner has none by design, so `kor`
+cannot reach the cluster from there. Before scanning, probe:
+
+```bash
+timeout 30 kor storageclass >/dev/null 2>&1
+```
+
+If the probe fails, record the category as `skipped` (reason: `kor`
+unavailable — no kubeconfig on this runner, by design) and stop. This is
+expected steady state, not a defect: write no pass marker and no
+complaint line. The gate re-probes on its next firing.
+
 ## Checks
 
 Run `kor`, scoped to the kinds that have produced real signal in practice
