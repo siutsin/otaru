@@ -28,9 +28,10 @@ argo-cd:
       # change does not newly expose it to eviction ranking; it only
       # narrows the margin during the rare case of a real sync-spike
       # coinciding with node memory pressure.
+      # 2026-09-23: right-size request on 30d Prometheus baseline (request=ceil(p50/0.9)); limit stays 2Gi.
       requests:
         cpu: 250m
-        memory: 1280Mi
+        memory: 736Mi
         ephemeral-storage: 256Mi
       limits:
         memory: 2Gi
@@ -44,12 +45,13 @@ argo-cd:
         memory: 128Mi
         ephemeral-storage: 128Mi
     redisResources: &redisResources
+      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
       requests:
         cpu: 50m
-        memory: 128Mi
+        memory: 67Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 128Mi
+        memory: 100Mi
         ephemeral-storage: 64Mi
     readinessProbe: &readinessProbe
       initialDelaySeconds: 10
@@ -207,11 +209,12 @@ argo-cd:
     # margin on raspberrypi-00/01/03 (~800-965m free each) -- still a large
     # improvement over the original 250m, just not the full KRR peak.
     # 2026-09-22: relax req==limit (user-approved). Spiky; live ~88Mi,
-    # KRR 14d peak 380Mi stays covered by the 512Mi limit. Request 256Mi.
+    # KRR 14d peak 380Mi stays covered by the 512Mi limit. Request 170Mi
+    # (2026-09-23: right-sized on 30d Prometheus baseline, request=ceil(p50/0.9)).
     resources:
       requests:
         cpu: 700m
-        memory: 256Mi
+        memory: 170Mi
         ephemeral-storage: 512Mi
       limits:
         memory: 512Mi
@@ -309,13 +312,14 @@ argo-cd:
           runAsUser: 999
         image: ghcr.io/siutsin/images/go-jsonnet:v0.22.0@sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206
         resources:
+          # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
           requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 75Mi
             # ephemeral-storage 2026-07-06: 14d pod peak ~286Mi exceeded the 256Mi limit (96.6% via ephemeral_storage_container_limit_percentage) — bump to 512Mi for headroom.
             ephemeral-storage: 512Mi
           limits:
-            memory: 128Mi
+            memory: 117Mi
             ephemeral-storage: 512Mi
         volumeMounts:
           - mountPath: /var/run/argocd

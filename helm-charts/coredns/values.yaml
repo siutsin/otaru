@@ -7,12 +7,13 @@ deployment:
     repository: rancher/mirrored-coredns-coredns
     tag: "1.14.7@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
   resources:
+    # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     requests:
       cpu: 100m
-      memory: 128Mi
+      memory: 38Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 128Mi
+      memory: 58Mi
       ephemeral-storage: 64Mi
 
 config:
