@@ -106,7 +106,7 @@ the previous value was too low.
 KEDA SQS scalers use operator IRSA, not workload identity. See
 `documentation/gotcha.md`.
 
-Jung2bot event-queue visibility is 15s (HTTP timeout 10s). FIFO save
+Jung2bot event-queue visibility is 60s (HTTP timeout 10s). FIFO save
 visibility is 30s (flush 10s). See `documentation/gotcha.md`.
 
 Use the Kubernetes MCP tools for live cluster inspection whenever they are

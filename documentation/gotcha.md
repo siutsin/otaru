@@ -313,13 +313,17 @@ message that becomes visible mid-flush can be saved twice.
   at 18:15 HKT.
 - `worker_actions_total{outcome="dropped"}` stays 0: the retry succeeds.
 
-### Resolution: 15 s Event, 30 s FIFO
+### Resolution: 60 s Event, 30 s FIFO
 
-Event queues default to 15 s in `infrastructure/modules/aws-sqs`. That
-is above the 10 s HTTP timeout, so a hang does not double-send. FIFO
-save queues set `visibility_timeout_seconds = 30` so the 10 s flush can
-finish. Do not set event visibility at or below 10 s. Apply the SQS
-Terragrunt stacks after merge; this is AWS queue config, not Argo.
+Jung2bot prod and dev event queues set `visibility_timeout_seconds = 60`.
+The module default stays 15 s for other queues. 15 s still sent the
+off-work report more than once: the Telegram client gives up at 10 s,
+the worker left the message in the queue, and another pod took it when
+the hide ended. 60 s keeps the message hidden while a slow call is
+open. The bot deletes the message when that call ends, including a
+timeout. FIFO save queues stay at 30 s so the 10 s flush can finish.
+Do not set event visibility at or below 10 s. Apply the SQS Terragrunt
+stacks after merge. This is AWS queue config, not Argo.
 
 ---
 
