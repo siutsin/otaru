@@ -115,9 +115,11 @@ browser:
     # scheduling failure in .scratchpad/SELF_HEALING.md).
     requests:
       cpu: 1189m
-      memory: 350Mi
+      # 2026-09-23: sized from 30-day p50 / 0.9 policy (was 350Mi).
+      memory: 303Mi
       ephemeral-storage: 1Gi
     limits:
+      # LIM FLOOR 1536Mi: headroom above 1365Mi peak.
       memory: 1536Mi
       ephemeral-storage: 1Gi
 
