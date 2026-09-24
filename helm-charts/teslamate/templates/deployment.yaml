@@ -62,8 +62,10 @@ spec:
             failureThreshold: 30
           resources:
             # KRR 2026-07-05: live peak ~267Mi working set; 384Mi request was ~1.4x actual usage.
+            # KRR 2026-09-24: CPU WARNING, 14d peak needs ~79m against the 50m request.
+            # Bump cpu 50m -> 100m; memory untouched.
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 320Mi
               ephemeral-storage: 100Mi
             limits:
