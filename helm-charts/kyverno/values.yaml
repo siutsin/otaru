@@ -62,9 +62,12 @@ kyverno:
     # node, 77% CPU requests, 895m free) has room for the RollingUpdate surge.
     # 2026-09-23: right-size memory on 30d Prometheus baseline
     # (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+    # KRR 2026-09-24: CPU WARNING, 14d peak now ~510m against the 335m request
+    # (reports churn during policy audits). Bump 335m -> 600m to cover the new
+    # spike with ~1.2x headroom.
     resources:
       requests:
-        cpu: 335m
+        cpu: 600m
         memory: 125Mi
         ephemeral-storage: 64Mi
       limits:

@@ -39,8 +39,12 @@ deployment:
     # room for the RollingUpdate surge.
     # 2026-09-22: relax req==limit (user-approved). Spiky; live ~187Mi,
     # KRR 14d peak 313Mi stays covered by the 320Mi limit. Request 224Mi.
+    # KRR 2026-09-24: CPU over-provisioned — 30d p50 ~2m, 30d max ~101m, 14d peak
+    # ~92m against the 359m request (set for a one-off 359m spike in July that
+    # has not recurred). Downsize cpu 359m -> 150m: keeps ~1.5x headroom over the
+    # observed 30d spike. Memory untouched.
     requests:
-      cpu: 359m
+      cpu: 150m
       memory: 224Mi
       ephemeral-storage: 256Mi
     limits:
