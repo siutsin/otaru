@@ -157,6 +157,17 @@ descheduler:
               # Telegram bot (SQS + DynamoDB), so no outage -- but constant
               # restart churn costs more than the packing it buys, same
               # reasoning as envoy.
+              # 2026-09-24: httpbin excluded -- evicted from
+              # raspberrypi-00/raspberrypi-02 every ~5 minutes for 60+
+              # minutes (12 HighNodeUtilization events, 16:35-17:35 UTC),
+              # each replacement landing back on a similarly-loaded node
+              # and getting evicted again. Each pod requests 100m CPU /
+              # ~61Mi memory (VPA-resized), so one eviction frees ~1% of
+              # node memory and never brings the node under the 90%
+              # threshold. Stateless demo service with 3 replicas and a
+              # PDB (maxUnavailable: 1), so no outage -- but constant
+              # restart churn costs more than the packing it buys, same
+              # reasoning as jung2bot.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -168,6 +179,7 @@ descheduler:
                       - teslamate-verify-pitr
                       - envoy
                       - jung2bot
+                      - httpbin
                   - key: app
                     operator: NotIn
                     values:
