@@ -168,6 +168,15 @@ descheduler:
               # PDB (maxUnavailable: 1), so no outage -- but constant
               # restart churn costs more than the packing it buys, same
               # reasoning as jung2bot.
+              # 2026-09-25: argocd-server excluded -- evicted every ~5
+              # minutes for 60+ minutes (12 HighNodeUtilization events,
+              # 00:43-01:38 BST), each replacement landing back on a
+              # similarly-loaded node and getting evicted again. Each pod
+              # requests 100m CPU / 117Mi memory, so one eviction frees
+              # ~1% of node memory and never brings the node under the 90%
+              # threshold. Stateless controller UI/API with 3 replicas, so
+              # no outage -- but constant restart churn costs more than
+              # the packing it buys, same reasoning as httpbin.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -180,6 +189,7 @@ descheduler:
                       - envoy
                       - jung2bot
                       - httpbin
+                      - argocd-server
                   - key: app
                     operator: NotIn
                     values:
