@@ -1,12 +1,9 @@
 name: jsoncrack
 namespace: jsoncrack
 
-# VPA 2026-07-30: onboarded memory-only after a steady-state usage check
-# (7d usage only 5-9Mi against a 128Mi request, no incident history). CPU
-# is left to the existing HPA (though min/max are both 1, so it never
-# actually scales horizontally). The HPA's memory trigger was switched
-# from Utilization to AverageValue (see templates/hpa.yaml) to decouple it
-# from the request this VPA adjusts -- same fix blocky's HPA needed.
+# VPA 2026-07-30: memory-only. 7d usage was 5-9Mi vs a 128Mi request, no incident history.
+# CPU stays with the HPA (min=max=1, so it never scales out).
+# Memory trigger moved to AverageValue (see hpa.yaml) to decouple it from the VPA-adjusted request -- blocky's HPA needed the same fix.
 vpa:
   enabled: true
 
