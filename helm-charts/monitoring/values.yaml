@@ -70,37 +70,27 @@ prometheus:
   server:
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: blackbox-scrape-config
-    # 2026-07-25: no PDB existed, so the descheduler had free rein to evict
-    # the sole prometheus-server replica for HighNodeUtilization. Confirmed
-    # via events: evicted roughly every 5 minutes for over an hour on
-    # raspberrypi-03, never staying up long enough to finish loading its
-    # TSDB, causing live 503s. Same root cause and fix as umami (#2917),
-    # home-assistant (#2918), and the changedetection/openclaw/teslamate/
-    # unifi-mcp bundle (#2919) -- this subchart exposes the setting
-    # natively rather than needing a hand-written template.
+    # 2026-07-25: no PDB, so the descheduler evicted the sole
+    # prometheus-server replica for HighNodeUtilization ~every 5 min for
+    # over an hour (raspberrypi-03), never loading its TSDB -- live 503s.
+    # Same fix as umami (#2917), home-assistant (#2918), and the
+    # changedetection/openclaw/teslamate/unifi-mcp bundle (#2919); the
+    # subchart exposes PDB natively.
     podDisruptionBudget:
       enabled: true
       minAvailable: 1
     resources:
       # KRR 2026-07-05: live peak ~3.16Gi working set; prior 3Gi bump (#2309) was still ~40Mi short.
-      # KRR 2026-07-22: CPU CRITICAL, 14d peak only ~155m against the 800m
-      # request (retained series count grew, not compute cost) -- reduced to
-      # 200m for headroom; kept below, this part held up fine.
-      # KRR 2026-07-22 (reverted): also bumped memory to 3840Mi for the
-      # WARNING (14d peak ~3675Mi against the 3264Mi request/limit), but
-      # every node lacked that much free requested-memory capacity at once
-      # (nuc-00, the least-committed node, had only ~3536Mi free) --
-      # FailedScheduling took prometheus down entirely on rollout. Reverted
-      # memory to 3264Mi, which fits on nuc-00's free capacity; the real
-      # ~3675Mi peak headroom is deferred to a later cycle once cluster
-      # memory-request headroom improves (same pattern as
-      # changedetection-browser's deferred CPU target -- see that entry
-      # above this chart's history for a comparable case).
-      # KRR 2026-07-31: completing the deferred upsize. 14d peak is now
-      # ~3730Mi; the pod relocated off nuc-00 to raspberrypi-00 (which had
-      # 867Mi free requested-memory capacity, well above the 466Mi needed)
-      # after a series of overcommit/VPA changes freed real headroom
-      # cluster-wide over the past day. Bumped to 3730Mi.
+      # KRR 2026-07-22: CPU CRITICAL -- 14d peak only ~155m against the 800m
+      # request (series count grew, not compute cost); reduced to 200m.
+      # KRR 2026-07-22 (reverted): bumped memory to 3840Mi for the WARNING
+      # (14d peak ~3675Mi vs 3264Mi), but no node had that much free
+      # requested-memory (nuc-00, least-committed, had ~3536Mi) --
+      # FailedScheduling took prometheus down. Reverted to 3264Mi; real
+      # headroom deferred to a later cycle.
+      # KRR 2026-07-31: completing the deferred upsize (14d peak ~3730Mi).
+      # Pod had relocated to raspberrypi-00 (~867Mi free, ~466Mi needed)
+      # after overcommit/VPA changes freed headroom. Bumped to 3730Mi.
       # 2026-09-22: relax req==limit (user-approved). Steady use ~2092Mi;
       # 2026-09-23: right-size on 30d baseline; request 2652Mi, limit 4335Mi
       # (limit raised for retention growth).
@@ -239,8 +229,7 @@ prometheus:
                 )
         # ONZACK Standard Cluster Monitoring (grafana.com/dashboards/17404) recording rules.
         # Source: github.com/onzack/grafana-dashboards prometheus/recording-rules.
-        # otaru adaptations: unlabeled nodes get role=worker; node-exporter job is
-        # kubernetes-service-endpoints (not job=node-exporter).
+        # otaru adaptations: unlabeled nodes get role=worker; node-exporter job is kubernetes-service-endpoints.
         - name: onzack-cluster-common
           rules:
             - record: instance:kube_node_role
@@ -596,10 +585,10 @@ grafana:
   podDisruptionBudget:
     minAvailable: 1
   resources:
-    # Keep memory at 512Mi: dashboard usage pushed Grafana against the 128Mi limit and caused probe failures.
-    # ephemeral-storage 2026-07-06: 14d peak ~50Mi against a 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) — bump to 128Mi for headroom.
-    # 2026-09-22: relax req==limit (user-approved). Steady use ~96Mi; keep the
-    # 512Mi limit for dashboard bursts. Request 348Mi (2026-09-23: right-sized).
+    # Keep memory at 512Mi: dashboard use pushed Grafana against the 128Mi limit and caused probe failures.
+    # ephemeral-storage 2026-07-06: 14d peak ~50Mi vs 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) -- bumped to 128Mi.
+    # 2026-09-22: relax req==limit (user-approved). Steady use ~96Mi; keep
+    # the 512Mi limit for dashboard bursts. Request 348Mi (2026-09-23: right-sized).
     requests:
       cpu: 50m
       memory: 348Mi
@@ -618,9 +607,9 @@ grafana:
       apiVersion: 1
       datasources:
         # uid matches hardcoded dashboard targets (PBFA97CFB590B2093).
-        # timeInterval must match Prometheus scrape_interval (1m). Without it Grafana
-        # assumes 15s and $__rate_interval collapses to ~1m, so rate()/increase() get
-        # <2 samples and Activity/heatmap panels show "No data".
+        # timeInterval must match the Prometheus scrape_interval (1m); at the
+        # 15s default $__rate_interval collapses to ~1m and rate()/increase()
+        # get <2 samples, so Activity/heatmap panels show "No data".
         - name: Prometheus
           type: prometheus
           uid: PBFA97CFB590B2093
@@ -673,10 +662,10 @@ loki:
       istio.io/dataplane-mode: none
     resources:
       # KRR 2026-07-05: live peak ~583Mi working set; 512Mi request (#2567) left ~70Mi headroom.
-      # 2026-09-07: Loki wedged for ~7h at 606/608Mi (99.7%). Not OOMKilled --
+      # 2026-09-07: Loki wedged ~7h at 606/608Mi (99.7%). Not OOMKilled --
       # the Go runtime GC held it just under the limit, starving CPU: /ready
-      # probe timed out x75, pushes took 1m+ and 500'd, in-process gRPC
-      # connections dropped. App went Degraded. Raised to 1Gi for real headroom.
+      # probe timed out x75, pushes 1m+ and 500'd, in-process gRPC
+      # connections dropped, app Degraded. Raised to 1Gi for real headroom.
       # 2026-09-22: relax req==limit (user-approved). Steady use ~680Mi.
       # 2026-09-23: right-size on 30d baseline; request 649Mi, limit 1047Mi
       # (limit raised for ingestion bursts).
