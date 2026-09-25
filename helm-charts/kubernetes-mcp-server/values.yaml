@@ -61,11 +61,9 @@ kubernetes-mcp-server:
       - name: agent
         roleRef:
           name: agent
-  # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe
-  # downsize). KRR also flags the 100m CPU limit as unnecessary, but it is
-  # inherited from the vendored chart's own default (this file never sets
-  # it) and a plain values.yaml `null` does not remove a subchart-default
-  # key on merge (confirmed via `helm template`) -- left as is.
+  # KRR 2026-07-18: 14d peak ~10m CPU / ~100Mi memory (both GOOD, safe downsize).
+  # The 100m CPU limit is a vendored-chart default; a values.yaml null does not
+  # remove a subchart-default key on merge (confirmed via helm template) -- left as is.
   resources:
     requests:
       cpu: 10m

@@ -5,9 +5,8 @@ metadata:
   name: {{ .Values.name }}-authentication
   namespace: {{ .Values.namespace }}
 spec:
-  # Envoy Gateway resolves backends to pod endpoints and can bypass a
-  # Service-attached ambient waypoint. Enforce JWTs on the HTTPRoute; Istio
-  # AuthorizationPolicy remains defence-in-depth for Service-addressed mesh calls.
+  # Envoy Gateway can bypass a Service-attached ambient waypoint; enforce JWTs
+  # on the HTTPRoute. Istio AuthorizationPolicy stays defence-in-depth.
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
