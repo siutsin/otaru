@@ -54,19 +54,16 @@ spec:
             paths:
               - /metrics
 ---
-# Kyverno's require-mesh-authorization-policy checks for a workload-selector
-# policy separately from the Service targetRefs one above: Prometheus scrapes
-# the pod IP directly, which targetRefs policies don't cover. A
-# selector-based policy makes ztunnel enforce L4 authorization on the pod
-# for ALL traffic, not just the ports it lists, so port 3000 (gateway
-# ingress and the onOffFromWork/onScaleUp cron calls) must be re-allowed
-# here too -- L7 path restriction for those routes still comes from the
-# targetRefs policy above. The waypoint's own identity must also be listed:
-# traffic that reaches this pod via the waypoint (gateway ingress, cron
-# calls -- anything routed through the Service) arrives at ztunnel as the
-# waypoint's SPIFFE identity, not the original caller's, so omitting it
-# here causes ztunnel to reject the waypoint's proxied connection outright
-# (503 "upstream connect error", ztunnel log "policy rejection: allow
+# Kyverno require-mesh-authorization-policy needs a workload-selector policy in
+# addition to the Service targetRefs one above: Prometheus scrapes the pod IP
+# directly, which targetRefs policies do not cover. A selector policy makes
+# ztunnel enforce L4 authorization on the pod for ALL traffic, so port 3000
+# (gateway ingress and the off-work/scale-up cron calls) is re-allowed here;
+# L7 path restriction for those routes still comes from the targetRefs policy
+# above. The waypoint identity must be listed too: traffic routed through the
+# Service arrives at ztunnel as the waypoint's SPIFFE identity, not the
+# original caller's, so omitting it made ztunnel reject the proxied connection
+# outright (503 "upstream connect error", ztunnel log "policy rejection: allow
 # policies exist, but none allowed" -- caused a live outage 2026-08-25).
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy

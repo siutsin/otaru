@@ -16,11 +16,9 @@ spec:
       metadata:
         value: "75"
     - type: memory
-      # 2026-07-30: switched from Utilization (% of request) to a fixed
-      # AverageValue so the memory-only VPA added alongside this
-      # ScaledObject can adjust the request without moving this trigger
-      # point. 144Mi keeps the same absolute trigger as the previous
-      # 75%-of-192Mi target.
+      # 2026-07-30: Utilization -> AverageValue so the memory-only VPA can
+      # adjust the request without moving this trigger. 144Mi keeps the old
+      # 75%-of-192Mi absolute trigger.
       metricType: AverageValue
       metadata:
         value: "144Mi"
