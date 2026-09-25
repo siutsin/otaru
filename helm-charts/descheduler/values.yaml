@@ -84,99 +84,19 @@ descheduler:
               podProtections:
                 defaultDisabled:
                   - PodsWithLocalStorage
-              # 2026-07-20: blocky (DNS-critical) was repeatedly evicted from
-              # raspberrypi-00 by this profile's HighNodeUtilization -- it was
-              # the only node under the 90% memory threshold while the other
-              # four sat at 98-100%, so the evicted pod had nowhere else to
-              # fit and rescheduled straight back onto the same node, a
-              # disruptive no-op loop every ~5 minutes. Tried opting blocky
-              # out via the descheduler.alpha.kubernetes.io/evict: "false"
-              # pod annotation first -- confirmed via descheduler v0.36
-              # source that this annotation only checks presence, not value
-              # (kubernetes-sigs/descheduler#1659), so it had no effect.
-              # labelSelector is an allow-list (only matching pods are
-              # eligible for eviction under this profile), so excluding
-              # blocky here is the correct mechanism.
-              # 2026-08-26: teslamate-verify-pg-dump added -- every attempt
-              # of this daily backup-verification Job was evicted mid-run
-              # by this profile's HighNodeUtilization on an over-committed
-              # node, exhausting backoffLimit (5/5 failed) even though the
-              # restore+verify logic itself completed successfully before
-              # eviction cut it off. Short-lived, bounded-duration batch
-              # Job -- excluding it here only defers node consolidation by
-              # the run's own duration, not indefinitely.
-              # 2026-08-27: teslamate-verify-pitr added for the same reason
-              # -- its scheduled 14:00 UTC run failed 5/5 the same way, the
-              # script pod evicted mid-restore while the CNPG recovery was
-              # still progressing.
-              # 2026-09-06: cnpg.io/podRole=instance excluded -- the umami
-              # CloudNativePG replica hit the same disruptive no-op loop on
-              # raspberrypi-00 (evicted every ~5 minutes 19:05-20:15 UTC,
-              # rescheduled straight back, thrashing its Longhorn volume
-              # detach/attach each cycle). Required pod anti-affinity plus a
-              # near-uniform per-node memory picture leaves the evicted
-              # instance nowhere better to go. Excludes all CNPG database
-              # instance pods (teslamate, umami, hydra); they are stateful
-              # with attached volumes, so consolidation churn costs more
-              # than the packing it buys.
-              # 2026-09-08: openclaw excluded -- same loop again. This
-              # single-replica Deployment with a Longhorn RWO volume was
-              # evicted from nuc-00/raspberrypi-00 every ~5 minutes for 40+
-              # minutes, each new pod stuck in Init on Multi-Attach /
-              # DeadlineExceeded while the volume was still detaching, then
-              # evicted again before it ever went Ready -- volume left
-              # state=attaching robustness=unknown, app down the whole time.
-              # 2026-09-15: envoy (the gateway namespace's Envoy Gateway
-              # data-plane pods, label app.kubernetes.io/name=envoy) excluded
-              # -- evicted from raspberrypi-00/raspberrypi-02 every ~5
-              # minutes for over an hour (12 evictions, HighNodeUtilization
-              # events for pods 6r728 through x2mvn), each replacement
-              # landing back on a similarly-loaded node and getting evicted
-              # again. No outage (2 replicas, PDB minAvailable:1 held), but
-              # this is the load-bearing north-south gateway VIP -- constant
-              # pod churn costs more than the packing it buys, same
-              # reasoning as blocky.
-              # matchExpressions are ANDed: a pod must satisfy every entry
+              # matchExpressions are ANDed: a pod must match every entry
               # to be eligible for eviction under this profile.
-              # 2026-09-22: Longhorn CSI control-plane components (label
-              # app=csi-attacher/csi-provisioner/csi-resizer/csi-snapshotter)
-              # excluded -- evicted from raspberrypi-00/raspberrypi-03 every
-              # ~5 minutes for 30+ minutes (28 HighNodeUtilization events,
-              # 06:31-07:01 UTC), each replacement landing back on a
-              # similarly-loaded node and getting evicted again. These run
-              # the attach/provision/resize/snapshot operations for every
-              # Longhorn volume -- constant churn on the storage control
-              # plane costs more than the packing it buys, same reasoning
-              # as envoy.
-              # 2026-09-22: jung2bot excluded -- evicted from overutilized
-              # nodes (94-98% requested memory) every ~5 minutes. Each pod
-              # requests 100m CPU / 64Mi memory, so one eviction frees
-              # ~0.8% of node memory and never brings the node under the
-              # 90% threshold; the replacement can land back on a
-              # similarly-loaded node and get evicted again. Stateless
-              # Telegram bot (SQS + DynamoDB), so no outage -- but constant
-              # restart churn costs more than the packing it buys, same
-              # reasoning as envoy.
-              # 2026-09-24: httpbin excluded -- evicted from
-              # raspberrypi-00/raspberrypi-02 every ~5 minutes for 60+
-              # minutes (12 HighNodeUtilization events, 16:35-17:35 UTC),
-              # each replacement landing back on a similarly-loaded node
-              # and getting evicted again. Each pod requests 100m CPU /
-              # ~61Mi memory (VPA-resized), so one eviction frees ~1% of
-              # node memory and never brings the node under the 90%
-              # threshold. Stateless demo service with 3 replicas and a
-              # PDB (maxUnavailable: 1), so no outage -- but constant
-              # restart churn costs more than the packing it buys, same
-              # reasoning as jung2bot.
-              # 2026-09-25: argocd-server excluded -- evicted every ~5
-              # minutes for 60+ minutes (12 HighNodeUtilization events,
-              # 00:43-01:38 BST), each replacement landing back on a
-              # similarly-loaded node and getting evicted again. Each pod
-              # requests 100m CPU / 117Mi memory, so one eviction frees
-              # ~1% of node memory and never brings the node under the 90%
-              # threshold. Stateless controller UI/API with 3 replicas, so
-              # no outage -- but constant restart churn costs more than
-              # the packing it buys, same reasoning as httpbin.
+              # 2026-07-20: blocky (DNS-critical) -- evicted every ~5 min from raspberrypi-00, the only node under 90%; rescheduled straight back.
+              # evict:"false" annotation tried first: checks presence not value (#1659), no effect; labelSelector is an allow-list, so this is the mechanism.
+              # 2026-08-26: teslamate-verify-pg-dump -- evicted mid-run 5/5, backoffLimit exhausted; short-lived batch Job.
+              # 2026-08-27: teslamate-verify-pitr -- same loop as pg-dump, evicted mid-restore.
+              # 2026-09-06: cnpg.io/podRole=instance (teslamate, umami, hydra) -- evicted every ~5 min 19:05-20:15 UTC; rescheduled straight back, thrashing volume detach/attach.
+              # 2026-09-08: openclaw -- evicted every ~5 min for 40+ min; single replica stuck in Init on Multi-Attach, app down.
+              # 2026-09-15: envoy -- evicted every ~5 min for 1h+ (12 evictions); gateway VIP, churn costs more than the packing it buys.
+              # 2026-09-22: Longhorn CSI control-plane -- evicted every ~5 min for 30+ min (28 events); churn on storage control plane costs more than the packing it buys.
+              # 2026-09-22: jung2bot -- evicted every ~5 min; 100m/64Mi frees ~0.8%, never under the 90% threshold.
+              # 2026-09-24: httpbin -- evicted every ~5 min for 60+ min (12 events); 100m/61Mi frees ~1%, never under threshold.
+              # 2026-09-25: argocd-server -- evicted every ~5 min for 60+ min (12 events); 100m/117Mi frees ~1%, never under threshold.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
