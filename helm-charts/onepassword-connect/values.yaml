@@ -2,11 +2,8 @@ vpa:
   enabled: true
 
 _shared:
-  # 2026-08-03: ephemeral-storage bumped 64Mi -> 96Mi. 14d peak across pod
-  # history reached ~49.9Mi (78% of the old 64Mi limit); the live pod was
-  # at 70.95%. No eviction history, but headroom was thin. Memory/cpu
-  # unaffected -- VPA (enabled below) manages memory live and does not
-  # control ephemeral-storage.
+  # 2026-08-03: ephemeral-storage 64Mi -> 96Mi. 14d peak hit ~49.9Mi (78% of the old limit); live pod at 70.95%.
+  # No evictions, but headroom was thin. VPA manages memory, not ephemeral-storage.
   resources: &resources
     requests:
       cpu: 50m
@@ -24,13 +21,13 @@ _shared:
 
 connect:
   commonLabels:
-    # External Secrets talks to 1Password Connect as a bootstrap dependency; bypass the namespace waypoint so secret sync works before mesh policy is ready.
+    # Bootstrap dependency for External Secrets: bypass the namespace waypoint so secret sync works before mesh policy is ready.
     istio.io/use-waypoint: none
   connect:
     serviceAnnotations:
       mesh.otaru.io/non-ambient-endpoints: "true"
     podLabels:
-      # 1Password Connect is a bootstrap secret backend; keep its local API/sync peer traffic outside ambient interception.
+      # Bootstrap secret backend: keep local API/sync peer traffic outside ambient interception.
       istio.io/dataplane-mode: none
     api:
       resources: *resources
