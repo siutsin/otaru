@@ -30,87 +30,33 @@ longhorn:
     storageReservedPercentageForDefaultDisk: "0"
     snapshotMaxCount: "250"
     autoCleanupSnapshotWhenDeleteBackup: true
-    # Kyverno require-workload-resources (background scan) flagged
-    # Deployment/csi-attacher, csi-provisioner, csi-resizer, csi-snapshotter,
-    # and the longhorn-csi-plugin/node-driver-registrar/longhorn-liveness-probe
-    # containers of the longhorn-csi-plugin DaemonSet as missing memory and
-    # ephemeral-storage requests/limits. These are system-managed components
-    # created directly by longhorn-manager, not by this Helm chart's
-    # templates, so this Longhorn Setting (a JSON object keyed by component
-    # name) is the only supported way to size them. No KRR data yet, so each
-    # lightweight sidecar reuses the same size as the gateway chart's
-    # shutdown-manager sidecar; longhorn-csi-plugin itself (does actual
-    # mount/format work) gets a slightly larger allowance.
-    # 2026-07-11: longhorn-csi-plugin OOMKilled (exit 137) on nuc-00, the node
-    # with by far the most attached volumes (jellyfin + sftpgo). The 64Mi
-    # limit only covered steady-state (~11-15Mi observed on other nodes) with
-    # no headroom for mount/format-time spikes. Doubled to 128Mi.
-    # 2026-07-11 (second bump): 128Mi still OOMKilled on nuc-00 and, after
-    # raspberrypi-03 rejoined post-outage, on raspberrypi-03 too, both while a
-    # mass volume-reattach/resync was in progress cluster-wide -- steady-state
-    # stayed ~11-22Mi throughout, confirming this is a startup/reattach memory
-    # spike, not a steady leak. Raised to 256Mi for real headroom under
-    # concurrent reattach load rather than guessing again incrementally.
-    # 2026-07-11 (third bump): 256Mi still OOMKilled on raspberrypi-03 when
-    # two volumes needed mounting on it concurrently (home-assistant and a
-    # teslamate CNPG replica landed there at the same time during the
-    # post-rejoin reattach storm), then started failing on raspberrypi-02 too
-    # as load shifted. Given two consecutive doublings both failed under
-    # concurrent-mount conditions, moved to a more generous 512Mi -- initially
-    # matching request to limit per this repo's usual convention.
-    # 2026-07-11 (fourth change, requests decoupled from limits): every node
-    # in this cluster already runs at 91-99% memory *requests* committed, so
-    # reserving the full 512Mi spike allowance as a *request* on every node
-    # (a DaemonSet, so this multiplies across all 5) immediately caused a
-    # real scheduling failure elsewhere (a teslamate CNPG replica pod could
-    # not schedule on any node: "0/5 nodes are available: 5 Insufficient
-    # memory"). longhorn-csi-plugin's actual steady-state usage is ~11-22Mi;
-    # the 512Mi is only needed as a ceiling for rare concurrent-mount spikes,
-    # not a permanent reservation. Departs from this repo's usual
-    # requests-equal-limits convention deliberately for this one spiky
-    # sidecar, confirmed with the user, to stop wasting ~2.2Gi of falsely
-    # reserved cluster memory.
-    # 2026-07-11 (fifth bump, limit only): still OOMKilled at 512Mi on
-    # nuc-00 while jellyfin (13 PVCs -- by far the most of any workload in
-    # this cluster) mounted all of them at once. Since the request/limit
-    # split above means a bigger limit costs nothing in steady-state
-    # reservation, raised the ceiling generously to 1Gi to cover this
-    # cluster's worst-case concurrent-mount workload rather than
-    # incrementally re-testing smaller numbers again.
-    # 2026-07-11 (sixth bump): still OOMKilled at 1Gi. Investigated upstream
-    # before bumping again: Longhorn has no setting to throttle concurrent
-    # mount/attach operations (checked the full values.yaml schema -- the
-    # only concurrency limits are for replica rebuilds, backups, and engine
-    # upgrades), and there is no official per-volume memory sizing formula
-    # for this container (Longhorn's docs cite ~256Mi/TB for a different
-    # component's in-memory read index; two related upstream issues,
-    # longhorn/longhorn#12225 and #6645, confirm CSI/manager memory scaling
-    # is a known, unresolved, undocumented area). jellyfin's combined PVC
-    # size is ~1.4TB (13 volumes, one at 320Gi, six at 120Gi) -- by far the
-    # largest single-node volume footprint in this cluster (everything else
-    # is single-digit-Gi). With no smarter lever available, raised to 2Gi,
-    # sized for this cluster's actual heaviest workload rather than another
-    # blind doubling.
-    # 2026-07-11 (seventh bump): still OOMKilled at 2Gi -- and fast (16s from
-    # start to kill, not a slow leak). Found the actual mechanism: every
-    # jellyfin PVC uses LUKS with the argon2i KDF, and `cryptsetup luksDump`
-    # on a live volume shows `Memory: 66264` (~65MiB) per unlock. With 13
-    # volumes unlocking concurrently on pod start, that alone is ~845MiB of
-    # memory-hard KDF cost stacked in the same container's cgroup, on top of
-    # per-volume gRPC/goroutine overhead and page-cache pressure from probing
-    # several 100+Gi filesystems at once (one PVC is 320Gi). This is a real,
-    # measured floor, not a guess -- raised to 4Gi to give solid margin above
-    # the ~845MiB KDF baseline plus overhead.
-    # right-sizing 2026-08-06: longhorn-csi-plugin, node-driver-registrar,
-    # and longhorn-liveness-probe ephemeral-storage bumped 32Mi -> 48Mi.
-    # These three (the longhorn-csi-plugin DaemonSet pod's containers) were
-    # a "no data yet" placeholder reusing the gateway chart's convention,
-    # unlike the incident-driven memory sizing above. Prometheus showed the
-    # DaemonSet pod on raspberrypi-03 (spcgc) peaking at ~23.55Mi over 14d
-    # (73% of the old 32Mi limit); other node instances ranged 2-22Mi. The
-    # exporter only reports pod-level usage, not per-container, so the
-    # true per-container split is unknown -- bumped conservatively rather
-    # than assuming the full pod total lands on one container.
+    # Kyverno require-workload-resources (background scan) flagged these
+    # system-managed CSI components as missing memory and ephemeral-storage
+    # requests/limits. longhorn-manager creates them directly, so this
+    # Longhorn Setting (JSON keyed by component name) is the only supported
+    # way to size them. No KRR data yet, so lightweight sidecars reuse the
+    # gateway chart's shutdown-manager size; longhorn-csi-plugin (does actual
+    # mount/format work) gets more.
+    # 2026-07-11 incident: longhorn-csi-plugin OOMKilled (exit 137) through
+    # seven bumps, 64Mi -> 2Gi. Dead end: Longhorn has no setting to throttle
+    # concurrent mounts (only replica-rebuild, backup, engine-upgrade
+    # concurrency limits) and no per-volume memory formula (upstream issues
+    # longhorn/longhorn#12225 and #6645). Actual mechanism: every jellyfin
+    # PVC uses LUKS with the argon2i KDF; `cryptsetup luksDump` shows
+    # `Memory: 66264` (~65MiB) per unlock, so 13 concurrent unlocks cost
+    # ~845MiB on one node. Measured floor, not a guess -- limit set to 4Gi.
+    # Requests decoupled from limits on purpose: nodes already run at 91-99%
+    # memory requests committed, so reserving 512Mi as a request on every
+    # node (DaemonSet x 5) blocked scheduling elsewhere (teslamate CNPG
+    # replica: "0/5 nodes available: 5 Insufficient memory"). Steady-state is
+    # ~11-22Mi, so a limit-only ceiling costs nothing in steady-state
+    # reservation. Confirmed with the user; departs from this repo's usual
+    # requests-equal-limits convention.
+    # right-sizing 2026-08-06: ephemeral-storage 32Mi -> 48Mi on the
+    # longhorn-csi-plugin DaemonSet pod's three containers. Prometheus showed
+    # ~23.55Mi peak over 14d on raspberrypi-03 (73% of the old 32Mi limit);
+    # the exporter reports pod-level usage only, so the true per-container
+    # split is unknown -- bumped conservatively.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
