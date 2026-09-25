@@ -4,13 +4,11 @@ metadata:
   name: {{ .Release.Name }}-k8s-ephemeral-storage-metrics
   namespace: {{ .Release.Namespace }}
 spec:
-  # 2026-07-25: the vendored k8s-ephemeral-storage-metrics chart has no
-  # native podDisruptionBudget support -- found during a repo-wide
-  # audit after the same missing-PDB gap caused real outages for umami,
-  # home-assistant, and prometheus-server the same day (see
-  # documentation/gotcha.md). Added here in the parent chart since the
-  # subchart itself cannot be patched without being overwritten on the
-  # next `helm dependency build`.
+  # 2026-07-25: vendored k8s-ephemeral-storage-metrics has no native
+  # podDisruptionBudget support (found during a repo-wide audit after the
+  # same gap caused real outages for umami, home-assistant, and
+  # prometheus-server -- see documentation/gotcha.md). Added in the parent
+  # chart; patching the subchart would be overwritten by `helm dependency build`.
   minAvailable: 1
   selector:
     matchLabels:
