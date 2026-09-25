@@ -1,11 +1,9 @@
 name: cyberchef
 namespace: cyberchef
 
-# VPA 2026-07-30: onboarded memory-only after a steady-state usage check
-# (7d usage only 7-9Mi against a 100Mi request, no incident history). CPU
-# is left to the existing HPA. The HPA's memory trigger was switched from
-# Utilization to AverageValue (see templates/hpa.yaml) to decouple it from
-# the request this VPA adjusts -- same fix blocky's HPA needed.
+# VPA 2026-07-30: memory-only after a steady-state check (7d usage 7-9Mi vs 100Mi request, no incident history).
+# CPU stays with the HPA; the HPA memory trigger switched from Utilization to AverageValue (see templates/hpa.yaml)
+# so the VPA can adjust the request without moving the trigger.
 vpa:
   enabled: true
 
