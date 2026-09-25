@@ -4,9 +4,10 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  # 2026-07-24: no PDB; added while auditing all single-replica charts after
-  # the same gap caused outages for umami (#2917) and home-assistant (#2918)
-  # the same day. Matches their single-replica PDB pattern.
+  # 2026-07-24: no PDB, so the descheduler had free rein to evict the sole
+  # replica for HighNodeUtilization -- the reason this PDB exists. Added while
+  # auditing all single-replica charts the day those outages hit umami (#2917)
+  # and home-assistant (#2918). Matches their single-replica PDB pattern.
   minAvailable: 1
   selector:
     matchLabels:

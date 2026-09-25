@@ -131,6 +131,7 @@ probes:
     failureThreshold: 5
 
 resources:
+  # KRR 2026-07-05: live peak ~763Mi working set, 1Gi request ~1.3x actual.
   # KRR 2026-07-18: CPU 14d peak ~1150m vs 320m request (previously deferred:
   # pod was pinned to arm64 by a mispinned digest; PR #2842 removed it).
   # Recreate frees the old pod before the new one lands, so 1150m fits.
