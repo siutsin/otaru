@@ -6,8 +6,7 @@ externalSecret:
   remoteRef:
     key: tailscale-operator
 
-# Advertise only the Envoy Gateway MetalLB VIP so tailnet clients reach
-# existing HTTPRoutes. Do not advertise pod, Service, or LAN CIDRs.
+# Only advertise the Envoy Gateway MetalLB VIP so tailnet clients reach existing HTTPRoutes. Never advertise pod, Service, or LAN CIDRs.
 connector:
   enabled: true
   name: gateway-vip
@@ -16,8 +15,7 @@ connector:
     - 192.168.10.51/32
 
 tailscale-operator:
-  # Leave oauth.clientId empty so the chart does not render a Secret from
-  # Helm values. ExternalSecret creates operator-oauth instead.
+  # Keep oauth.clientId empty. The chart would render a Secret from Helm values; ExternalSecret creates operator-oauth instead.
   oauth:
     clientId: ""
     clientSecret: ""
@@ -32,9 +30,7 @@ tailscale-operator:
       tag: v1.102.4@sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34
       pullPolicy: IfNotPresent
     resources:
-      # Initial guess before KRR data. No CPU limit. Connector TUN proxies are
-      # created by the operator at runtime.
-      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)). No CPU limit. Operator creates Connector TUN proxies at runtime.
       requests:
         cpu: 50m
         memory: 43Mi
@@ -43,8 +39,7 @@ tailscale-operator:
         memory: 69Mi
         ephemeral-storage: 64Mi
     securityContext:
-      # Satisfies require-container-hardening (audit): drop all capabilities
-      # and forbid privilege escalation.
+      # Satisfies require-container-hardening (audit). Drops all capabilities and forbids privilege escalation.
       allowPrivilegeEscalation: false
       capabilities:
         drop:
