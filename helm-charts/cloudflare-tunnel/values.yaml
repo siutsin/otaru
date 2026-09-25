@@ -1,8 +1,7 @@
 name: cloudflare-tunnel
 namespace: cloudflare-tunnel
 
-# VPA 2026-07-30: onboarded after a steady-state usage check (7d usage
-# consistently 17-45Mi against a 128Mi request, no incident history).
+# VPA 2026-07-30: onboarded after a steady-state check (7d usage 17-45Mi vs 128Mi request, no incident history).
 vpa:
   enabled: true
 
