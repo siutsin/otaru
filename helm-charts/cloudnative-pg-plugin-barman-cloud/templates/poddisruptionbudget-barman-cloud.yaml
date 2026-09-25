@@ -6,9 +6,9 @@ metadata:
 spec:
   # Single-replica Deployment with no native PDB option (hand-written
   # manifest, not a Helm chart with a podDisruptionBudget value). Without
-  # this, descheduler eviction has zero protection against evicting the
-  # only replica -- see documentation/gotcha.md ("Descheduler Eviction
-  # Storms Look Like Self-Resolving Blips, One Check At A Time").
+  # this, descheduler eviction can take down the only replica; see
+  # documentation/gotcha.md ("Descheduler Eviction Storms Look Like
+  # Self-Resolving Blips, One Check At A Time").
   minAvailable: 1
   selector:
     matchLabels:
