@@ -168,8 +168,8 @@ spec:
                   # source DB is often idle (nothing logged while the car is
                   # away), and recovery_target_time matches transaction commit
                   # timestamps -- with no commits after the base backup a time
-                  # target is never reached and Postgres aborts with "recovery
-                  # ended before configured recovery target was reached". An
+                  # target is never reached and Postgres aborts ("recovery
+                  # ended before configured recovery target was reached"). An
                   # LSN always advances: the logical message below writes a
                   # real WAL record past the backup and returns its LSN.
                   VERIFY_TARGET_LSN=$(kubectl exec -i -n "${VERIFY_NAMESPACE}" "${VERIFY_SOURCE_PRIMARY}" -- \
@@ -223,11 +223,11 @@ spec:
                     inheritedMetadata:
                       labels:
                         # 2026-07-07: CNPG operator scrapes instance status over direct
-                        # pod HTTPS. Without this, the ephemeral recovery pod sits on
-                        # the ambient Istio dataplane (unlike production clusters, which
-                        # get this label via cloudnative-pg-clusters' inheritedMetadata
-                        # default) and the operator cannot reach it, leaving the cluster
-                        # permanently stuck in "Instance Status Extraction Error".
+                        # pod HTTPS. Without this label the ephemeral recovery pod sits
+                        # on the ambient Istio dataplane and the operator cannot reach
+                        # it, leaving the cluster stuck in "Instance Status Extraction
+                        # Error". Production clusters get this label via
+                        # cloudnative-pg-clusters' inheritedMetadata default.
                         istio.io/dataplane-mode: none
                     resources:
                       requests:
@@ -330,10 +330,10 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.labels['batch.kubernetes.io/job-name']
-              # KRR 2026-08-26: 14d peak ~208m CPU against a 50m request (OK,
-              # ~4x under). This container polls the CNPG cluster/psql in a
-              # tight loop during restore, so real usage is above the
-              # original guess. Memory unchanged (still GOOD at 128Mi).
+              # KRR 2026-08-26: 14d peak ~208m CPU against a 50m request (~4x
+              # under). This container polls the CNPG cluster/psql in a tight
+              # loop during restore, so real usage is above the original
+              # guess. Memory unchanged (still GOOD at 128Mi).
               resources:
                 requests:
                   cpu: 200m
