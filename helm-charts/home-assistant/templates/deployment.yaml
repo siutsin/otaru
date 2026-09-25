@@ -59,11 +59,10 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
-          # No runAsNonRoot here: the upstream image's s6-overlay init needs to run
-          # as root (verified locally, it fails with "unable to setgid to root" and
-          # "unable to mkdir /run/s6" as a non-root user). allowPrivilegeEscalation
-          # and dropping capabilities are still safe on top of root, confirmed the
-          # container still starts and serves HTTP.
+          # No runAsNonRoot: the image's s6-overlay init needs root -- it fails
+          # as non-root with "unable to setgid to root" / "unable to mkdir
+          # /run/s6". allowPrivilegeEscalation false and dropped capabilities
+          # stay on top of root.
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

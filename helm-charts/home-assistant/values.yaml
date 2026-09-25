@@ -1,9 +1,8 @@
 name: home-assistant
 namespace: home-assistant
 
-# VPA 2026-07-30: onboarded after a steady-state usage check (7d avg/max
-# ~223/234Mi against no incident history) confirmed this is a good
-# candidate -- no periodic-spike shape, no OOM history.
+# VPA 2026-07-30: onboarded after a steady-state check (7d avg/max ~223/234Mi,
+# no incident history, no periodic-spike shape, no OOM history).
 vpa:
   enabled: true
 
