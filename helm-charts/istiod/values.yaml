@@ -10,8 +10,8 @@ istiod:
     env:
       ENABLE_INGRESS_WAYPOINT_ROUTING: "true"
     resources:
-      # KRR 2026-07-05: live peak ~182Mi working set; 256Mi request was ~1.4x actual usage.
-      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # KRR 2026-07-05: peak ~182Mi working set.
+      # 2026-09-23: right-sized on 30d Prometheus baseline: request=ceil(p50/0.9), limit=ceil(spike*1.2).
       requests:
         cpu: 100m
         memory: 181Mi
