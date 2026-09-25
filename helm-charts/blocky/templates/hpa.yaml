@@ -20,20 +20,14 @@ spec:
     - type: Resource
       resource:
         name: memory
-        # 2026-07-22: switched from Utilization (% of request) to a fixed
-        # AverageValue. The memory request was intentionally lowered to
-        # 350Mi (see values.yaml) while the limit stayed high to cover a
-        # periodic refresh spike, so a request-relative target would put
-        # ordinary ~290Mi steady-state usage permanently over a 60%-of-350Mi
-        # threshold, pinning replicas at max continuously. 500Mi keeps
-        # roughly the same absolute trigger point as the previous
-        # 60%-of-768Mi (~461Mi) target, decoupled from the request value.
-        #
-        # 2026-09-22: 30d p50 rose to 577Mi, so ordinary usage sat at/above
-        # the 500Mi target and the HPA was pinned at max replicas (verified
-        # live: desired 3, memory metric ~498Mi vs 500Mi target). Raised to
-        # 1222Mi (60% of the 2036Mi limit, same method as above) so normal
-        # usage holds 2 replicas and only refresh spikes scale to 3.
+        # 2026-07-22: Utilization -> AverageValue. Request intentionally lowered to
+        # 350Mi (limit covers the refresh spike, see values.yaml), so a 60%-of-350Mi
+        # target would pin ordinary ~290Mi usage at max replicas permanently.
+        # 500Mi kept the old 60%-of-768Mi (~461Mi) absolute trigger, decoupled
+        # from the request value.
+        # 2026-09-22: 30d p50 rose to 577Mi, pinning HPA at max (verified live:
+        # desired 3, memory ~498Mi vs 500Mi target). Raised to 1222Mi (60% of the
+        # 2036Mi limit) so normal usage holds 2 replicas; refresh spikes scale to 3.
         target:
           type: AverageValue
           averageValue: 1222Mi

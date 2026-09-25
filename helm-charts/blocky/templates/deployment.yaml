@@ -25,9 +25,9 @@ spec:
     spec:
       affinity:
         podAntiAffinity:
-          # Hard rule: never two replicas on one node. With the soft rule the HPA's
-          # third replica landed beside another one, and a refresh spike (~1.5Gi)
-          # on two pods of one Pi could squeeze the host.
+          # Hard rule: no two replicas on one node. Under the soft rule the HPA's third
+          # replica landed beside another, and two ~1.5Gi refresh spikes could
+          # squeeze the Pi host.
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
@@ -48,9 +48,9 @@ spec:
             capabilities:
               drop:
                 - ALL
-              # blocky's binary carries a cap_net_bind_service file capability so it
-              # can bind DNS port 53 as uid 100; verified locally that dropping this
-              # too makes `exec /app/blocky` fail with "operation not permitted".
+              # Binary carries the cap_net_bind_service file capability to bind DNS port
+              # 53 as uid 100; dropping it too breaks `exec /app/blocky` with
+              # "operation not permitted" (verified locally).
               add:
                 - NET_BIND_SERVICE
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}

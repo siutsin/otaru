@@ -16,45 +16,28 @@ deployment:
   ports:
     http: 4000
   resources:
-    # 2026-07-20: OOMKilled (exit 137) at 512Mi after adding a second denylist
-    # group ("malware", HaGeZi TIF + URLhaus) alongside the existing "ads"
-    # group -- concurrent import/parse of both groups spikes higher than a
-    # single group did. Bumped to 768Mi for headroom.
-    #
-    # 2026-07-21/22: still OOMKilling every ~4h in production (confirmed via
-    # Prometheus: working-set memory flat at ~290Mi steady state the entire
-    # 4h between kills, no leak -- the config has no explicit refreshPeriod,
-    # so blocky's default 4h denylist refresh was the trigger). Startup-only
-    # spikes peaked 550-670Mi with no prior list resident; a refresh spikes
-    # higher still because the old list (~290Mi) stays resident and serving
-    # queries while the new one is concurrently downloaded and parsed,
-    # stacking to an estimated ~840-960Mi peak -- over the 768Mi limit.
-    # Limit raised to 1280Mi for headroom above that estimate.
-    #
-    # Deliberate exception to this repo's "memory request equal to memory
-    # limit" convention (see CLAUDE.md): request is lowered to 350Mi (just
-    # above the ~290Mi steady state) while the limit stays at 1280Mi. Only
-    # the limit needs to cover the transient refresh spike -- steady-state
-    # usage never approaches it -- so requests==limits here was reserving
-    # ~930Mi of phantom, permanently-unused node capacity per replica
-    # against a spike that only ever happens for a few seconds every ~4h.
-    # See the paired HPA memory metric change (Utilization -> AverageValue)
-    # in templates/hpa.yaml: it must be decoupled from this request, or a
-    # lower request alone would push HPA's 60%-of-request memory target
-    # permanently over threshold at ordinary steady-state usage.
-    #
-    # 2026-09-20: both replicas OOMKilled (exit 137) at 1280Mi within 19s of
-    # each other at 12:06 UTC, and one pod had 5 OOM restarts in 24h. The refresh
-    # spike is larger than the estimate above: 3d working-set peaks reached
-    # 1.05-1.23Gi on pods that survived. Limit was raised to 1792Mi and the
-    # 350Mi request left unchanged, so no extra node capacity was reserved then.
-    # (Superseded 2026-09-22 — see below.)
-    #
-    # 2026-09-22: 30d p50 is 576.7Mi (steady state roughly doubled since July),
-    # 30d spike 1696.5Mi. Request raised to 641Mi (ceil 576.7/0.9) and limit to
-    # 2036Mi (ceil 1696.5*1.2); the July 350Mi exception assumed a ~290Mi
-    # steady state that no longer holds, and 1792Mi left only ~95Mi headroom
-    # above the observed spike.
+    # Memory sizing history (OOMKilled = exit 137):
+    # 2026-07-20: 512Mi OOM after adding a second denylist group ("malware" =
+    # HaGeZi TIF + URLhaus); concurrent import/parse of two groups spikes higher
+    # than one. Raised to 768Mi.
+    # 2026-07-21/22: OOM every ~4h -- blocky's default 4h denylist refresh, not a
+    # leak (Prometheus: working set flat at ~290Mi between kills). Refresh spikes
+    # higher than startup (550-670Mi) because the old ~290Mi list stays resident
+    # while the new one downloads and parses: ~840-960Mi stacked peak > 768Mi.
+    # Raised to 1280Mi.
+    # Request/limit split (exception to this repo's requests==limits convention,
+    # see CLAUDE.md): request 350Mi (just above ~290Mi steady state), limit
+    # 1280Mi. Only the limit covers the few-seconds-per-~4h refresh spike;
+    # requests==limits would reserve ~930Mi of unused node capacity per replica.
+    # Paired with the HPA memory metric change (Utilization -> AverageValue in
+    # hpa.yaml) so the low request does not pin HPA at 60%-of-request permanently.
+    # 2026-09-20: both replicas OOM at 1280Mi 19s apart (12:06 UTC); 3d peaks hit
+    # 1.05-1.23Gi on surviving pods. Raised to 1792Mi; request left at 350Mi
+    # (superseded 2026-09-22).
+    # 2026-09-22: 30d p50 576.7Mi (steady state doubled since July), 30d spike
+    # 1696.5Mi. Request -> 641Mi (ceil 576.7/0.9); limit -> 2036Mi
+    # (ceil 1696.5*1.2). The 350Mi exception assumed a ~290Mi steady state that no
+    # longer holds, and 1792Mi left only ~95Mi headroom above the spike.
     requests:
       cpu: 100m
       memory: 641Mi
