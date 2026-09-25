@@ -28,27 +28,24 @@ vertical-pod-autoscaler:
       enabled: true
       createSelfSignedIssuer:
         enabled: true
-      # 2026-07-27: chart default (duration: 168h, renewBefore: 24h) means
-      # the leaf cert is always within the CertificateExpiringSoon alert's
-      # 7-day window for its entire life, firing every renewal cycle.
+      # 2026-07-27: chart defaults (duration 168h, renewBefore 24h) keep the
+      # leaf cert inside the 7-day CertificateExpiringSoon alert window for
+      # its whole life, firing every renewal cycle. 2160h/360h escapes it.
       duration: 2160h
       renewBefore: 360h
   recommender:
     replicas: 1
-    # 2026-08-22: the recommender's compiled-in defaults
-    # (--pod-recommendation-min-memory-mb=250,
+    # 2026-08-22: compiled-in defaults (--pod-recommendation-min-memory-mb=250,
     # --pod-recommendation-min-cpu-millicores=25) are a global floor that
-    # overrides every VPA's own tuned per-workload minAllowed. Idle
-    # workloads (cyberchef, jsoncrack, excalidraw, reloader, k8s-cleaner --
-    # real usage 4-29Mi) were all being clamped up to ~250Mi regardless of
-    # their own minAllowed (32Mi). Set both flags near zero so each VPA's
-    # own minAllowed/maxAllowed does the real work instead of this
-    # one-size-fits-all default.
+    # overrides each VPA's own tuned minAllowed. Idle workloads (cyberchef,
+    # jsoncrack, excalidraw, reloader, k8s-cleaner: usage 4-29Mi) were
+    # clamped to ~250Mi despite a 32Mi minAllowed. Both flags set near zero
+    # so each VPA's own minAllowed/maxAllowed rules.
     extraArgs:
       - --pod-recommendation-min-memory-mb=1
       - --pod-recommendation-min-cpu-millicores=1
     resources:
-      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
       requests:
         cpu: 50m
         memory: 78Mi
@@ -59,7 +56,7 @@ vertical-pod-autoscaler:
   updater:
     replicas: 1
     resources:
-      # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
       requests:
         cpu: 50m
         memory: 73Mi
