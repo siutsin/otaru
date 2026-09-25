@@ -32,17 +32,10 @@ service:
 deployment:
   replicas: 1
   resources:
-    # KRR 2026-07-05: live peak ~340Mi working set; 256Mi request left ~84Mi headroom.
-    # KRR 2026-07-18: CPU WARNING, 14d peak needs ~359m against the 50m
-    # request; memory peak dropped to ~313Mi (GOOD), so downsized to match.
-    # raspberrypi-01 (its current node, 81% CPU requests, 725m free) has
-    # room for the RollingUpdate surge.
-    # 2026-09-22: relax req==limit (user-approved). Spiky; live ~187Mi,
-    # KRR 14d peak 313Mi stays covered by the 320Mi limit. Request 224Mi.
-    # KRR 2026-09-24: CPU over-provisioned — 30d p50 ~2m, 30d max ~101m, 14d peak
-    # ~92m against the 359m request (set for a one-off 359m spike in July that
-    # has not recurred). Downsize cpu 359m -> 150m: keeps ~1.5x headroom over the
-    # observed 30d spike. Memory untouched.
+    # 2026-09-22 (user-approved): relax req==limit. Spiky: live ~187Mi, 14d
+    # peak 313Mi covered by the 320Mi limit; request 224Mi.
+    # KRR 2026-09-24: CPU over-provisioned (30d max ~101m vs 359m request, set
+    # for a one-off July spike that has not recurred). Downsized 359m -> 150m.
     requests:
       cpu: 150m
       memory: 224Mi
