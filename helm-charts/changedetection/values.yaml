@@ -56,19 +56,20 @@ browser:
     image:
       repository: busybox
       # 2026-07-14: the previous digest (sha256:8f2ffdcb...) was the
-      # arm64-only child manifest, not the multi-arch index -- worked by
-      # accident while this pod only ever landed on arm64 nodes, then hit
-      # "exec format error" the first time descheduler's new PodLifeTime
-      # repave scheduled it onto amd64 nuc-00. This digest is the actual
-      # multi-arch index (verified via registry API and against nuc-00's
-      # own containerd image list).
+      # arm64-only child manifest, not the multi-arch index. It worked by
+      # accident while the pod only landed on arm64 nodes, then hit "exec
+      # format error" the first time descheduler's PodLifeTime repave put
+      # it on amd64 nuc-00. This digest is the real multi-arch index
+      # (verified via registry API and nuc-00's containerd image list).
       tag: 1.38.0@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
       pullPolicy: IfNotPresent
     resources:
-      # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during hourly prune runs.
-      # ephemeral-storage 2026-07-07: container_limit_percentage reported 100% at 16Mi
-      # (shared /profile/chromium volume usage attributed against this container's own
-      # tiny limit); pod-level peak is only ~20Mi. Bump to 64Mi for headroom.
+      # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during
+      # hourly prune runs.
+      # ephemeral-storage 2026-07-07: container_limit_percentage hit 100%
+      # at 16Mi (shared /profile/chromium volume usage counted against
+      # this container's limit); pod-level peak is only ~20Mi. Bumped to
+      # 64Mi for headroom.
       requests:
         cpu: 10m
         memory: 128Mi
@@ -82,37 +83,25 @@ browser:
     SCREEN_DEPTH: "16"
     MAX_CONCURRENT_CHROME_PROCESSES: "1"
   resources:
-    # KRR 2026-07-05: Playwright browser peaked at ~1.08Gi during Amazon watch fetches; 1Gi left ~6Mi headroom.
-    # KRR 2026-07-09: 14-day peak grew to ~1.28Gi, exceeding the 1152Mi limit set above. Bumped to 1408Mi for headroom.
-    # KRR 2026-07-18: CPU CRITICAL, 14d peak needs ~1189m against the 50m
-    # request (memory unaffected, still GOOD at 1408Mi).
-    # KRR 2026-07-18 (hotfix): the full 1189m request left this pod
-    # Pending -- concurrent CPU upsizes in the same rollout (argocd-repo-
-    # server to nuc-00, umami and kyverno-reports-controller relocating)
-    # left no single node with both 1199m free CPU and 1536Mi free memory
-    # at once. raspberrypi-03 (this pod's usual node) had 865m CPU free
-    # but needed 1199m; every other node was short on memory instead.
-    # Reduced to 700m, which fits raspberrypi-03 with ~155m spare. Full
-    # KRR target deferred to a later pass once cluster headroom improves.
-    # KRR 2026-07-30: completing the deferred upsize to the full 1189m
-    # target. The pod now runs on raspberrypi-00, which has CPU headroom
-    # (about 71 percent requested, no CPU limit set cluster-wide), so the
-    # full 489m bump fits without touching memory, which stays unchanged.
-    #
-    # 2026-07-30 (overcommit): same technique as blocky's exception to the
-    # repo's "memory request equal to limit" convention. Measured 7-day
-    # working-set across five recent pod instances: steady-state averages
-    # 47-270Mi, but real recurring peaks of 764-1365Mi during Amazon watch
-    # / screenshot-stitching bursts (matching the "Playwright browser
-    # peaked at ~1.08Gi" note above) -- no OOMKill history at 1408Mi, but
-    # only ~3 percent headroom over the highest observed peak. Lowered
-    # request to 350Mi (comfortably above steady-state, well under any
-    # observed peak) and raised the limit to 1536Mi for real headroom
-    # above the measured 1365Mi peak. Frees ~1058Mi of previously
-    # reserved-but-idle memory per replica -- this pod's node
-    # (raspberrypi-00) was at 99 percent memory requested, contributing to
-    # cluster-wide scheduling pressure (see the 2026-07-30 PITR verify
-    # scheduling failure in .scratchpad/SELF_HEALING.md).
+    # KRR 2026-07-05: Playwright browser peaked ~1.08Gi on Amazon watch
+    # fetches; 1Gi left ~6Mi headroom.
+    # KRR 2026-07-09: 14d peak grew to ~1.28Gi, over the 1152Mi limit;
+    # bumped to 1408Mi for headroom.
+    # KRR 2026-07-18: CPU CRITICAL, 14d peak ~1189m vs 50m request
+    # (memory unaffected, still GOOD at 1408Mi).
+    # 2026-07-18 hotfix: the full 1189m request left the pod Pending -- no
+    # node had 1199m free CPU + 1536Mi free memory at once (concurrent CPU
+    # upsizes in the same rollout). Reduced to 700m, fits raspberrypi-03
+    # with ~155m spare; full KRR target deferred.
+    # KRR 2026-07-30: completed the deferred upsize to 1189m; the pod runs
+    # on raspberrypi-00 (~71% CPU requested), so the 489m bump fits without
+    # touching memory.
+    # 2026-07-30 (overcommit): exception to the repo's "memory request
+    # equal to limit" convention. 7d working set across 5 pod instances:
+    # steady-state 47-270Mi, recurring peaks 764-1365Mi on Amazon
+    # watch/screenshot-stitching bursts. Request 350Mi, limit 1536Mi for
+    # headroom above the 1365Mi peak. Frees ~1058Mi reserved-but-idle per
+    # replica; the node was at 99% memory requested.
     requests:
       cpu: 1189m
       # 2026-09-23: sized from 30-day p50 / 0.9 policy (was 350Mi).

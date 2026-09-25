@@ -4,11 +4,10 @@ metadata:
   name: {{ .Values.browser.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  # 2026-07-25: found during a repo-wide PDB audit after the missing-PDB
-  # eviction-storm pattern caused real outages for umami, home-assistant,
-  # and prometheus-server the same day (see documentation/gotcha.md).
-  # The main changedetection Deployment already has a PDB
-  # (templates/pdb.yaml); this sidecar browser Deployment did not.
+  # 2026-07-25: repo-wide PDB audit found the sidecar browser Deployment had
+  # no PDB (main Deployment already had one in templates/pdb.yaml); a
+  # missing-PDB eviction storm caused real outages for umami,
+  # home-assistant, and prometheus-server the same day.
   minAvailable: 1
   selector:
     matchLabels:

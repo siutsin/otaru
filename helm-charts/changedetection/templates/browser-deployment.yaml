@@ -63,12 +63,11 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           securityContext:
-            # The image's config User field is the name "chrome", not a
-            # numeric UID, so kubelet cannot verify runAsNonRoot without an
-            # explicit runAsUser -- without it the container gets stuck in
-            # CreateContainerConfigError. uid 1000 confirmed via
-            # `docker image inspect` and `docker run --entrypoint id`;
-            # matches browser.profile.fsGroup.
+            # Image User is the name "chrome", not a numeric UID, so kubelet
+            # cannot verify runAsNonRoot without an explicit runAsUser --
+            # without it the container stalls in CreateContainerConfigError.
+            # uid 1000 confirmed via `docker image inspect`; matches
+            # browser.profile.fsGroup.
             runAsNonRoot: true
             runAsUser: {{ .Values.browser.profile.fsGroup }}
             allowPrivilegeEscalation: false
