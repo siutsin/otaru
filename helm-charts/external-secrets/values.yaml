@@ -1,8 +1,8 @@
 _shared:
-  # 2026-09-23: the three controllers size on their own 30d Prometheus
-  # baselines, split from the old shared anchor.
+  # 2026-09-23: each controller sized from its own 30d Prometheus baseline;
+  # split from the old shared anchor. Right-size formula:
+  # request=ceil(p50/0.9), limit=ceil(spike*1.2).
   operatorResources: &operatorResources
-    # 2026-09-23: right-size (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     requests:
       cpu: 50m
       memory: 67Mi
@@ -11,7 +11,6 @@ _shared:
       memory: 133Mi
       ephemeral-storage: 64Mi
   webhookResources: &webhookResources
-    # 2026-09-23: right-size (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     requests:
       cpu: 50m
       memory: 141Mi
@@ -20,7 +19,6 @@ _shared:
       memory: 154Mi
       ephemeral-storage: 64Mi
   certControllerResources: &certControllerResources
-    # 2026-09-23: right-size (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     requests:
       cpu: 50m
       memory: 92Mi
@@ -46,13 +44,9 @@ external-secrets:
     enabled: true
     minAvailable: 1
   webhook:
-    # 2026-07-12: ArgoCD ExternalSecret syncs failed with "no endpoints
-    # available for service external-secrets-webhook" during a night of
-    # cluster-wide pod restarts -- a single replica has zero redundancy for
-    # a validating webhook that gates every ExternalSecret apply. The
-    # anti-affinity above already spreads replicas across nodes, so a
-    # second replica gives real resilience against a single pod/node
-    # disruption.
+    # 2026-07-12: one replica left zero redundancy for the validating
+    # webhook during cluster-wide pod restarts ("no endpoints available").
+    # Two replicas plus anti-affinity survives a single pod/node outage.
     replicaCount: 2
     podDisruptionBudget:
       enabled: true
