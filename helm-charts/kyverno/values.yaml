@@ -24,11 +24,9 @@ _metricsScrape: &metricsScrape
     prometheus.io/port: "8000"
 
 kyverno:
-  # Lets kyverno-policy grant narrow, auditable per-workload exceptions
-  # (kind: PolicyException) instead of growing bespoke exclude lists inside
-  # each ClusterPolicy. Restricted to this namespace, alongside the
-  # ClusterPolicies themselves, so an exception can't be self-granted from
-  # an arbitrary workload namespace.
+  # Lets kyverno-policy grant narrow, auditable PolicyExceptions instead of
+  # bespoke exclude lists per ClusterPolicy. Restricted to this namespace so
+  # an exception can't be self-granted from a workload namespace.
   features:
     policyExceptions:
       enabled: true
@@ -55,16 +53,12 @@ kyverno:
     podDisruptionBudget: *pdb
     metricsService: *metricsScrape
   reportsController:
-    # KRR 2026-07-18: CPU WARNING, 14d peak needs ~335m against the shared
-    # 50m request (memory unaffected, still GOOD at 128Mi). Split out from
-    # the shared &resources anchor so the other two controllers (background,
-    # cleanup) keep their existing 50m request. raspberrypi-00 (its current
-    # node, 77% CPU requests, 895m free) has room for the RollingUpdate surge.
+    # KRR 2026-07-18: CPU 14d peak ~335m vs shared 50m request. Split out of
+    # the shared &resources anchor so background/cleanup keep 50m.
     # 2026-09-23: right-size memory on 30d Prometheus baseline
     # (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
-    # KRR 2026-09-24: CPU WARNING, 14d peak now ~510m against the 335m request
-    # (reports churn during policy audits). Bump 335m -> 600m to cover the new
-    # spike with ~1.2x headroom.
+    # KRR 2026-09-24: CPU 14d peak now ~510m vs 335m request (reports churn
+    # during policy audits). Bump 335m -> 600m for ~1.2x headroom.
     resources:
       requests:
         cpu: 600m
