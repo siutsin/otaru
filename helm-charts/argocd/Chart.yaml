@@ -6,13 +6,9 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: argo-cd
-  # 2026-08-13: root-caused the 10.2.3/10.3.0 CrashLoopBackOff (previously
-  # pinned to 10.2.2 to work around it -- see git history). Confirmed via
-  # argoproj/argo-cd#26715 (Argo CD v3.5.0): --client-ca-path now defaults to
-  # a non-empty path and is rejected outright when --disable-tls is set,
-  # regardless of whether the mTLS file exists. Worked around by pinning
-  # ARGOCD_REPO_SERVER_CLIENT_CA_PATH="" via values.yaml repoServer.env
-  # (see comment there). Bumped to the current latest now that the
-  # underlying regression has a confirmed fix.
+  # 2026-08-13: argo-cd 10.2.3+ rejects --disable-tls when --client-ca-path
+  # defaults to a non-empty path (argoproj/argo-cd#26715), CrashLoopBackOff.
+  # Workaround: explicit --client-ca-path= flag in values.yaml
+  # repoServer.extraArgs.
   version: 10.9.2
   repository: https://argoproj.github.io/argo-helm

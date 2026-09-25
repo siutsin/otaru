@@ -7,27 +7,15 @@ argo-cd:
     addPrometheusAnnotations: true
   _shared:
     controllerResources: &controllerResources
-      # Keep the limit at 2Gi: sync spikes can queue many repo comparisons at
-      # once, and Argo CD tends to concentrate that work in a single
-      # controller pod, so extra replicas do not materially reduce peak
-      # memory on the active pod.
+      # Limit 2Gi: sync spikes queue many repo comparisons on the one
+      # controller pod, so extra replicas do not cut its peak memory.
       #
-      # 2026-07-30 (overcommit): same request-vs-limit split already used
-      # for blocky and changedetection-browser. 7d and 14d working-set both
-      # topped out around 909Mi (14d max: 909.3Mi), well under the 2Gi
-      # request/limit that had been reserved since day one. Lowered the
-      # request to 1280Mi -- about 40 percent above the highest measured
-      # peak, wider margin than the other overcommit changes because this
-      # pod runs `replicas: 1` with no redundancy: an eviction here stalls
-      # GitOps reconciliation for all Applications until it reschedules and
-      # rebuilds its full watch cache, not just one workload's blip. The
-      # limit stays at 2Gi unchanged, so hard OOM-kill protection for a
-      # genuine sync-spike is identical to before -- that is governed by
-      # the limit, not the request. Note this pod is already `Burstable`
-      # QoS (no CPU limit is set, per this repo's convention), so this
-      # change does not newly expose it to eviction ranking; it only
-      # narrows the margin during the rare case of a real sync-spike
-      # coinciding with node memory pressure.
+      # 2026-07-30 (overcommit): request 1280Mi, ~40% above the 7d/14d
+      # working-set peak of ~909Mi. Wider margin because this pod runs
+      # replicas: 1: an eviction stalls GitOps reconciliation for all
+      # Applications until it reschedules and rebuilds its full watch cache.
+      # Limit stays 2Gi so OOM-kill protection on a real sync-spike is
+      # unchanged (governed by the limit, not the request).
       # 2026-09-23: right-size request on 30d Prometheus baseline (request=ceil(p50/0.9)); limit stays 2Gi.
       requests:
         cpu: 250m
@@ -164,25 +152,16 @@ argo-cd:
     secretInit:
       enabled: false
   repoServer:
-    # argo-cd 10.2.3+ (Argo CD v3.5.0) added mTLS support (argoproj/argo-cd#26715)
-    # and changed --client-ca-path to default to a non-empty path
-    # (/app/config/reposerver/mtls/client-ca.crt) even when no mTLS secret is
-    # configured. The repo-server rejects --disable-tls together with any
-    # non-empty --client-ca-path outright (cmd/argocd-repo-server/commands/
-    # argocd_repo_server.go), regardless of whether that file exists --
-    # CrashLoopBackOff on every repo-server pod (see helm-charts/argocd/
-    # Chart.yaml).
-    #
-    # 2026-08-13: an env var override (ARGOCD_REPO_SERVER_CLIENT_CA_PATH: "")
-    # does NOT work and caused a live CrashLoopBackOff after merge -- confirmed
-    # via upstream source (util/env.StringFromEnv, called without the
-    # AllowEmpty option for this flag) that an env var explicitly set to ""
-    # is indistinguishable from unset and silently falls back to the
-    # non-empty default. Even upstream's own documented
-    # argocd-cmd-params-cm.yaml example (reposerver.client.ca.path: "") has
-    # this same bug when combined with --disable-tls. Only an explicit CLI
-    # flag override works, since pflag treats an explicitly-passed argument
-    # as authoritative regardless of the computed default.
+    # 2026-08-13: argo-cd 10.2.3+ defaults --client-ca-path to a non-empty
+    # path (/app/config/reposerver/mtls/client-ca.crt) even with no mTLS
+    # secret, and repo-server rejects it together with --disable-tls
+    # outright (argoproj/argo-cd#26715): CrashLoopBackOff on every pod.
+    # Tried and failed: ARGOCD_REPO_SERVER_CLIENT_CA_PATH="" env var does
+    # NOT work and caused a live CrashLoopBackOff after merge --
+    # util/env.StringFromEnv drops empty values, so "" silently falls back
+    # to the non-empty default (upstream's own
+    # argocd-cmd-params-cm.yaml example has the same bug). Only an explicit
+    # CLI flag works, since pflag treats a passed argument as authoritative.
     extraArgs:
       - --client-ca-path=
     metrics:
@@ -202,27 +181,19 @@ argo-cd:
       behavior:
         scaleDown:
           stabilizationWindowSeconds: 60
-    # KRR 2026-07-12: 14d peak 380Mi against a 768Mi request/limit (WARNING,
-    # ~2x headroom). Downsized to 512Mi, keeping ~35% margin over peak given
-    # the cold-cache render spikes noted on reposerver.parallelism.limit
-    # above. CPU was deferred at the time: KRR wanted ~1.7 cores against the
-    # current 250m (CRITICAL), but this pod was still forced onto arm64 by a
-    # mispinned digest, and all 4 arm64 nodes sat at 63-69% CPU requests.
+    # KRR 2026-07-12: 14d peak 380Mi vs 768Mi request/limit (WARNING, ~2x
+    # headroom); downsized to 512Mi, ~35% margin over peak for cold-cache
+    # render spikes (see reposerver.parallelism.limit above).
     # KRR 2026-07-18: PR #2842 removed the arm64 nodeSelector (mispinned
-    # digest fixed). nuc-00 (amd64, now a valid target) sits at 47% CPU
-    # requests (2115m free of 4000m) and already hosts this pod, so applying
-    # the 1678m recommendation now: RollingUpdate surge peaks at ~3563m/4000m
-    # (89%) on nuc-00, well within capacity.
-    # KRR 2026-07-18 hotfix: the 1678m request above stopped fitting anywhere
-    # within a couple of hours -- nuc-00's free CPU had dropped to ~363m by
-    # the time the rollout retried (other workloads' requests grew after
-    # this pass), leaving the new pod Pending on all 5 nodes for 80+ minutes
-    # (FailedScheduling: insufficient cpu). Reduced to 700m, which fits with
-    # margin on raspberrypi-00/01/03 (~800-965m free each) -- still a large
-    # improvement over the original 250m, just not the full KRR peak.
-    # 2026-09-22: relax req==limit (user-approved). Spiky; live ~88Mi,
-    # KRR 14d peak 380Mi stays covered by the 512Mi limit. Request 170Mi
-    # (2026-09-23: right-sized on 30d Prometheus baseline, request=ceil(p50/0.9)).
+    # digest fixed), so applied the 1678m CPU rec: nuc-00 at 47% CPU
+    # requests (2115m free of 4000m), RollingUpdate surge peaks ~3563m/4000m
+    # (89%).
+    # 2026-07-18 hotfix: 1678m stopped fitting within hours (nuc-00 free CPU
+    # fell to ~363m; pod Pending 80+ min on FailedScheduling). Reduced to
+    # 700m, fits on raspberrypi-00/01/03 (~800-965m free each).
+    # 2026-09-22: relaxed req==limit (user-approved). Request 170Mi (spiky,
+    # live ~88Mi; 14d KRR peak 380Mi covered by the 512Mi limit).
+    # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9)).
     resources:
       requests:
         cpu: 700m
@@ -328,7 +299,8 @@ argo-cd:
           requests:
             cpu: 100m
             memory: 75Mi
-            # ephemeral-storage 2026-07-06: 14d pod peak ~286Mi exceeded the 256Mi limit (96.6% via ephemeral_storage_container_limit_percentage) — bump to 512Mi for headroom.
+            # 2026-07-06: 14d pod peak ~286Mi exceeded the 256Mi limit (96.6%);
+            # bumped to 512Mi for headroom.
             ephemeral-storage: 512Mi
           limits:
             memory: 117Mi
