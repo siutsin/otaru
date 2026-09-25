@@ -1,11 +1,10 @@
 name: httpbin
 namespace: httpbin
 
-# VPA 2026-07-30: onboarded memory-only after a steady-state usage check
-# (7d avg/max ~62/63Mi against a 100Mi request, no incident history). CPU
-# is left to the existing HPA. The HPA's memory trigger was switched from
-# Utilization to AverageValue (see templates/hpa.yaml) to decouple it from
-# the request this VPA adjusts -- same fix blocky's HPA needed.
+# 2026-07-30: VPA onboarded memory-only after a 7d steady-state check
+# (avg/max ~62/63Mi against a 100Mi request, no incidents); CPU stays with
+# the HPA. HPA memory trigger moved from Utilization to AverageValue
+# (templates/hpa.yaml) so VPA request changes do not shift the trigger.
 vpa:
   enabled: true
 

@@ -35,19 +35,18 @@ spec:
           image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
           securityContext:
             runAsNonRoot: true
-            # kong/httpbin's "httpbin" user is named, not numeric, in the image
-            # metadata, so kubelet cannot verify runAsNonRoot without an explicit
-            # numeric UID (CreateContainerConfigError otherwise). Confirmed via
-            # `kubectl exec ... -- id`: uid=10001(httpbin) gid=10001(httpbin).
+            # kong/httpbin's "httpbin" user is a name, not a number, in the
+            # image metadata: kubelet cannot verify runAsNonRoot without a
+            # numeric UID (CreateContainerConfigError otherwise). Checked via
+            # kubectl exec: uid=10001(httpbin) gid=10001(httpbin).
             runAsUser: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
               # kong/httpbin's python3 binary carries a cap_net_bind_service file
-              # capability so its non-root "httpbin" user can bind port 80; verified
-              # locally that dropping this too breaks exec with "operation not
-              # permitted".
+              # capability so the non-root httpbin user can bind port 80.
+              # Dropping this breaks exec with "operation not permitted".
               add:
                 - NET_BIND_SERVICE
           ports:
