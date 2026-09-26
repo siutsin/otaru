@@ -1,0 +1,17 @@
+{{- if .Values.connector.proxyClass }}
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: {{ .Values.connector.proxyClass }}
+spec:
+  statefulSet:
+    pod:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              tailscale.com/parent-resource: {{ .Values.connector.name }}
+              tailscale.com/parent-resource-type: connector
+{{- end }}

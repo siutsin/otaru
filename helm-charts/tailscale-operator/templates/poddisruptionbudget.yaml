@@ -1,0 +1,13 @@
+{{- if gt (.Values.connector.replicas | default 1 | int) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.connector.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      tailscale.com/parent-resource: {{ .Values.connector.name }}
+      tailscale.com/parent-resource-type: connector
+{{- end }}
