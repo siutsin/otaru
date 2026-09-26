@@ -50,7 +50,8 @@ spec:
             requests:
               cpu: 10m
               ephemeral-storage: 64Mi
-              memory: 128Mi
+              # 2026-09-26: p50 24Mi / max 41Mi over 14d; request 128Mi -> 32Mi per memory sizing rule (ceil(p50/0.9), 32Mi floor); limit unchanged.
+              memory: 32Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

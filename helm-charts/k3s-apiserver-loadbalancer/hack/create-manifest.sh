@@ -37,7 +37,7 @@ if [[ -f "${DEPLOYMENT_FILE}" ]]; then
     (.spec.template.spec.containers[] | select(.name == "manager").resources.limits.memory) = "128Mi" |
     (.spec.template.spec.containers[] | select(.name == "manager").resources.limits."ephemeral-storage") = "64Mi" |
     (.spec.template.spec.containers[] | select(.name == "manager").resources.requests.cpu) = "10m" |
-    (.spec.template.spec.containers[] | select(.name == "manager").resources.requests.memory) = "128Mi" |
+    (.spec.template.spec.containers[] | select(.name == "manager").resources.requests.memory) = "32Mi" |
     (.spec.template.spec.containers[] | select(.name == "manager").resources.requests."ephemeral-storage") = "64Mi"
   ' "${DEPLOYMENT_FILE}"
 fi
