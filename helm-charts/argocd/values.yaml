@@ -226,7 +226,7 @@ argo-cd:
           - argocd-jsonnet-secret
     initContainers:
       - name: wait-for-secret
-        image: alpine/kubectl:1.36.4@sha256:a2cd8ee034cbe04d651e565b3373299b31921de5c2af86490559e21b3e197808
+        image: alpine/kubectl:1.37.0@sha256:954b65dea0eb140219b440413ede17c2eca205866df350d3c1fbc84d28af14ae
         command:
           - /bin/sh
           - -c
