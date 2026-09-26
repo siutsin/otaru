@@ -8,6 +8,10 @@ metadata:
 spec:
   hostnamePrefix: {{ .Values.connector.hostnamePrefix | quote }}
   exitNode: {{ .Values.connector.exitNode | default false }}
+  replicas: {{ .Values.connector.replicas | default 1 }}
+  {{- if .Values.connector.proxyClass }}
+  proxyClass: {{ .Values.connector.proxyClass | quote }}
+  {{- end }}
   subnetRouter:
     advertiseRoutes:
       {{- toYaml .Values.connector.advertiseRoutes | nindent 6 }}
