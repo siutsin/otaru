@@ -6,12 +6,12 @@ metadata:
 spec:
   statefulSet:
     pod:
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              tailscale.com/parent-resource: {{ .Values.connector.name }}
-              tailscale.com/parent-resource-type: connector
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  tailscale.com/parent-resource: {{ .Values.connector.name }}
+                  tailscale.com/parent-resource-type: connector
+              topologyKey: kubernetes.io/hostname
 {{- end }}
