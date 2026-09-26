@@ -85,7 +85,7 @@ This executes:
 **Helm Charts**: fix coalesce warnings by providing default values,
 create missing values.yaml files, resolve template rendering issues.
 Memory sizing (all workloads): baseline = p50 usage over the trailing 30d of
-Prometheus data (KRR's 14d window as a sanity check); request = ceil(baseline /
+Prometheus data (compare against a 14d window as a sanity check); request = ceil(baseline /
 0.9) with a 32Mi floor; spike = max usage over the trailing 30d; limit =
 ceil(spike * 1.2). For workloads younger than 30d, use all available data.
 Never size below a past-incident guardrail recorded in the
@@ -121,14 +121,13 @@ For mutating operations, keep GitOps as the source of truth: patch the repo and
 let Argo CD reconcile unless the user explicitly asks for an emergency live
 change.
 
-## KRR (Kubernetes Resource Recommender)
+## Memory sizing recommendations (KRR replacement)
 
-- Run: `krr simple -p <prometheus-url-via-ingress>`
-- `<prometheus-url-via-ingress>`: HTTPS ingress for `httpRoutes.prometheus` in
-  `helm-charts/monitoring/values.yaml` (see `route-internal.yaml`).
-- When building the report and recommendations, read inline resource comments
-  for past incidents (OOM, probe failures, scheduling pressure) and exclude
-  downsizing past those guardrails.
+The self-healing loop cannot run KRR: it needs the Kubernetes API and this
+runner has no kubeconfig by design. Run
+`.claude/skills/right-sizing/bin/sizing-recommendations.py` instead. It
+queries Prometheus directly (the same data KRR uses) and applies the memory
+sizing rule above. KRR itself still works for ad-hoc runs from the LAN.
 
 ## Node Reboot Policy
 
