@@ -288,10 +288,16 @@ test-pods-sweep: ## Regression tests for the self-healing pod sweep (stubbed MCP
 	@bash .claude/skills/self-healing/tests/pods-sweep.test.sh
 	@echo "$(GREEN)pods-sweep regression tests passed!$(NC)"
 
+.PHONY: test-sizing
+test-sizing: ## Regression tests for the right-sizing recommendations script (stubbed Prometheus)
+	@echo "$(GREEN)Running sizing-recommendations regression tests...$(NC)"
+	@bash .claude/skills/right-sizing/tests/sizing-recommendations.test.sh
+	@echo "$(GREEN)sizing-recommendations regression tests passed!$(NC)"
+
 .PHONY: test
 test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform \
 	lint-terragrunt check-markdown lint-zizmor validate-helm-charts \
-	check-image-digests validate-grafana-dashboards test-pods-sweep ## Run all validation and quality checks
+	check-image-digests validate-grafana-dashboards test-pods-sweep test-sizing ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets

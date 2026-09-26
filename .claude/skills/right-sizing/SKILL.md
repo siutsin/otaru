@@ -1,14 +1,14 @@
 ---
 name: "right-sizing"
 description: >-
-  Right-size otaru workloads via KRR (CPU/memory) and Prometheus ephemeral-storage
+  Right-size otaru workloads via Prometheus memory sizing and ephemeral-storage
   metrics. Read incident comments as guardrails, apply downsizes and upsizes in one
   GitOps PR, verify rollout. Also covers VPA (helm-charts/vpa), a complementary
   automated path for steady-state workloads with no spike pattern. Invoke as
   /right-sizing from /self-healing when healthy (including scheduled fires from
   /self-healing-loop), or manually.
 metadata:
-  short-description: "KRR, ephemeral-storage, and VPA right-sizing for otaru"
+  short-description: "Prometheus memory/ephemeral-storage and VPA right-sizing for otaru"
 ---
 
 # Otaru workload right-sizing
@@ -29,9 +29,8 @@ Missing:
 - Cluster reachability: prefer Kubernetes MCP; fall back to `kubectl` only if
   MCP is unavailable or errors (`kubectl cluster-info` reaching VIP
   `192.168.10.50`).
-- Prometheus ingress reachable (same URL as KRR below). Do not use
-  `*.svc.cluster.local` from off-cluster.
-- `krr` on PATH (`krr --help`) — Part 1.
+- Prometheus ingress reachable (the Part 1 script derives the URL from the repo;
+  `--prometheus-url` overrides it). Do not use `*.svc.cluster.local` from off-cluster.
 - `gh` authenticated (`gh auth status`) — Part 3.
 - `helm` on PATH — `make test` needs it.
 - Repo checkout present (work from it).
@@ -47,32 +46,31 @@ Missing:
   `/self-healing` is not fully green, if the user or a manual invoke asks.
 - Skip guarded workloads (see below) even when metrics suggest downsizing.
 
-## Part 1 — CPU and memory (KRR)
+## Part 1 — Memory (Prometheus)
 
 ### Collect recommendations
 
-Resolve `<prometheus-url-via-ingress>` from `httpRoutes.prometheus` in
-`helm-charts/monitoring/values.yaml` and the hostname pattern in
-`helm-charts/monitoring/templates/route-internal.yaml` (HTTPS ingress for
-the prometheus route key). Do not hardcode the domain.
+KRR cannot run on the remote runner: it needs the Kubernetes API and this
+runner has no kubeconfig by design. Run the replacement script instead. It
+derives the Prometheus ingress URL from the repo (no hardcoded domain).
 
 ```bash
-krr simple -p <prometheus-url-via-ingress> -f json -q > /tmp/krr-otaru-$(date +%F).json
+.claude/skills/right-sizing/bin/sizing-recommendations.py > /tmp/sizing-$(date +%F).json
 ```
 
 ### Build the change set
 
 Before editing any workload, check `kubectl get vpa -A` — skip anything with an
 existing `VerticalPodAutoscaler` object (see **VPA-managed workloads** below).
-KRR and VPA fighting over the same Deployment produces confusing drift, not a
+Manual sizing and VPA fighting over the same Deployment produces confusing drift, not a
 better answer.
 
 For each remaining candidate workload in `helm-charts/**/values.yaml` (and chart
 templates when resources live there):
 
 1. Read inline resource comments for past incidents (OOM, probe failures, scheduling pressure). **Do not downsize past those guardrails.**
-2. **Downsize** when KRR peak is well below the request and no incident comment blocks it.
-3. **Upsize** when KRR peak exceeds the request/limit or live pods show OOM risk.
+2. **Downsize** when the reported max is well below the request and no incident comment blocks it.
+3. **Upsize** when the reported max exceeds the request/limit or live pods show OOM risk.
 4. Skip guarded workloads when comments document repeated OOM or sync spikes (for example changedetection app, blocky, grafanas, argocd, jellyfin).
 
 ### Helm chart rules
@@ -81,15 +79,16 @@ See `AGENTS.md`: memory request = limit; no CPU limits unless asked; explicit
 ephemeral-storage; add `# KRR YYYY-MM-DD:` on CPU/memory changes with peak and
 why the old value was wrong.
 
-KRR covers **CPU and memory only** — not ephemeral-storage.
+Part 1 covers **memory only** — not ephemeral-storage. CPU-request changes stay
+held until the user authorises them.
 
 ## Part 2 — Ephemeral-storage (Prometheus)
 
-KRR does not recommend ephemeral-storage. Use metrics from
+Part 1 does not recommend ephemeral-storage. Use metrics from
 `k8s-ephemeral-storage-metrics` (subchart of `helm-charts/monitoring`) scraped
 into Prometheus as job `k8s-ephemeral-storage-metrics`.
 
-Query via the same `<prometheus-url-via-ingress>` as KRR (HTTP API or Grafana).
+Query via the same Prometheus ingress URL as Part 1 (HTTP API or Grafana).
 
 ### Key metrics
 
@@ -139,7 +138,7 @@ topk(20, max_over_time(ephemeral_storage_pod_usage[14d]))
 
 - Exporter does not monitor generic ephemeral volumes (CSI-backed).
 - No CLI recommender — interpret PromQL peaks manually with headroom (~20–30%).
-- Combine ephemeral changes with KRR CPU/memory in the same PR when both apply.
+- Combine ephemeral changes with Part 1 memory changes in the same PR when both apply.
 
 ## Part 3 — GitOps PR
 
@@ -147,7 +146,7 @@ topk(20, max_over_time(ephemeral_storage_pod_usage[14d]))
   `gh pr list --state open` for an in-flight right-sizing PR; continue that
   branch when one exists.
 2. Branch from `master` only when no in-flight PR; edit only in-scope chart
-  values/templates (KRR + ephemeral-storage from Parts 1–2).
+  values/templates (memory + ephemeral-storage from Parts 1–2).
 3. Run `make test` and fix failures (re-run after further commits on the same
   branch).
 4. Open **one** PR for all safe changes this pass (or push to the continued
@@ -179,10 +178,10 @@ Open a follow-up PR immediately if rollout breaks a workload:
 
 `helm-charts/vpa/` deploys Kubernetes VPA (recommender, updater,
 admission-controller). It is a **second, complementary** resource-management
-path, not a replacement for KRR passes above — the two suit different shapes
+path, not a replacement for the Part 1 sizing pass above — the two suit different shapes
 of workload.
 
-### Why VPA does not replace KRR here
+### Why VPA does not replace Part 1 here
 
 VPA's memory algorithm targets the 95th percentile of **daily peak** usage
 over an 8-day window, not typical/steady-state usage. That is the right
@@ -191,7 +190,7 @@ spikes briefly then idles (blocky's ~4h denylist refresh, changedetection's
 hourly page-render), it recommends a request near the peak — undoing the
 manual "steady-state request, higher limit" overcommit tuning already applied
 to those charts. **Never add a `VerticalPodAutoscaler` for a guarded workload**
-(the same list as the KRR guardrails above) unless it is scoped to
+(the same guardrail list as Part 1 above) unless it is scoped to
 `controlledResources: [cpu]` only, since VPA's CPU algorithm is
 percentile-based, not peak-based, and does not have this problem.
 
