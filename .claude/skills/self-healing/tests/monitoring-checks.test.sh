@@ -75,7 +75,7 @@ VEC_ZERO = {"status": "success",
 VEC_FIRING = {"status": "success",
               "data": {"resultType": "vector", "result": [
                   {"metric": {"alertname": "Watchdog"},
-                   "value": [1727220000, "1"]}]}}
+                    "value": [1727220000, "1"]}]}}
 ERR500 = {"status": 500,
           "body": {"status": "error", "errorType": "bad_data"}}
 routes = {
@@ -97,7 +97,7 @@ elif mode == "firing":
     routes['ALERTS{alertstate="firing"}'] = {"status": 200, "body": VEC_FIRING}
 elif mode == "partial_pvc":
     routes["kubelet_volume_stats_used_bytes / "
-           "kubelet_volume_stats_capacity_bytes > 0.85"] = ERR500
+            "kubelet_volume_stats_capacity_bytes > 0.85"] = ERR500
 elif mode != "healthy":
     raise SystemExit("unknown mode: " + mode)
 json.dump(routes, open(sys.argv[1], "w"))
