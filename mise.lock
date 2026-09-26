@@ -967,9 +967,9 @@ backend = "pipx:ansible-core"
 specifiers = ["2.21.4"]
 
 [[tools."pipx:poetry"]]
-version = "2.4.3"
+version = "2.5.0"
 backend = "pipx:poetry"
-specifiers = ["2.4.3"]
+specifiers = ["2.5.0"]
 
 [[tools.python]]
 version = "3.14.7"
