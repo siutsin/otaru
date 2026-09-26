@@ -13,6 +13,9 @@ connector:
   hostnamePrefix: otaru-gateway
   advertiseRoutes:
     - 192.168.10.51/32
+  # Renders spec.exitNode on the Connector. Default false: the gateway-vip
+  # connector stays a subnet router until an exit-node connector is wanted.
+  exitNode: false
 
 tailscale-operator:
   # Keep oauth.clientId empty. The chart would render a Secret from Helm values; ExternalSecret creates operator-oauth instead.
