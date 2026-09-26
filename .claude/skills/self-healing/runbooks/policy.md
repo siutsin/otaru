@@ -13,9 +13,19 @@ model) — never one process per call.
   per namespace — never one cluster-wide PolicyReport list, it exceeds the
   200KB tool-output cap. List namespaces first, then query each namespace.
   The per-namespace PolicyReport table already carries `PASS` / `FAIL` /
-  `WARN` / `ERROR` summary columns (one row per report object) — sum them by
-  header-derived column positions, never fixed columns; do not fetch each
-  report individually. If a listing fails, fall back to scoped Warning events
+  `WARN` / `ERROR` summary columns (one row per report object). Sum them by
+  header-derived column positions, never fixed columns. Bound the last
+  summed column by the `AGE` column, not by end-of-line. Do not fetch each
+  report individually.
+- Fetch the per-namespace PolicyReport lists in parallel. Split the
+  namespaces into `call-tools` batches of at most 15. Run up to 3
+  batches at once, within the Execution model's 3–4 concurrent batch
+  budget. If a batch returns `ok` with empty text, make an exception to
+  the batching rule above. Retry its namespaces with individual
+  `call-tool` processes, no more than 3 at once. If a
+  namespace list is truncated, parse up to the last complete row and
+  treat the counts as lower bounds.
+- If a listing fails, fall back to scoped Warning events
   (`events_list` filtered to warnings) rather than losing the category.
 
 ## Triage
