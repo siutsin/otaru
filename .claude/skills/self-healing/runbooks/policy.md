@@ -12,8 +12,11 @@ model) — never one process per call.
   `kind: ClusterPolicyReport` (cluster-scoped, small) and `kind: PolicyReport`
   per namespace — never one cluster-wide PolicyReport list, it exceeds the
   200KB tool-output cap. List namespaces first, then query each namespace.
-  If a listing fails, fall back to scoped Warning events (`events_list`
-  filtered to warnings) rather than losing the category.
+  The per-namespace PolicyReport table already carries `PASS` / `FAIL` /
+  `WARN` / `ERROR` summary columns (one row per report object) — sum them by
+  header-derived column positions, never fixed columns; do not fetch each
+  report individually. If a listing fails, fall back to scoped Warning events
+  (`events_list` filtered to warnings) rather than losing the category.
 
 ## Triage
 
