@@ -24,4 +24,12 @@ echo "${yaml_content}" | yq --split-exp '.kind + "-" + (.metadata.name | sub("\.
 
 popd >/dev/null
 
+DEPLOYMENT_FILE="${CRD_PATH}/deployment-heartbeats-operator-controller-manager.yaml"
+
+if [[ -f "${DEPLOYMENT_FILE}" ]]; then
+  yq -i '
+    (.spec.template.spec.containers[] | select(.name == "manager").resources.requests.memory) = "32Mi"
+  ' "${DEPLOYMENT_FILE}"
+fi
+
 echo "Created heartbeats manifest"
