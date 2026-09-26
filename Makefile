@@ -294,10 +294,16 @@ test-sizing: ## Regression tests for the right-sizing recommendations script (st
 	@bash .claude/skills/right-sizing/tests/sizing-recommendations.test.sh
 	@echo "$(GREEN)sizing-recommendations regression tests passed!$(NC)"
 
+.PHONY: test-monitoring
+test-monitoring: ## Regression tests for the monitoring checks script (stubbed Prometheus)
+	@echo "$(GREEN)Running monitoring-checks regression tests...$(NC)"
+	@bash .claude/skills/self-healing/tests/monitoring-checks.test.sh
+	@echo "$(GREEN)monitoring-checks regression tests passed!$(NC)"
+
 .PHONY: test
 test: validate-argocd-manifest check-yaml lint-editorconfig lint-terraform \
 	lint-terragrunt check-markdown lint-zizmor validate-helm-charts \
-	check-image-digests validate-grafana-dashboards test-pods-sweep test-sizing ## Run all validation and quality checks
+	check-image-digests validate-grafana-dashboards test-pods-sweep test-sizing test-monitoring ## Run all validation and quality checks
 	@echo "$(GREEN)All validation and quality checks passed!$(NC)"
 
 # Utility targets

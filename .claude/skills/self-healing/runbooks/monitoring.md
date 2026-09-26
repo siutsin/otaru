@@ -5,6 +5,19 @@ Prometheus is reachable from the remote runner through the tunnel proxy
 
 ## Query
 
+Run `.claude/skills/self-healing/bin/monitoring-checks.py` from the
+repo root. The script probes the tunnel first and exits 1 fast when the
+proxy flaps. Then it runs the five checks below in parallel, each with
+up to 3 attempts 15s apart (25s per attempt). It prints one JSON object
+with per-check `ok`, `finding`, or `partial`.
+
+A non-empty result on any attempt is a real finding, never noise. A
+series with value 0 (for example `count(up == 0)` with no down targets)
+is ok. Record the category as `partial` when the script exits 1 or any
+check reports `partial`.
+
+Manual query (when you must debug one check):
+
 ```bash
 P="${HTTPS_PROXY%:*}:3130"
 # If HTTPS_PROXY is unset, the substitution yields ":3130" — export it first.
@@ -12,24 +25,21 @@ HTTPS_PROXY="$P" https_proxy="$P" curl -s -m 25 \
   "https://prometheus.internal.siutsin.com/api/v1/query?query=<promql>"
 ```
 
-The query API returns JSON (`status: success`, `data.result`). Keep
-queries cheap and bounded — each takes ~1–2s. If the proxy query fails,
-record this category as `partial`, not `ok`.
-
 Grafana health (fallback liveness only):
 `https://grafana.internal.siutsin.com/api/health` → 200.
 
 ## Retry
 
+The retry policy lives in `bin/monitoring-checks.py`: one probe query
+first, then up to 3 attempts per check, 15s apart, 25s per attempt.
+
 The tunnel proxy drops requests often enough that a single-shot query
 misreads a transport blip as a finding (2026-09-23: `count(up == 0)`
 returned on three attempts while the other four checks failed the same
-way — transport, not the cluster). Run every PromQL check with up to 3
-attempts, 10–20s apart (each attempt keeps the 25s curl timeout). A
-check that errors on early attempts but returns an empty result on
-retry is transport noise, not a finding. A non-empty result on any
-attempt is a real finding — never dismiss it as noise. Record the
-category as `partial` only when all attempts fail.
+way — transport, not the cluster). A check that errors on early attempts
+but returns an empty result on retry is transport noise, not a finding.
+A non-empty result on any attempt is a real finding — never dismiss it
+as noise.
 
 ## Checks (every pass)
 
