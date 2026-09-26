@@ -30,6 +30,11 @@ longhorn:
     storageReservedPercentageForDefaultDisk: "0"
     snapshotMaxCount: "250"
     autoCleanupSnapshotWhenDeleteBackup: true
+    # 2026-09-26: engine-image pods on Pi nodes kept getting SIGKilled (exit
+    # 137) by the liveness probe -- the exec probe runs too slow on loaded
+    # Pis. Timeout 4s -> 10s, failure threshold 3 -> 5. Period stays 5s.
+    engineImagePodLivenessProbeTimeout: "10"
+    engineImagePodLivenessProbeFailureThreshold: "5"
     # Kyverno require-workload-resources (background scan) flagged these
     # system-managed CSI components as missing memory and ephemeral-storage
     # requests/limits. longhorn-manager creates them directly, so this
