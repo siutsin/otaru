@@ -57,11 +57,16 @@ longhorn:
     # ~23.55Mi peak over 14d on raspberrypi-03 (73% of the old 32Mi limit);
     # the exporter reports pod-level usage only, so the true per-container
     # split is unknown -- bumped conservatively.
+    # 2026-09-26 right-sizing: the four lightweight CSI sidecars
+    # (attacher/provisioner/resizer/snapshotter) sit at ~31.5Mi p50 with a
+    # 30d max of 31.7Mi against the 32Mi memory limit (zero OOMKills so far,
+    # but ~1% headroom). Raise memory limit 32Mi -> 48Mi on those four only;
+    # requests stay 32Mi so DaemonSet scheduling is unchanged.
     systemManagedCSIComponentsResourceLimits: >-
-      {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
-      "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"32Mi"}},
+      {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"48Mi","ephemeral-storage":"32Mi"}},
+      "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"48Mi","ephemeral-storage":"32Mi"}},
+      "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"48Mi","ephemeral-storage":"32Mi"}},
+      "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"48Mi","ephemeral-storage":"32Mi"}},
       "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"48Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}}}
