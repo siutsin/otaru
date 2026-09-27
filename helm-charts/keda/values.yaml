@@ -13,18 +13,22 @@ keda:
     # (confirmed via `helm template`). This file never sets limits.cpu.
     operator:
       # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # KRR 2026-09-27: 30d p50 49.4MiB (14d 40.1), max 143.7MiB — request 159MiB
+      # never approached in 30d; lower to ceil(p50/0.9)=55MiB, limit 173MiB unchanged.
       requests:
         cpu: 10m
-        memory: 159Mi
+        memory: 55Mi
         ephemeral-storage: 64Mi
       limits:
         memory: 173Mi
         ephemeral-storage: 64Mi
     metricServer:
       # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # KRR 2026-09-27: 30d p50 51.2MiB (14d 49.0), max 126.1MiB — request 139MiB
+      # never approached in 30d; lower to ceil(p50/0.9)=57MiB, limit 152MiB unchanged.
       requests:
         cpu: 17m
-        memory: 139Mi
+        memory: 57Mi
         ephemeral-storage: 64Mi
       limits:
         memory: 152Mi

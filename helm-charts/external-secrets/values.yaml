@@ -11,9 +11,11 @@ _shared:
       memory: 133Mi
       ephemeral-storage: 64Mi
   webhookResources: &webhookResources
+    # KRR 2026-09-27: 30d p50 35.4MiB (14d 35.4), max 131.9MiB — request 141MiB
+    # never approached in 30d; lower to ceil(p50/0.9)=40MiB, limit 154MiB unchanged.
     requests:
       cpu: 50m
-      memory: 141Mi
+      memory: 40Mi
       ephemeral-storage: 64Mi
     limits:
       memory: 154Mi
