@@ -68,6 +68,8 @@ variable "wlan" {
   type = map(object({
     bss_transition  = optional(bool, true)
     group_rekey     = optional(number, 3600)
+    is_guest        = optional(bool)
+    l2_isolation    = optional(bool)
     name            = string
     network_id_key  = string
     passphrase      = string
