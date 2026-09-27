@@ -120,6 +120,13 @@ the user identity. Grants for `autogroup:member` do not cover that device.
 Leave key expiry enabled on phones. Disable key expiry on unattended tagged
 machines.
 
+Proxy pods drop forwarded traffic to private ranges other than the advertised
+VIP. Reply traffic to tailnet addresses stays open.
+
+Exit-node pods use that VIP as their only DNS nameserver.
+
+The proxies ServiceAccount may read and update only its own state Secrets.
+
 When a new Gateway listener is added, add its port to the `autogroup:member`
 VIP grant. A tailnet client cannot reach a listener that the grant omits.
 
