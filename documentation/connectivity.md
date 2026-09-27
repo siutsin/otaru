@@ -14,7 +14,7 @@
 - `waypoint`: shared Envoy waypoint in `istio-waypoints` for L7 policy, routing, and HTTP/gRPC telemetry
 - `envoy-gateway`: controller in `envoy-gateway-system`
 - `gateway`: Envoy Gateway proxy in `gateway`
-- `tailscale-operator`: publishes the Envoy Gateway VIP onto a Tailscale tailnet
+- `tailscale-operator`: deploys the `gateway-vip` connector, which publishes the Envoy Gateway VIP onto a Tailscale tailnet and serves as the tailnet exit node
 - `kiali`: observability UI in ambient
 
 In sidecar mode, one Envoy sidecar did both jobs. In ambient mode, those roles
@@ -96,6 +96,32 @@ serves a DoH endpoint over the internal HTTPS ingress path. Plain DNS on
 - the remaining exposure is mainly same-node DNS and UDP traffic
 - if that becomes in-scope, the next controls are node hardening, pod placement constraints, and protocol-level encryption where available
 - for DNS specifically, reducing direct pod-to-CoreDNS exposure would require a different DNS architecture rather than an Istio change
+
+## Tailscale access
+
+The `gateway-vip` connector is the tailnet exit node. It advertises one subnet
+route, `192.168.10.51/32`. The tailnet policy file lives in the Tailscale admin
+console. This repository does not store that file.
+
+Keep the allow-all grant commented out. `autogroup:internet` covers public
+addresses. The VIP `192.168.10.51/32` needs its own grant.
+
+User devices in `autogroup:member` may use the exit node. They may also reach
+the VIP on these ports:
+
+- `443` for HTTPS
+- `53` for DNS on TCP and UDP
+- `2022` for Jellyfin SFTP
+- `5683` for Home Assistant CoAP on UDP
+
+A tagged client receives only the ports named in its own grant. A tag replaces
+the user identity. Grants for `autogroup:member` do not cover that device.
+
+Leave key expiry enabled on phones. Disable key expiry on unattended tagged
+machines.
+
+When a new Gateway listener is added, add its port to the `autogroup:member`
+VIP grant. A tailnet client cannot reach a listener that the grant omits.
 
 ## North-South Connectivity
 
