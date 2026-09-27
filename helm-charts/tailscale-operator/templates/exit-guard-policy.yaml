@@ -1,0 +1,97 @@
+{{- if and .Values.connector.enabled .Values.connector.exitNode }}
+{{- $image := index .Values "tailscale-operator" "proxyConfig" "image" }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: tailscale-exit-guard
+spec:
+  admission: true
+  background: false
+  failurePolicy: Ignore
+  rules:
+    - name: add-exit-guard-volumes
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - {{ .Release.Namespace }}
+              selector:
+                matchLabels:
+                  tailscale.com/parent-resource: {{ .Values.connector.name }}
+                  tailscale.com/parent-resource-type: connector
+      preconditions:
+        all:
+          - key: "{{ `{{ request.object.spec.volumes[?name=='exit-guard-run'] | length(@) }}` }}"
+            operator: Equals
+            value: 0
+      mutate:
+        patchesJson6902: |-
+          - op: add
+            path: /spec/volumes/-
+            value:
+              name: exit-guard-script
+              configMap:
+                name: exit-guard
+          - op: add
+            path: /spec/volumes/-
+            value:
+              name: exit-guard-run
+              emptyDir: {}
+    - name: add-exit-guard-container
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - {{ .Release.Namespace }}
+              selector:
+                matchLabels:
+                  tailscale.com/parent-resource: {{ .Values.connector.name }}
+                  tailscale.com/parent-resource-type: connector
+      preconditions:
+        all:
+          - key: "{{ `{{ request.object.spec.containers[?name=='exit-guard'] | length(@) }}` }}"
+            operator: Equals
+            value: 0
+      mutate:
+        # No Prometheus history. The process is a 15s iptables loop.
+        # Memory request and limit are 32Mi. Ephemeral-storage request and limit are 32Mi.
+        # CPU request is 5m. No CPU limit.
+        patchesJson6902: |-
+          - op: add
+            path: /spec/containers/-
+            value:
+              name: exit-guard
+              image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - /guard/guard.sh
+              volumeMounts:
+                - name: exit-guard-script
+                  mountPath: /guard
+                  readOnly: true
+                - name: exit-guard-run
+                  mountPath: /run
+              securityContext:
+                allowPrivilegeEscalation: true
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+                  add:
+                    - NET_ADMIN
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 32Mi
+                  ephemeral-storage: 32Mi
+                limits:
+                  memory: 32Mi
+                  ephemeral-storage: 32Mi
+{{- end }}

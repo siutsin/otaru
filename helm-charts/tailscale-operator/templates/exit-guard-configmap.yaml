@@ -1,0 +1,46 @@
+{{- if and .Values.connector.enabled .Values.connector.exitNode }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: exit-guard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: exit-guard
+data:
+  guard.sh: |
+    #!/bin/sh
+    # Drop forwarded private ranges except advertised routes.
+    # Keep tailnet reply addresses open.
+    apply() {
+      bin=$1
+      family=$2
+      command -v "$bin" >/dev/null 2>&1 || return 0
+      "$bin" -N otaru-exit-guard 2>/dev/null || true
+      "$bin" -F otaru-exit-guard
+      if [ "$family" = 4 ]; then
+{{ range .Values.connector.advertiseRoutes }}
+        "$bin" -A otaru-exit-guard -d {{ . | quote }} -j RETURN
+{{ end }}
+        "$bin" -A otaru-exit-guard -d 10.0.0.0/8 -j DROP
+        "$bin" -A otaru-exit-guard -d 172.16.0.0/12 -j DROP
+        "$bin" -A otaru-exit-guard -d 192.168.0.0/16 -j DROP
+        "$bin" -A otaru-exit-guard -d 169.254.0.0/16 -j DROP
+      else
+        "$bin" -A otaru-exit-guard -d fd7a:115c:a1e0::/48 -j RETURN
+        "$bin" -A otaru-exit-guard -d fc00::/7 -j DROP
+        "$bin" -A otaru-exit-guard -d fe80::/10 -j DROP
+      fi
+      "$bin" -A otaru-exit-guard -j RETURN
+      while "$bin" -C FORWARD -j otaru-exit-guard 2>/dev/null; do
+        "$bin" -D FORWARD -j otaru-exit-guard || return 1
+      done
+      "$bin" -I FORWARD 1 -j otaru-exit-guard
+    }
+    while true; do
+      apply iptables 4 || echo "iptables guard failed" >&2
+      apply iptables-nft 4 || echo "iptables-nft guard failed" >&2
+      apply ip6tables 6 || echo "ip6tables guard failed" >&2
+      apply ip6tables-nft 6 || echo "ip6tables-nft guard failed" >&2
+      sleep 15
+    done
+{{- end }}
