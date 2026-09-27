@@ -123,7 +123,8 @@ machines.
 Proxy pods drop forwarded traffic to private ranges other than the advertised
 VIP. Reply traffic to tailnet addresses stays open.
 
-Exit-node pods use that VIP as their only DNS nameserver.
+Exit-node pods keep cluster DNS. A VIP-only resolver cannot answer
+`kubernetes.default.svc`, and the proxies then fail to load their state.
 
 The proxies ServiceAccount may read and update only its own state Secrets.
 

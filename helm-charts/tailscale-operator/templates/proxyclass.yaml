@@ -6,17 +6,6 @@ metadata:
 spec:
   statefulSet:
     pod:
-      {{- if .Values.connector.exitNode }}
-      # Exit-node clients use this pod resolver. ClusterFirst keeps the
-      # cluster DNS server first because extra nameservers are appended.
-      dnsPolicy: None
-      dnsConfig:
-        nameservers:
-          - {{ index (splitList "/" (index .Values.connector.advertiseRoutes 0)) 0 | quote }}
-        options:
-          - name: ndots
-            value: "1"
-      {{- end }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
