@@ -12,6 +12,8 @@ resource "unifi_wlan" "wlan" {
   ap_group_ids    = [data.unifi_ap_group.default.id]
   bss_transition  = each.value.bss_transition
   group_rekey     = each.value.group_rekey
+  is_guest        = each.value.is_guest
+  l2_isolation    = each.value.l2_isolation
   name            = each.value.name
   network_id      = unifi_network.vlan[each.value.network_id_key].id
   passphrase      = each.value.passphrase

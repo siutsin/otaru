@@ -238,6 +238,8 @@ inputs = {
   }
   wlan = {
     wlan01 = {
+      is_guest       = true
+      l2_isolation   = true
       name           = local.wlan01_ssid
       network_id_key = "vlan03"
       passphrase     = local.wlan01_password
