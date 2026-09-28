@@ -15,6 +15,11 @@ mutations (see `references/escalation.md`).
   present? Any failed backup Jobs or pods in `longhorn-system`?
 - `kubectl get externalsecrets -A` — any not `Ready`?
 
+MCP note (2026-09-28): when reading ExternalSecrets via the MCP
+`resources_list`/`resources_get` tools, set `apiVersion` to
+`external-secrets.io/v1` — `v1beta1` no longer resolves
+("no matches for kind") and breaks the data-plane checks.
+
 ## Triage
 
 - CNPG healthy → continue.
