@@ -5,6 +5,10 @@
 - `kubectl get pvc -A` — any `Pending` or `Lost`?
 - `kubectl -n longhorn-system get volumes.longhorn.io` — any `faulted` or
   `degraded`?
+- MCP note (2026-09-28): when reading Longhorn CRDs via the MCP
+  `resources_list`/`resources_get` tools, set `apiVersion` to
+  `longhorn.io/v1beta2` (chart v1.12.1) — `v1beta1` no longer resolves
+  ("no matches for kind") and breaks the storage checks.
 - Workloads stuck in `ContainerCreating` with `AttachVolume.Attach failed`
   and webhook errors mentioning `mutator.longhorn.io` /
   `validator.longhorn.io` — often ambient mesh on `longhorn-system` (see
