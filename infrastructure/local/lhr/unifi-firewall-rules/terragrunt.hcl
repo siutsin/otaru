@@ -44,20 +44,20 @@ dependency "unifi" {
 
 inputs = {
   firewall_policies = {
-    allow_hotspot_k3s_web_dns = {
+    allow_guest_ingress = {
       action               = "ALLOW"
       create_allow_respond = true
-      description          = "Allow guest devices to use DNS and web services exposed through the K3s ingress."
-      name                 = "Allow Hotspot to K3s Web and DNS"
-      protocol             = "tcp_udp"
+      description          = "Allow guest devices to reach services exposed through the K3s ingress."
+      name                 = "Allow Guest to K3s Ingress"
 
       source = {
-        zone = "Hotspot"
+        matching_target = "NETWORK"
+        network_ids     = [dependency.unifi.outputs.networks["vlan03"].id]
+        zone            = "Internal"
       }
       destination = {
         ips             = [local.k3s_ingress_ip]
         matching_target = "IP"
-        port            = "53,443"
         zone            = "Internal"
       }
     }
@@ -84,7 +84,9 @@ inputs = {
       name                 = "Allow Guest Media Receivers"
 
       source = {
-        zone = "Hotspot"
+        matching_target = "NETWORK"
+        network_ids     = [dependency.unifi.outputs.networks["vlan03"].id]
+        zone            = "Internal"
       }
       destination = {
         ips = [
@@ -129,6 +131,25 @@ inputs = {
           dependency.unifi.outputs.networks["vlan06"].id,
         ]
         zone = "Internal"
+      }
+      destination = {
+        zone = "Internal"
+      }
+    }
+    block_guest_internal = {
+      action                   = "BLOCK"
+      allow_policy_keys_before = ["allow_guest_ingress", "allow_guest_media_receivers"]
+      connection_state_type    = "CUSTOM"
+      connection_states        = ["NEW", "INVALID"]
+      description              = "Prevent guest devices from initiating connections to other internal networks."
+      ip_version               = "BOTH"
+      logging                  = true
+      name                     = "Block Guest to Internal"
+
+      source = {
+        matching_target = "NETWORK"
+        network_ids     = [dependency.unifi.outputs.networks["vlan03"].id]
+        zone            = "Internal"
       }
       destination = {
         zone = "Internal"

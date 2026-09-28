@@ -172,7 +172,6 @@ inputs = {
       dhcp_start = "192.168.3.6"
       dhcp_stop  = "192.168.3.254"
       name       = "Guest"
-      purpose    = "guest"
       subnet     = "192.168.3.1/24"
       vlan_id    = 3
     }
