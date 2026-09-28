@@ -570,9 +570,11 @@ k8s-ephemeral-storage-metrics:
     tag: 1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7
     imagePullPolicy: IfNotPresent
   resources:
+    # KRR 2026-09-28: 30d p50 ~10Mi, max ~19Mi (exporter container).
+    # Request 32Mi (floor); limit unchanged for scrape bursts.
     requests:
       cpu: 50m
-      memory: 50Mi
+      memory: 32Mi
       ephemeral-storage: 64Mi
     limits:
       memory: 69Mi
@@ -701,7 +703,16 @@ loki:
         memory: 32Mi
         ephemeral-storage: 64Mi
   sidecar:
-    resources: *smallResources
+    resources:
+      # KRR 2026-09-28: 30d p50 ~75Mi, max ~90Mi (loki-sc-rules container).
+      # Request 83Mi (ceil(p50/0.9)); limit unchanged for rule-eval bursts.
+      requests:
+        cpu: 50m
+        memory: 83Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi
   memberlist:
     service:
       publishNotReadyAddresses: true
