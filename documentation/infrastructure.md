@@ -77,23 +77,22 @@ files, logs, or plan artifacts.
 The custom zone policies deliberately add a small set of exceptions and
 restrictions on top of UniFi's predefined system policies:
 
-| VLAN | Network      | Expected custom-policy behavior                                                                                    |
-|------|--------------|--------------------------------------------------------------------------------------------------------------------|
-| 1    | Default      | Internet and all ports to K3s Ingress are allowed; new connections to other routed Internal networks are blocked.  |
-| 3    | Guest        | K3s DNS/HTTPS and the selected media receivers are allowed; other routing follows the predefined Hotspot policies. |
-| 4    | Client       | No new restriction; printer, Internal, Internet, and K3s access remain available.                                  |
-| 5    | IoT Public   | Internet and all ports to K3s Ingress are allowed; new connections to other routed Internal networks are blocked.  |
-| 6    | IoT Private  | All ports to K3s Ingress are allowed; other routed Internal connections and Internet access are blocked.           |
-| 7    | Work         | No new restriction; Internal, Internet, and K3s access remain available.                                           |
-| 8    | Unrestricted | No new restriction; Internal, Internet, and K3s access remain available.                                           |
-| 10   | Server       | Hosts K3s nodes and VIPs; no new source restriction is applied.                                                    |
+| VLAN | Network      | Expected custom-policy behavior                                                                                                |
+|------|--------------|--------------------------------------------------------------------------------------------------------------------------------|
+| 1    | Default      | Internet and all ports to K3s Ingress are allowed; new connections to other routed Internal networks are blocked.              |
+| 3    | Guest        | All ports to K3s Ingress and the selected media receivers are allowed; new connections to other Internal networks are blocked. |
+| 4    | Client       | No new restriction; printer, Internal, Internet, and K3s access remain available.                                              |
+| 5    | IoT Public   | Internet and all ports to K3s Ingress are allowed; new connections to other routed Internal networks are blocked.              |
+| 6    | IoT Private  | All ports to K3s Ingress are allowed; other routed Internal connections and Internet access are blocked.                       |
+| 7    | Work         | No new restriction; Internal, Internet, and K3s access remain available.                                                       |
+| 8    | Unrestricted | No new restriction; Internal, Internet, and K3s access remain available.                                                       |
+| 10   | Server       | Hosts K3s nodes and VIPs; no new source restriction is applied.                                                                |
 
 `Block Restricted Networks to Internal` matches only `NEW` and `INVALID`
 connection states. Established replies remain available, so reconnect a test
 client or start a fresh session when verifying a deny. The Internal-to-K3s
-exception has no port restriction; for example, Default devices may reach
-`192.168.10.51:2022` when a service is listening. Guest access to that VIP is
-limited to TCP/UDP ports `53` and `443`.
+exception has no port restriction; for example, Default and Guest devices may reach
+`192.168.10.51:2022` when a service is listening.
 
 The media exception targets fixed IP reservations for the selected AirPlay,
 Chromecast, and Spotify Connect receivers. Adding a receiver is a two-unit
@@ -115,7 +114,7 @@ Then test from an actual client on every affected network. A test from one VLAN
 cannot prove another VLAN's routed behavior.
 
 ```shell
-# Expected on every Internal network; Guest is intentionally limited to 53/443.
+# Expected on every Internal network, Guest included.
 nc -vz 192.168.10.51 443
 dig @192.168.10.51 unifi A
 
