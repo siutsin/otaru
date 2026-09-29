@@ -570,11 +570,14 @@ k8s-ephemeral-storage-metrics:
     tag: 1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7
     imagePullPolicy: IfNotPresent
   resources:
-    # KRR 2026-09-28: 30d p50 ~10Mi, max ~19Mi (exporter container).
-    # Request 32Mi (floor); limit unchanged for scrape bursts.
+    # KRR 2026-09-29: correct the 2026-09-28 downsize — it read the
+    # loki-results-cache "exporter" container series (30d p50 10.3Mi, max
+    # 18.5Mi), but this subchart's only container is "metrics" (30d p50
+    # 36.9Mi, max 57.3Mi). Request ceil(36.9/0.9)=42Mi; limit
+    # ceil(57.3*1.2)=69Mi unchanged.
     requests:
       cpu: 50m
-      memory: 32Mi
+      memory: 42Mi
       ephemeral-storage: 64Mi
     limits:
       memory: 69Mi
