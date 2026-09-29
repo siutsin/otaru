@@ -24,12 +24,15 @@ _shared:
   # bumped both together now that real data exists.
   shutdownManagerResources: &shutdownManagerResources
     # 2026-09-23: raise limit only on 30d Prometheus spike (ceil(spike*1.2)); request unchanged.
+    # KRR 2026-09-29: 30d spike 107.7Mi (peak 2026-09-27; old 120Mi limit too
+    # close); limit ceil(107.7*1.2)=130Mi. Request 100Mi unchanged (2026-07-26
+    # guardrail: ~100Mi peak seen then).
     requests:
       cpu: 300m
       memory: 100Mi
       ephemeral-storage: 32Mi
     limits:
-      memory: 120Mi
+      memory: 130Mi
       ephemeral-storage: 32Mi
 
 name: gateway
