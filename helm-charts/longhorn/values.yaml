@@ -35,6 +35,12 @@ longhorn:
     # Pis. Timeout 4s -> 10s, failure threshold 3 -> 5. Period stays 5s.
     engineImagePodLivenessProbeTimeout: "10"
     engineImagePodLivenessProbeFailureThreshold: "5"
+    # 2026-09-29: rebuilding the ~98GB Prometheus volume after a node reboot
+    # pinned raspberrypi-01 and -02 at 94-99% CPU (load 20+ on 4 cores, mostly
+    # kernel and softirq time) for over an hour and made Blocky readiness
+    # probes time out. Limit 2 -> 1 rebuild per node so one runs at a time.
+    # Does not lower the cost of a single rebuild.
+    concurrentReplicaRebuildPerNodeLimit: "1"
     # Kyverno require-workload-resources (background scan) flagged these
     # system-managed CSI components as missing memory and ephemeral-storage
     # requests/limits. longhorn-manager creates them directly, so this
