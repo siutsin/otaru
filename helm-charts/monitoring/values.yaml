@@ -151,6 +151,11 @@ prometheus:
     # resources, which Kyverno flags. Restore the previous behaviour.
     configmapReload:
       enabled: false
+    # Stakater Reloader restarts Alertmanager when the mounted secret or
+    # templates ConfigMap changes, replacing the disabled sidecar.
+    statefulSet:
+      annotations:
+        reloader.stakater.com/auto: "true"
     extraArgs:
       config.file: /etc/secrets/alertmanager/alertmanager.yml
     extraSecretMounts:
