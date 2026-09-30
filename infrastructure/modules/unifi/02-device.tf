@@ -10,6 +10,7 @@ resource "unifi_device" "device" {
     content {
       index                 = port_override.value.index
       native_networkconf_id = unifi_network.vlan[port_override.value.native_network_id_key].id
+      tagged_vlan_mgmt      = port_override.value.tagged_vlan_mgmt
     }
   }
 

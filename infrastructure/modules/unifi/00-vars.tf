@@ -17,6 +17,7 @@ variable "device" {
     port_overrides = optional(map(object({
       index                 = number
       native_network_id_key = string
+      tagged_vlan_mgmt      = optional(string)
     })), {})
     radio_table = optional(list(object({
       channel = string

@@ -103,18 +103,22 @@ inputs = {
         port02 = {
           index                 = 2
           native_network_id_key = "vlan10" # JetKVM 192.168.10.41
+          tagged_vlan_mgmt      = "block_all"
         }
         port03 = {
           index                 = 3
           native_network_id_key = "vlan04"
+          tagged_vlan_mgmt      = "block_all"
         }
         port04 = {
           index                 = 4
           native_network_id_key = "vlan04"
+          tagged_vlan_mgmt      = "block_all"
         }
         port05 = {
           index                 = 5
           native_network_id_key = "vlan04"
+          tagged_vlan_mgmt      = "block_all"
         }
       }
     }
