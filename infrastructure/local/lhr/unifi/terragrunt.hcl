@@ -46,12 +46,6 @@ inputs = {
   device = {
     gateway00 = { # Cloud Gateway Ultra
       mac = local.tfconfig.unifi.devices.gateway00.mac
-      port_overrides = {
-        port01 = {
-          index                 = 1
-          native_network_id_key = "vlan10" # JetKVM reservation 192.168.10.41
-        }
-      }
     }
     switch00 = { # USW Lite 8 PoE
       mac = local.tfconfig.unifi.devices.switch00.mac
@@ -100,6 +94,27 @@ inputs = {
         port07 = {
           index                 = 7
           native_network_id_key = "vlan10"
+        }
+      }
+    }
+    switch02 = { # USW Flex Mini, port 1 is the uplink and stays on All
+      mac = local.tfconfig.unifi.devices.switch02.mac
+      port_overrides = {
+        port02 = {
+          index                 = 2
+          native_network_id_key = "vlan10" # JetKVM 192.168.10.41
+        }
+        port03 = {
+          index                 = 3
+          native_network_id_key = "vlan04"
+        }
+        port04 = {
+          index                 = 4
+          native_network_id_key = "vlan04"
+        }
+        port05 = {
+          index                 = 5
+          native_network_id_key = "vlan04"
         }
       }
     }
