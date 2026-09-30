@@ -144,6 +144,13 @@ prometheus:
       size: 1Gi
     config:
       enabled: false
+    # 2026-09-30: alertmanager subchart 2.0.0 (prometheus chart 29.33.0)
+    # enables the config reloader by default. It watches /etc/alertmanager,
+    # which does not exist here (config comes from the secret mount below),
+    # so the sidecar exited 1 and crash-looped. It also has no
+    # resources, which Kyverno flags. Restore the previous behaviour.
+    configmapReload:
+      enabled: false
     extraArgs:
       config.file: /etc/secrets/alertmanager/alertmanager.yml
     extraSecretMounts:
