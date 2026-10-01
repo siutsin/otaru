@@ -15,6 +15,10 @@ authentication:
     - mcp
 
 kubernetes-mcp-server:
+  # Two replicas across nodes (preferred podAntiAffinity below): the
+  # self-healing loop calls this MCP server every 30 minutes, so a single
+  # pod was a downtime window on every restart or node failure.
+  replicaCount: 2
   image:
     registry: quay.io
     repository: containers/kubernetes_mcp_server

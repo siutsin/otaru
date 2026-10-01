@@ -9,9 +9,11 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
 spec:
-  replicas: 1
-  strategy:
-    type: Recreate
+  # Two replicas across nodes: the self-healing loop and watches call these
+  # MCP servers every few minutes, so a single pod was a downtime window on
+  # every restart. RollingUpdate (the default) replaces the previous
+  # Recreate strategy -- no PVC here, so overlapping pods are safe.
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.name }}
