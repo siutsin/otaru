@@ -32,6 +32,9 @@ kubernetes-mcp-server:
   config:
     cluster_auth_mode: kubeconfig
     cluster_provider_strategy: in-cluster
+    # Stateless HTTP: no per-pod session state, so 2 replicas behind the
+    # gateway cannot break a client batch.
+    stateless: true
   # Read-mostly agent SA; write limited to workloads and Argo Applications.
   rbac:
     create: true
@@ -81,4 +84,7 @@ kubernetes-mcp-server:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
           podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: kubernetes-mcp-server
             topologyKey: kubernetes.io/hostname
