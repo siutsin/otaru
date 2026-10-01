@@ -60,6 +60,26 @@ merge).
   false-positive rate (see `documentation/gotcha.md`); always escalate to
   the user first.
 
+## Jev triage
+
+For an issue not in the always-escalate list, do not guess whether it needs
+the user. Ask Jev:
+
+```bash
+~/workspace/skills/jev/bin/jev decide \
+  --state "<symptom, cause if known, what you tried>" \
+  --questions '{"escalate":{"type":"noul","instructions":"Does this need escalation to the human?"}}'
+```
+
+- Score 0.5 or higher: escalate. Log as `result: escalated`.
+- Below 0.5: keep it as a watch. Log as `result: open` with the score.
+
+Jev is optional. If the CLI is missing, the credential is not set up, or the
+call fails, fall back to the rule at the top of this file: when in doubt,
+escalate. A failed Jev call never blocks the pass.
+
+Always-escalate classes skip Jev. They escalate by rule.
+
 ## GitOps reminder
 
 The GitOps controller reconciles from the base branch (HEAD). A live

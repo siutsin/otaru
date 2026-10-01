@@ -158,7 +158,7 @@ healthy and no chart changes — used for the 24h gate):
 ```markdown
 ### right-sizing pass
 
-- **krr:** score or summary path
+- **sizing:** script output path or summary
 - **workloads:** list changed or `none`
 - **pr:** URL or `none`
 - **result:** `applied` | `no-op` | `held` | `open` | `failed`
@@ -327,11 +327,11 @@ Workload right-sizing is `.claude/skills/right-sizing` (`/right-sizing`).
 When this pass finds the cluster healthy, this skill (not the orchestrator)
 decides whether to invoke it:
 
-- **Full pass** (KRR + ephemeral + PR): if no `### right-sizing pass` in the
+- **Full pass** (sizing + ephemeral + PR): if no `### right-sizing pass` in the
   last 24 hours.
 - **Merge-only resume:** if the latest pass in 24 hours has
   `result: open` and a `pr:` URL, invoke `/right-sizing` only to continue
-  that branch (CI re-check / merge-policy / branch-cleanup) — skip KRR and
+  that branch (CI re-check / merge-policy / branch-cleanup) — skip sizing and
   ephemeral collection.
 
 Classify any PR with `runbooks/merge-policy.md`.
