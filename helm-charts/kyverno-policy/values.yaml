@@ -106,14 +106,3 @@ requireContainerHardeningPolicy:
 # so initial reports do not block workload admission.
 requirePodDisruptionBudgetPolicy:
   enabled: true
-
-# 2026-09-28: the tailscale-operator chart's tailscale-proxy-secret-scope
-# ClusterPolicy narrows the tailscale `proxies` Role with least-privilege
-# rules via background mutation. The API server privilege-escalation check
-# requires the mutating service account to hold every permission it grants,
-# so the kyverno controllers need these verbs in the tailscale namespace --
-# without them the Role update is rejected ("attempting to grant RBAC
-# permissions not currently held") and the narrowing never applies.
-tailscaleProxySecretScopeRbac:
-  enabled: true
-  namespace: tailscale
