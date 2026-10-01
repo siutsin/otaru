@@ -56,8 +56,11 @@ Before any cluster read or otaru repo write (**identity** only):
     (Ready or not): `raspberrypi-00`, `raspberrypi-01`, `raspberrypi-02`,
     `raspberrypi-03`, `nuc-00`. Wrong or missing names mean the wrong
     cluster — stop.
-3. If MCP auth fails: stop. Do not mutate anything. Never fall back to a
-    locally configured kubeconfig — there is none by design.
+3. If MCP auth fails: retry the identity call once after 60 seconds. If it
+    still fails, journal `result: degraded`, run the local checks that need
+    no cluster auth (node ping, switch-port link state if the unifi MCP is
+    up), and escalate with what was tried. Do not mutate anything. Never
+    fall back to a locally configured kubeconfig — there is none by design.
 
 If any identity check fails, stop. Do not mutate a cluster. NotReady nodes
 are handled in `runbooks/access-and-nodes.md` — do not treat them as a gate
@@ -158,7 +161,7 @@ healthy and no chart changes — used for the 24h gate):
 ```markdown
 ### right-sizing pass
 
-- **krr:** score or summary path
+- **sizing:** script output path or summary
 - **workloads:** list changed or `none`
 - **pr:** URL or `none`
 - **result:** `applied` | `no-op` | `held` | `open` | `failed`
@@ -196,7 +199,10 @@ live mutations. Read `references/cluster.md` and
 Start by reading the last few journal entries. For each latest entry with
 `result: open` or `result: escalated`, re-check its symptom before new
 work. A run is healthy only when the checklist passes **and** every such
-entry is resolved or still correctly escalated.
+entry is resolved or still correctly escalated. Re-triage any `result:
+open` entry older than 48 hours: if the symptom is unchanged, ask the Jev
+triage question once more — 0.5 or higher escalates, otherwise close the
+watch with a journal note.
 
 Then work through this checklist in order. Each category runs as one or
 more `call-tools` batches under `timeout 150s` (see Execution model);
@@ -247,7 +253,8 @@ Default to GitOps:
 2. Patch the otaru repo (`helm-charts/`, `argocd/`, manifests).
 3. Run `make test` in the otaru repo before opening a PR. If it fails on
     unrelated drift, journal the failure and escalate — do not bypass
-    checks.
+    checks. If the test toolchain is missing (`mise` or a required tool
+    not installed), journal and escalate too — never skip tests silently.
 4. Before opening, check journal `pr` and `gh pr list --state open` for the
     same root cause; continue an in-flight PR when one exists.
 5. Branch, commit, push, open a PR labelled `automated` (`gh pr edit
@@ -302,7 +309,11 @@ Each invocation is **one** investigation pass — whether the user ran
 - If degraded (one or more categories `partial`), report which categories
   were partial and what was not checked — the pass did not fully verify
   the cluster. Re-run or escalate the partial categories; never silently
-  drop them.
+  drop them. Count consecutive degraded passes in the journal; on the
+  second in a row, the escalation notes that the home-local loop may need
+  restoring.
+- Alert only on a new escalation or a material status change — never
+  re-alert the same unchanged issue on consecutive passes.
 - If an issue persists, append a short update under the same `### issue`
   title with changed `action` / `result`, or a new timestamped block with
   delta only.
@@ -327,11 +338,11 @@ Workload right-sizing is `.claude/skills/right-sizing` (`/right-sizing`).
 When this pass finds the cluster healthy, this skill (not the orchestrator)
 decides whether to invoke it:
 
-- **Full pass** (KRR + ephemeral + PR): if no `### right-sizing pass` in the
+- **Full pass** (sizing + ephemeral + PR): if no `### right-sizing pass` in the
   last 24 hours.
 - **Merge-only resume:** if the latest pass in 24 hours has
   `result: open` and a `pr:` URL, invoke `/right-sizing` only to continue
-  that branch (CI re-check / merge-policy / branch-cleanup) — skip KRR and
+  that branch (CI re-check / merge-policy / branch-cleanup) — skip sizing and
   ephemeral collection.
 
 Classify any PR with `runbooks/merge-policy.md`.

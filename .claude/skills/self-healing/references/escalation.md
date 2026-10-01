@@ -2,6 +2,12 @@
 
 When in doubt, escalate. The user prefers a short alert over a bad auto-fix.
 
+## Alert shape
+
+Every alert carries three things: the symptom (what is wrong), the cause
+(what you know or suspect), and one clear ask (what the user must decide or
+do). One sentence each. Skip background the user already knows.
+
 This file owns **secrets boundaries** and **always-escalate** classes only.
 Unattended-edit allowlists, trivial merge rules, and the closed live-action
 list live in `runbooks/merge-policy.md` — do not fork them here.
@@ -52,13 +58,34 @@ merge).
   disabling auto-sync permanently.
 - **Data loss** — any command that deletes PVCs, PVs, namespaces with state,
   or object-storage backups.
-- **Jobs** — failed CronJob, backup Job, or Job whose command touches data or
+- **Jobs** — failed CronJob, backup Job (except scheduled backups triaged
+  in `runbooks/data-plane.md`), or Job whose command touches data or
   secrets.
 - **Unused-resource findings** (`runbooks/unused-resources.md`, `kor`) —
   never auto-delete or open an unattended removal PR, even for a candidate
   that looks clearly safe. The scanner has a demonstrated high
   false-positive rate (see `documentation/gotcha.md`); always escalate to
   the user first.
+
+## Jev triage
+
+For an issue not in the always-escalate list, do not guess whether it needs
+the user. Ask Jev:
+
+```bash
+~/workspace/skills/jev/bin/jev decide \
+  --state "<symptom, cause if known, what you tried>" \
+  --questions '{"escalate":{"type":"noul","instructions":"Does this need escalation to the human?"}}'
+```
+
+- Score 0.5 or higher: escalate. Log as `result: escalated`.
+- Below 0.5: keep it as a watch. Log as `result: open` with the score.
+
+Jev is optional. If the CLI is missing, the credential is not set up, or the
+call fails, fall back to the rule at the top of this file: when in doubt,
+escalate. A failed Jev call never blocks the pass.
+
+Always-escalate classes skip Jev. They escalate by rule.
 
 ## GitOps reminder
 
