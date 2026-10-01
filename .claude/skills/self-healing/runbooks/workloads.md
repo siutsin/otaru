@@ -60,7 +60,8 @@ SKILL.md). Remote passes use the MCP equivalents.
 - Failed one-off Job → delete only after confirming it is not a backup or
   CronJob child (see `runbooks/merge-policy.md` and
   `references/escalation.md`).
-- CronJob or backup Job failures → GitOps-fix or escalate.
+- CronJob or backup Job failures → GitOps-fix or escalate (scheduled
+  backups follow the triage in `runbooks/data-plane.md`).
 - Pod `Pending` with `Insufficient memory` on every node, even when
   `kubectl describe node` shows real free memory somewhere: check every
   container's request in the pod spec (multi-container pods must fit

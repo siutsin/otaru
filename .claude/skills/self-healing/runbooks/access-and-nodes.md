@@ -23,6 +23,11 @@ state and error counters first (`references/cluster.md` Network layer
 section) — read-only, and can distinguish a dead host from a dead link
 before escalating hardware. See hardware gotchas below.
 
+**Power path (2026-10-01):** `raspberrypi-03` runs on a separate PoE
+injector — Switch Ultra port 7 PoE is disabled. A switch PoE budget trip no
+longer explains a Pi 03 power loss; check the injector first for that
+node.
+
 **LUKS / initramfs.** Several nodes use LUKS-encrypted root
 (`luks_root_nodes` in `ansible/inventory.yaml`). After a reboot they sit in
 initramfs until unlock and will not rejoin without intervention.

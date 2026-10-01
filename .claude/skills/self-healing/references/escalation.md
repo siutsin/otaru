@@ -2,6 +2,12 @@
 
 When in doubt, escalate. The user prefers a short alert over a bad auto-fix.
 
+## Alert shape
+
+Every alert carries three things: the symptom (what is wrong), the cause
+(what you know or suspect), and one clear ask (what the user must decide or
+do). One sentence each. Skip background the user already knows.
+
 This file owns **secrets boundaries** and **always-escalate** classes only.
 Unattended-edit allowlists, trivial merge rules, and the closed live-action
 list live in `runbooks/merge-policy.md` — do not fork them here.
@@ -52,7 +58,8 @@ merge).
   disabling auto-sync permanently.
 - **Data loss** — any command that deletes PVCs, PVs, namespaces with state,
   or object-storage backups.
-- **Jobs** — failed CronJob, backup Job, or Job whose command touches data or
+- **Jobs** — failed CronJob, backup Job (except scheduled backups triaged
+  in `runbooks/data-plane.md`), or Job whose command touches data or
   secrets.
 - **Unused-resource findings** (`runbooks/unused-resources.md`, `kor`) —
   never auto-delete or open an unattended removal PR, even for a candidate

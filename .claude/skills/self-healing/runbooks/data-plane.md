@@ -23,9 +23,17 @@ MCP note (2026-09-28): when reading ExternalSecrets via the MCP
 ## Triage
 
 - CNPG healthy → continue.
-- Backup failing, replica lag, or instance down → journal and
+- **Accepted noise:** the `retention-policy` warning on the
+  teslamate/umami CNPG clusters is a known upstream bug (accepted
+  2026-09-26) — do not re-investigate or escalate it. Re-open only if
+  backups start failing.
+- Replica lag or instance down → journal and
   **escalate** (no CNPG mutations) — unless the user explicitly approves
   a live fix (see `references/escalation.md`'s interim-fix exception).
+- Failed backups (CNPG scheduled backups, Longhorn recurring jobs): one
+  failure with healthy neighbouring backups is a watch (`result: open`).
+  Consecutive failures for the same backup, or failures across several
+  backups at once, **escalate**.
 - **Instance `CrashLoopBackOff` on a faulted/unrecoverable PVC:** first
   check `kubectl get cluster.postgresql.cnpg.io <name> -n <ns> -o
   jsonpath='{.status.currentPrimary} {.status.instancesStatus}'` — if the
@@ -41,7 +49,6 @@ MCP note (2026-09-28): when reading ExternalSecrets via the MCP
 - **Barman / WAL archiving `exit status 4`:** often disk full on the
   instance PVC. Recovery paths that delete DB PVCs or pods are
   **escalate** only — never unattended. See `documentation/gotcha.md`.
-- Failed Longhorn recurring backup Jobs → **escalate**.
 - ExternalSecret not `Ready`: only `force-sync` under the live-action
   rules in `runbooks/merge-policy.md` (concrete upstream-change proof
   required). Otherwise GitOps-fix or escalate if source keys or
