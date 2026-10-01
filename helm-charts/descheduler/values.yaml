@@ -97,7 +97,7 @@ descheduler:
               # 2026-09-22: jung2bot -- evicted every ~5 min; 100m/64Mi frees ~0.8%, never under the 90% threshold.
               # 2026-09-24: httpbin -- evicted every ~5 min for 60+ min (12 events); 100m/61Mi frees ~1%, never under threshold.
               # 2026-09-25: argocd-server -- evicted every ~5 min for 60+ min (12 events); 100m/117Mi frees ~1%, never under threshold.
-              # 2026-10-01: tailscale.com/parent-resource=gateway-vip (tailnet exit node) -- evicting it drops the tailnet exit path; the StatefulSet reschedules straight back.
+              # 2026-10-01: tailnet exit node (gateway-vip) -- 2 replicas, evicting one buys nothing; the StatefulSet recreates it.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
