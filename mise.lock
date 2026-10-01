@@ -735,21 +735,6 @@ checksum = "sha256:f958ec5e511063be9feb180ca015a4cb7977566a9cf6a8550bba8c2a9b5ab
 url = "https://github.com/opentofu/opentofu/releases/download/v1.12.6/tofu_1.12.6_darwin_arm64.tar.gz"
 url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/520762710"
 
-[[tools."aqua:robusta-dev/krr"]]
-version = "v1.30.0"
-backend = "aqua:robusta-dev/krr"
-specifiers = ["v1.30.0"]
-
-[tools."aqua:robusta-dev/krr"."platforms.linux-x64"]
-checksum = "sha256:440808a7c513bccbd03429eb3d24d51c6a2a066ed7b3fdcd6438fd7d8c521429"
-url = "https://github.com/robusta-dev/krr/releases/download/v1.30.0/krr-ubuntu-latest-v1.30.0.zip"
-url_api = "https://api.github.com/repos/robusta-dev/krr/releases/assets/527315410"
-
-[tools."aqua:robusta-dev/krr"."platforms.macos-arm64"]
-checksum = "sha256:ac5e2e54ab41fd3ba4f057005e177ea493b58733122f75d57d47f896a591385c"
-url = "https://github.com/robusta-dev/krr/releases/download/v1.30.0/krr-macos-latest-v1.30.0.zip"
-url_api = "https://api.github.com/repos/robusta-dev/krr/releases/assets/527314833"
-
 [[tools."aqua:yonahd/kor"]]
 version = "v0.6.9"
 backend = "aqua:yonahd/kor"
