@@ -107,7 +107,7 @@ inputs = {
         }
         port03 = {
           index                 = 3
-          native_network_id_key = "vlan04"
+          native_network_id_key = "vlan10" # ai-00
           tagged_vlan_mgmt      = "block_all"
         }
         port04 = {
