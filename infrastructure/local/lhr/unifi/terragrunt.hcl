@@ -20,6 +20,10 @@ locals {
 
 inputs = {
   client = {
+    ai_00 = {
+      fixed_ip = "192.168.10.70"
+      mac      = local.tfconfig.unifi.clients.ai_00.mac
+    }
     jetkvm = {
       fixed_ip = "192.168.10.41"
       mac      = local.tfconfig.unifi.clients.jetkvm.mac
