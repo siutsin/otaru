@@ -20,6 +20,13 @@ MCP note (2026-09-28): when reading ExternalSecrets via the MCP
 `external-secrets.io/v1` — `v1beta1` no longer resolves
 ("no matches for kind") and breaks the data-plane checks.
 
+MCP note (2026-10-02): `Backup` lists exceed the MCP ~200 KB output
+cap even per namespace (hundreds of backup objects) and truncate into
+invalid JSON — do not batch them with other calls. Check the
+`ScheduledBackup` CR's `status` (`lastScheduleTime`,
+`nextScheduleTime`) plus failure events (`events_list` in the db
+namespaces) instead.
+
 ## Triage
 
 - CNPG healthy → continue.
