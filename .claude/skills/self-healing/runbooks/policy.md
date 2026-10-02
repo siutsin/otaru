@@ -20,7 +20,11 @@ model) — never one process per call.
 - Fetch the per-namespace PolicyReport lists in parallel. Split the
   namespaces into `call-tools` batches of at most 15. Run up to 3
   batches at once, within the Execution model's 3–4 concurrent batch
-  budget. If a batch returns `ok` with empty text, make an exception to
+  budget. PolicyReport list batches degrade oddly: batches of 5+ can
+  return `ok` with empty text for every entry (observed 2026-10-02 on
+  5- and 15-call batches, while 2-call batches and single `call-tool`
+  worked) — keep PolicyReport list batches to 2 namespaces, or drop to
+  the individual-retry path below. If a batch returns `ok` with empty text, make an exception to
   the batching rule above. Retry its namespaces with individual
   `call-tool` processes, no more than 3 at once. If a
   namespace list is truncated, parse up to the last complete row and
