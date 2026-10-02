@@ -15,6 +15,10 @@ authentication:
     - mcp
 
 kubernetes-mcp-server:
+  # Two replicas across nodes (preferred podAntiAffinity below): the
+  # self-healing loop calls this MCP server every 30 minutes, so a single
+  # pod was a downtime window on every restart or node failure.
+  replicaCount: 2
   image:
     registry: quay.io
     repository: containers/kubernetes_mcp_server
@@ -28,6 +32,9 @@ kubernetes-mcp-server:
   config:
     cluster_auth_mode: kubeconfig
     cluster_provider_strategy: in-cluster
+    # Stateless HTTP: no per-pod session state, so 2 replicas behind the
+    # gateway cannot break a client batch.
+    stateless: true
   # Read-mostly agent SA; write limited to workloads and Argo Applications.
   rbac:
     create: true
@@ -77,4 +84,7 @@ kubernetes-mcp-server:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 100
           podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: kubernetes-mcp-server
             topologyKey: kubernetes.io/hostname

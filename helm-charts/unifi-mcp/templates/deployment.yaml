@@ -9,6 +9,9 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
 spec:
+  # One replica: unifi-mcp keeps MCP sessions in memory per pod and has no
+  # stateless mode, so 2 replicas behind the gateway would break client
+  # batches (initialize lands on pod A, next call on pod B -> 404).
   replicas: 1
   strategy:
     type: Recreate
