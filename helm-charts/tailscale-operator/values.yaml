@@ -18,6 +18,28 @@ connector:
   exitNode: true
   replicas: 2
   proxyClass: exit-node-ha
+  # Pod resources for the gateway StatefulSet. The operator generates the pods,
+  # so ProxyClass is the only supported way to set resources on them.
+  # Fixes require-container-resource-requests-and-limits (audit).
+  # 2026-10-03: initial values from live usage (tailscale ~45Mi/18m, init tiny).
+  # No 30d history yet -- the right-sizing loop will refine them.
+  podResources:
+    tailscaleContainer:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 32Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+    tailscaleInitContainer:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+        ephemeral-storage: 16Mi
+      limits:
+        memory: 32Mi
+        ephemeral-storage: 32Mi
 
 tailscale-operator:
   # Keep oauth.clientId empty. The chart would render a Secret from Helm values; ExternalSecret creates operator-oauth instead.

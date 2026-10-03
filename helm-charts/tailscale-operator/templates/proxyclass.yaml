@@ -14,4 +14,12 @@ spec:
                   tailscale.com/parent-resource: {{ .Values.connector.name }}
                   tailscale.com/parent-resource-type: connector
               topologyKey: kubernetes.io/hostname
+      {{- if .Values.connector.podResources }}
+      tailscaleContainer:
+        resources:
+          {{- toYaml .Values.connector.podResources.tailscaleContainer | nindent 10 }}
+      tailscaleInitContainer:
+        resources:
+          {{- toYaml .Values.connector.podResources.tailscaleInitContainer | nindent 10 }}
+      {{- end }}
 {{- end }}
