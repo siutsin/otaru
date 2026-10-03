@@ -33,7 +33,7 @@ spec:
               | length(@)
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: >-
           No PodDisruptionBudget found selecting this workload by its
           app.kubernetes.io/name label. A single-replica workload with no
@@ -48,5 +48,5 @@ spec:
               - key: "{{ "{{" }} matchingPdbCount {{ "}}" }}"
                 operator: Equals
                 value: 0
-  validationFailureAction: Audit
+  validationFailureAction: Enforce
 {{- end }}

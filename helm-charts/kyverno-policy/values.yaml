@@ -57,7 +57,7 @@ workloadResourcesPolicy:
 
 meshAuthorizationPolicy:
   enabled: true
-  failureAction: Audit
+  failureAction: Enforce
   namespaceSelector:
     matchLabels:
       istio.io/dataplane-mode: ambient

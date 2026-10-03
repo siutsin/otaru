@@ -17,7 +17,7 @@ spec:
                 - Pod
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: Containers must set allowPrivilegeEscalation to false.
         pattern:
           spec:
@@ -36,7 +36,7 @@ spec:
                 - Pod
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: Containers must drop the ALL capability.
         foreach:
           - list: request.object.spec.[initContainers, containers][]
@@ -46,5 +46,5 @@ spec:
                   - key: ALL
                     operator: AnyNotIn
                     value: "{{ "{{" }} element.securityContext.capabilities.drop[] || `[]` {{ "}}" }}"
-  validationFailureAction: Audit
+  validationFailureAction: Enforce
 {{- end }}

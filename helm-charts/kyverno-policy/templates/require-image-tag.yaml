@@ -17,7 +17,7 @@ spec:
                 - Pod
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: Containers must use an explicit image tag rather than an implicit latest.
         pattern:
           spec:
@@ -34,7 +34,7 @@ spec:
                 - Pod
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: Containers must not use the mutable latest image tag.
         pattern:
           spec:
@@ -42,5 +42,5 @@ spec:
               - image: "!*:latest"
             containers:
               - image: "!*:latest"
-  validationFailureAction: Audit
+  validationFailureAction: Enforce
 {{- end }}
