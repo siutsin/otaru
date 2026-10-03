@@ -1,11 +1,5 @@
 # Longhorn and Kubernetes control-plane workloads are dynamically generated,
 # so this repository cannot safely attach PDBs to all of them.
-#
-# The tailscale gateway StatefulSet has a working PDB (gateway-vip,
-# minAvailable 1), but the require-pdb policy only detects PDBs via the
-# app.kubernetes.io/name, app, or gateway.networking.k8s.io/gateway-name
-# labels, and the operator labels pods with tailscale.com/parent-resource.
-# Excepted here instead of relabelling operator-managed pods.
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
@@ -28,12 +22,3 @@ spec:
             - kube-system
             - kyverno
             - longhorn-system
-      - resources:
-          kinds:
-            - StatefulSet
-          namespaces:
-            - tailscale
-          selector:
-            matchLabels:
-              tailscale.com/parent-resource: gateway-vip
-              tailscale.com/parent-resource-type: connector
