@@ -114,7 +114,9 @@ flags that do not change exposure/auth/privilege, adding a
 PodDisruptionBudget with `minAvailable: 1` to a single-replica hand-written
 app chart (or enabling a bundled subchart's native PDB values option) that
 has no PDB at all, manifest nits to satisfy an **existing** policy (no
-policy chart rewrite), and the Cloudflare Access WebGazer IP allowlist
+policy chart rewrite), adding one workload to an existing descheduler
+exclusion list that already excludes other workloads the same way with dated
+comments, and the Cloudflare Access WebGazer IP allowlist
 refresh described in `runbooks/ingress-mesh.md` (the one named exception to
 the infrastructure-as-code escalate rule in `references/escalation.md`,
 scoped strictly to that file and that `terragrunt plan` shape). Do not
