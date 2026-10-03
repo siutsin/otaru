@@ -1,0 +1,13 @@
+# The operator runs a single replica. maxUnavailable 1 (not minAvailable 1)
+# so node drains and descheduler evictions are never fully blocked.
+# Satisfies require-pod-disruption-budget without a PolicyException.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tailscale-operator
+  namespace: {{ .Release.Namespace }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: operator
