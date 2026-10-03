@@ -1102,141 +1102,83 @@ when Longhorn supports full resource settings for that component.
 
 ## Multi-Container Pods Fail to Schedule Despite "Enough" Free Cluster Memory
 
-**Problem:** `teslamate-verify-pitr`'s daily PITR (point-in-time-recovery)
-verification Job repeatedly got stuck `Pending` for hours, failing with
-`0/5 nodes are available: 5 Insufficient memory`, even though the cluster
-had roughly 2-3GiB of memory free in aggregate at the time. The obvious
-assumption -- "the job barely needs any memory, why is this failing?" --
-was also wrong: the visible CronJob controller container only requests
-128Mi, but it spins up a separate, dynamically-created recovery pod with
-**three** containers (`bootstrap-controller` 512Mi,
-`plugin-barman-cloud` 1Gi, `full-recovery` 512Mi) totalling **2Gi**, and
-all three must land on the same node. Manually re-running the job
-(`kubectl create job --from=cronjob/teslamate-verify-pitr ...`) confirmed
-it failing live, ruling out a one-off fluke.
+**Problem:** The daily PITR verification Job `teslamate-verify-pitr` stayed
+`Pending` for hours. The event was
+`0/5 nodes are available: 5 Insufficient memory`. The cluster still had
+about 2 to 3 GiB of memory free in total.
 
-**Why it happens:** free memory was real but scattered -- every node
-individually had less than 2GiB free, even though summed together there
-was enough. This is a distribution problem, not a capacity problem, and
-it's made structurally worse by two Kubernetes defaults fighting each
-other:
+The CronJob controller container requests only 128Mi. It starts a separate
+recovery pod with three containers (`bootstrap-controller` 512Mi,
+`plugin-barman-cloud` 1Gi, `full-recovery` 512Mi). Those requests total
+2Gi. All three containers must land on the same node. A manual rerun
+(`kubectl create job --from=cronjob/teslamate-verify-pitr ...`) failed the
+same way.
 
-- `kube-scheduler`'s default `NodeResourcesFit` scoring strategy is
-  `LeastAllocated`, which always prefers placing new pods on the
-  emptiest node.
-- Descheduler's `LowNodeUtilization` strategy (this cluster's original
-  config) is a no-op once every node is simultaneously above its
-  `targetThresholds` -- it needs an already-underutilized node to land
-  evicted pods on, and a cluster running hot everywhere never has one.
-- Even after adding descheduler's `HighNodeUtilization` strategy (which
-  *does* evict pods off the least-loaded node to grow contiguous free
-  space there), the default `LeastAllocated` scheduler bias immediately
-  refills that same node with new pods, since it's still the emptiest
-  choice available. Confirmed live: evicting several pods from the
-  least-loaded node only netted a partial, temporary improvement before
-  the scheduler placed replacements straight back onto it.
+**Why it happens:** The free memory was real, but it was split. Each node
+had less than 2 GiB free. A pod schedules only on a node that has the full
+request free. The sum of free memory across nodes does not satisfy the
+request.
+
+`kube-scheduler` uses the default `NodeResourcesFit` score,
+`LeastAllocated`. New pods go to the node with the most free CPU and
+memory. That spreads load. It does not collect a free block on one node.
+
+The k3s playbooks write this score to
+`/etc/rancher/k3s/scheduler-config.yaml`. k3s reads that file only when the
+server process starts.
+
+Descheduler `LowNodeUtilization` evicts pods only when one node is under
+the low threshold and another node is over the target. On this cluster the
+low thresholds are 20 and the targets are 50, for cpu, memory, and pods.
+When every node is above the target, the plugin does nothing. It cannot
+move other pods aside to free 2Gi on one node.
+
+A removed profile named `consolidate` ran `HighNodeUtilization` beside a
+`MostAllocated` scheduler score. Together they collected a free block on
+one node. They also packed the cluster onto fewer nodes.
+
+The descheduler chart does not define that profile. The k3s playbooks do
+not set `MostAllocated`. Restoring that pair to clear one `Pending` pod
+packs the cluster again.
 
 ### Symptoms: Scattered-Memory Scheduling Failures
 
-- `FailedScheduling` events citing `Insufficient memory` (or `cpu`/`pods`)
-  across **all** nodes, for a Job or Deployment that "shouldn't" need
-  that much.
-- `kubectl describe node <node>` shows meaningful free memory on
-  individual nodes, but always less than the failing pod's *combined*
-  container requests -- check every container in the pod spec, not just
-  the one you expect, since sidecars/init containers add up.
-- Descheduler logs (`kubectl logs -n descheduler -l
-  app.kubernetes.io/name=descheduler`) show `HighNodeUtilization`
-  evicting pods, but the same or similar pods reappear on the same node
-  shortly after in `kubectl get pods -A -o wide`.
-- Node memory-request percentages sit in a narrow, uniformly-high band
-  (e.g. 83-97%) across every node -- no single node is meaningfully more
-  free than the rest.
+- `FailedScheduling` events cite `Insufficient memory`, `cpu`, or `pods` on
+  every node, for a Job or Deployment that looks small.
+- `kubectl describe node <node>` shows free memory on each node. That free
+  memory is less than the combined requests of every container in the pod.
+  Sidecars and init containers are part of that total.
+- Requested memory sits in a narrow high band on every node (for example
+  83 to 97 percent). No node is much freer than the others.
 
-### Resolution: Pair Descheduler's HighNodeUtilization With a MostAllocated Scheduler
+### Resolution: Free One Node for the Whole Pod
 
-Two changes, both required -- one alone just causes eviction churn
-without net progress:
+The pod stays `Pending` until one node can take every container in the pod.
+A change back to `MostAllocated` is not the fix.
 
-1. **`helm-charts/descheduler/values.yaml`** -- add a second profile
-    (`HighNodeUtilization` cannot share a profile with
-    `LowNodeUtilization`; they have opposite goals) that evicts pods from
-    whichever node is below a memory threshold, to be rescheduled
-    elsewhere:
+Free enough memory on one node:
 
-    ```yaml
-    - name: consolidate
-      pluginConfig:
-        - name: DefaultEvictor
-          args:
-            podProtections:
-              defaultDisabled:
-                - PodsWithLocalStorage
-        - name: HighNodeUtilization
-          args:
-            thresholds:
-              cpu: 100
-              memory: 90
-              pods: 100
-      plugins:
-        balance:
-          enabled:
-            - HighNodeUtilization
-    ```
+1. Add the memory requests of every container in the pod spec.
+2. Compare that total with free memory on each node (`kubectl describe node <node>`).
+3. If no node has enough free memory, scale down a workload that can spare it.
+4. If no workload can spare it, wait until one node has the free memory.
+5. Rerun the Job.
 
-2. **`kube-scheduler` config** -- flip the default `LeastAllocated`
-    scoring to `MostAllocated`, so newly-scheduled pods actively prefer
-    already-fuller nodes instead of refilling whatever descheduler just
-    freed up:
+### Control-Plane Restart: Transient API VIP Blip
 
-    ```yaml
-    apiVersion: kubescheduler.config.k8s.io/v1
-    kind: KubeSchedulerConfiguration
-    clientConnection:
-      kubeconfig: /var/lib/rancher/k3s/server/cred/scheduler.kubeconfig
-    profiles:
-      - schedulerName: default-scheduler
-        pluginConfig:
-          - name: NodeResourcesFit
-            args:
-              scoringStrategy:
-                type: MostAllocated
-                resources:
-                  - name: memory
-                    weight: 1
-                  - name: cpu
-                    weight: 1
-    ```
+This note is separate from the `Pending` pod. It applies when you restart
+k3s on a control-plane node, for example after a scheduler config change.
 
-    On k3s, this file must exist on disk on every control-plane node
-    *before* the server starts, referenced via
-    `--kube-scheduler-arg --config=<path>` on the `curl ... | sh -s -`
-    install command (see `ansible/playbooks/k3s/000-init-cluster.yaml`
-    and `002-nodes.yaml`). Applying it means restarting the k3s server
-    process (scheduler is embedded in the same binary as the API server)
-    on every control-plane node -- roll out **one node at a time**, not
-    all at once, and confirm each one starts cleanly
-    (`journalctl -u k3s`, look for `"Starting Kubernetes Scheduler"` with
-    no immediately-following fatal errors) before moving to the next.
-
-Applied together, node memory usage stops being uniform: the
-least-loaded node keeps getting emptier (consolidation actually sticks)
-while the rest absorb the difference. Verified live in this incident --
-the previously-failing Job's pod scheduled and completed successfully
-immediately after rollout, with no other change needed.
-
-### Gotcha During Rollout: Transient API VIP Blip
-
-Restarting all 3 control-plane nodes' k3s processes (even one at a time)
-can briefly disrupt the cluster's API VIP if it is itself backed by a
-MetalLB-announced `LoadBalancer` Service (see
+A restart of the k3s process on the control-plane nodes, even one node at
+a time, can briefly disrupt the cluster API VIP. This happens when the VIP
+is a MetalLB `LoadBalancer` Service (see
 [k3s-apiserver-loadbalancer][k3s-apiserver-loadbalancer]) rather than a
-static IP -- `metallb-controller`'s L2 announcement election can lag by
-under a minute while it re-settles after a node it was scheduled on
-restarts. Confirmed via direct `https://<node-ip>:6443/livez` checks on
-every master that the cluster itself was never actually down, only the
-VIP's announcement was briefly stale. No action needed; it resolves on
-its own once MetalLB's speakers re-converge.
+static IP. The `metallb-controller` L2 announcement can lag by under a
+minute after that node restarts.
+
+Direct `https://<node-ip>:6443/livez` checks on every master showed that
+the API on the node stayed up. Only the VIP announcement was briefly stale.
+No action is required. The MetalLB speakers converge again on their own.
 
 [k3s-apiserver-loadbalancer]: https://github.com/siutsin/k3s-apiserver-loadbalancer
 
@@ -1574,39 +1516,32 @@ instead.
 
 ## `descheduler.alpha.kubernetes.io/evict: "false"` Does Not Stop Eviction
 
-**Problem:** blocky was being evicted from `raspberrypi-00` roughly every
-5 minutes by the `consolidate` profile's `HighNodeUtilization` plugin (see
-"Multi-Container Pods Fail to Schedule Despite \"Enough\" Free Cluster
-Memory" above for that profile's purpose). The first attempted fix added
-the pod annotation `descheduler.alpha.kubernetes.io/evict: "false"` to
-blocky's Deployment template, on the assumption this is the standard
-descheduler opt-out. Confirmed live in `kubectl get events -n blocky` and
-descheduler's own logs that eviction continued unchanged after this
-"fix" rolled out.
+**Problem:** blocky was evicted from `raspberrypi-00` about every 5 minutes
+while a removed profile named `consolidate` ran `HighNodeUtilization`. The
+first fix set `descheduler.alpha.kubernetes.io/evict: "false"` on the blocky
+Deployment. Eviction continued. `kubectl get events -n blocky` and the
+descheduler logs both showed it.
 
-**Why it happens:** the annotation is real, but descheduler v0.36 only
-checks whether the key is **present**, not its value -- `"false"` is
-treated identically to `"true"` or any other string, and a pod carrying
-it in *any* form is treated as unconditionally evictable. This is a
-confirmed upstream limitation
-([kubernetes-sigs/descheduler#1659](https://github.com/kubernetes-sigs/descheduler/issues/1659)),
-not a local misconfiguration. Do not trust this annotation to protect a
-pod from eviction on this or any similarly-versioned descheduler.
+**Why it happens:** The annotation exists, but descheduler v0.36 checks only
+that the key is present. It does not read the value. `"false"` is treated
+the same as `"true"` or any other string. A pod that carries the key is
+treated as evictable. This is upstream
+[kubernetes-sigs/descheduler#1659](https://github.com/kubernetes-sigs/descheduler/issues/1659).
+This annotation does not protect a pod.
 
 ### Symptoms: Descheduler-Annotated Pod Still Gets Evicted
 
-- A pod carries `descheduler.alpha.kubernetes.io/evict: "false"`, but
-  `kubectl get events -n <namespace>` still shows
-  `Reason: HighNodeUtilization` (or any other strategy) evicting it.
-- Descheduler logs show the pod being selected and evicted with no
-  mention of the annotation at all.
+- A pod has `descheduler.alpha.kubernetes.io/evict: "false"`, and
+  `kubectl get events -n <namespace>` still shows an eviction. The event
+  reason is the plugin name, for example `PodLifeTime`,
+  `LowNodeUtilization`, or `RemovePodsHavingTooManyRestarts`.
+- Descheduler logs show the pod selected and evicted, with no mention of
+  the annotation.
 
-### Resolution: Scope the Exclusion via `DefaultEvictor`'s `labelSelector`
+### Resolution: Exclude the Workload on the Profile That Still Runs
 
-`DefaultEvictor`'s `labelSelector` arg is a real allow-list -- only pods
-matching the selector are eligible for eviction under that profile.
-Exclude specific workloads with a `NotIn` match instead of relying on the
-per-pod annotation:
+`DefaultEvictor` `labelSelector` is an allow list. Only pods that match the
+selector can be evicted by that profile. Exclude a workload with `NotIn`:
 
 ```yaml
 - name: DefaultEvictor
@@ -1619,78 +1554,80 @@ per-pod annotation:
             - blocky
 ```
 
-Scoped to one profile's `DefaultEvictor` config, this only exempts the
-workload from that profile's strategies (here, `consolidate`'s
-`HighNodeUtilization`) -- other profiles (e.g. `default`'s `PodLifeTime`,
-`RemovePodsHavingTooManyRestarts`) still apply normally. Verified live:
-zero further blocky evictions across multiple 5-minute descheduler cycles
-after this rolled out, versus one roughly every cycle beforehand.
+Put this selector on the profile you want to limit.
+
+The old `NotIn` list for blocky was on the `consolidate` profile. That
+profile is removed, so that exclusion is gone with it. The `default`
+profile still runs `LowNodeUtilization`, `PodLifeTime`, and
+`RemovePodsHavingTooManyRestarts`. A selector on `default` limits only
+those plugins.
 
 ---
 
 ## Descheduler Eviction Storms Look Like Self-Resolving Blips, One Check At A Time
 
-**Problem:** on 2026-07-25, `umami`, `home-assistant`,
-`changedetection`, `openclaw`, `teslamate`, `unifi-mcp`, and
-`monitoring-prometheus-server` were each found to have no
-PodDisruptionBudget at all (or, for `umami`, one with `minAvailable: 0`,
-which is equally unprotective). Each is a single-replica workload, so
-the `consolidate` profile's `HighNodeUtilization` strategy could evict it
-on any scan cycle whenever its node crossed the memory threshold --
-which on this cluster, running most nodes at 95%+ requested memory most
-of the time, is close to constant. `monitoring-prometheus-server` was
-evicted roughly every 5 minutes for over an hour on `raspberrypi-03`
-before this was caught, and never stayed up long enough to finish
-loading its TSDB, causing live HTTP 503s from the Prometheus API.
+**Problem:** On 25 Jul 2026, `home-assistant`, `changedetection`,
+`openclaw`, `teslamate`, `unifi-mcp`, and `monitoring-prometheus-server`
+had no PodDisruptionBudget. `umami` had a PDB with `minAvailable: 0`. Each
+workload has one replica. At that time the removed `consolidate` profile
+ran `HighNodeUtilization` and evicted the pod when its node crossed the
+memory threshold. Most nodes sat at 95 percent requested memory or more, so
+this was nearly constant.
 
-**Why it happens:** two earlier hourly self-healing checks (09:30 and
-11:30 that day) both found the `monitoring` ArgoCD Application
-`Progressing`, waited for the pod that was running at that moment to
-reach `Ready` (it did, in under a minute both times), and logged the
-finding as a self-resolved transient. Each check was individually
-correct -- the pod really had recovered -- but the check only asked "is
-it up right now," not "how many times has this happened." A workload
-being evicted every 5 minutes and taking under a minute to reschedule
-will show as briefly `Progressing` then `Healthy` on almost any
-snapshot check, no matter how frequently you look, unless you widen the
-query to look for the *pattern* across a longer window.
+`monitoring-prometheus-server` was evicted about every 5 minutes for over
+an hour on `raspberrypi-03`. It never stayed up long enough to load its
+TSDB. The Prometheus API returned HTTP 503.
+
+That profile is removed. A single replica with no PDB still goes down when
+`PodLifeTime`, `RemovePodsHavingTooManyRestarts`, or `LowNodeUtilization`
+evicts it.
+
+**Why it happens:** Two earlier hourly self-healing checks (09:30 and 11:30
+that day) both found the `monitoring` Argo CD Application `Progressing`.
+Each check waited until the pod that was running became `Ready` (under a
+minute both times) and logged a self-resolved transient. Each check was
+correct about that moment. Each check asked only whether the pod was up
+then, not how many times this had happened. A workload that is evicted
+every 5 minutes and returns in under a minute looks `Progressing`, then
+`Healthy`, on almost any snapshot.
 
 ### Symptoms: Repeated Short-Lived `Progressing` Flips
 
-- The same ArgoCD Application shows `Progressing` in more than one
-  separate check, each time recovering to `Healthy` before you finish
-  investigating.
-- `kubectl get pods -n <ns>` for the workload shows a pod only tens of
-  seconds to a few minutes old, with a *different* pod name each time
-  you look, but the same `pod-template-hash` (i.e. no new rollout, just
-  the same ReplicaSet recreating pods).
-- A narrow events query scoped to the exact current pod name looks
-  clean or shows only one eviction -- because each older pod's events
-  age out or belong to a name you are no longer querying.
+- The same Argo CD Application shows `Progressing` in more than one check,
+  and returns to `Healthy` before you finish the investigation.
+- `kubectl get pods -n <ns>` shows a pod that is seconds to a few minutes
+  old. The pod name is different each time you look. The
+  `pod-template-hash` stays the same. The same ReplicaSet creates the pods
+  again. This is not a new rollout.
+- An events query for the current pod name shows one eviction, or none.
+  Older pods have other names, and their events age out.
 
 ### Resolution: Widen the Query, Then Add a PDB
 
-Before logging a `Progressing` finding as resolved, check for the
-pattern, not just the current state:
+Before you log a `Progressing` finding as resolved, list events for the
+whole namespace:
 
 ```bash
-kubectl get events -n <namespace> --field-selector reason=HighNodeUtilization \
-  --sort-by='.lastTimestamp'
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 ```
 
-This lists every eviction across every pod name for the whole
-namespace, with timestamps -- a burst of entries for the same workload
-prefix across the last hour is the signal, even though each individual
-pod recovered quickly. Cross-check with `kubectl get pdb -n <namespace>`
-for that workload; if it is missing or has `minAvailable: 0`, that is
-the root cause; see the "Missing PDB on a single-replica workload"
-entry in `.claude/skills/self-healing/runbooks/workloads.md` for the fix
-pattern (a hand-written PDB template for app-owned charts, or a bundled
-subchart's native `podDisruptionBudget` values option -- e.g.
-`helm-charts/monitoring/values.yaml`'s `prometheus.server` block).
-Verified live for all seven workloads listed above: `disruptionsAllowed:
-0` and `currentHealthy: 1` on the new PDB, zero further evictions
-observed after rollout.
+Read the `REASON` column. Descheduler writes the plugin name there
+(`PodLifeTime`, `LowNodeUtilization`, or
+`RemovePodsHavingTooManyRestarts`). Older events can still say
+`HighNodeUtilization` from the removed profile. A burst of entries for the
+same workload across the last hour is the signal, even when each pod
+recovered quickly.
+
+Then run `kubectl get pdb -n <namespace>`. A missing PDB, or
+`minAvailable: 0`, is the cause. See "Missing PDB on a single-replica
+workload" in `.claude/skills/self-healing/runbooks/workloads.md`. The fix
+is a PDB in the app chart, or the subchart `podDisruptionBudget` values
+(for example the `prometheus.server` block in
+`helm-charts/monitoring/values.yaml`).
+
+The seven workloads above then showed `disruptionsAllowed: 0` and
+`currentHealthy: 1`. No further evictions were observed after that PDB
+rollout.
 
 ---
 
