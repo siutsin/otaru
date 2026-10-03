@@ -39,6 +39,12 @@ nodes:
         path: /var/lib/longhorn/
         # 500 GB Crucial P2 worker NVMe.
         storageReservedGiB: 30
+  ai-00:
+    allowScheduling: true
+    disks:
+      default:
+        path: /var/lib/longhorn/
+        storageReservedGiB: 10
   nuc-00:
     allowScheduling: true
     disks:
