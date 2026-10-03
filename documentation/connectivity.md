@@ -14,7 +14,7 @@
 - `waypoint`: shared Envoy waypoint in `istio-waypoints` for L7 policy, routing, and HTTP/gRPC telemetry
 - `envoy-gateway`: controller in `envoy-gateway-system`
 - `gateway`: Envoy Gateway proxy in `gateway`
-- `tailscale-operator`: deploys the `gateway-vip` connector, which publishes the Envoy Gateway VIP onto a Tailscale tailnet and serves as the tailnet exit node
+- `tailscale-operator`: deploys the `gateway-vip` connector, which publishes the Kubernetes API VIP and the Envoy Gateway VIP and is the tailnet exit node
 - `kiali`: observability UI in ambient
 
 In sidecar mode, one Envoy sidecar did both jobs. In ambient mode, those roles
@@ -99,15 +99,16 @@ serves a DoH endpoint over the internal HTTPS ingress path. Plain DNS on
 
 ## Tailscale access
 
-The `gateway-vip` connector is the tailnet exit node. It advertises one subnet
-route, `192.168.10.51/32`. The tailnet policy file lives in the Tailscale admin
-console. This repository does not store that file.
+The `gateway-vip` connector is the tailnet exit node. It advertises two subnet
+routes, `192.168.10.50/32` and `192.168.10.51/32`. The tailnet policy file lives
+in the Tailscale admin console. This repository does not store that file.
 
 Keep the allow-all grant commented out. `autogroup:internet` covers public
-addresses. The VIP `192.168.10.51/32` needs its own grant.
+addresses. Each advertised address needs its own grant.
 
-User devices in `autogroup:member` may use the exit node. They may also reach
-the VIP on these ports:
+User devices in `autogroup:member` can use the exit node. They can use TCP
+`443` on the API VIP `192.168.10.50/32`. They can also use these ports on the
+gateway VIP `192.168.10.51/32`:
 
 - `443` for HTTPS
 - `53` for DNS on TCP and UDP
@@ -121,7 +122,7 @@ Leave key expiry enabled on phones. Disable key expiry on unattended tagged
 machines.
 
 Proxy pods drop forwarded traffic to private ranges other than the advertised
-VIP. Reply traffic to tailnet addresses stays open.
+routes. Reply traffic to tailnet addresses stays open.
 
 Exit-node pods keep cluster DNS. A VIP-only resolver cannot answer
 `kubernetes.default.svc`, and the proxies then fail to load their state.
