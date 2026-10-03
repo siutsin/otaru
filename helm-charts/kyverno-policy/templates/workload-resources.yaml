@@ -17,7 +17,7 @@ spec:
                 - Pod
       validate:
         allowExistingViolations: true
-        failureAction: Audit
+        failureAction: Enforce
         message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.
         pattern:
           spec:
@@ -39,5 +39,5 @@ spec:
                   limits:
                     memory: ?*
                     ephemeral-storage: ?*
-  validationFailureAction: Audit
+  validationFailureAction: Enforce
 {{- end }}
