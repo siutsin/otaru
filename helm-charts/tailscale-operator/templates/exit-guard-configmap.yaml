@@ -1,4 +1,4 @@
-{{- if and .Values.connector.enabled .Values.connector.exitNode }}
+{{- define "tailscale-operator.exitGuardConfigMap" -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,30 +11,107 @@ data:
     #!/bin/sh
     # Drop forwarded private ranges except advertised routes.
     # Keep tailnet reply addresses open.
+    # Build a side chain, then move the FORWARD jump.
+    # An empty chain is an implicit RETURN, so never flush the live chain.
+    # iptables -C exits 4 when the xtables lock is busy. That is not
+    # proof that the jump is absent.
+    hooked() {
+      "$bin" -C FORWARD -j "$1" >/dev/null 2>&1
+      rc=$?
+      if [ "$rc" -eq 0 ]; then
+        return 0
+      fi
+      if [ "$rc" -eq 1 ] || [ "$rc" -eq 2 ]; then
+        return 1
+      fi
+      echo "exit-guard cannot read FORWARD for $1 ($rc)" >&2
+      return 2
+    }
+    flush_idle() {
+      hooked "$1"
+      rc=$?
+      if [ "$rc" -ne 1 ]; then
+        if [ "$rc" -eq 0 ]; then
+          echo "exit-guard refused to flush $1" >&2
+        fi
+        return 1
+      fi
+      "$bin" -L "$1" -n >/dev/null 2>&1
+      rc=$?
+      if [ "$rc" -eq 1 ] || [ "$rc" -eq 2 ]; then
+        return 0
+      fi
+      if [ "$rc" -ne 0 ]; then
+        return 1
+      fi
+      "$bin" -F "$1"
+    }
     apply() {
       bin=$1
       family=$2
       command -v "$bin" >/dev/null 2>&1 || return 0
-      "$bin" -N otaru-exit-guard 2>/dev/null || true
-      "$bin" -F otaru-exit-guard
+      stage=otaru-exit-guard-a
+      hooked "$stage"
+      rc=$?
+      if [ "$rc" -eq 2 ]; then
+        return 1
+      fi
+      if [ "$rc" -eq 0 ]; then
+        stage=otaru-exit-guard-b
+      fi
+      hooked "$stage"
+      rc=$?
+      if [ "$rc" -eq 0 ]; then
+        echo "exit-guard has no free chain" >&2
+        return 1
+      fi
+      if [ "$rc" -ne 1 ]; then
+        return 1
+      fi
+      "$bin" -N "$stage" 2>/dev/null || true
+      flush_idle "$stage" || return 1
+      if ! fill; then
+        flush_idle "$stage" || true
+        return 1
+      fi
+      "$bin" -I FORWARD 1 -j "$stage" || {
+        flush_idle "$stage" || true
+        return 1
+      }
+      other=otaru-exit-guard-a
+      [ "$stage" = "$other" ] && other=otaru-exit-guard-b
+      for old in "$other" otaru-exit-guard; do
+        while true; do
+          hooked "$old"
+          rc=$?
+          if [ "$rc" -eq 1 ]; then
+            break
+          fi
+          if [ "$rc" -ne 0 ]; then
+            return 1
+          fi
+          "$bin" -D FORWARD -j "$old" || return 1
+        done
+      done
+      for old in "$other" otaru-exit-guard; do
+        flush_idle "$old" || return 1
+      done
+    }
+    fill() {
       if [ "$family" = 4 ]; then
 {{ range .Values.connector.advertiseRoutes }}
-        "$bin" -A otaru-exit-guard -d {{ . | quote }} -j RETURN
+        "$bin" -A "$stage" -d {{ . | quote }} -j RETURN || return 1
 {{ end }}
-        "$bin" -A otaru-exit-guard -d 10.0.0.0/8 -j DROP
-        "$bin" -A otaru-exit-guard -d 172.16.0.0/12 -j DROP
-        "$bin" -A otaru-exit-guard -d 192.168.0.0/16 -j DROP
-        "$bin" -A otaru-exit-guard -d 169.254.0.0/16 -j DROP
+        "$bin" -A "$stage" -d 10.0.0.0/8 -j DROP || return 1
+        "$bin" -A "$stage" -d 172.16.0.0/12 -j DROP || return 1
+        "$bin" -A "$stage" -d 192.168.0.0/16 -j DROP || return 1
+        "$bin" -A "$stage" -d 169.254.0.0/16 -j DROP || return 1
       else
-        "$bin" -A otaru-exit-guard -d fd7a:115c:a1e0::/48 -j RETURN
-        "$bin" -A otaru-exit-guard -d fc00::/7 -j DROP
-        "$bin" -A otaru-exit-guard -d fe80::/10 -j DROP
+        "$bin" -A "$stage" -d fd7a:115c:a1e0::/48 -j RETURN || return 1
+        "$bin" -A "$stage" -d fc00::/7 -j DROP || return 1
+        "$bin" -A "$stage" -d fe80::/10 -j DROP || return 1
       fi
-      "$bin" -A otaru-exit-guard -j RETURN
-      while "$bin" -C FORWARD -j otaru-exit-guard 2>/dev/null; do
-        "$bin" -D FORWARD -j otaru-exit-guard || return 1
-      done
-      "$bin" -I FORWARD 1 -j otaru-exit-guard
+      "$bin" -A "$stage" -j RETURN
     }
     while true; do
       apply iptables 4 || echo "iptables guard failed" >&2
@@ -43,4 +120,7 @@ data:
       apply ip6tables-nft 6 || echo "ip6tables-nft guard failed" >&2
       sleep 15
     done
+{{- end }}
+{{- if and .Values.connector.enabled .Values.connector.exitNode }}
+{{ include "tailscale-operator.exitGuardConfigMap" . }}
 {{- end }}
