@@ -6,6 +6,10 @@ metadata:
 spec:
   statefulSet:
     pod:
+      annotations:
+        # guard.sh stays in memory. The value is the rendered ConfigMap
+        # hash, so a script or route change rolls the proxy Pods.
+        otaru.io/exit-guard: {{ include "tailscale-operator.exitGuardConfigMap" . | sha256sum | quote }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
