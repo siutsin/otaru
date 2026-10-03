@@ -1,6 +1,6 @@
 ---
 - name: Install snap packages
-  snap:
-    name:
-      - yq
+  command: snap install yq
+  args:
+    creates: /snap/bin/yq
   when: "'raspberrypi' in group_names"
