@@ -26,7 +26,7 @@ deployment:
     # while the new one downloads and parses: ~840-960Mi stacked peak > 768Mi.
     # Raised to 1280Mi.
     # Request/limit split (exception to this repo's requests==limits convention,
-    # see CLAUDE.md): request 350Mi (just above ~290Mi steady state), limit
+    # see AGENTS.md): request 350Mi (just above ~290Mi steady state), limit
     # 1280Mi. Only the limit covers the few-seconds-per-~4h refresh spike;
     # requests==limits would reserve ~930Mi of unused node capacity per replica.
     # Paired with the HPA memory metric change (Utilization -> AverageValue in
