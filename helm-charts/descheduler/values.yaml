@@ -98,6 +98,8 @@ descheduler:
               # 2026-09-24: httpbin -- evicted every ~5 min for 60+ min (12 events); 100m/61Mi frees ~1%, never under threshold.
               # 2026-09-25: argocd-server -- evicted every ~5 min for 60+ min (12 events); 100m/117Mi frees ~1%, never under threshold.
               # 2026-10-01: tailnet exit node (gateway-vip) -- 2 replicas, evicting one buys nothing; the StatefulSet recreates it.
+              # 2026-10-03: hydra (IdP) -- evicted every ~5 min (12 in 1h), rescheduled straight back to
+              # raspberrypi-02; the PDB already caps blast radius to one pod, the loop buys nothing.
               labelSelector:
                 matchExpressions:
                   - key: app.kubernetes.io/name
@@ -111,6 +113,7 @@ descheduler:
                       - jung2bot
                       - httpbin
                       - argocd-server
+                      - hydra
                   - key: tailscale.com/parent-resource
                     operator: NotIn
                     values:
