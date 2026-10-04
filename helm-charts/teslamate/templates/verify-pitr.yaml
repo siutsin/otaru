@@ -221,6 +221,13 @@ spec:
                     instances: 1
                     imageName: {{ .Values.backup.database.imageName }}
                     inheritedMetadata:
+                      # 2026-10-04: CNPG inherits this onto every generated Service.
+                      # Each verify run creates unique -r/-ro/-rw Service names, so no
+                      # static AuthorizationPolicy can target them. The annotation opts
+                      # them out of require-mesh-authorization-policy as non-ambient
+                      # endpoints (the job is a per-run test of backup recovery).
+                      annotations:
+                        mesh.otaru.io/non-ambient-endpoints: "true"
                       labels:
                         # 2026-07-07: CNPG operator scrapes instance status over direct
                         # pod HTTPS. Without this label the ephemeral recovery pod sits
