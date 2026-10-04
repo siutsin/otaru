@@ -301,6 +301,9 @@ Each invocation is **one** investigation pass — whether the user ran
   loop in parallel).
 - Record local **start** datetime; run the full investigation, including
   journal closure for `open` / `escalated` entries.
+- **Pass watchdog:** also note the start epoch (`date +%s`). Before
+  each category or retry, if 45 minutes elapsed, stop new work, mark
+  the rest `partial`, and close out (summary, lock, journal, return).
 - If healthy, report that the cluster is healthy: nodes Ready, no
   reconciler apps degraded, no lingering out-of-sync state without an
   in-flight PR, no open journal issues (escalated items waiting on the
