@@ -2,6 +2,10 @@ name: longhorn
 namespace: longhorn-system
 
 longhorn:
+  csi:
+    # 2026-10-05: deployer CrashLoopBackOff, Kyverno blocked detector pod.
+    # Skip detector with explicit root. Verified /var/lib/kubelet on k3s.
+    kubeletRootDir: /var/lib/kubelet
   longhornManager:
     serviceAnnotations:
       prometheus.io/scrape: "true"
