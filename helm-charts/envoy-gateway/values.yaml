@@ -96,6 +96,17 @@ envoy-gateway:
         enabled: false
   podDisruptionBudget:
     minAvailable: 1
+  # 2026-10-06: the certgen pre-install/pre-upgrade hook Job ships with no
+  # resource requests and Kyverno require-workload-resources blocks it, which
+  # stalls the whole Application sync (seen on the 1.9.2 bump). One-shot job,
+  # so small requests are enough.
+  certgen:
+    job:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+          ephemeral-storage: 32Mi
   deployment:
     envoyGateway:
       resources: *envoyGatewayResources
