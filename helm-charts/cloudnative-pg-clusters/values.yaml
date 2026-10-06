@@ -186,15 +186,16 @@ clusters:
     minSyncReplicas: 1
     maxSyncReplicas: 1
     # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit).
+    # 2026-10-06: 30d p50 ~211Mi, spike ~288Mi; request 267Mi -> 235Mi, limit 386Mi -> 346Mi.
     # CPU and ephemeral-storage repeat the defaults: the template replaces
     # the whole resources block when a per-cluster one is set.
     resources:
       requests:
         cpu: 250m
-        memory: 267Mi
+        memory: 235Mi
         ephemeral-storage: 512Mi
       limits:
-        memory: 386Mi
+        memory: 346Mi
         ephemeral-storage: 512Mi
     labels:
       cnpg.io/reload: "true"
@@ -259,10 +260,11 @@ clusters:
     instances: 2
     # Light analytics DB: keep headroom for failover and vacuum.
     # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit).
+    # 2026-10-06: 30d p50 ~77Mi, spike ~121Mi; request 111Mi -> 86Mi, limit 146Mi unchanged.
     resources:
       requests:
         cpu: 100m
-        memory: 111Mi
+        memory: 86Mi
         ephemeral-storage: 512Mi
       limits:
         memory: 146Mi
