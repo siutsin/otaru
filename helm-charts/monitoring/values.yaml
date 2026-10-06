@@ -178,9 +178,10 @@ prometheus:
     podDisruptionBudget:
       minAvailable: 1
     resources:
+      # 2026-10-06: 30d p50 ~48Mi, spike ~93Mi; request 88Mi -> 54Mi, limit 112Mi unchanged.
       requests:
         cpu: 50m
-        memory: 88Mi
+        memory: 54Mi
         ephemeral-storage: 64Mi
       limits:
         memory: 112Mi
