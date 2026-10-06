@@ -5,6 +5,20 @@ integrations:
 argo-cd:
   global:
     addPrometheusAnnotations: true
+  # 2026-10-06: the redis secret-init pre-upgrade hook Job ships with no
+  # resource requests and Kyverno require-workload-resources (Enforce) blocks
+  # it, which stalls the whole Application sync (seen on the argo-cd 10.9.3
+  # bump). One-shot job, so small requests are enough; the policy also
+  # requires memory and ephemeral-storage limits.
+  redisSecretInit:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 32Mi
+      limits:
+        memory: 128Mi
+        ephemeral-storage: 32Mi
   _shared:
     controllerResources: &controllerResources
       # Limit 2Gi: sync spikes queue many repo comparisons on the one
