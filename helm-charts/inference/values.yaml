@@ -20,6 +20,8 @@ deployment:
     LLAMA_ARG_N_PARALLEL: "2"
     # Extra threads wait on memory.
     LLAMA_ARG_THREADS: "8"
+    # Prompt processing is compute bound, so it can use more threads than generation.
+    LLAMA_ARG_THREADS_BATCH: "10"
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
     HF_HOME: /models
