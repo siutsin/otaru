@@ -22,6 +22,8 @@ deployment:
     # On 10 vCPUs, 10 threads gave 8.3 tokens/s against 7.8 with 8. Leave batch threads at the default.
     LLAMA_ARG_THREADS: "10"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
+    # The drafter proposes blocks of tokens and the main model verifies them, so decode is faster.
+    LLAMA_ARG_SPEC_TYPE: draft-dflash
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
     HF_HOME: /models
@@ -30,6 +32,11 @@ deployment:
 monitoring:
   namespace: monitoring
   prometheusServiceAccount: monitoring-prometheus-server
+
+# The init container downloads the drafter once, pinned to the model commit. It stays on the volume.
+drafter:
+  url: https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/resolve/70bf1b61ac09f91b24d39038091b41c582bc5d7a/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
+  path: /models/dflash/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
 
 service:
   port: 9931

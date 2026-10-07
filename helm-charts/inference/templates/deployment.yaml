@@ -28,12 +28,48 @@ spec:
       automountServiceAccountToken: false
       nodeSelector:
         otaru.io/ai: "true"
+      initContainers:
+        - name: fetch-drafter
+          image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              [ -s "$DRAFT_PATH" ] && exit 0
+              mkdir -p "$(dirname "$DRAFT_PATH")"
+              curl -fL --retry 3 --connect-timeout 30 --max-time 3600 -o "$DRAFT_PATH.tmp" "$DRAFT_URL"
+              mv "$DRAFT_PATH.tmp" "$DRAFT_PATH"
+          env:
+            - name: DRAFT_URL
+              value: {{ .Values.drafter.url | quote }}
+            - name: DRAFT_PATH
+              value: {{ .Values.drafter.path | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              # curl writes a 1.6GB file. Dirty page cache counts toward the cgroup, so keep headroom.
+              memory: 256Mi
+              ephemeral-storage: 64Mi
+            limits:
+              memory: 256Mi
+              ephemeral-storage: 64Mi
+          volumeMounts:
+            - name: models
+              mountPath: /models
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
           env:
             - name: LLAMA_ARG_PORT
               value: {{ .Values.service.targetPort | quote }}
+            - name: LLAMA_ARG_SPEC_DRAFT_MODEL
+              value: {{ .Values.drafter.path | quote }}
             {{- range $name, $value := .Values.deployment.env }}
             - name: {{ $name }}
               value: {{ $value | quote }}
