@@ -20,6 +20,8 @@ deployment:
     LLAMA_ARG_N_PARALLEL: "2"
     # 12 threads gave 5.2 tokens/s against 7.2 with 8, so more threads slow generation.
     LLAMA_ARG_THREADS: "8"
+    # Prompt processing is compute bound, so it can use more threads than generation.
+    LLAMA_ARG_THREADS_BATCH: "12"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
