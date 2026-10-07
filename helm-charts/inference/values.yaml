@@ -20,10 +20,15 @@ deployment:
     LLAMA_ARG_N_PARALLEL: "2"
     # Extra threads wait on memory.
     LLAMA_ARG_THREADS: "8"
+    LLAMA_ARG_ENDPOINT_METRICS: "1"
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
     HF_HOME: /models
     TMPDIR: /models
+
+monitoring:
+  namespace: monitoring
+  prometheusServiceAccount: monitoring-prometheus-server
 
 service:
   port: 9931
