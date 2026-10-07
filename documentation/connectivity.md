@@ -99,9 +99,10 @@ serves a DoH endpoint over the internal HTTPS ingress path. Plain DNS on
 
 ## Tailscale access
 
-The `gateway-vip` connector is the tailnet exit node. It advertises two subnet
-routes, `192.168.10.50/32` and `192.168.10.51/32`. The tailnet policy file lives
-in the Tailscale admin console. This repository does not store that file.
+The `gateway-vip` connector is the tailnet exit node. It advertises the server
+VLAN subnet route `192.168.10.0/24`. Approve the route in the Tailscale admin
+console. The tailnet policy file lives there too. This repository does not
+store that file.
 
 Keep the allow-all grant commented out. `autogroup:internet` covers public
 addresses. Each advertised address needs its own grant.
