@@ -702,6 +702,32 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/hydra-0.1.0/hydra-0.1.0.tgz
     version: 0.1.0
+  inference:
+  - apiVersion: v2
+    created: "2026-10-07T10:49:01.39323892Z"
+    description: A Helm chart for Kubernetes
+    digest: 15078af5dae9ae528d52d49015a2b4b26e55eb0be2dfeb23c9450828e583287c
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: inference
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/inference-0.1.0/inference-0.1.0.tgz
+    version: 0.1.0
+  inference-volume:
+  - apiVersion: v2
+    created: "2026-10-07T10:49:01.57533328Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: file://../longhorn-volume-lib
+      version: 0.3.2
+    description: A Helm chart for Kubernetes
+    digest: 47e1d8b82a4c66927ccd7aaa12e26df5d7bb2e71ed95b452003036ed33d34ff1
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: inference-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/inference-volume-0.1.0/inference-volume-0.1.0.tgz
+    version: 0.1.0
   istio-base:
   - apiVersion: v2
     created: "2026-04-13T22:53:08.003972244Z"
@@ -1585,4 +1611,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-09-21T01:34:59.862736457Z"
+generated: "2026-10-07T10:49:08.227536085Z"
