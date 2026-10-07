@@ -15,7 +15,11 @@ spec:
       name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
   rules:
-    - matches:
+    # CPU prompt processing exceeds the 15s default. Generation streams for minutes.
+    - timeouts:
+        request: 0s
+        backendRequest: 0s
+      matches:
         - path:
             type: PathPrefix
             value: /
