@@ -13,7 +13,7 @@ spec:
     - from:
         - source:
             principals:
-              - cluster.local/ns/{{ .Values.namespace }}/sa/default
+              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.name }}
       to:
         - operation:
             ports:

@@ -21,6 +21,9 @@ spec:
         - source:
             principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+              {{- range .Values.clientPrincipals }}
+              - {{ . }}
+              {{- end }}
       to:
         - operation:
             ports:
@@ -47,6 +50,9 @@ spec:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
               - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
               - {{ $waypointPrincipal }}
+              {{- range .Values.clientPrincipals }}
+              - {{ . }}
+              {{- end }}
       to:
         - operation:
             ports:
