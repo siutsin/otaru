@@ -15,7 +15,11 @@ spec:
       name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
   rules:
-    - matches:
+    # CPU prompt processing exceeds the 15s default. Cap a hung request at 1h.
+    - timeouts:
+        request: 1h
+        backendRequest: 1h
+      matches:
         - path:
             type: PathPrefix
             value: /

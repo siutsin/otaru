@@ -8,7 +8,23 @@ deployment:
   image:
     repository: ghcr.io/ggml-org/llama.cpp
     tag: server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257
+  env:
+    LLAMA_ARG_HF_REPO: meta-models/Muse-Glimmer-30B-GGUF
+    # Pin the higher-quality official file. Without this, the server selects Q4_K_M.
+    LLAMA_ARG_HF_FILE: Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf
+    # The repo has a vision projector. Do not download it.
+    LLAMA_ARG_NO_MMPROJ: "1"
+    # 131072 is the model maximum.
+    LLAMA_ARG_CTX_SIZE: "131072"
+    # One slot. More slots would split the 131072 context.
+    LLAMA_ARG_N_PARALLEL: "1"
+    # Extra threads wait on memory.
+    LLAMA_ARG_THREADS: "8"
+    LLAMA_CACHE: /models
+    XDG_CACHE_HOME: /models
+    HF_HOME: /models
+    TMPDIR: /models
 
 service:
-  port: 8080
-  targetPort: 8080
+  port: 9931
+  targetPort: 9931
