@@ -14,10 +14,10 @@ deployment:
     LLAMA_ARG_HF_FILE: Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf
     # The repo has a vision projector. Do not download it.
     LLAMA_ARG_NO_MMPROJ: "1"
-    # 131072 is the model maximum.
-    LLAMA_ARG_CTX_SIZE: "131072"
-    # One slot. More slots would split the 131072 context.
-    LLAMA_ARG_N_PARALLEL: "1"
+    # The context is split across slots. 262144 gives each of the 2 slots the 131072 model maximum.
+    LLAMA_ARG_CTX_SIZE: "262144"
+    # Two slots let a second client run while the first is busy.
+    LLAMA_ARG_N_PARALLEL: "2"
     # Extra threads wait on memory.
     LLAMA_ARG_THREADS: "8"
     LLAMA_CACHE: /models

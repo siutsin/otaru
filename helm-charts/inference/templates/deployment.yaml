@@ -67,7 +67,7 @@ spec:
           resources:
             requests:
               cpu: "2"
-              # Q4 weights are 18.3GiB. 64Gi covers those weights plus one 131072 context.
+              # Q4 weights are 18.3GiB. One 131072 slot used 20.7Gi, so 64Gi leaves room for two.
               memory: 64Gi
               ephemeral-storage: 1Gi
             limits:
