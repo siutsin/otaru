@@ -107,7 +107,7 @@ spec:
           resources:
             requests:
               cpu: "2"
-              # Q4 weights are 18.3GiB. One 131072 slot used 20.7Gi, so 64Gi leaves room for two.
+              # Q4 weights are 18.3GiB. Two 131072 slots plus the drafter use 25.1GiB of anonymous memory, so 64Gi leaves headroom.
               memory: 64Gi
               ephemeral-storage: 1Gi
             limits:
