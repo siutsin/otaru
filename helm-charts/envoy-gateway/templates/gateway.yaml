@@ -37,6 +37,7 @@ spec:
                   - home-assistant
                   - httpbin
                   - hydra
+                  - inference
                   - istio-system
                   - jellyfin
                   - jsoncrack

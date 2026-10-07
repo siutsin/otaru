@@ -80,6 +80,13 @@ spec:
           kinds:
             - HTTPRoute
           namespaces:
+            - inference
+          names:
+            - inference-internal
+      - resources:
+          kinds:
+            - HTTPRoute
+          namespaces:
             - jellyfin
           names:
             - jellyfin-internal

@@ -1,0 +1,14 @@
+name: inference
+namespace: inference
+
+route:
+  hostname: inference.internal.siutsin.com
+
+deployment:
+  image:
+    repository: ghcr.io/ggml-org/llama.cpp
+    tag: server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257
+
+service:
+  port: 8080
+  targetPort: 8080

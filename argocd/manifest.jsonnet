@@ -215,6 +215,7 @@ local application = [
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'hydra', namespace: 'hydra' },
+  { wave: '10', name: 'inference-volume', namespace: 'inference' },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
   { wave: '10', name: 'openclaw-volume', namespace: 'openclaw' },
@@ -224,6 +225,7 @@ local application = [
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
+  { wave: '11', name: 'inference', namespace: 'inference' },
   { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
   { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
 ];

@@ -21,6 +21,7 @@ namespaces:
   - name: home-assistant
   - name: httpbin
   - name: hydra
+  - name: inference
   - name: istio-system
     ambient: false
   - name: jellyfin
