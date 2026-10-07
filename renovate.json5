@@ -11,6 +11,11 @@
   rebaseWhen: 'behind-base-branch',
   packageRules: [
     {
+      // Renovate's default conda registry URL has no channel and 404s.
+      matchDatasources: ['conda'],
+      registryUrls: ['https://api.anaconda.org/package/conda-forge/'],
+    },
+    {
       matchDepNames: [
         'ghcr.io/home-assistant/home-assistant'
       ],
