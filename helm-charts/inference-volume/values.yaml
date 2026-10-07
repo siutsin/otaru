@@ -1,0 +1,12 @@
+longhorn-volume-lib:
+  namespace: inference
+  volumes:
+    inference:
+      size: "40Gi"
+      sizeBytes: "42949672960"
+      # Longhorn Volume.spec.fromBackup is a string; keep it empty for a new volume.
+      fromBackup: ""
+      numberOfReplicas: 1
+      # The GGUF downloads again from Hugging Face.
+      enableBackup: false
+      enableTrim: true
