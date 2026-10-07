@@ -6,15 +6,15 @@ externalSecret:
   remoteRef:
     key: tailscale-operator
 
-# Advertise the Kubernetes API VIP and the Envoy Gateway VIP only.
-# Never advertise pod, Service, or LAN CIDRs.
+# Advertise the server VLAN, which holds the node, VIP, and management
+# addresses. Never advertise pod or Service CIDRs. The tailnet policy decides
+# which addresses and ports each client can reach.
 connector:
   enabled: true
   name: gateway-vip
   hostnamePrefix: otaru-gateway
   advertiseRoutes:
-    - 192.168.10.50/32
-    - 192.168.10.51/32
+    - 192.168.10.0/24
   # The gateway-vip connector is both subnet router and exit node.
   # Two replicas for HA, spread across nodes by the ProxyClass below.
   exitNode: true
