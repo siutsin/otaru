@@ -18,8 +18,8 @@ deployment:
     LLAMA_ARG_CTX_SIZE: "262144"
     # Two slots let a second client run while the first is busy.
     LLAMA_ARG_N_PARALLEL: "2"
-    # One thread per CPU on the node.
-    LLAMA_ARG_THREADS: "12"
+    # 12 threads gave 5.2 tokens/s against 7.2 with 8, so more threads slow generation.
+    LLAMA_ARG_THREADS: "8"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
