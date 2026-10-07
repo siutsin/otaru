@@ -29,6 +29,10 @@ deployment:
     HF_HOME: /models
     TMPDIR: /models
 
+# In-cluster callers allowed to reach the server, besides the gateway.
+clientPrincipals:
+  - cluster.local/ns/changedetection/sa/changedetection
+
 monitoring:
   namespace: monitoring
   prometheusServiceAccount: monitoring-prometheus-server
