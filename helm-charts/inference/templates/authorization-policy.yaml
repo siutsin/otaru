@@ -1,6 +1,10 @@
 {{- $gateway := .Values.gateway | default dict -}}
 {{- $gatewayName := $gateway.name | default "gateway" -}}
 {{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+{{- $monitoring := .Values.monitoring | default dict -}}
+{{- $prometheusServiceAccount := $monitoring.prometheusServiceAccount | default "monitoring-prometheus-server" -}}
+{{- $prometheusNamespace := $monitoring.namespace | default "monitoring" -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -21,3 +25,29 @@ spec:
         - operation:
             ports:
               - {{ .Values.service.port | quote }}
+---
+# Prometheus scrapes the pod IP, which targetRefs policies do not cover, and
+# Kyverno requires a workload-selector policy for scraped pods. This policy
+# makes ztunnel enforce L4 authorization on the pod, so the gateway and the
+# waypoint are re-allowed here. L7 rules would not apply at ztunnel.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-workload
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+              - cluster.local/ns/{{ $prometheusNamespace }}/sa/{{ $prometheusServiceAccount }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.service.targetPort | quote }}

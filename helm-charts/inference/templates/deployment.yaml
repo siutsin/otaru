@@ -20,6 +20,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
         app.kubernetes.io/version: {{ $version | quote }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.service.targetPort | quote }}
+        prometheus.io/path: /metrics
     spec:
       automountServiceAccountToken: false
       nodeSelector:
