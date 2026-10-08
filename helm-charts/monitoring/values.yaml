@@ -94,12 +94,13 @@ prometheus:
       # 2026-09-22: relax req==limit (user-approved). Steady use ~2092Mi;
       # 2026-09-23: right-size on 30d baseline; request 2652Mi, limit 4335Mi
       # (limit raised for retention growth).
+      # 2026-10-08: 30d spike ~3974Mi vs 4335Mi limit (91.7% — OOM risk); limit -> 4770Mi (ceil(spike*1.2)).
       requests:
         cpu: 200m
         memory: 2652Mi
         ephemeral-storage: 256Mi
       limits:
-        memory: 4335Mi
+        memory: 4770Mi
         ephemeral-storage: 256Mi
     containerSecurityContext:
       allowPrivilegeEscalation: false

@@ -27,12 +27,13 @@ connector:
   # No 30d history yet -- the right-sizing loop will refine them.
   podResources:
     tailscaleContainer:
+      # 2026-10-08: 30d spike ~124Mi vs 128Mi limit (97.0% — OOM risk); limit -> 149Mi (ceil(spike*1.2)).
       requests:
         cpu: 50m
         memory: 64Mi
         ephemeral-storage: 32Mi
       limits:
-        memory: 128Mi
+        memory: 149Mi
         ephemeral-storage: 64Mi
     tailscaleInitContainer:
       requests:
@@ -63,12 +64,13 @@ tailscale-operator:
       # KRR 2026-09-26: 30d max 61.9Mi vs 69Mi limit (~90%, zero OOMKills) --
       # spike crept past the 2026-09-23 baseline, so bump limit 69Mi -> 75Mi
       # (ceil(spike*1.2)). Request 43Mi unchanged (p50 41.7Mi).
+      # 2026-10-08: 30d spike ~70Mi vs 75Mi limit (92.7% — OOM risk); limit -> 84Mi (ceil(spike*1.2)).
       requests:
         cpu: 50m
         memory: 43Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 75Mi
+        memory: 84Mi
         ephemeral-storage: 64Mi
     securityContext:
       # Satisfies require-container-hardening (audit). Drops all capabilities and forbids privilege escalation.
