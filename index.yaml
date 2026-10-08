@@ -619,6 +619,32 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/heartbeats-1.0.0/heartbeats-1.0.0.tgz
     version: 1.0.0
+  hermes:
+  - apiVersion: v2
+    created: "2026-10-08T00:42:41.276203435Z"
+    description: Hermes agent deployment for Kubernetes
+    digest: 8768adb63fa094690d0a8b2bce01b092ac1302d68274511f2e17fe1cb2ba3719
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: hermes
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/hermes-0.1.0/hermes-0.1.0.tgz
+    version: 0.1.0
+  hermes-volume:
+  - apiVersion: v2
+    created: "2026-10-08T00:42:41.456468896Z"
+    dependencies:
+    - name: longhorn-volume-lib
+      repository: file://../longhorn-volume-lib
+      version: 0.3.2
+    description: Hermes Longhorn volume
+    digest: 6f37647da44bbaa10f46f8298e9e464abd3e195567420293437ad931d42c7984
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: hermes-volume
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/hermes-volume-0.1.0/hermes-volume-0.1.0.tgz
+    version: 0.1.0
   home-assistant:
   - apiVersion: v2
     created: "2025-07-06T15:50:34.622638741Z"
@@ -1611,4 +1637,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-10-07T10:49:08.227536085Z"
+generated: "2026-10-08T00:42:42.875384422Z"
