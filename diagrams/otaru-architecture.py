@@ -223,7 +223,7 @@ with Diagram(
                     "AI",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    openclaw = icon_node("OpenClaw", "openclaw")
+                    hermes = icon_node("Hermes", "hermes")
 
                 with Cluster(
                     "MCP",
@@ -394,7 +394,7 @@ with Diagram(
     cloudflare << edge("HTTPS monitor", colour=COLOUR_MONITORING) << webgazer
 
     # AI
-    (openclaw >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> llama_cpp)
+    (hermes >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> llama_cpp)
 
     # API Server
     (

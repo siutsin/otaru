@@ -74,7 +74,7 @@ prometheus:
     # prometheus-server replica for HighNodeUtilization ~every 5 min for
     # over an hour (raspberrypi-03), never loading its TSDB -- live 503s.
     # Same fix as umami (#2917), home-assistant (#2918), and the
-    # changedetection/openclaw/teslamate/unifi-mcp bundle (#2919); the
+    # changedetection/teslamate/unifi-mcp bundle (#2919); the
     # subchart exposes PDB natively.
     podDisruptionBudget:
       enabled: true

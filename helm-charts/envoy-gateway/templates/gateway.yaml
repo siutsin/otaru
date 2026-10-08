@@ -46,7 +46,6 @@ spec:
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring
-                  - openclaw
                   - teslamate
                   - umami
                   - unifi-mcp

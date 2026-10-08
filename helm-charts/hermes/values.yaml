@@ -1,0 +1,57 @@
+name: hermes
+namespace: hermes
+
+image:
+  repository: nousresearch/hermes-agent
+  tag: v2026.9.24@sha256:fca358f12efd65bfaaca05884166f15c0e2788375ca30d77061ac1ebc96452b7
+  pullPolicy: IfNotPresent
+
+persistence:
+  claimName: hermes-pvc
+  mountPath: /opt/data
+
+# Port of the gateway API server. It serves /health for the probes. No Service exposes it.
+apiPort: 8642
+
+inference:
+  baseUrl: http://inference.inference.svc.cluster.local:9931/v1
+  contextLength: 131072
+
+externalSecret:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-secret-store
+  remoteRef:
+    key: hermes
+    properties:
+      - TELEGRAM_BOT_TOKEN
+      - TELEGRAM_ALLOWED_USERS
+      - API_SERVER_KEY
+
+secret:
+  name: hermes-secrets
+
+resources:
+  requests:
+    cpu: 500m
+    # No usage data yet. Upstream asks for 1GB minimum and 2 to 4GB recommended.
+    memory: 2Gi
+    ephemeralStorage: 1Gi
+  limits:
+    memory: 2Gi
+    ephemeralStorage: 1Gi
+
+initContainer:
+  image:
+    repository: busybox
+    tag: 1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+      ephemeralStorage: 16Mi
+    limits:
+      memory: 32Mi
+      ephemeralStorage: 16Mi
