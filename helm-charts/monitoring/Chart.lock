@@ -7,7 +7,7 @@ dependencies:
   version: 11.19.1
 - name: prometheus-yet-another-cloudwatch-exporter
   repository: https://prometheus-community.github.io/helm-charts
-  version: 0.47.0
+  version: 0.48.0
 - name: loki
   repository: https://grafana.github.io/helm-charts
   version: 7.3.0
@@ -20,5 +20,5 @@ dependencies:
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
   version: 1.21.3
-digest: sha256:2ca56cd8f77b74da8c70c303af3270b5907fd3f4455e80ac450bee018e99300b
-generated: "2026-10-04T22:02:15.286381649Z"
+digest: sha256:dbb3632b9b3013660d0ad9fc525c1242b61e308a102001b27ea1619156ce9941
+generated: "2026-10-08T05:49:55.033568533Z"
