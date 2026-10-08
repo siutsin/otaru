@@ -42,9 +42,6 @@ clusterSecretStorePolicy:
       - grafana
       - heartbeats
       - monitoring
-    # Temporary: lets the removed openclaw ExternalSecret finish deleting. Remove after teardown.
-    openclaw:
-      - openclaw
     tailscale:
       - tailscale-operator
     teslamate:
