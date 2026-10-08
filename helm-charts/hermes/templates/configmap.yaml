@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+  namespace: {{ .Values.namespace }}
+data:
+  config.yaml: |
+    model: local/default
+    providers:
+      local:
+        api_mode: openai
+        base_url: {{ .Values.inference.baseUrl }}
+        models:
+          - name: default
+            context_length: {{ .Values.inference.contextLength }}
+    agent:
+      disabled_toolsets:
+        - web
+    terminal:
+      backend: local

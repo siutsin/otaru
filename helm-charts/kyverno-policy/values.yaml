@@ -8,7 +8,6 @@ clusterSecretStorePolicy:
     argocd:
       - argocd-secret
       - heartbeats
-      - openclaw
       - Otaru - GitHub Private
     blocky:
       - blocky
@@ -30,6 +29,8 @@ clusterSecretStorePolicy:
       - Umami
       - b2-secret-cloudnative-pg
       - heartbeats
+    hermes:
+      - hermes
     home-assistant:
       - heartbeats
     jung2bot:
@@ -41,8 +42,6 @@ clusterSecretStorePolicy:
       - grafana
       - heartbeats
       - monitoring
-    openclaw:
-      - openclaw
     tailscale:
       - tailscale-operator
     teslamate:

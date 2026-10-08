@@ -111,7 +111,7 @@ SKILL.md). Remote passes use the MCP equivalents.
     hand-written app chart using this repo's `.Values.name` /
     `.Values.namespace` convention, copy the template already used by
     `helm-charts/jung2bot/templates/pdb.yaml` (and umami,
-    home-assistant, changedetection, openclaw, teslamate, unifi-mcp —
+    home-assistant, changedetection, teslamate, unifi-mcp —
     all fixed for this exact issue on 2026-07-25, PRs #2917-#2919). For
     a bundled third-party subchart, check its own values schema first
     (`helm show values <chart> --version <pinned>` or the vendored

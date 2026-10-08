@@ -1,7 +1,7 @@
 longhorn-volume-lib:
-  namespace: openclaw
+  namespace: hermes
   volumes:
-    openclaw:
+    hermes:
       size: "10Gi"
       sizeBytes: "10737418240"
       # Longhorn Volume.spec.fromBackup is a string; keep it empty for a new volume.

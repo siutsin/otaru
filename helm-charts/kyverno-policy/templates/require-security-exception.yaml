@@ -132,13 +132,6 @@ spec:
           kinds:
             - HTTPRoute
           namespaces:
-            - openclaw
-          names:
-            - openclaw-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
             - teslamate
           names:
             - teslamate-grafana-internal
