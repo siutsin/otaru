@@ -13,12 +13,13 @@ _shared:
   webhookResources: &webhookResources
     # KRR 2026-09-27: 30d p50 35.4MiB (14d 35.4), max 131.9MiB — request 141MiB
     # never approached in 30d; lower to ceil(p50/0.9)=40MiB, limit 154MiB unchanged.
+    # 2026-10-08: 30d spike ~148Mi vs 154Mi limit (96.4% — OOM risk); limit -> 179Mi (ceil(spike*1.2)).
     requests:
       cpu: 50m
       memory: 40Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 154Mi
+      memory: 179Mi
       ephemeral-storage: 64Mi
   certControllerResources: &certControllerResources
     requests:
