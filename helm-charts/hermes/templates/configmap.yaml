@@ -5,14 +5,11 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   config.yaml: |
-    model: local/default
-    providers:
-      local:
-        api_mode: openai
-        base_url: {{ .Values.inference.baseUrl }}
-        models:
-          - name: default
-            context_length: {{ .Values.inference.contextLength }}
+    model:
+      default: default
+      provider: custom
+      base_url: {{ .Values.inference.baseUrl }}
+      context_length: {{ .Values.inference.contextLength }}
     agent:
       disabled_toolsets:
         - web
