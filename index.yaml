@@ -1509,6 +1509,17 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/reloader-0.1.0/reloader-0.1.0.tgz
     version: 0.1.0
+  searxng:
+  - apiVersion: v2
+    created: "2026-10-09T12:40:37.157063237Z"
+    description: Self-hosted web search
+    digest: 6a0b800f5f826892fcd5bd95494e210806a4a4b124a35fca786c026a9d131bcc
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: searxng
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/searxng-0.1.0/searxng-0.1.0.tgz
+    version: 0.1.0
   snapshot-controller:
   - apiVersion: v2
     appVersion: v8.6.0
@@ -1662,4 +1673,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-10-09T10:27:34.288626047Z"
+generated: "2026-10-09T12:40:37.157175016Z"
