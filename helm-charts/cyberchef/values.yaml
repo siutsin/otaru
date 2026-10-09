@@ -10,7 +10,7 @@ vpa:
 deployment:
   image:
     repository: ghcr.io/gchq/cyberchef
-    tag: 10.22.1@sha256:7c743898296b9b1de2cc7d55779980dcb665a1a6fc32fa45704752132041ef90
+    tag: 10.24.0@sha256:58d2bcefe3f32b066eafca07353aae31b961ca7765fe4bcb913aba6bb8b8dd81
 
 service:
   port: 8080
