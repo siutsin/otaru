@@ -20,4 +20,4 @@ deployment:
             topologyKey: kubernetes.io/hostname
   image:
     repository: ghcr.io/home-assistant/home-assistant
-    tag: 2025.11.2@sha256:02f582ea7d25f41761282ac0965baf89f0009efed3ad92f8d7eaba5eb6ffd9a8
+    tag: 2026.10.0@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4
