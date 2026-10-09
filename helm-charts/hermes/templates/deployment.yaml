@@ -87,6 +87,10 @@ spec:
               value: "1"
             - name: HERMES_DASHBOARD_PORT
               value: {{ .Values.dashboardPort | quote }}
+            - name: SEARXNG_URL
+              value: {{ .Values.web.searxngUrl | quote }}
+            - name: FIRECRAWL_API_URL
+              value: {{ .Values.web.firecrawlApiUrl | quote }}
           envFrom:
             - secretRef:
                 name: {{ .Values.secret.name }}

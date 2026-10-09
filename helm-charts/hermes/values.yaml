@@ -27,6 +27,10 @@ inference:
   baseUrl: http://inference.inference.svc.cluster.local:9931/v1
   contextLength: 131072
 
+web:
+  searxngUrl: http://searxng.searxng.svc.cluster.local:8080
+  firecrawlApiUrl: http://firecrawl.firecrawl.svc.cluster.local:3002
+
 externalSecret:
   refreshInterval: 1h
   secretStoreRef:

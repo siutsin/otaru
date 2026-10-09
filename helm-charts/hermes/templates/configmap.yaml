@@ -11,10 +11,11 @@ data:
       base_url: {{ .Values.inference.baseUrl }}
       context_length: {{ .Values.inference.contextLength }}
     web:
-      # web_search keeps Hermes' default keyless backends, which send queries to free outside services (Exa, Parallel, Firecrawl or Keenable).
-      # DuckDuckGo needs the ddgs package, which this image does not include.
-      # Firecrawl's keyless endpoint returned 403 Forbidden for a GitHub page and a 403 does not fail over, so extract starts at Keenable and tries Firecrawl last.
-      extract_backend: keenable
+      search_backend: searxng
+      extract_backend: firecrawl
+      # A failed call must stay in the cluster. These flags stop the keyless ring.
+      keyless_fallback: false
+      keyless_rescue: false
       # The server processes about 23 prompt tokens/s, so 15000 characters (the default) of one page would add about 3 minutes. 6000 adds about 1 minute.
       extract_char_limit: 6000
     tools:
