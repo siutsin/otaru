@@ -1,5 +1,5 @@
 ---
-# Docker Hub pull credentials for containerd on every node.
+# Docker Hub and Docker Hardened Images (dhi.io) pull credentials for containerd on every node.
 # k3s renders them into its containerd config on service restart.
 # The secret is read on the controller from 1Password (`op` must be signed in).
 - hosts: k3s_cluster
@@ -20,11 +20,15 @@
       copy:
         dest: /etc/rancher/k3s/registries.yaml
         content: |
+          {% set username = lookup('pipe', 'op read op://github-otaru/Docker/username') | to_json %}
+          {% set password = lookup('pipe', 'op read op://github-otaru/Docker/credential') | to_json %}
           configs:
-            docker.io:
+          {% for registry in ['docker.io', 'dhi.io'] %}
+            {{ registry }}:
               auth:
-                username: {{ lookup('pipe', 'op read op://github-otaru/Docker/username') | to_json }}
-                password: {{ lookup('pipe', 'op read op://github-otaru/Docker/credential') | to_json }}
+                username: {{ username }}
+                password: {{ password }}
+          {% endfor %}
         owner: root
         group: root
         mode: '0600'
