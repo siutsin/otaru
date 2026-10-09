@@ -47,6 +47,8 @@ namespaces:
   - name: tailscale
     ambient: false
   - name: teslamate
+  - name: trivy-operator
+    ambient: false
   - name: umami
   - name: unifi-mcp
   - name: vpa

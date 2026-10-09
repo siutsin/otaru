@@ -1,0 +1,10 @@
+apiVersion: v2
+name: trivy-operator
+description: Kubernetes vulnerability and config scans
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+dependencies:
+  - name: trivy-operator
+    version: 0.37.0
+    repository: https://aquasecurity.github.io/helm-charts

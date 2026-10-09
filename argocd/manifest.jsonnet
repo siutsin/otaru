@@ -326,6 +326,7 @@ local security = [
   { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security['kyverno-policy'] },
   { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
+  { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator' },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];
 
