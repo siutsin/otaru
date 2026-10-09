@@ -194,7 +194,8 @@ prometheus:
         memory: 32Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 32Mi
+        # 2026-10-09: 30d spike ~31.5Mi vs 32Mi limit (98.4% — OOM risk); limit -> 38Mi (ceil(spike*1.2)).
+        memory: 38Mi
         ephemeral-storage: 64Mi
   prometheus-pushgateway:
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
@@ -504,7 +505,8 @@ yace:
       memory: 34Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 43Mi
+      # 2026-10-09: 30d spike ~40.5Mi vs 43Mi limit (94.2% — OOM risk); limit -> 49Mi (ceil(spike*1.2)).
+      memory: 49Mi
       ephemeral-storage: 64Mi
   extraArgs:
     scraping-interval: 60
@@ -663,7 +665,8 @@ loki:
         memory: 40Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 53Mi
+        # 2026-10-09: 30d spike ~48.9Mi vs 53Mi limit (92.3% — OOM risk); limit -> 59Mi (ceil(spike*1.2)).
+        memory: 59Mi
         ephemeral-storage: 64Mi
   gateway:
     resources:
@@ -826,7 +829,8 @@ fluent-bit:
       memory: 32Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 66Mi
+      # 2026-10-09: 30d spike ~60.5Mi vs 66Mi limit (91.7% — OOM risk); limit -> 73Mi (ceil(spike*1.2)).
+      memory: 73Mi
       ephemeral-storage: 64Mi
   securityContext:
     allowPrivilegeEscalation: false

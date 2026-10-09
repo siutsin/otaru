@@ -27,7 +27,7 @@ spec:
         # Roll the pod when the script changes.
         checksum/slot-cache: {{ .Files.Get "files/slot-cache.sh" | sha256sum }}
     spec:
-      # preStop waits up to 240s for a running periodic save, then saves two slots, each capped at 120s.
+      # Allow the preStop hook to save both slots, each capped at 120s.
       terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       nodeSelector:
@@ -74,7 +74,16 @@ spec:
         - name: {{ .Values.name }}
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
           env:
-            {{- include "inference.serverEnv" . | nindent 12 }}
+            - name: LLAMA_ARG_PORT
+              value: {{ .Values.service.targetPort | quote }}
+            - name: LLAMA_ARG_SPEC_DRAFT_MODEL
+              value: {{ .Values.drafter.path | quote }}
+            - name: SLOT_PATH
+              value: {{ .Values.slotCache.path | quote }}
+            {{- range $name, $value := .Values.deployment.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
           # Slot save and restore files, used by the lifecycle hooks.
           args:
             - --slot-save-path
@@ -126,36 +135,11 @@ spec:
               memory: 64Gi
               ephemeral-storage: 1Gi
             limits:
-              memory: 64Gi
+              # 2026-10-09: pod inference-5c76bc4b7-xx2cm OOMKilled in the last 7d; 30d spike ~64Gi vs 64Gi limit.
+              # Limit -> 77Gi (ceil(spike*1.2)). Request stays 64Gi: ai-00 has 92Gi allocatable and the pod is
+              # already scheduled — a matching request bump would needlessly squeeze the rest of the node.
+              memory: 77Gi
               ephemeral-storage: 2Gi
-          volumeMounts:
-            - name: models
-              mountPath: /models
-            - name: slot-cache
-              mountPath: /scripts
-              readOnly: true
-        # Saves the KV cache when a request finished and the slots are idle, so a crash loses little. A save blocks the server while it writes.
-        - name: slot-saver
-          image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
-          command: ["sh", "/scripts/slot-cache.sh", "loop"]
-          env:
-            {{- include "inference.serverEnv" . | nindent 12 }}
-            - name: SAVE_INTERVAL
-              value: {{ .Values.slotCache.saveIntervalSeconds | quote }}
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              cpu: 10m
-              # A shell loop with curl, started with the 32Mi floor. No usage data yet.
-              memory: 32Mi
-              ephemeral-storage: 16Mi
-            limits:
-              memory: 32Mi
-              ephemeral-storage: 16Mi
           volumeMounts:
             - name: models
               mountPath: /models
