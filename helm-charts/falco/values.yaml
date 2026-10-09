@@ -102,6 +102,25 @@ falco:
           rule: Launch Package Management Process in Container
       - enable:
           rule: Detect crypto miners using the Stratum protocol
+  customRules:
+    # Narrow exceptions for known-benign package manager launches:
+    # cyberchef runs `apk manifest nginx` from its nginx entrypoint on start;
+    # the teslamate CNPG verify-pitr job installs curl.
+    rules-exceptions.yaml: |-
+      - rule: Launch Package Management Process in Container
+        exceptions:
+          - name: cyberchef_nginx_entrypoint
+            fields: [proc.name, container.image.repository]
+            comps: [=, =]
+            values:
+              - [apk, ghcr.io/gchq/cyberchef]
+          - name: teslamate_verify_pitr
+            fields: [proc.name, container.name, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [apk, verify-pitr, teslamate]
+        override:
+          exceptions: append
   falcosidekick:
     # Off. Alerts flow via metrics, not webhooks. No outputs are due.
     enabled: false
