@@ -26,8 +26,10 @@ falco:
   metrics:
     enabled: true
   serviceMonitor:
-    # Lets the existing ScrapeTargetDown alert watch Falco. No new rule.
-    create: true
+    # Cluster runs plain Prometheus (no prometheus-operator): the
+    # ServiceMonitor CRD does not exist, so enabling this fails the
+    # ArgoCD sync. Keep off.
+    create: false
   resources:
     # 2026-10-09: no live baseline yet. Upstream default is req 512Mi /
     # lim 1024Mi. Req==limit per repo policy. Revisit after 30d.
