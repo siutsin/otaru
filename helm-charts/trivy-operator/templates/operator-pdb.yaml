@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: trivy-operator
+  namespace: trivy-operator
+spec:
+  # 2026-10-09: Kyverno require-pdb-for-deployment denies the operator
+  # Deployment without one. Upstream chart ships no PDB; hand-written here.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trivy-operator
+      app.kubernetes.io/instance: trivy-operator
