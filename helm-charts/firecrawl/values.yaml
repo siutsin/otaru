@@ -5,7 +5,7 @@ clusterName: firecrawl-20261009-0001
 api:
   image:
     repository: ghcr.io/firecrawl/firecrawl
-    tag: 2.11.498@sha256:b92494431f9fdf96e016f85c69c979725f2d58789040462f71e6ea90794f585d
+    tag: 2.11.499@sha256:73a09378801b909a536b464d00a4c87fb3cd372e2da0133e7fb2d6b55a15c0b7
   port: 3002
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. One NuQ worker

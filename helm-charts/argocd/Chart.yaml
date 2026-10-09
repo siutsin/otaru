@@ -10,5 +10,5 @@ dependencies:
   # defaults to a non-empty path (argoproj/argo-cd#26715), CrashLoopBackOff.
   # Workaround: explicit --client-ca-path= flag in values.yaml
   # repoServer.extraArgs.
-  version: 10.9.6
+  version: 10.9.7
   repository: https://argoproj.github.io/argo-helm
