@@ -38,6 +38,8 @@ trivy-operator:
       ephemeral-storage: 128Mi
   service:
     # Same annotated-scrape pattern as Falco. No ServiceMonitor CRD here.
+    # ClusterIP, not headless: direct pod-IP scrapes get TCP-reset.
+    headless: false
     annotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "80"
