@@ -79,6 +79,12 @@ falco:
           rule: Read sensitive file untrusted
       - enable:
           rule: Netcat Remote Code Execution in Container
+      - enable:
+          rule: Drop and execute new binary in container
+      - enable:
+          rule: Redirect STDOUT/STDIN to Network Connection in Container
+      - enable:
+          rule: Search Private Keys or Passwords
   falcosidekick:
     # Off. Alerts flow via metrics, not webhooks. No outputs are due.
     enabled: false
