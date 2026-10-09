@@ -43,6 +43,9 @@ drafter:
   url: https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/resolve/70bf1b61ac09f91b24d39038091b41c582bc5d7a/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
   path: /models/dflash/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
 
+slotCache:
+  path: /models/slots
+
 service:
   port: 9931
   targetPort: 9931

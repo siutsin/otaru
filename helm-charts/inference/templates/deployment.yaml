@@ -36,6 +36,8 @@ spec:
             - -c
             - |
               set -e
+              # The server refuses to start if the slot save path is missing.
+              mkdir -p "$SLOT_PATH"
               [ -s "$DRAFT_PATH" ] && exit 0
               mkdir -p "$(dirname "$DRAFT_PATH")"
               curl -fL --retry 3 --connect-timeout 30 --max-time 3600 -o "$DRAFT_PATH.tmp" "$DRAFT_URL"
@@ -45,6 +47,8 @@ spec:
               value: {{ .Values.drafter.url | quote }}
             - name: DRAFT_PATH
               value: {{ .Values.drafter.path | quote }}
+            - name: SLOT_PATH
+              value: {{ .Values.slotCache.path | quote }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -74,6 +78,10 @@ spec:
             - name: {{ $name }}
               value: {{ $value | quote }}
             {{- end }}
+          # Slot save and restore files. Experiment only: no hook calls them yet.
+          args:
+            - --slot-save-path
+            - {{ .Values.slotCache.path | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
