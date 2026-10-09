@@ -1,0 +1,36 @@
+# Trivy Operator wrapper, light mode for Pi nodes.
+# Scanners on: vuln and config audit (upstream defaults). The rest stay
+# off: no secrets, SBOM, RBAC, infra, or compliance jobs.
+trivy-operator:
+  operator:
+    exposedSecretScannerEnabled: false
+    sbomGenerationEnabled: false
+    rbacAssessmentScannerEnabled: false
+    infraAssessmentScannerEnabled: false
+    clusterComplianceEnabled: false
+    # Weekly reports, one scan at a time. Upstream is 24h and 10 concurrent.
+    scannerReportTTL: "168h"
+    scanJobsConcurrentLimit: 1
+  trivy:
+    # No outbound Maven calls from scans.
+    offlineScan: true
+    resources:
+      # 2026-10-09: sane small default, no baseline. Resize after metrics.
+      # Upstream sets no ephemeral-storage; Kyverno requires it. The 500m
+      # CPU limit is the vendored default and is left as is.
+      requests:
+        cpu: 100m
+        memory: 500Mi
+        ephemeral-storage: 2Gi
+      limits:
+        memory: 500Mi
+        ephemeral-storage: 2Gi
+  resources:
+    # 2026-10-09: sane small default, no baseline. Resize after metrics.
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 128Mi
+    limits:
+      memory: 256Mi
+      ephemeral-storage: 128Mi
