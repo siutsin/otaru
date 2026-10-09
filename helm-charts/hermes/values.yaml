@@ -34,12 +34,13 @@ externalSecret:
     name: onepassword-secret-store
   remoteRef:
     key: hermes
+    # Secret key: 1Password field. The username and password fields let 1Password autofill the dashboard login.
     properties:
-      - TELEGRAM_BOT_TOKEN
-      - TELEGRAM_ALLOWED_USERS
-      - API_SERVER_KEY
-      - HERMES_DASHBOARD_BASIC_AUTH_USERNAME
-      - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
+      TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+      TELEGRAM_ALLOWED_USERS: TELEGRAM_ALLOWED_USERS
+      API_SERVER_KEY: API_SERVER_KEY
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: username
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: password
 
 secret:
   name: hermes-secrets
