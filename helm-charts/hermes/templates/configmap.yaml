@@ -15,3 +15,6 @@ data:
         - web
     terminal:
       backend: local
+    dashboard:
+      trusted_proxies:
+        {{- toYaml .Values.trustedProxies | nindent 8 }}

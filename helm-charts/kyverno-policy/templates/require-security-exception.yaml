@@ -59,6 +59,13 @@ spec:
           kinds:
             - HTTPRoute
           namespaces:
+            - hermes
+          names:
+            - hermes-internal
+      - resources:
+          kinds:
+            - HTTPRoute
+          namespaces:
             - home-assistant
           names:
             - home-assistant-internal

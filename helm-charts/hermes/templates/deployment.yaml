@@ -83,6 +83,10 @@ spec:
               value: 0.0.0.0
             - name: API_SERVER_PORT
               value: {{ .Values.apiPort | quote }}
+            - name: HERMES_DASHBOARD
+              value: "1"
+            - name: HERMES_DASHBOARD_PORT
+              value: {{ .Values.dashboardPort | quote }}
           envFrom:
             - secretRef:
                 name: {{ .Values.secret.name }}
@@ -101,6 +105,9 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.apiPort }}
+              protocol: TCP
+            - name: dashboard
+              containerPort: {{ .Values.dashboardPort }}
               protocol: TCP
           startupProbe:
             httpGet:

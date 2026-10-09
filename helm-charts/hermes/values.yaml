@@ -10,6 +10,16 @@ persistence:
   claimName: hermes-pvc
   mountPath: /opt/data
 
+route:
+  hostname: hermes.internal.siutsin.com
+
+# Dashboard port. Hermes enforces basic auth when the dashboard listens beyond localhost.
+dashboardPort: 9119
+
+# The gateway reaches the pod by pod IP. Trust it for X-Forwarded-Proto so cookies get Secure.
+trustedProxies:
+  - 10.42.0.0/16
+
 # Port of the gateway API server. It serves /health for the probes. No Service exposes it.
 apiPort: 8642
 
@@ -28,6 +38,8 @@ externalSecret:
       - TELEGRAM_BOT_TOKEN
       - TELEGRAM_ALLOWED_USERS
       - API_SERVER_KEY
+      - HERMES_DASHBOARD_BASIC_AUTH_USERNAME
+      - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
 
 secret:
   name: hermes-secrets
