@@ -10,9 +10,42 @@ data:
       provider: custom
       base_url: {{ .Values.inference.baseUrl }}
       context_length: {{ .Values.inference.contextLength }}
-    agent:
-      disabled_toolsets:
-        - web
+    # web_search and web_extract use Hermes' default keyless backends, which send queries and URLs to free outside services (Exa, Parallel, Firecrawl or Keenable).
+    # DuckDuckGo needs the ddgs package, which this image does not include.
+    tools:
+      tool_search:
+        # A deferred tool costs only its name and one-line description until the model asks for it.
+        # The server processes about 23 prompt tokens/s, so every 1k characters of tool schema adds about 10s to a cold prompt.
+        # An explicit list replaces the Hermes default, so the default entries come first.
+        defer:
+          - computer_use
+          - session_search
+          - image_generate
+          - todo_list
+          - process_manage
+          - cronjob_manage
+          - drive_preview
+          - gui_tour
+          - desktop_preview
+          - annotate_preview
+          - show_tip
+          - desktop_project
+          - close_terminal
+          - apply_layout
+          - read_terminal
+          - read_window_below
+          - focus_pane
+          # Large and rarely used: subagents (4.7k characters), speech (1.9k), Browser Use (3.5k) and its password vault (4.4k), skill editing (3.7k) and Python scripting (2.6k).
+          - delegate_task
+          - text_to_speech
+          - browser_exec
+          - browser_vault_enter_code
+          - browser_vault_fill
+          - browser_vault_list
+          - browser_vault_save_login
+          - browser_vault_unlock
+          - skill_manage
+          - execute_code
     terminal:
       backend: local
     dashboard:
