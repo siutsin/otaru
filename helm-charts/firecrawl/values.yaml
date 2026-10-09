@@ -70,7 +70,7 @@ rabbitmq:
 nuq:
   image:
     repository: ghcr.io/cloudnative-pg/postgresql
-    tag: 17.4@sha256:3c0ba08ea353c9705a755c113e4ae395be76553e0ed68076e5410cb09b9d17d9
+    tag: 17.11@sha256:70664ebcfa1100361b5bdc28bbf06fdbe08db2dc4ad7bd14de33c5e05fe8ea8e
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
     requests:

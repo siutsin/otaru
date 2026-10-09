@@ -12,7 +12,7 @@ defaults:
     instances: 1
     enablePDB: true
     failoverDelay: 0
-    imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+    imageName: ghcr.io/cloudnative-pg/postgresql:17.11
     logLevel: info
     maxSyncReplicas: 0
     minSyncReplicas: 0
