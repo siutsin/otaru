@@ -1,4 +1,4 @@
-{{- range $name := (list .Values.name "playwright" "valkey") }}
+{{- range $name := (list .Values.name "playwright" "valkey" "rabbitmq") }}
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rabbitmq
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: rabbitmq
+          image: {{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}
+          imagePullPolicy: IfNotPresent
+          # Do not set command. The stock entrypoint runs as uid 999.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+          ports:
+            - name: tcp-amqp
+              containerPort: 5672
+              protocol: TCP
+          # Mirrors the upstream compose healthcheck.
+          startupProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics
+                - -q
+                - check_running
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          readinessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics
+                - -q
+                - check_running
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics
+                - -q
+                - check_running
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: {{ .Values.rabbitmq.resources.requests.cpu }}
+              memory: {{ .Values.rabbitmq.resources.requests.memory }}
+              ephemeral-storage: {{ .Values.rabbitmq.resources.requests.ephemeralStorage }}
+            limits:
+              memory: {{ .Values.rabbitmq.resources.limits.memory }}
+              ephemeral-storage: {{ .Values.rabbitmq.resources.limits.ephemeralStorage }}
+          # RabbitMQ writes mnesia data, logs, and the cookie here.
+          # Ephemeral matches the upstream compose (no volumes).
+          volumeMounts:
+            - name: config
+              mountPath: /etc/rabbitmq/conf.d
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/rabbitmq
+            - name: log
+              mountPath: /var/log/rabbitmq
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: rabbitmq-config
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: rabbitmq
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: rabbitmq
+  ports:
+    - name: tcp-amqp
+      port: 5672
+      targetPort: tcp-amqp
+      protocol: TCP

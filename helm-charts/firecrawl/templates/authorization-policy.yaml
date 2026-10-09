@@ -60,6 +60,27 @@ spec:
         - operation:
             ports:
               - {{ .Values.valkey.port | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: rabbitmq
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.name }}
+      to:
+        - operation:
+            ports:
+              - "5672"
 {{- range $suffix := list "r" "ro" "rw" }}
 ---
 apiVersion: security.istio.io/v1

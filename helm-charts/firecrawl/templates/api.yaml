@@ -44,6 +44,10 @@ spec:
             # One worker keeps the first-deploy 2Gi budget.
             - name: NUQ_WORKER_COUNT
               value: "1"
+            # The harness starts the extract worker unconditionally; without
+            # this it throws and kills the whole pod.
+            - name: NUQ_RABBITMQ_URL
+              value: amqp://rabbitmq.{{ .Values.namespace }}.svc.cluster.local:5672
             - name: HOME
               value: /tmp
             - name: PLAYWRIGHT_MICROSERVICE_URL

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: rabbitmq
+data:
+  # The chart connects as guest from the api pod (a remote address).
+  # Stock RabbitMQ only allows guest over loopback, so declare the
+  # exception. The Service is ClusterIP-only and the mesh policy
+  # scopes AMQP to the chart's own ServiceAccount.
+  rabbitmq.conf: |
+    loopback_users = none
