@@ -459,13 +459,13 @@ prometheus:
         - name: trivy
           rules:
             - alert: TrivyCriticalVuln
-              expr: sum by (namespace, image_repository, image_tag) (trivy_image_vulnerabilities{severity="Critical"}) > 0
+              expr: sum(trivy_image_vulnerabilities{severity="Critical"}) > 0
               labels:
                 severity: warning
               annotations:
                 title: Critical image vulnerabilities found
-                summary: "{{ $labels.image_repository }}:{{ $labels.image_tag }} in {{ $labels.namespace }}"
-                description: "Trivy reports {{ $value }} critical vulnerabilities in {{ $labels.image_repository }}:{{ $labels.image_tag }} in {{ $labels.namespace }}. Check the VulnerabilityReport and patch the image."
+                summary: "Critical image vulnerabilities present cluster-wide"
+                description: "Trivy reports {{ $value }} critical vulnerabilities cluster-wide. List images with kubectl get vulnerabilityreports -A."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox

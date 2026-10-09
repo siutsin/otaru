@@ -8,8 +8,8 @@ trivy-operator:
     rbacAssessmentScannerEnabled: false
     infraAssessmentScannerEnabled: false
     clusterComplianceEnabled: false
-    # Weekly reports, one scan at a time. Upstream is 24h and 10 concurrent.
-    scannerReportTTL: "168h"
+    # Daily reports, one scan at a time. Upstream runs 10 concurrent.
+    scannerReportTTL: "24h"
     scanJobsConcurrentLimit: 1
   trivy:
     # No outbound Maven calls from scans.
