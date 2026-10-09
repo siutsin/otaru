@@ -320,6 +320,7 @@ local scheduling = [
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
+  { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '03', name: 'kyverno', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security.kyverno },
   { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security['kyverno-policy'] },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
