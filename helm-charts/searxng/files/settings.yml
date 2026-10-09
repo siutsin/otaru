@@ -1,4 +1,10 @@
-use_default_settings: true
+use_default_settings:
+  engines:
+    keep_only:
+      - duckduckgo
+      - wikipedia
+      - wikidata
+      - google cse
 search:
   formats:
     - html
