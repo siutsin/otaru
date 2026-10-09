@@ -1562,6 +1562,21 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/teslamate-0.1.1/teslamate-0.1.1.tgz
     version: 0.1.1
+  trivy-operator:
+  - apiVersion: v2
+    created: "2026-10-09T13:09:44.644533494Z"
+    dependencies:
+    - name: trivy-operator
+      repository: https://aquasecurity.github.io/helm-charts
+      version: 0.37.0
+    description: Kubernetes vulnerability and config scans
+    digest: 2945d1d9cd186755f0614b81f93693b432d88bdaccc4a20975c168038309bf6b
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: trivy-operator
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/trivy-operator-0.1.0/trivy-operator-0.1.0.tgz
+    version: 0.1.0
   umami:
   - apiVersion: v2
     created: "2026-06-14T18:00:55.605170978Z"
@@ -1673,4 +1688,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-10-09T12:40:37.157175016Z"
+generated: "2026-10-09T13:09:44.644621186Z"
