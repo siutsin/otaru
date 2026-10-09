@@ -309,3 +309,42 @@ clusters:
     test:
       enabled: true
       query: SELECT 1;
+
+  # 2026-10-09: first deploy, no 30d series. Memory stays on the chart
+  # default of 512Mi. Do not set resources here.
+  firecrawl:
+    clusterName: firecrawl-20261009-0001
+    namespace: firecrawl
+    instances: 1
+    storage:
+      resizeInUseVolumes: true
+      size: 2Gi
+      storageClass: longhorn-crypto-global
+    postgresql:
+      <<: *postgresql
+      pg_hba:
+        - hostssl all all 0.0.0.0/0 scram-sha-256
+        - hostssl all all ::0/0 scram-sha-256
+    enableSuperuserAccess: false
+    managed:
+      roles:
+        - name: app
+          ensure: present
+          login: true
+          connectionLimit: -1
+    inheritedMetadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        mesh.otaru.io/non-ambient-endpoints: "true"
+      labels:
+        istio.io/dataplane-mode: none
+    # NuQ schema is files/firecrawl-nuq-init.sql. The chart puts it in a
+    # ConfigMap and CNPG runs it once in the application database.
+    initSQLFile: files/firecrawl-nuq-init.sql
+    bootstrap:
+      initdb:
+        database: firecrawl
+        owner: app
+        secret:
+          name: firecrawl-20261009-0001

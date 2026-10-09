@@ -1,0 +1,85 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/hermes/sa/hermes
+      to:
+        - operation:
+            ports:
+              - {{ .Values.api.port | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: playwright
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: playwright
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.name }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.playwright.port | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: valkey
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: valkey
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ .Values.namespace }}/sa/{{ .Values.name }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.valkey.port | quote }}
+{{- range $suffix := list "r" "ro" "rw" }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ $.Values.clusterName }}-{{ $suffix }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ $.Values.clusterName }}-{{ $suffix }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $.Values.namespace }}/sa/{{ $.Values.name }}
+      to:
+        - operation:
+            ports:
+              - "5432"
+{{- end }}

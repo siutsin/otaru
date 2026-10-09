@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nuq-sql
+  namespace: {{ .Values.namespace }}
+data:
+  nuq-scrape-cleanup.sql: |
+{{- .Files.Get "files/nuq-scrape-cleanup.sql" | nindent 4 }}
+  nuq-scrape-lock-reaper.sql: |
+{{- .Files.Get "files/nuq-scrape-lock-reaper.sql" | nindent 4 }}
+{{- range $job := .Values.nuq.jobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $job.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $job.name }}
+spec:
+  schedule: {{ $job.schedule | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 180
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 60
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ $job.name }}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ $.Values.name }}
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 26
+            runAsGroup: 26
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: psql
+              image: {{ $.Values.nuq.image.repository }}:{{ $.Values.nuq.image.tag }}
+              imagePullPolicy: IfNotPresent
+              # command replaces the image entrypoint so Postgres does not start.
+              command:
+                - /bin/sh
+                - -c
+              args:
+                - exec psql -v ON_ERROR_STOP=1 -f /sql/job.sql "$DATABASE_URL"
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $.Values.clusterName }}
+                      key: DATABASE_URL
+                - name: PSQL_HISTORY
+                  value: /dev/null
+                - name: HOME
+                  value: /tmp
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 26
+                runAsGroup: 26
+              resources:
+                requests:
+                  cpu: {{ $.Values.nuq.resources.requests.cpu }}
+                  memory: {{ $.Values.nuq.resources.requests.memory }}
+                  ephemeral-storage: {{ $.Values.nuq.resources.requests.ephemeralStorage }}
+                limits:
+                  memory: {{ $.Values.nuq.resources.limits.memory }}
+                  ephemeral-storage: {{ $.Values.nuq.resources.limits.ephemeralStorage }}
+              volumeMounts:
+                - name: sql
+                  mountPath: /sql/job.sql
+                  subPath: job.sql
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+                - name: ca
+                  mountPath: /etc/secrets/ca
+                  readOnly: true
+          volumes:
+            - name: sql
+              configMap:
+                name: nuq-sql
+                items:
+                  - key: {{ $job.file }}
+                    path: job.sql
+            - name: tmp
+              emptyDir: {}
+            - name: ca
+              secret:
+                secretName: {{ $.Values.clusterName }}-ca
+                items:
+                  - key: ca.crt
+                    path: ca.crt
+{{- end }}

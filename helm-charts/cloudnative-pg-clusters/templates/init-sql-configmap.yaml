@@ -1,0 +1,13 @@
+{{- range $k, $clusterConfig := .Values.clusters }}
+{{- if $clusterConfig.initSQLFile }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $clusterConfig.clusterName }}-nuq-init
+  namespace: {{ $clusterConfig.namespace }}
+data:
+  init.sql: |
+{{ required (printf "missing init SQL file %s" $clusterConfig.initSQLFile) ($.Files.Get $clusterConfig.initSQLFile) | nindent 4 }}
+{{- end }}
+{{- end }}

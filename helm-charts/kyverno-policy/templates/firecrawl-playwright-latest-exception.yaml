@@ -1,0 +1,27 @@
+# Upstream Firecrawl publishes no x.y.z tag for the Playwright service. The
+# only multi-arch tag is `latest`. The chart pins the index digest. Remove
+# this exception when upstream publishes a version tag.
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: firecrawl-playwright-latest-tag
+  namespace: {{ .Values.namespace }}
+spec:
+  exceptions:
+    - policyName: require-image-tag
+      ruleNames:
+        - disallow-latest-image-tag
+        - autogen-disallow-latest-image-tag
+        - autogen-cronjob-disallow-latest-image-tag
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+            - ReplicaSet
+          namespaces:
+            - firecrawl
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: playwright
