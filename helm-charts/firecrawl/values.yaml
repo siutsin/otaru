@@ -1,0 +1,71 @@
+name: firecrawl
+namespace: firecrawl
+clusterName: firecrawl-20261009-0001
+
+api:
+  image:
+    repository: ghcr.io/firecrawl/firecrawl
+    tag: 2.11.498@sha256:b92494431f9fdf96e016f85c69c979725f2d58789040462f71e6ea90794f585d
+  port: 3002
+  resources:
+    # 2026-10-09: first deploy, no 30d series. Unmeasured. One NuQ worker
+    # shares this pod. Request equals limit.
+    requests:
+      cpu: 100m
+      memory: 2Gi
+      ephemeralStorage: 256Mi
+    limits:
+      memory: 2Gi
+      ephemeralStorage: 256Mi
+
+playwright:
+  image:
+    repository: ghcr.io/siutsin/images/playwright-service
+    tag: 20261009@sha256:717699bf8a61d94451926c810d19ca1d36278192907e307bf5229a558b08fcc6
+  port: 3000
+  resources:
+    # 2026-10-09: first deploy, no 30d series. Unmeasured. 1Gi ephemeral
+    # leaves room for Chromium files under /tmp. Request equals limit.
+    requests:
+      cpu: 200m
+      memory: 2Gi
+      ephemeralStorage: 1Gi
+    limits:
+      memory: 2Gi
+      ephemeralStorage: 1Gi
+
+valkey:
+  image:
+    repository: docker.io/valkey/valkey
+    tag: 9.1.2@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+  port: 6379
+  resources:
+    # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeralStorage: 128Mi
+    limits:
+      memory: 128Mi
+      ephemeralStorage: 128Mi
+
+nuq:
+  image:
+    repository: ghcr.io/cloudnative-pg/postgresql
+    tag: 17.4@sha256:3c0ba08ea353c9705a755c113e4ae395be76553e0ed68076e5410cb09b9d17d9
+  resources:
+    # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+    requests:
+      cpu: 50m
+      memory: 128Mi
+      ephemeralStorage: 128Mi
+    limits:
+      memory: 128Mi
+      ephemeralStorage: 128Mi
+  jobs:
+    - name: nuq-scrape-cleanup
+      schedule: "*/5 * * * *"
+      file: nuq-scrape-cleanup.sql
+    - name: nuq-scrape-lock-reaper
+      schedule: "* * * * *"
+      file: nuq-scrape-lock-reaper.sql

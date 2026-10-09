@@ -212,6 +212,7 @@ local application = [
   { wave: '10', name: 'changedetection-volume', namespace: 'changedetection' },
   { wave: '10', name: 'cyberchef', namespace: 'cyberchef' },
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
+  { wave: '10', name: 'firecrawl', namespace: 'firecrawl' },
   { wave: '10', name: 'hermes-volume', namespace: 'hermes' },
   { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
   { wave: '10', name: 'hydra', namespace: 'hydra' },

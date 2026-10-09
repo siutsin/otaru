@@ -18,6 +18,7 @@ namespaces:
   - name: descheduler
   - name: excalidraw
   - name: external-secrets
+  - name: firecrawl
   - name: hermes
   - name: home-assistant
   - name: httpbin

@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valkey
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: valkey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: valkey
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: valkey
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: valkey
+          image: {{ .Values.valkey.image.repository }}:{{ .Values.valkey.image.tag }}
+          imagePullPolicy: IfNotPresent
+          # Do not set command. The entrypoint accepts these args and runs as uid 999.
+          args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+          ports:
+            - name: tcp-redis
+              containerPort: {{ .Values.valkey.port }}
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: tcp-redis
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          readinessProbe:
+            tcpSocket:
+              port: tcp-redis
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: tcp-redis
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: {{ .Values.valkey.resources.requests.cpu }}
+              memory: {{ .Values.valkey.resources.requests.memory }}
+              ephemeral-storage: {{ .Values.valkey.resources.requests.ephemeralStorage }}
+            limits:
+              memory: {{ .Values.valkey.resources.limits.memory }}
+              ephemeral-storage: {{ .Values.valkey.resources.limits.ephemeralStorage }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valkey
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: valkey
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: valkey
+  ports:
+    - name: tcp-redis
+      port: {{ .Values.valkey.port }}
+      targetPort: tcp-redis
+      protocol: TCP
