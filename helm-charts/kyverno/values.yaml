@@ -40,7 +40,8 @@ kyverno:
         memory: 184Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 203Mi
+        # 2026-10-09: 30d spike ~181.7Mi vs 203Mi limit (89.5% — OOM risk); limit -> 219Mi (ceil(spike*1.2)).
+        memory: 219Mi
         ephemeral-storage: 64Mi
     podDisruptionBudget: *pdb
     metricsService: *metricsScrape
@@ -65,7 +66,8 @@ kyverno:
         memory: 125Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 152Mi
+        # 2026-10-09: 30d spike ~137.4Mi (reports-controller pods) vs 152Mi limit (90.4% — OOM risk); limit -> 165Mi (ceil(spike*1.2)).
+        memory: 165Mi
         ephemeral-storage: 64Mi
     podDisruptionBudget: *pdb
     metricsService: *metricsScrape

@@ -29,7 +29,8 @@ pod-identity-webhook:
       cpu: 10m
       memory: 41Mi
     limits:
-      memory: 45Mi
+      # 2026-10-09: 30d spike ~39.9Mi vs 45Mi limit (88.7% — OOM risk); limit -> 48Mi (ceil(spike*1.2)).
+      memory: 48Mi
   config:
     defaultAwsRegion: eu-west-1
     tokenAudience: oidc.siutsin.com
