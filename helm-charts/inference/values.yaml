@@ -5,8 +5,8 @@ route:
   hostname: inference.internal.siutsin.com
 
 deployment:
-  # preStop saves two slots, each capped at 120s.
-  terminationGracePeriodSeconds: 300
+  # preStop waits up to 240s for a running periodic save, then saves two slots, each capped at 120s.
+  terminationGracePeriodSeconds: 600
   image:
     repository: ghcr.io/ggml-org/llama.cpp
     tag: server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257
@@ -50,6 +50,8 @@ drafter:
 
 slotCache:
   path: /models/slots
+  # How often the sidecar checks whether to save.
+  saveIntervalSeconds: 300
 
 service:
   port: 9931
