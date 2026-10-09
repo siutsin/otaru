@@ -22,6 +22,11 @@ deployment:
     # On 10 vCPUs, 10 threads gave 8.3 tokens/s against 7.8 with 8. Leave batch threads at the default.
     LLAMA_ARG_THREADS: "10"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
+    # Experiment: a restored slot matched the prompt (similarity 1.0) but the server processed all 2708 tokens again.
+    # Test whether a full-size SWA cache lets a restored slot be reused, and look for why the cache is discarded.
+    # The full-size cache adds about 10GiB of KV memory, so expect about 58GiB against the 64Gi limit. Remove both lines to roll back.
+    LLAMA_ARG_SWA_FULL: "1"
+    LLAMA_ARG_LOG_VERBOSITY: "4"
     # The drafter proposes blocks of tokens and the main model verifies them, so decode is faster.
     LLAMA_ARG_SPEC_TYPE: draft-dflash
     LLAMA_CACHE: /models
