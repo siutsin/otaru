@@ -7,6 +7,19 @@ _shared:
             topologyKey: kubernetes.io/hostname
 
 keda:
+  image:
+    keda:
+      registry: dhi.io
+      repository: keda
+      tag: 2.21.0@sha256:7b607bf215f17c8c79b9fc9169795fcf72e5f895f39a181d18e3b2621e066186
+    metricsApiServer:
+      registry: dhi.io
+      repository: keda-metrics-apiserver
+      tag: 2.21.0@sha256:85851c7cf5e2b1a5bb83ffc0ff3506b2881fae8c7f623e84260e8db1d4c979a0
+    webhooks:
+      registry: dhi.io
+      repository: keda-admission-webhooks
+      tag: 2.21.0@sha256:906e90316363e1216b0de9ae40520fad6a21f3985fecf58c2cfaae6d2db6a831
   resources:
     # KRR 2026-07-18 dead end: the vendored chart's own 1-core CPU limit stays --
     # a plain values.yaml `null` does not remove a subchart-default key on merge

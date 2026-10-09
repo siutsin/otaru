@@ -2,6 +2,10 @@ name: amazon-eks-pod-identity-webhook
 namespace: default
 
 pod-identity-webhook:
+  image:
+    registry: dhi.io
+    repository: amazon-eks-pod-identity-webhook
+    tag: 0.6.17@sha256:7820c7816b039d1e0caadd49d47b6e3a639ffb6ddb846df05d0769581da1a391
   replicaCount: 2
   strategy:
     rollingUpdate:

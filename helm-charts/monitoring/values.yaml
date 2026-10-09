@@ -68,6 +68,9 @@ prometheus:
           drop:
             - ALL
   server:
+    image:
+      repository: dhi.io/prometheus
+      tag: 3.15.0@sha256:2561b55e40f7c621c6ad84b08cba0c24fc41a4c717fb006d3675a2bf5e902ab1
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: blackbox-scrape-config
     # 2026-07-25: no PDB, so the descheduler evicted the sole
@@ -122,6 +125,9 @@ prometheus:
         readOnly: true
   alertmanager:
     enabled: true
+    image:
+      repository: dhi.io/alertmanager
+      tag: 0.34.1@sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
@@ -173,6 +179,12 @@ prometheus:
         mountPath: /etc/alertmanager/templates
         readOnly: true
   kube-state-metrics:
+    image:
+      # The subchart prints registry/repository:tag; registry defaults to
+      # registry.k8s.io, so both must be set.
+      registry: dhi.io
+      repository: kube-state-metrics
+      tag: 2.20.0@sha256:447969f7908b0e60b2768931152e287b112ba597ffd4b93ad667ff7314fb2cc3
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
@@ -188,6 +200,13 @@ prometheus:
         memory: 112Mi
         ephemeral-storage: 64Mi
   prometheus-node-exporter:
+    # Required: image.tag carries a digest suffix, which is not valid semver
+    # for the chart's version-gated args.
+    version: "1.12.1"
+    image:
+      registry: dhi.io
+      repository: node-exporter
+      tag: 1.12.1@sha256:09e7c92c4ff5f925adb2c66e2728596c47c7a8e070bf3236401783fa429a15ac
     resources:
       requests:
         cpu: 50m
@@ -198,6 +217,9 @@ prometheus:
         memory: 38Mi
         ephemeral-storage: 64Mi
   prometheus-pushgateway:
+    image:
+      repository: dhi.io/pushgateway
+      tag: 1.11.3@sha256:7715052ac6a02bf9fc6776beb1b631798431f3377916652f2f24c8b57f20f887
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
@@ -800,6 +822,9 @@ loki:
     replicas: 0
 
 fluent-bit:
+  image:
+    repository: dhi.io/fluent-bit
+    tag: 5.1.3@sha256:12a255ba489dcfe381dacab1b87de87869109a1f04ec536492a9a9f4dda0487d
   podLabels:
     # fluent-bit runs host log collection on every node; keep host-facing log shipping outside ambient mesh interception.
     istio.io/dataplane-mode: none

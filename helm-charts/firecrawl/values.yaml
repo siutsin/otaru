@@ -38,8 +38,8 @@ playwright:
 
 valkey:
   image:
-    repository: docker.io/valkey/valkey
-    tag: 9.1.2@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+    repository: dhi.io/valkey
+    tag: 9.1.2@sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1
   port: 6379
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
