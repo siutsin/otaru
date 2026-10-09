@@ -16,15 +16,16 @@ trivy-operator:
     offlineScan: true
     resources:
       # 2026-10-09: sane small default, no baseline. Resize after metrics.
-      # Upstream sets no ephemeral-storage; Kyverno requires it. The 500m
+      # Upstream chart maps camelCase ephemeralStorage to the scan-job
+      # ConfigMap key (hyphen form here is silently dropped). The 500m
       # CPU limit is the vendored default and is left as is.
       requests:
         cpu: 100m
         memory: 500Mi
-        ephemeral-storage: 2Gi
+        ephemeralStorage: 2Gi
       limits:
         memory: 500Mi
-        ephemeral-storage: 2Gi
+        ephemeralStorage: 2Gi
   resources:
     # 2026-10-09: OOMKilled at 256Mi on first sync (exit 137). Raise to
     # 512Mi. Resize after metrics.
