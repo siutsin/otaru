@@ -1,6 +1,25 @@
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
+  name: {{ .Values.name }}-deny-integration
+  namespace: {{ .Values.namespace }}
+spec:
+  action: DENY
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  rules:
+    - to:
+        - operation:
+            ports:
+              - {{ .Values.api.port | quote }}
+            paths:
+              - /admin/integration*
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
   name: {{ .Values.name }}
   namespace: {{ .Values.namespace }}
 spec:
