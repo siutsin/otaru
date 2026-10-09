@@ -26,11 +26,12 @@ trivy-operator:
         memory: 500Mi
         ephemeral-storage: 2Gi
   resources:
-    # 2026-10-09: sane small default, no baseline. Resize after metrics.
+    # 2026-10-09: OOMKilled at 256Mi on first sync (exit 137). Raise to
+    # 512Mi. Resize after metrics.
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 512Mi
       ephemeral-storage: 128Mi
     limits:
-      memory: 256Mi
+      memory: 512Mi
       ephemeral-storage: 128Mi
