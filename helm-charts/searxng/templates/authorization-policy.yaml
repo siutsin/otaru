@@ -1,0 +1,23 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # Kyverno admits the Service only when this policy already exists.
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/hermes/sa/hermes
+      to:
+        - operation:
+            ports:
+              - {{ .Values.port | quote }}

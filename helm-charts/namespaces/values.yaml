@@ -43,6 +43,7 @@ namespaces:
   - name: monitoring
   - name: onepassword
   - name: reloader
+  - name: searxng
   - name: tailscale
     ambient: false
   - name: teslamate
