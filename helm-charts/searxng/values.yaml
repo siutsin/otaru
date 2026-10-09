@@ -1,0 +1,19 @@
+name: searxng
+namespace: searxng
+
+image:
+  # 2026-10-09: tag 2026.10.9-2dc2b1462. The digest is the multi-arch index
+  # (linux/amd64 and linux/arm64). GRANIAN_PORT is 8080. The image sets no
+  # USER. Dist files are owned by uid 977.
+  repository: docker.io/searxng/searxng
+  tag: 2026.10.9-2dc2b1462@sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f
+port: 8080
+resources:
+  # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+  requests:
+    cpu: 100m
+    memory: 256Mi
+    ephemeralStorage: 256Mi
+  limits:
+    memory: 256Mi
+    ephemeralStorage: 256Mi

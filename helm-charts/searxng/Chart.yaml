@@ -1,0 +1,6 @@
+apiVersion: v2
+name: searxng
+description: Self-hosted web search
+type: application
+version: 0.1.0
+icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg

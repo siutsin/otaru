@@ -219,6 +219,7 @@ local application = [
   { wave: '10', name: 'inference-volume', namespace: 'inference' },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
   { wave: '10', name: 'kubernetes-mcp-server', namespace: 'kubernetes-mcp-server' },
+  { wave: '10', name: 'searxng', namespace: 'searxng' },
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
