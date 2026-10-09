@@ -45,6 +45,12 @@ falco:
       memory: 512Mi
       ephemeral-storage: 128Mi
   falcoctl:
+    config:
+      artifact:
+        install:
+          refs: [falco-rules:5, falco-incubating-rules:6]
+        follow:
+          refs: [falco-rules:5, falco-incubating-rules:6]
     artifact:
       install:
         resources:
@@ -66,8 +72,14 @@ falco:
           limits:
             memory: 64Mi
             ephemeral-storage: 64Mi
-  # Four high-signal rules only. Upstream defaults are a firehose.
+  # Four high-signal stable rules plus one incubating rule. Upstream
+  # incubating defaults are a firehose; disable "*" keeps the rest off.
   falco:
+    rules_files:
+      - /etc/falco/falco_rules.yaml
+      - /etc/falco/falco-incubating_rules.yaml
+      - /etc/falco/falco_rules.local.yaml
+      - /etc/falco/rules.d
     rules:
       - disable:
           rule: "*"
@@ -85,6 +97,8 @@ falco:
           rule: Redirect STDOUT/STDIN to Network Connection in Container
       - enable:
           rule: Search Private Keys or Passwords
+      - enable:
+          rule: Launch Package Management Process in Container
   falcosidekick:
     # Off. Alerts flow via metrics, not webhooks. No outputs are due.
     enabled: false
