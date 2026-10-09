@@ -456,16 +456,6 @@ prometheus:
                 title: Falco rule fired
                 summary: "{{ $labels.rule_name }}"
                 description: "The Falco rule {{ $labels.rule_name }} matched in the last 10 minutes. Search Loki for the rule name to find the pod and command."
-        - name: trivy
-          rules:
-            - alert: TrivyCriticalVuln
-              expr: sum(trivy_image_vulnerabilities{severity="Critical"}) > 0
-              labels:
-                severity: warning
-              annotations:
-                title: Critical image vulnerabilities found
-                summary: "Critical image vulnerabilities present cluster-wide"
-                description: "Trivy reports {{ $value }} critical vulnerabilities cluster-wide. List images with kubectl get vulnerabilityreports -A."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
