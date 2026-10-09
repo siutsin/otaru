@@ -446,6 +446,16 @@ prometheus:
                 title: External endpoint health check failing
                 summary: "{{ $labels.instance }}"
                 description: "The HTTPS health probe has failed for over 5 minutes. Check the service, ingress, and TLS."
+        - name: falco
+          rules:
+            - alert: FalcoRuleFired
+              expr: sum by (rule_name) (increase(falcosecurity_falco_rules_matches_total[10m])) > 0
+              labels:
+                severity: warning
+              annotations:
+                title: Falco rule fired
+                summary: "{{ $labels.rule_name }}"
+                description: "The Falco rule {{ $labels.rule_name }} matched in the last 10 minutes. Search Loki for the rule name to find the pod and command."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox

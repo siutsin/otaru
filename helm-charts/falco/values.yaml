@@ -1,6 +1,6 @@
 # Falco wrapper. All keys pass to the upstream falco subchart.
-# Upstream: falco 9.2.0 (app 0.45.0), sidekick 0.14.x.
-# Warning+ events go to Alertmanager (Telegram).
+# Upstream: falco 9.2.0 (app 0.45.0). Alerts flow via Prometheus metrics
+# (falcosecurity_falco_rules_matches_total) to the Telegram receiver.
 falco:
   # Flush logs at once.
   tty: true
@@ -80,25 +80,5 @@ falco:
       - enable:
           rule: Netcat Remote Code Execution in Container
   falcosidekick:
-    enabled: true
-    # Meets require-container-hardening. No exception widening.
-    securityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-          - ALL
-    # Small default. No baseline. Resize after metrics.
-    resources:
-      requests:
-        cpu: 50m
-        memory: 64Mi
-        ephemeral-storage: 64Mi
-      limits:
-        memory: 64Mi
-        ephemeral-storage: 64Mi
-    config:
-      alertmanager:
-        hostport: http://monitoring-alertmanager.monitoring.svc.cluster.local:9093
-        endpoint: /api/v2/alerts
-        # Warning and above only. Cuts noise to Telegram.
-        minimumpriority: warning
+    # Off. Alerts flow via metrics, not webhooks. No outputs are due.
+    enabled: false

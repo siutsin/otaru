@@ -75,14 +75,6 @@ spec:
         - operation:
             ports:
               - "9093"
-    # Falco sidekick (ns falco, ambient off for eBPF) has no mesh identity,
-    # so no principal can match it. Open only the alerts receive path.
-    - to:
-        - operation:
-            paths:
-              - /api/v2/alerts
-            ports:
-              - "9093"
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
