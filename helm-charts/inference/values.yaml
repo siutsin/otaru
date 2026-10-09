@@ -5,7 +5,7 @@ route:
   hostname: inference.internal.siutsin.com
 
 deployment:
-  # preStop waits up to 240s for a running periodic save, then saves two slots, each capped at 120s.
+  # preStop waits up to 240s for a periodic save, then saves two slots at up to 120s each.
   terminationGracePeriodSeconds: 600
   image:
     repository: ghcr.io/ggml-org/llama.cpp
@@ -14,18 +14,16 @@ deployment:
     LLAMA_ARG_HF_REPO: meta-models/Muse-Glimmer-30B-GGUF
     # Pin the higher-quality official file. Without this, the server selects Q4_K_M.
     LLAMA_ARG_HF_FILE: Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf
-    # The repo has a vision projector. Do not download it.
-    LLAMA_ARG_NO_MMPROJ: "1"
+    # Load the vision projector from the model repo, so image input works.
+    LLAMA_ARG_MMPROJ_AUTO: "1"
     # The context is split across slots. 262144 gives each of the 2 slots the 131072 model maximum.
     LLAMA_ARG_CTX_SIZE: "262144"
     # Two slots let a second client run while the first is busy.
     LLAMA_ARG_N_PARALLEL: "2"
-    # One thread per vCPU. On 12 vCPUs, 12 threads cut generation to 5.2 tokens/s from 7.2.
-    # On 10 vCPUs, 10 threads gave 8.3 tokens/s against 7.8 with 8. Leave batch threads at the default.
+    # Generation threads, set by benchmark. Leave batch threads at the default.
     LLAMA_ARG_THREADS: "10"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
-    # Without a full-size SWA cache, a restored slot matched the prompt but the server processed all 2708 tokens again.
-    # With it, a restored slot reuses the prompt (1 token processed, 8s instead of 129s). It adds about 10GiB of KV memory.
+    # A full-size SWA cache lets a restored slot reuse its prompt. It adds about 10GiB of KV memory.
     LLAMA_ARG_SWA_FULL: "1"
     # The drafter proposes blocks of tokens and the main model verifies them, so decode is faster.
     LLAMA_ARG_SPEC_TYPE: draft-dflash
