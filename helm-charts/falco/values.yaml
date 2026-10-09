@@ -1,0 +1,92 @@
+# Falco wrapper. All keys pass to the upstream falco subchart.
+# Upstream: falco 9.2.0 (app 0.45.0), sidekick 0.14.x.
+# Warning+ events go to Alertmanager (Telegram).
+falco:
+  # Flush logs at once.
+  tty: true
+  driver:
+    # CO-RE eBPF, no per-kernel build. Fits k3s nodes with BTF.
+    kind: modern_ebpf
+    modernEbpf:
+      # Caps (BPF, SYS_RESOURCE, PERFMON, SYS_PTRACE), not privileged.
+      leastPrivileged: true
+    loader:
+      initContainer:
+        resources:
+          # 2026-10-09: sane small default, no baseline. Resize after metrics.
+          requests:
+            cpu: 50m
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+          limits:
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+  # Upstream container-engine defaults already list the k3s socket
+  # (/run/k3s/containerd/containerd.sock). No override.
+  metrics:
+    enabled: true
+  serviceMonitor:
+    # Lets the existing ScrapeTargetDown alert watch Falco. No new rule.
+    create: true
+  resources:
+    # 2026-10-09: no live baseline yet. Upstream default is req 512Mi /
+    # lim 1024Mi. Req==limit per repo policy. Revisit after 30d.
+    requests:
+      cpu: 100m
+      memory: 512Mi
+      ephemeral-storage: 128Mi
+    limits:
+      memory: 512Mi
+      ephemeral-storage: 128Mi
+  falcoctl:
+    artifact:
+      install:
+        resources:
+          # 2026-10-09: sane small default, no baseline. Resize after metrics.
+          requests:
+            cpu: 50m
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+          limits:
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+      follow:
+        resources:
+          # 2026-10-09: sane small default, no baseline. Resize after metrics.
+          requests:
+            cpu: 50m
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+          limits:
+            memory: 64Mi
+            ephemeral-storage: 64Mi
+  # Four high-signal rules only. Upstream defaults are a firehose.
+  falco:
+    rules:
+      - disable:
+          rule: "*"
+      - enable:
+          rule: Terminal shell in container
+      - enable:
+          rule: Launch Privileged Container
+      - enable:
+          rule: Read sensitive file untrusted
+      - enable:
+          rule: Netcat Remote Code Execution in Container
+  falcosidekick:
+    enabled: true
+    # Small default. No baseline. Resize after metrics.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 64Mi
+        ephemeral-storage: 64Mi
+    config:
+      alertmanager:
+        hostport: http://monitoring-alertmanager.monitoring.svc.cluster.local:9093
+        endpoint: /api/v2/alerts
+        # Warning and above only. Cuts noise to Telegram.
+        minimumpriority: warning
