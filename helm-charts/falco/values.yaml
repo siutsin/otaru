@@ -81,6 +81,12 @@ falco:
           rule: Netcat Remote Code Execution in Container
   falcosidekick:
     enabled: true
+    # Meets require-container-hardening. No exception widening.
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
     # Small default. No baseline. Resize after metrics.
     resources:
       requests:
