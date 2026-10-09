@@ -64,23 +64,34 @@ restore() {
   for f in "$DIR"/*.bin; do
     case $f in "$DIR/$k-"*) ;; *) rm -f "$f" ;; esac
   done
-  i=0
-  while [ "$i" -lt "$N" ]; do
-    f="$DIR/$k-$i.bin"
+  # A marker without its file is stale.
+  for m in "$DIR"/.restoring-*; do
+    [ -e "$m" ] && { [ -e "$DIR/$k-${m##*-}.bin" ] || rm -f "$m"; }
+  done
+  # Restore the largest prompt into the lowest slot. The server evicts the highest of the never-used slots first,
+  # so a request that matches nothing then takes the slot with the smallest prompt.
+  # The lock keeps a periodic save from overwriting a file before the loop reads it. The next start clears a stale one.
+  mkdir "$DIR/.lock" 2>/dev/null && locked=1
+  slot=0
+  files=$(for f in "$DIR/$k-"*.bin; do [ -e "$f" ] && echo "$(stat -c %s "$f") $f"; done | sort -rn | cut -d' ' -f2)
+  for f in $files; do
+    i=${f##*-}
+    i=${i%.bin}
     if [ -e "$DIR/.restoring-$i" ]; then
-      # The last restore of this slot killed the server, so a broken file would crash it again on every start.
+      # The last restore of this file killed the server, so a broken file would crash it again on every start.
       rm -f "$f" "$DIR/.restoring-$i"
-      log "dropped slot $i file after a restore that crashed the server"
-    elif [ -s "$f" ]; then
+      log "dropped file $i after a restore that crashed the server"
+    elif [ -s "$f" ] && [ "$slot" -lt "$N" ]; then
       touch "$DIR/.restoring-$i"
-      out=$(curl -sS -m 300 -w ' %{http_code}' -X POST "$URL/slots/$i?action=restore" \
-        -H 'Content-Type: application/json' -d "{\"filename\":\"$k-$i.bin\"}" 2>/dev/null)
+      out=$(curl -sS -m 300 -w ' %{http_code}' -X POST "$URL/slots/$slot?action=restore" \
+        -H 'Content-Type: application/json' -d "{\"filename\":\"${f##*/}\"}" 2>/dev/null)
       # Keep the marker if the server did not answer, because it probably crashed.
       case ${out##* } in 200 | 400) rm -f "$DIR/.restoring-$i" ;; esac
-      log "restore slot $i: ${out% *}"
+      log "restore file $i into slot $slot: ${out% *}"
+      slot=$((slot + 1))
     fi
-    i=$((i + 1))
   done
+  [ -n "$locked" ] && rmdir "$DIR/.lock" 2>/dev/null
 }
 
 # Token counters change only when the server handled a request.
