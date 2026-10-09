@@ -4,6 +4,10 @@
 falco:
   # Flush logs at once.
   tty: true
+  image:
+    registry: dhi.io
+    repository: falco
+    tag: 0.45.0@sha256:9da930770190c0117855cfb121e251e452f8dc0fff149d0c4a5e636115b027fc
   driver:
     # CO-RE eBPF, no per-kernel build. Fits k3s nodes with BTF.
     kind: modern_ebpf

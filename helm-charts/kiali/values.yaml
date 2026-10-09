@@ -11,6 +11,8 @@ kiali-server:
     # Stable non-secret value to keep Helm renders deterministic for anonymous read-only Kiali.
     signing_key: "public-anonymous-readonly-stable-signing-key"
   deployment:
+    image_name: dhi.io/kiali
+    image_version: 2.33.0@sha256:950c6a0ad21651e995b625498302fd57aee47de2495a82bc8441e0602902f026
     accessible_namespaces:
       - "**"
     view_only_mode: true
