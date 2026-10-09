@@ -36,3 +36,9 @@ trivy-operator:
     limits:
       memory: 512Mi
       ephemeral-storage: 128Mi
+  service:
+    # Same annotated-scrape pattern as Falco. No ServiceMonitor CRD here.
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "80"
+      prometheus.io/path: "/metrics"
