@@ -29,5 +29,5 @@ spec:
         - group: ""
           kind: Service
           name: httpbin
-          port: 80
+          port: 8080
           weight: 1
