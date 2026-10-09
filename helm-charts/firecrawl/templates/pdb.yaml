@@ -6,7 +6,9 @@ metadata:
   name: {{ $name }}
   namespace: {{ $.Values.namespace }}
 spec:
-  maxUnavailable: 1
+  # 2026-10-09: one replica. maxUnavailable 1 lets the descheduler evict
+  # the only pod. minAvailable 1 keeps disruptionsAllowed at 0.
+  minAvailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ $name }}
