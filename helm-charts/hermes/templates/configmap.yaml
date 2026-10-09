@@ -10,8 +10,13 @@ data:
       provider: custom
       base_url: {{ .Values.inference.baseUrl }}
       context_length: {{ .Values.inference.contextLength }}
-    # web_search and web_extract use Hermes' default keyless backends, which send queries and URLs to free outside services (Exa, Parallel, Firecrawl or Keenable).
-    # DuckDuckGo needs the ddgs package, which this image does not include.
+    web:
+      # web_search keeps Hermes' default keyless backends, which send queries to free outside services (Exa, Parallel, Firecrawl or Keenable).
+      # DuckDuckGo needs the ddgs package, which this image does not include.
+      # Firecrawl's keyless endpoint returned 403 Forbidden for a GitHub page and a 403 does not fail over, so extract starts at Keenable and tries Firecrawl last.
+      extract_backend: keenable
+      # The server processes about 23 prompt tokens/s, so 15000 characters (the default) of one page would add about 3 minutes. 6000 adds about 1 minute.
+      extract_char_limit: 6000
     tools:
       tool_search:
         # A deferred tool costs only its name and one-line description until the model asks for it.
