@@ -8,6 +8,14 @@
   serial: 1
 
   tasks:
+    - name: Create k3s config directory (absent on agent nodes)
+      file:
+        path: /etc/rancher/k3s
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
     - name: Configure Docker Hub credentials for k3s containerd
       copy:
         dest: /etc/rancher/k3s/registries.yaml
