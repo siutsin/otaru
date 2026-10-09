@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-slot-cache
+  namespace: {{ .Values.namespace }}
+data:
+  slot-cache.sh: |
+{{ .Files.Get "files/slot-cache.sh" | indent 4 }}

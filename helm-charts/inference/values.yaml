@@ -5,6 +5,8 @@ route:
   hostname: inference.internal.siutsin.com
 
 deployment:
+  # preStop saves two slots, each capped at 120s.
+  terminationGracePeriodSeconds: 300
   image:
     repository: ghcr.io/ggml-org/llama.cpp
     tag: server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257
@@ -22,11 +24,9 @@ deployment:
     # On 10 vCPUs, 10 threads gave 8.3 tokens/s against 7.8 with 8. Leave batch threads at the default.
     LLAMA_ARG_THREADS: "10"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
-    # Experiment: a restored slot matched the prompt (similarity 1.0) but the server processed all 2708 tokens again.
-    # Test whether a full-size SWA cache lets a restored slot be reused, and look for why the cache is discarded.
-    # The full-size cache adds about 10GiB of KV memory, so expect about 58GiB against the 64Gi limit. Remove both lines to roll back.
+    # Without a full-size SWA cache, a restored slot matched the prompt but the server processed all 2708 tokens again.
+    # With it, a restored slot reuses the prompt (1 token processed, 8s instead of 129s). It adds about 10GiB of KV memory.
     LLAMA_ARG_SWA_FULL: "1"
-    LLAMA_ARG_LOG_VERBOSITY: "4"
     # The drafter proposes blocks of tokens and the main model verifies them, so decode is faster.
     LLAMA_ARG_SPEC_TYPE: draft-dflash
     LLAMA_CACHE: /models
