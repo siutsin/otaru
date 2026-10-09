@@ -66,10 +66,18 @@ restore() {
   done
   i=0
   while [ "$i" -lt "$N" ]; do
-    if [ -s "$DIR/$k-$i.bin" ]; then
-      out=$(curl -sS -m 300 -X POST "$URL/slots/$i?action=restore" \
+    f="$DIR/$k-$i.bin"
+    if [ -e "$DIR/.restoring-$i" ]; then
+      # The last restore of this slot killed the server, so a broken file would crash it again on every start.
+      rm -f "$f" "$DIR/.restoring-$i"
+      log "dropped slot $i file after a restore that crashed the server"
+    elif [ -s "$f" ]; then
+      touch "$DIR/.restoring-$i"
+      out=$(curl -sS -m 300 -w ' %{http_code}' -X POST "$URL/slots/$i?action=restore" \
         -H 'Content-Type: application/json' -d "{\"filename\":\"$k-$i.bin\"}" 2>/dev/null)
-      log "restore slot $i: $out"
+      # Keep the marker if the server did not answer, because it probably crashed.
+      case ${out##* } in 200 | 400) rm -f "$DIR/.restoring-$i" ;; esac
+      log "restore slot $i: ${out% *}"
     fi
     i=$((i + 1))
   done
