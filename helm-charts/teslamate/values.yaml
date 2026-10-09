@@ -38,7 +38,7 @@ deployment:
     # (9th; digest 0d32891a gone).
     repository: ghcr.io/teslamate-org/teslamate
     # Multi-arch main digest (linux/amd64 + arm64).
-    tag: main@sha256:5d9b217bc66a574b2d79829a948fdd95eac71068ffb25940298d04c3e2789bd2
+    tag: main@sha256:3028c620d0d1de905713e03c2559f0ad8ba70895df0b5f4c73c8f9fbedb03654
   envFrom:
     - secretRef:
         name: teslamate
@@ -131,7 +131,7 @@ grafana:
     # Same recurring garbage-collection failure mode as the main teslamate
     # image (see deployment.image comment). Digest bumps: 2026-08-13,
     # 2026-09-06 (digest fe24cb24 gone).
-    tag: main@sha256:58882590f408c3c3a3ecc49f93ee75ecb456ff37ef97721b12285f7057274d47
+    tag: main@sha256:05ad3e715d37959ae9c6da4351b89f57ebf237b2a23639979a59958ac1588978
   database:
     secretName: *databaseAppSecretName
   envValueFrom:

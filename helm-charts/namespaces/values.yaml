@@ -18,6 +18,8 @@ namespaces:
   - name: descheduler
   - name: excalidraw
   - name: external-secrets
+  - name: falco
+    ambient: false
   - name: firecrawl
   - name: hermes
   - name: home-assistant
