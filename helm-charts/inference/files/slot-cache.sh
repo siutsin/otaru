@@ -1,6 +1,6 @@
 #!/bin/sh
 # Save and restore the llama-server slot KV cache across pod rotations.
-# Usage: slot-cache.sh restore | prestop. Always exits 0, so a failure only means a cold start.
+# Usage: slot-cache.sh restore | prestop | loop. Always exits 0, so a failure only means a cold start.
 DIR=${SLOT_PATH:-/models/slots}
 URL=http://localhost:${LLAMA_ARG_PORT:-9931}
 N=${LLAMA_ARG_N_PARALLEL:-2}
@@ -48,7 +48,8 @@ save() {
 
 restore() {
   mkdir -p "$DIR"
-  rm -f "$DIR/.stopping" "$DIR/.lock"
+  rm -f "$DIR/.stopping"
+  rmdir "$DIR/.lock" 2>/dev/null
   waited=0
   until curl -sf -m 5 "$URL/health" >/dev/null 2>&1; do
     waited=$((waited + 5))
@@ -74,11 +75,49 @@ restore() {
   done
 }
 
+# Token counters change only when the server handled a request.
+counters() {
+  curl -sf -m 5 "$URL/metrics" 2>/dev/null | grep -E '^llamacpp:(prompt_tokens_total|tokens_predicted_total) ' | cut -d' ' -f2 | tr '\n' ' '
+}
+
+# Save when a request finished since the last save and no slot is busy. The lock keeps prestop's save out of the way.
+tick() {
+  [ -e "$DIR/.stopping" ] && return
+  now=$(counters)
+  [ -n "$now" ] && [ "$now" != "$last" ] || return
+  slots=$(curl -sf -m 5 "$URL/slots") || return
+  case $slots in *'"is_processing":true'*) return ;; esac
+  mkdir "$DIR/.lock" 2>/dev/null || return
+  last=$now
+  [ -e "$DIR/.stopping" ] || save sidecar
+  rmdir "$DIR/.lock" 2>/dev/null
+}
+
+# Never exits on error: a crash loop would make the pod NotReady. SIGTERM removes the tmp file and releases the lock after the running curl ends.
+loop() {
+  trap 'rm -f "$DIR"/*.sidecar.tmp; rmdir "$DIR/.lock" 2>/dev/null; exit 0' TERM
+  rmdir "$DIR/.lock" 2>/dev/null
+  until curl -sf -m 5 "$URL/health" >/dev/null 2>&1; do sleep 5; done
+  last=$(counters)
+  while true; do
+    sleep "${SAVE_INTERVAL:-300}" &
+    wait $!
+    tick
+  done
+}
+
 case $1 in
   restore) restore ;;
   prestop)
     touch "$DIR/.stopping"
+    # Wait for a running periodic save, so the saves below do not queue behind it.
+    waited=0
+    while [ -d "$DIR/.lock" ] && [ "$waited" -lt 240 ]; do
+      sleep 2
+      waited=$((waited + 2))
+    done
     save prestop
     ;;
+  loop) loop ;;
 esac
 exit 0
