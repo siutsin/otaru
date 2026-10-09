@@ -180,6 +180,6 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+    imageName: ghcr.io/cloudnative-pg/postgresql:17.11
     secretName: *databaseAppSecretName
     postgresVersion: "17"
