@@ -24,7 +24,11 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: {{ .Values.service.targetPort | quote }}
         prometheus.io/path: /metrics
+        # Roll the pod when the script changes.
+        checksum/slot-cache: {{ .Files.Get "files/slot-cache.sh" | sha256sum }}
     spec:
+      # Allow the preStop hook to save both slots, each capped at 120s.
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       nodeSelector:
         otaru.io/ai: "true"
@@ -74,11 +78,13 @@ spec:
               value: {{ .Values.service.targetPort | quote }}
             - name: LLAMA_ARG_SPEC_DRAFT_MODEL
               value: {{ .Values.drafter.path | quote }}
+            - name: SLOT_PATH
+              value: {{ .Values.slotCache.path | quote }}
             {{- range $name, $value := .Values.deployment.env }}
             - name: {{ $name }}
               value: {{ $value | quote }}
             {{- end }}
-          # Slot save and restore files. Experiment only: no hook calls them yet.
+          # Slot save and restore files, used by the lifecycle hooks.
           args:
             - --slot-save-path
             - {{ .Values.slotCache.path | quote }}
@@ -86,6 +92,15 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+          # Restore the slot KV cache once the server is healthy, and save it before the pod stops.
+          # kubelet starts no probes until postStart ends, so no request arrives before the restore.
+          lifecycle:
+            postStart:
+              exec:
+                command: ["sh", "/scripts/slot-cache.sh", "restore"]
+            preStop:
+              exec:
+                command: ["sh", "/scripts/slot-cache.sh", "prestop"]
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -115,7 +130,8 @@ spec:
           resources:
             requests:
               cpu: "2"
-              # Q4 weights are 18.3GiB. Two 131072 slots plus the drafter use 25.1GiB of anonymous memory, so 64Gi leaves headroom.
+              # Q4 weights are 18.3GiB. Two 131072 slots with a full-size SWA cache and the drafter showed a 60.8GiB working set after a restore.
+              # That figure includes the mapped weights, so 64Gi leaves little headroom.
               memory: 64Gi
               ephemeral-storage: 1Gi
             limits:
@@ -124,7 +140,13 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
+            - name: slot-cache
+              mountPath: /scripts
+              readOnly: true
       volumes:
         - name: models
           persistentVolumeClaim:
             claimName: inference-pvc
+        - name: slot-cache
+          configMap:
+            name: {{ .Values.name }}-slot-cache

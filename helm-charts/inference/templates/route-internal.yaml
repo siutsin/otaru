@@ -19,14 +19,11 @@ spec:
     - timeouts:
         request: 1h
         backendRequest: 1h
-      # Expose only the API and health. Other paths, such as /slots, return 404 at the gateway.
+      # Expose only the OpenAI-compatible API. Other paths, such as /slots and /metrics, return 404 at the gateway.
       matches:
         - path:
             type: PathPrefix
             value: /v1
-        - path:
-            type: PathPrefix
-            value: /health
       backendRefs:
         - group: ""
           kind: Service
