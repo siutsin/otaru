@@ -25,9 +25,15 @@ falco:
   # (/run/k3s/containerd/containerd.sock). No override.
   metrics:
     enabled: true
+    service:
+      # Stock endpoints job scrapes this Service. No operator in cluster.
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8765"
+        prometheus.io/path: "/metrics"
   serviceMonitor:
-    # Lets the existing ScrapeTargetDown alert watch Falco. No new rule.
-    create: true
+    # No ServiceMonitor CRD in this cluster. True blocks ArgoCD sync.
+    create: false
   resources:
     # 2026-10-09: no live baseline yet. Upstream default is req 512Mi /
     # lim 1024Mi. Req==limit per repo policy. Revisit after 30d.
