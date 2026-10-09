@@ -114,9 +114,15 @@ spec:
   inheritedMetadata: {{ toYaml $.Values.defaults.cluster.inheritedMetadata | nindent 4 }}
   {{- end }}
 
-  # Bootstrap configuration for initial database setup (optional)
+  # Bootstrap configuration for initial database setup (optional).
   {{- if $clusterConfig.bootstrap }}
-  bootstrap: {{ toYaml $clusterConfig.bootstrap | nindent 4 }}
+  {{- $bootstrap := $clusterConfig.bootstrap }}
+  {{- if $clusterConfig.initSQLFile }}
+  {{- $refs := dict "configMapRefs" (list (dict "name" (printf "%s-nuq-init" $clusterConfig.clusterName) "key" "init.sql")) }}
+  {{- $initdb := mergeOverwrite (deepCopy $bootstrap.initdb) (dict "postInitApplicationSQLRefs" $refs) }}
+  {{- $bootstrap = mergeOverwrite (deepCopy $bootstrap) (dict "initdb" $initdb) }}
+  {{- end }}
+  bootstrap: {{ toYaml $bootstrap | nindent 4 }}
   {{- else if $.Values.defaults.cluster.bootstrap }}
   bootstrap: {{ toYaml $.Values.defaults.cluster.bootstrap | nindent 4 }}
   {{- end }}
