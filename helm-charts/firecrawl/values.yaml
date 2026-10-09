@@ -51,6 +51,22 @@ valkey:
       memory: 128Mi
       ephemeralStorage: 128Mi
 
+rabbitmq:
+  image:
+    # 2026-10-09: multi-arch index digest of the upstream compose image.
+    repository: docker.io/library/rabbitmq
+    tag: 3-management@sha256:e582c0bc7766f3342496d8485efb5a1df782b5ce3886ad017e2eaae442311f69
+  resources:
+    # 2026-10-09: first deploy, no 30d series. Unmeasured. Limit above
+    # request: queue depth can push memory past idle (~150-200Mi).
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeralStorage: 256Mi
+    limits:
+      memory: 512Mi
+      ephemeralStorage: 512Mi
+
 nuq:
   image:
     repository: ghcr.io/cloudnative-pg/postgresql
