@@ -456,6 +456,20 @@ entries:
     version: 0.1.0
   falco:
   - apiVersion: v2
+    created: "2026-10-09T10:00:38.207938359Z"
+    dependencies:
+    - name: falco
+      repository: https://falcosecurity.github.io/charts
+      version: 9.2.0
+    description: A Helm chart for Kubernetes
+    digest: a389eea2edc6092b68fe2ff4833249573a4659d63843020d26b16985ad47a13d
+    icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+    name: falco
+    type: application
+    urls:
+    - https://github.com/siutsin/otaru/releases/download/falco-0.2.0/falco-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     created: "2025-07-06T15:50:34.146658839Z"
     dependencies:
     - name: falco
@@ -1637,4 +1651,4 @@ entries:
     urls:
     - https://github.com/siutsin/otaru/releases/download/ztunnel-0.1.1/ztunnel-0.1.1.tgz
     version: 0.1.1
-generated: "2026-10-08T00:42:42.875384422Z"
+generated: "2026-10-09T10:00:40.41797801Z"
