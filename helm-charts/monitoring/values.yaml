@@ -60,7 +60,8 @@ prometheus:
           memory: 32Mi
           ephemeral-storage: 64Mi
         limits:
-          memory: 45Mi
+          # 2026-10-10: 30d spike ~41.6Mi vs 45Mi limit (92.4% - OOM risk); limit -> 50Mi (ceil(spike*1.2)).
+          memory: 50Mi
           ephemeral-storage: 64Mi
       containerSecurityContext:
         allowPrivilegeEscalation: false
@@ -628,7 +629,8 @@ k8s-ephemeral-storage-metrics:
       memory: 42Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 69Mi
+      # 2026-10-10: 30d spike ~65.5Mi vs 69Mi limit (94.9% - OOM risk); limit -> 79Mi (ceil(spike*1.2)).
+      memory: 79Mi
       ephemeral-storage: 64Mi
 
 grafana:
