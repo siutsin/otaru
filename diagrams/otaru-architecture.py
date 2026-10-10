@@ -3,7 +3,8 @@ Otaru Architecture Diagram.
 
 This script generates a comprehensive architecture diagram for the Otaru project,
 covering public traffic flow, GitOps, TLS/Certificate management, secret management,
-monitoring, control plane, storage, database, OIDC/JWT, and MCP authentication.
+monitoring, control plane, storage, database, AI services, Tailscale access,
+OIDC/JWT, and MCP authentication.
 
 The diagram is generated using the 'diagrams' Python library and includes custom
 icons and color-coded edges for different logical flows.
@@ -15,6 +16,7 @@ from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.database import Dynamodb
 from diagrams.aws.robotics import Robotics
 from diagrams.aws.security import IAMAWSSts
+from diagrams.azure.identity import Users
 from diagrams.custom import Custom
 from diagrams.generic.blank import Blank
 from diagrams.k8s.compute import Deployment
@@ -24,7 +26,6 @@ from diagrams.k8s.others import CRD
 from diagrams.k8s.podconfig import Secret
 from diagrams.k8s.storage import PV, PVC
 from diagrams.onprem.certificates import LetsEncrypt
-from diagrams.onprem.client import User
 from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.gitops import Argocd
 from diagrams.onprem.monitoring import Grafana
@@ -40,7 +41,7 @@ output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 #
 # Flow                       TfL line
 # -------------------------  -------------------
-# AI Inference               Piccadilly
+# AI                         Piccadilly
 # Control Plane              District
 # Database                   Bakerloo
 # GitOps                     London Overground
@@ -51,7 +52,7 @@ output_filename = sys.argv[1] if len(sys.argv) > 1 else "architecture"
 # Secret Management          London Trams
 # Storage                    Liberty
 # TLS/Certificate            Victoria
-# VPN/External Access        Northern
+# VPN Access                 Northern
 COLOUR_AI = "#003688"
 COLOUR_CONTROL = "#00782A"
 COLOUR_DATABASE = "#B36305"
@@ -66,10 +67,11 @@ COLOUR_TLS = "#0098D4"
 COLOUR_VPN = "#000000"
 
 graph_attr = {
-    "concentrate": "true",
+    "concentrate": "false",
+    "newrank": "true",
     "splines": "spline",
-    "nodesep": "0.8",
-    "ranksep": "1.0",
+    "nodesep": "0.4",
+    "ranksep": "0.4",
     "margin": "0.2",
     "pad": "0.2",
     "fontsize": "28",
@@ -85,7 +87,7 @@ edge_attr = {
 }
 
 cluster_attr = {
-    "margin": "20",
+    "margin": "12",
     "pad": "0.5",
     "fontsize": "28",
 }
@@ -130,16 +132,20 @@ def icon_node(label, icon_name):
     return Custom(label, f"../assets/icons/{icon_name}.png")
 
 
-def align_horizontally(*nodes):
-    """Order a small group left-to-right without adding visible edges."""
-    current_cluster = nodes[0]._cluster
+def same_rank(graph, *nodes):
+    """Place nodes on one row of the given graph or cluster."""
+    with graph.subgraph() as row:
+        row.attr(rank="same")
+        for node in nodes:
+            row.node(node._id)
+
+
+def align_horizontally(*nodes, graph=None):
+    """Order a group left-to-right on one row without visible edges."""
+    graph = graph or nodes[0]._cluster.dot
+    same_rank(graph, *nodes)
     for left, right in zip(nodes, nodes[1:]):
-        current_cluster.dot.edge(
-            left._id,
-            right._id,
-            style="invis",
-            weight="100",
-        )
+        graph.edge(left._id, right._id, style="invis", weight="100")
 
 
 def legend_row(items):
@@ -150,29 +156,42 @@ def legend_row(items):
 
     Args:
         items: A sequence of (label, colour) tuples representing each flow.
+
+    Returns:
+        The blank nodes in the row, left to right.
     """
-    blanks = [Blank("") for _ in range(len(items) + 1)]
+    blanks = [Blank("", height="0.3") for _ in range(len(items) + 1)]
+    same_rank(blanks[0]._cluster.dot, *blanks)
     for (label, colour), left, right in zip(items, blanks, blanks[1:]):
         left >> edge(label, colour=colour, minlen="1") >> right
+    return blanks
 
 
 with Diagram(
     filename=f"../assets/{output_filename}",
     show=False,
+    direction="TB",
     outformat="png",
     graph_attr=graph_attr,
     node_attr=node_attr,
-):
+) as diagram:
     with Cluster("Internet", graph_attr={**cluster_attr, "bgcolor": "transparent"}):
         # External services
+        external_user = Users("User")
+        meta_muse = icon_node("Meta Muse", "meta-muse")
+        tailnet_join = Blank(
+            "",
+            shape="point",
+            width="0.12",
+            color=COLOUR_VPN,
+            style="filled",
+        )
         github = Github("GitHub")
         telegram = Telegram("Telegram Bot API")
         cloudflare = Cloudflare("Cloudflare")
         webgazer = icon_node("WebGazer", "webgazer")
         onepassword = icon_node("1Password", "1password")
         letsencrypt = LetsEncrypt("Let's Encrypt")
-        external_user = User("User")
-        wifiman = icon_node("Wifiman", "wifiman")
         backblaze_b2 = icon_node("Backblaze B2", "backblaze")
 
         with Cluster("AWS", graph_attr=cluster_attr):
@@ -181,9 +200,8 @@ with Diagram(
 
         # Home Network
         with Cluster("Home Network", graph_attr=cluster_attr):
-            unifi_gateway = icon_node("UniFi Cloud\nGateway", "unifi")
-            ai_agent = Robotics("AI Agent")
-            agentgateway = Deployment("Local\nagentgateway")
+            ai_agent = Robotics("Coding Agent")
+            agentgateway = icon_node("Local\nagentgateway", "agentgateway")
             with Cluster("K3s Cluster", graph_attr=cluster_attr):
                 with Cluster(
                     "Cluster Platform",
@@ -201,14 +219,15 @@ with Diagram(
                     "Connectivity",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    cloudflared = Deployment("cloudflared")
+                    cloudflared = icon_node("cloudflared", "cloudflared")
                     gateway_api = CRD("Gateway API\nCRDs")
                     gateway_api_kubernetes = Deployment(
                         "Gateway API\nKubernetes\nService VIP"
                     )
-                    metallb = Deployment("MetalLB")
+                    metallb = icon_node("MetalLB", "metallb")
                     envoy_gateway = Envoy("Envoy\nGateway")
                     istio = Istio("Istio ambient\nmesh")
+                    tailscale = icon_node("Tailscale\nConnector", "tailscale")
 
                 # Core applications
                 applications = Deployment("Applications")
@@ -224,18 +243,17 @@ with Diagram(
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
                     hermes = icon_node("Hermes", "hermes")
-
-                with Cluster(
-                    "MCP",
-                    graph_attr={**cluster_attr, "fontsize": "20"},
-                ):
-                    mcp_servers = Deployment("Kubernetes MCP\nand UniFi MCP")
+                    inference = icon_node("llama.cpp\ninference", "llama-cpp")
+                    searxng = icon_node("SearXNG", "searxng")
+                    firecrawl = icon_node("Firecrawl", "firecrawl")
+                    kubernetes_mcp = icon_node("Kubernetes\nMCP", "kubernetes")
+                    unifi_mcp = icon_node("UniFi\nMCP", "unifi")
 
                 with Cluster(
                     "Identity",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    hydra = Deployment("Ory Hydra")
+                    hydra = icon_node("Ory Hydra", "ory")
 
                 with Cluster(
                     "Certificate Management",
@@ -281,8 +299,6 @@ with Diagram(
                     cnpg = icon_node("CloudNativePG", "cloudnative-pg")
                     cnpg_db_cluster = PostgreSQL("CNPG PostgreSQL\nCluster")
 
-            llama_cpp = icon_node("llama.cpp\nLLM inference\nserver", "llama-cpp")
-
             with Cluster("Nodes", graph_attr=cluster_attr):
                 embedded_etcd = ETCD("Embedded etcd\nquorum")
                 control_plane_nodes = Master("Control plane\nnodes")
@@ -301,7 +317,7 @@ with Diagram(
             },
         ):
             # Split legend into two rows for more compact layout
-            legend_row(
+            legend_top = legend_row(
                 [
                     ("OIDC/JWT", COLOUR_OIDC),
                     ("Public Traffic", COLOUR_PUBLIC),
@@ -312,14 +328,14 @@ with Diagram(
                 ]
             )
 
-            legend_row(
+            legend_bottom = legend_row(
                 [
                     ("Monitoring", COLOUR_MONITORING),
                     ("Control Plane", COLOUR_CONTROL),
                     ("Node Connectivity", COLOUR_NODE),
                     ("Storage", COLOUR_STORAGE),
                     ("Database", COLOUR_DATABASE),
-                    ("AI Inference", COLOUR_AI),
+                    ("AI", COLOUR_AI),
                 ]
             )
 
@@ -344,12 +360,16 @@ with Diagram(
     )
 
     # GitOps
-    argocd >> edge("Pull when\nreceived\nwebhook event", colour=COLOUR_GITOPS) >> github
+    (
+        github
+        << edge("Pull when\nreceived\nwebhook event", colour=COLOUR_GITOPS, minlen="2")
+        << argocd
+    )
     # TLS
     tls_cert << edge("Mount", colour=COLOUR_TLS) << envoy_gateway
     (
         letsencrypt
-        << edge("Request Certificate\nvia ACME Protocol", colour=COLOUR_TLS)
+        << edge("Request Certificate\nvia ACME Protocol", colour=COLOUR_TLS, minlen="2")
         << cert_manager
     )
     (
@@ -360,41 +380,71 @@ with Diagram(
     cert_manager >> edge("Issue certificate", colour=COLOUR_TLS) >> tls_cert
 
     # Secret flow
-    onepassword >> edge("Source secrets", colour=COLOUR_SECRET) >> external_secrets
-    external_secrets >> edge("Sync K8s\nSecrets", colour=COLOUR_SECRET) >> secrets
-
-    # External User Access
-    external_user >> edge(colour=COLOUR_VPN) >> wifiman
-    wifiman >> edge("VPN", colour=COLOUR_VPN) >> unifi_gateway
     (
-        unifi_gateway
-        >> edge("Access internal\napplications", colour=COLOUR_VPN)
-        >> envoy_gateway
+        onepassword
+        >> edge("Source secrets", colour=COLOUR_SECRET, minlen="2")
+        >> external_secrets
     )
-    unifi_gateway >> edge("Manage cluster", colour=COLOUR_VPN) >> api_server
+    external_secrets >> edge("Sync K8s\nSecrets", colour=COLOUR_SECRET) >> secrets
 
     # Monitoring
     (
-        applications
-        << edge("Metrics and logs", colour=COLOUR_MONITORING)
-        << monitoring_stack
+        monitoring_stack
+        >> edge("Metrics and logs", colour=COLOUR_MONITORING)
+        >> applications
     )
     kiali >> edge("Visualize mesh", colour=COLOUR_MONITORING) >> istio
-    monitoring_stack >> edge("Dashboards", colour=COLOUR_MONITORING) >> webgazer
+    (
+        webgazer
+        << edge("Dashboards", colour=COLOUR_MONITORING, minlen="2")
+        << monitoring_stack
+    )
     (
         heartbeats_operator
         >> edge("Check liveness", colour=COLOUR_MONITORING)
         >> applications
     )
     (
-        heartbeats_operator
-        >> edge("Heartbeat monitor", colour=COLOUR_MONITORING)
-        >> webgazer
+        webgazer
+        << edge("Heartbeat monitor", colour=COLOUR_MONITORING, minlen="2")
+        << heartbeats_operator
     )
-    cloudflare << edge("HTTPS monitor", colour=COLOUR_MONITORING) << webgazer
+    webgazer >> edge("HTTPS monitor", colour=COLOUR_MONITORING) >> cloudflare
 
     # AI
-    (hermes >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> llama_cpp)
+    (hermes >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> inference)
+    hermes >> edge("Web search", colour=COLOUR_AI) >> searxng
+    hermes >> edge("Page extract", colour=COLOUR_AI) >> firecrawl
+    ai_agent >> edge("Internal API\nvia gateway", colour=COLOUR_AI) >> envoy_gateway
+    envoy_gateway >> edge("/v1 route", colour=COLOUR_AI) >> inference
+    envoy_gateway >> edge("Dashboard route", colour=COLOUR_AI) >> hermes
+    # Layout: the KV cache and database Mount edges into the PVCs do not set
+    # ranks. This keeps the PVCs on the bottom row beside llama.cpp and saves
+    # two ranks of height.
+    (
+        inference
+        >> edge(
+            "KV cache\nsave/restore", colour=COLOUR_AI, constraint="false", tailport="w"
+        )
+        >> pvcs
+    )
+
+    # Layout only: dot fails with "trouble in init_rank" without this invisible
+    # edge. It is not a real flow.
+    telegram << edge(style="invis", weight="0") << hermes
+
+    telegram << edge("Alerts", colour=COLOUR_MONITORING, minlen="2") << monitoring_stack
+
+    # Tailnet
+    # One shared line: both clients join at a blank node before the Connector.
+    (
+        [external_user, meta_muse]
+        >> edge(colour=COLOUR_VPN, arrowhead="none")
+        >> tailnet_join
+    )
+    tailnet_join >> edge("Tailnet\nWireGuard", colour=COLOUR_VPN) >> tailscale
+    tailscale >> edge("Subnet route\ningress VIP", colour=COLOUR_VPN) >> envoy_gateway
+    tailscale >> edge("Subnet route\nAPI VIP", colour=COLOUR_VPN) >> api_server
 
     # API Server
     (
@@ -444,8 +494,8 @@ with Diagram(
         >> edge("Bind", colour=COLOUR_STORAGE)
         >> pvcs
     )
-    pvcs << edge("Mount", colour=COLOUR_STORAGE) << applications
-    longhorn >> edge("Backup volume", colour=COLOUR_STORAGE) >> backblaze_b2
+    applications >> edge("Mount", colour=COLOUR_STORAGE) >> pvcs
+    backblaze_b2 << edge("Backup volume", colour=COLOUR_STORAGE, minlen="2") << longhorn
     (
         secrets
         << edge("Mount secret\nfor LUKS and\nB2 credential", colour=COLOUR_STORAGE)
@@ -455,12 +505,12 @@ with Diagram(
     # Database
     cnpg >> edge("Manage", colour=COLOUR_DATABASE) >> cnpg_db_cluster
     (
-        cnpg
-        >> edge("Backup and\nrestore database", colour=COLOUR_DATABASE)
-        >> backblaze_b2
+        backblaze_b2
+        << edge("Backup and\nrestore database", colour=COLOUR_DATABASE, minlen="2")
+        << cnpg
     )
-    cnpg_db_cluster >> edge("Mount", colour=COLOUR_DATABASE) >> pvcs
-    cnpg_db_cluster << edge("Connect", colour=COLOUR_DATABASE) << applications
+    cnpg_db_cluster >> edge("Mount", colour=COLOUR_DATABASE, constraint="false") >> pvcs
+    applications >> edge("Connect", colour=COLOUR_DATABASE) >> cnpg_db_cluster
 
     # OIDC/IRSA flow
     (
@@ -469,16 +519,43 @@ with Diagram(
         >> pod_identity_webhook
     )
     (pod_identity_webhook >> edge("Inject IRSA", colour=COLOUR_OIDC) >> applications)
-    applications << edge("Issue JWT", colour=COLOUR_OIDC) << api_server
-    (applications >> edge("Assume role\nwith JWT", colour=COLOUR_OIDC) >> aws_sts)
+    api_server >> edge("Issue JWT", colour=COLOUR_OIDC) >> applications
+    (
+        aws_sts
+        << edge("Assume role\nwith JWT", colour=COLOUR_OIDC, minlen="2")
+        << applications
+    )
     (aws_sts >> edge("Validate JWT", colour=COLOUR_OIDC) >> cloudflare)
     (cloudflare >> edge("OIDC JWKS", colour=COLOUR_OIDC) >> api_server)
-    applications >> edge("Use AWS APIs", colour=COLOUR_OIDC) >> aws_app_services
+    (
+        aws_app_services
+        << edge("Use AWS APIs", colour=COLOUR_OIDC, minlen="2", tailport="w")
+        << applications
+    )
 
     # MCP JWT: workstation -> Hydra (mint) + Envoy (edge JWT) -> MCP.
-    # Prefer short chain edges; avoid constraint=false (it draws long loops).
+    # Keep these edges short chains. constraint=false would draw long loops here.
     ai_agent >> edge("Local MCP", colour=COLOUR_OIDC) >> agentgateway
     agentgateway >> edge("Mint token", colour=COLOUR_OIDC) >> hydra
     agentgateway >> edge("Bearer JWT", colour=COLOUR_OIDC) >> envoy_gateway
     envoy_gateway >> edge("JWKS", colour=COLOUR_OIDC) >> hydra
-    envoy_gateway >> edge("MCP", colour=COLOUR_OIDC) >> mcp_servers
+    envoy_gateway >> edge("MCP", colour=COLOUR_OIDC) >> kubernetes_mcp
+    envoy_gateway >> edge("MCP", colour=COLOUR_OIDC) >> unifi_mcp
+
+    # Layout: most external services and clients share the top row. Cloudflare
+    # ranks just below it. The legend sits at the bottom.
+    align_horizontally(
+        aws_app_services,
+        aws_sts,
+        backblaze_b2,
+        github,
+        letsencrypt,
+        external_user,
+        meta_muse,
+        telegram,
+        webgazer,
+        onepassword,
+        graph=diagram.dot,
+    )
+    [worker_nodes, pvcs, cnpg_db_cluster] >> edge(style="invis") >> legend_top[0]
+    legend_top[0] >> edge(style="invis") >> legend_bottom[0]

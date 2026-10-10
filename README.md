@@ -20,9 +20,6 @@ Current cluster layout:
 - Flannel `wireguard-native` for pod networking
 - MetalLB + Envoy Gateway for service and ingress virtual IPs, with the Envoy Gateway controller in `envoy-gateway-system` and the ingress proxy in `gateway`
 - Istio ambient mesh with Kiali for service mesh observability
-- `ai-00` carries the `otaru.io/ai` label and hosts the inference workload
-- `kube-scheduler` uses the default `NodeResourcesFit`/`LeastAllocated`
-  score, so new pods spread across nodes (see `documentation/gotcha.md`)
 - MCP servers (Kubernetes and UniFi) are JWT-gated at Envoy Gateway;
   local agents reach them through a workstation agentgateway that
   injects short-lived Hydra tokens (see
