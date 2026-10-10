@@ -23,7 +23,9 @@ deployment:
     # Pin to a specific version, not the mutable `latest` tag. An uncontrolled
     # `latest` bump can ship a datastore migration that resets watches on
     # restart. Deliberate reviewed patch bumps only. See documentation/gotcha.md.
-    tag: 0.55.8@sha256:5438423d5e906eff4e8f7886823482ad23f472bf7b8530ccaca89fb48c337882
+    # 2026-10-10: minor bump to 0.60.8 for 11 critical CVEs; 0.55.8->0.60.8
+    # release notes show no datastore migration.
+    tag: 0.60.8@sha256:34df3680db1cbffc45ac1e9c1514bc0507dd0c5b5fde47d1992fe6f14a7b40e4
     pullPolicy: IfNotPresent
   # Keep at 1Gi: browser-backed watches stitch screenshots in this app process;
   # 256Mi caused OOMKilled exit 137 while processing an Amazon watch.
