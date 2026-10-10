@@ -10,7 +10,7 @@ vpa:
 deployment:
   image:
     repository: ghcr.io/siutsin/images/jsoncrack
-    tag: v5.0.0-beta.1-202603220524@sha256:3d02240d763308a6aed3420fb61ead942184990f2b80fbda0ba2e11a9f757a88
+    tag: v5.0.0-202610100632@sha256:e5050913f55fdf1dae08a1a81ee6c53729aa85f2dab28259572420cbb7c83d56
   ports:
     http: 8080
   resources:
