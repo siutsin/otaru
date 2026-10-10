@@ -110,6 +110,8 @@ falco:
     # Narrow exceptions for known-benign package manager launches:
     # cyberchef runs `apk manifest nginx` from its nginx entrypoint on start;
     # the teslamate CNPG verify-pitr job installs curl.
+    # The tailscale gateway chart runs a privileged `sysctler` init container
+    # (sysctl ip_forward) on every pod start.
     # Longhorn CSI runs privileged by design; scope to its images.
     rules-exceptions.yaml: |-
       - rule: Launch Package Management Process in Container
@@ -124,6 +126,15 @@ falco:
             comps: [=, =, =]
             values:
               - [apk, verify-pitr, teslamate]
+        override:
+          exceptions: append
+      - rule: Launch Privileged Container
+        exceptions:
+          - name: tailscale_sysctler
+            fields: [container.name, container.image.repository, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [sysctler, docker.io/tailscale/tailscale, tailscale]
         override:
           exceptions: append
       - list: longhorn_privileged_images
