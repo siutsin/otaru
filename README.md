@@ -20,6 +20,7 @@ Current cluster layout:
 - Flannel `wireguard-native` for pod networking
 - MetalLB + Envoy Gateway for service and ingress virtual IPs, with the Envoy Gateway controller in `envoy-gateway-system` and the ingress proxy in `gateway`
 - Istio ambient mesh with Kiali for service mesh observability
+- `ai-00` carries the `otaru.io/ai` label and hosts the inference workload
 - `kube-scheduler` uses the default `NodeResourcesFit`/`LeastAllocated`
   score, so new pods spread across nodes (see `documentation/gotcha.md`)
 - MCP servers (Kubernetes and UniFi) are JWT-gated at Envoy Gateway;
@@ -38,6 +39,7 @@ Current cluster layout:
 | `raspberrypi-01`  | Raspberry Pi 5 8GB                                             | Control plane  | [Crucial P3 Plus 4TB][crucial-p3-plus] |
 | `raspberrypi-02`  | Raspberry Pi 5 8GB                                             | Control plane  | Crucial P3 Plus 4TB                    |
 | `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | [Crucial P2 500GB][crucial-p2]         |
+| `ai-00`           | AI inference host                                              | Worker         | -                                      |
 | `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 64 GB SSD                              |
 | `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
 | `usw-lite-8-poe`  | UniFi Switch Lite 8 PoE                                        | PoE switch     | -                                      |
@@ -52,7 +54,7 @@ Current cluster layout:
     Pi 5 prices lately? ¯\\\_(ツ)\_/¯ This is a temporary worker node until the
     damage-to-wallet ratio improves.
 
-Three nodes form the control plane. Two nodes remain workers, including temporary `nuc-00`.
+Three nodes form the control plane. Three nodes are workers, including `ai-00` for inference and temporary `nuc-00`.
 
 ## Network Layout
 
@@ -82,6 +84,7 @@ Key addresses on the Server network:
 | `192.168.10.61` | `raspberrypi-01`     |
 | `192.168.10.62` | `raspberrypi-02`     |
 | `192.168.10.63` | `raspberrypi-03`     |
+| `192.168.10.70` | `ai-00`              |
 | `192.168.10.80` | `nuc-00`             |
 
 [lexar-nm620]: https://www.lexar.com/global/products/Lexar-NM620-M-2-2280-NVMe-SSD/
@@ -104,7 +107,7 @@ Key addresses on the Server network:
 | Application  | [CyberChef](https://github.com/gchq/CyberChef)                                                      | The Cyber Swiss Army Knife by GCHQ                                                                                                                                      |
 | Application  | [Excalidraw](https://github.com/excalidraw/excalidraw)                                              | Virtual whiteboard for sketching hand-drawn like diagrams                                                                                                               |
 | Application  | [Firecrawl](https://github.com/firecrawl/firecrawl)                                                 | Self-hosted web page extraction                                                                                                                                         |
-| Application  | [Hermes](helm-charts/hermes)                                                                          | Self-hosted AI agent runtime with local model integration                                                                                                               |
+| Application  | [Hermes](helm-charts/hermes)                                                                        | Self-hosted AI agent runtime with local model integration                                                                                                               |
 | Application  | [Home Assistant](https://www.home-assistant.io/)                                                    | Home automation                                                                                                                                                         |
 | Application  | [Inference](helm-charts/inference)                                                                  | Self-hosted inference server                                                                                                                                            |
 | Application  | [JSON Crack](https://github.com/AykutSarac/jsoncrack.com)                                           | JSON, YAML, etc. visualizer and editor                                                                                                                                  |
@@ -143,11 +146,11 @@ Key addresses on the Server network:
 | Security     | [amazon-eks-pod-identity-webhook](https://github.com/aws/amazon-eks-pod-identity-webhook)           | Amazon EKS Pod Identity Webhook for IRSA in bare metal Kubernetes clusters                                                                                              |
 | Security     | [cert-manager](https://github.com/cert-manager/cert-manager)                                        | Manages TLS certificates via Let's Encrypt and ACME protocol                                                                                                            |
 | Security     | [External Secrets Operator](https://github.com/external-secrets/external-secrets)                   | Extracts secrets from a secret provider                                                                                                                                 |
-| Security     | [Falco](https://github.com/falcosecurity/falco)                                                     | Cloud-native runtime security                                                                                                                       |
+| Security     | [Falco](https://github.com/falcosecurity/falco)                                                     | Cloud-native runtime security                                                                                                                                           |
 | Security     | [Kyverno](https://github.com/kyverno/kyverno)                                                       | Kubernetes policy engine                                                                                                                                                |
 | Security     | [oidc-provider](helm-charts/oidc-provider)                                                          | Kubernetes OIDC provider and JWKS endpoint                                                                                                                              |
 | Security     | [Ory Hydra](https://www.ory.com/hydra)                                                              | OAuth 2.0 and OpenID Connect issuer for machine clients and JWT validation                                                                                              |
-| Security     | [Trivy Operator](https://github.com/aquasecurity/trivy-operator)                                    | Vulnerability and config scans for running workloads                                                                                                                  |
+| Security     | [Trivy Operator](https://github.com/aquasecurity/trivy-operator)                                    | Vulnerability and config scans for running workloads                                                                                                                    |
 | Storage      | [CSI Snapshot Controller](https://github.com/kubernetes-csi/external-snapshotter)                   | Kubernetes CSI VolumeSnapshot CRDs and controller used by Longhorn                                                                                                      |
 | Storage      | [Longhorn](https://github.com/longhorn/longhorn)                                                    | Distributed block storage system; backup and restore from/to remote destinations                                                                                        |
 <!-- markdownlint-enable MD060 -->
@@ -209,7 +212,7 @@ Key addresses on the Server network:
 3. **Add SSH Keys to `known_hosts`**
 
     ```shell
-    KH=~/.ssh/known_hosts && touch "$KH" && for ip in 192.168.10.{60..63}; do ssh-keygen -f "$KH" -R "$ip"; ssh-keyscan "$ip" >> "$KH"; done
+    KH=~/.ssh/known_hosts && touch "$KH" && for ip in 192.168.10.{60..63} 192.168.10.70 192.168.10.80; do ssh-keygen -f "$KH" -R "$ip"; ssh-keyscan "$ip" >> "$KH"; done
     ```
 
 4. **Set Up Service Credentials**
