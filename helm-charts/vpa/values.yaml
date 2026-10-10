@@ -15,7 +15,8 @@ vertical-pod-autoscaler:
         memory: 58Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 67Mi
+        # 2026-10-10: 30d spike ~65.1Mi vs 67Mi limit (97.2% - OOM risk); limit -> 79Mi (ceil(spike*1.2)).
+        memory: 79Mi
         ephemeral-storage: 64Mi
     mutatingWebhookConfiguration:
       failurePolicy: Ignore  # explicit chart default: never block pod creation
@@ -62,5 +63,6 @@ vertical-pod-autoscaler:
         memory: 73Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 87Mi
+        # 2026-10-10: 30d spike ~79.9Mi vs 87Mi limit (91.8% - OOM risk); limit -> 96Mi (ceil(spike*1.2)).
+        memory: 96Mi
         ephemeral-storage: 64Mi

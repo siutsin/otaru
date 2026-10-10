@@ -195,7 +195,8 @@ local cnpgHelm = {
         'ephemeral-storage': '128Mi',
       },
       limits: {
-        memory: '128Mi',
+        // 2026-10-10: 30d spike ~116.8Mi vs 128Mi limit (91.3% - OOM risk); limit -> 141Mi (ceil(spike*1.2)). Request stays 128Mi.
+        memory: '141Mi',
         'ephemeral-storage': '128Mi',
       },
     },

@@ -48,5 +48,6 @@ metallb:
         memory: 136Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 181Mi
+        # 2026-10-10: 30d spike ~170.4Mi vs 181Mi limit (94.1% - OOM risk, still climbing after the 2026-10-08 bump); limit -> 205Mi (ceil(spike*1.2)).
+        memory: 205Mi
         ephemeral-storage: 64Mi

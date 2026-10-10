@@ -16,7 +16,8 @@ cert-manager:
       memory: 52Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 114Mi
+      # 2026-10-10: 30d spike ~104.9Mi vs 114Mi limit (92.0% - OOM risk); limit -> 126Mi (ceil(spike*1.2)).
+      memory: 126Mi
       ephemeral-storage: 64Mi
   podDisruptionBudget:
     enabled: true
@@ -47,7 +48,8 @@ cert-manager:
         memory: 37Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 75Mi
+        # 2026-10-10: 30d spike ~66.3Mi vs 75Mi limit (88.4% - OOM risk); limit -> 80Mi (ceil(spike*1.2)).
+        memory: 80Mi
         ephemeral-storage: 64Mi
     podDisruptionBudget:
       enabled: true
