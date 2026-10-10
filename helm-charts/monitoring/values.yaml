@@ -639,6 +639,11 @@ grafana:
   # prometheus-server the same day (see documentation/gotcha.md).
   podDisruptionBudget:
     minAvailable: 1
+  # 2026-10-10: image 12.3.1 -> 12.3.6 for 8 trivy critical CVEs, incl.
+  # CVE-2026-27876. Chart 10.5.15 is the latest release and still bundles
+  # 12.3.1, so pin the image directly.
+  image:
+    tag: 12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8
   resources:
     # Keep memory at 512Mi: dashboard use pushed Grafana against the 128Mi limit and caused probe failures.
     # ephemeral-storage 2026-07-06: 14d peak ~50Mi vs 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) -- bumped to 128Mi.
