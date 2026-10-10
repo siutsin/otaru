@@ -80,67 +80,8 @@ Do not run Atlantis against this repo. Prefer GitHub Actions or other CI where c
 execution paths are tightly controlled per job.
 
 Infrastructure changes under [`infrastructure/`](../infrastructure) are
-manual now. Run `terragrunt` directly from the relevant stack directory, for example:
-
-```shell
-cd infrastructure/cloud/cloudflare/dns
-terragrunt plan
-terragrunt apply
-```
-
----
-
-## Pod Unable to Reach External Networks
-
-There can be connectivity issues where pod-to-pod traffic works, but pod-to-external world traffic times out.
-Hubble may indicate that the traffic is forwarded, but it still times out.
-
-### Symptoms: External Network Connectivity
-
-The following error was found in the `cilium-agent` logs:
-
-```shell
-cilium-tkzx5 cilium-agent time="2024-09-16T01:31:39Z" level=error msg="iptables rules full reconciliation failed, will retry another one later"
-error="failed to remove old backup rules: unable to run 'iptables -t nat -D OLD_CILIUM_POST_nat -s 10.42.0.0/24 ! -d nnn.nnn.nnn.nnn/24 ! -o cilium_+ -m comment --comment cilium masquerade non-cluster -j MASQUERADE' iptables command: exit status 1 stderr="iptables: Bad rule (does a matching rule exist in that chain?).\n"" subsys=iptables
-```
-
-This error occurs when Cilium tries but fails to delete a backup iptables rule that still exists on the host.
-
-```shell
-Chain OLD_CILIUM_POST_nat (0 references)
-  pkts bytes target     prot opt in     out     source               destination
-    0     0 MASQUERADE  0    --  *      !cilium_+  10.42.0.0/24        !10.42.0.0/24         /* cilium masquerade non-cluster */
-    0     0 ACCEPT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            mark match 0xa00/0xe00 /* exclude proxy return traffic from masquerade */
-    0     0 SNAT       0    --  *      cilium_host !10.42.0.0/24        !10.42.0.0/24         /* cilium host->cluster masquerade */ to:10.42.0.167
-    0     0 SNAT       0    --  *      cilium_host  127.0.0.1            0.0.0.0/0            /* cilium host->cluster from 127.0.0.1 masquerade */ to:10.42.0.167
-    0     0 SNAT       0    --  *      cilium_host  0.0.0.0/0            0.0.0.0/0            mark match 0xf00/0xf00 ctstate DNAT /* hairpin traffic that originated from a local pod */ to:10.42.0.167
-```
-
-### Solution: Flush Iptables Chain
-
-To resolve this, SSH into each host and flush the chain with the following command:
-
-```bash
-sudo iptables -t nat -F OLD_CILIUM_POST_nat
-```
-
-Once the chain is flushed on all nodes, pods will be able to reach external networks.
-
----
-
-## Cilium Restart Causes API Server VIP Inaccessibility
-
-Occasionally, Cilium may restart, and if too many Cilium restarts occur across nodes, all nodes may go down.
-This can result in no node announcing the Virtual IP for the API server, making the API server Virtual IP inaccessible.
-
-### Symptoms: API Server VIP Issues
-
-The issue arises when no node is able to announce the API server's Virtual IP, leading to a disruption in access to the Kubernetes API server.
-
-### Solution: Cilium Kubernetes Host Configuration
-
-One potential solution is to set the Cilium Kubernetes host to `127.0.0.1` with the port set to `6443`. However, this solution requires all nodes to be master nodes.
-Open GitHub issue related to this problem: [Cilium GitHub issue][cilium-issue]
+manual. See [Infrastructure operations](infrastructure.md) for the plan and
+apply workflow.
 
 ---
 
@@ -380,18 +321,11 @@ kubectl top nodes
 Encrypted Longhorn volumes can keep consuming backing storage after files are deleted, even when the
 Longhorn `filesystem-trim` recurring job exists.
 
-An earlier workaround used the `cypto-volume-allow-discards` DaemonSet to run the refresh loop on every
-node. That solved the trim flag problem, but it created a worse security posture: an always-running
-privileged pod mounted host `/dev`, mounted the `longhorn-crypto` Secret, installed packages at runtime,
-and logged host `dmsetup table` output including device-mapper state.
-
 ### Symptoms: Longhorn Encrypted Trim
 
 - Longhorn volume `actualSize` does not drop after deleting data from a filesystem.
 - The Longhorn `filesystem-trim` recurring job runs, but little or no space is reclaimed.
 - `cryptsetup luksDump /dev/longhorn/<volume>` does not show `allow-discards` in the `Flags` line.
-- A helper pod named `cypto-volume-allow-discards-*` is running in `longhorn-system`, keeping privileged
-  host-device and crypto-key access alive continuously.
 
 ### Cause: Missing Dm-Crypt Discard Flag
 
@@ -408,8 +342,9 @@ the operation should be short-lived and explicit.
 Use `make trim` after creating or restoring encrypted Longhorn volumes. The same idempotent check also runs at
 the end of `make maintenance`.
 
-Do not keep a privileged pod running for this task. The old `cypto-volume-allow-discards` DaemonSet is
-replaced by the `make trim` workflow and should not exist in the chart or cluster.
+Do not keep a privileged pod running for this task. Do not reintroduce the
+old `cypto-volume-allow-discards` DaemonSet, which kept host `/dev` and the
+`longhorn-crypto` Secret mounted in an always-running privileged pod.
 
 To target one attached encrypted volume:
 
@@ -488,8 +423,8 @@ To recover, forcefully delete the affected PersistentVolumeClaim (PVC) and the c
 Replace `example-db-20250724-0023-2` with the actual pod/PVC name as appropriate:
 
 ```shell
-kubectl delete pvc example-db-20250724-0023-2 -n cnpg-system
-kubectl delete pod example-db-20250724-0023-2 -n cnpg-system
+kubectl delete pvc example-db-20250724-0023-2 -n <cluster-namespace>
+kubectl delete pod example-db-20250724-0023-2 -n <cluster-namespace>
 ```
 
 ---
@@ -789,6 +724,8 @@ make unlock nuc-00
 
 Once booted, Longhorn re-attaches its volumes automatically.
 
+---
+
 ## PoE Switch Budget Alert Cuts Power to a Raspberry Pi Node
 
 A Raspberry Pi node can lose power outright when the PoE switch's power
@@ -834,6 +771,8 @@ passphrase. If PoE alerts recur, the switch's port power budget or the
 device mix drawing from it needs review -- that is a switch-configuration
 question, not a k3s/self-healing fix.
 
+---
+
 ## MetalLB LoadBalancer VIP Unreachable When nuc-00 Announces It
 
 ### Symptoms: LoadBalancer VIP Unreachable
@@ -868,11 +807,9 @@ just because the interface list is wrong.
 Give `nuc-00` its own `L2Advertisement` for the same `IPAddressPool`, scoped
 to `nodeSelectors: [{matchLabels: {kubernetes.io/hostname: nuc-00}}]` with
 `interfaces: [eno1]`, and restrict the original `eth0` advertisement to the
-four Raspberry Pi nodes. `helm-charts/metallb-vip/values.yaml` already used
-this pattern for the API server VIP; `helm-charts/envoy-gateway` did not,
-which is why only the `gateway` VIP was affected. Check any other
-`L2Advertisement` in the repo for the same single-interface, no-node-split
-shape before it bites the same way.
+four Raspberry Pi nodes. `helm-charts/metallb-vip` and
+`helm-charts/envoy-gateway` both use this pattern now. Check any new
+`L2Advertisement` for the same single-interface, no-node-split shape.
 
 ---
 
@@ -894,19 +831,12 @@ attach layer on `changedetection-vol` (encrypted, single-replica). That also
 reseeds defaults and is not recoverable from app-level migrations.
 
 **Recovery limits:** The Longhorn `backup` recurring job for
-`changedetection-vol` has been weekly (`0 4 * * 0`) with `retain: 1`. Only the
-most recent weekly snapshot/backup is kept, so once a bad state is captured
-it overwrites the last good copy within a week. There is no restore point
-older than the loss. Treat changedetection watch data as low-durability until
-the retention window is deepened.
+`changedetection-vol` runs weekly (`0 4 * * 0`) with `retain: 4`. A bad state
+overwrites the last good copy after four weeks.
 
 **Fix:** Pin the image to a concrete version tag instead of `latest` in
-`helm-charts/changedetection/values.yaml`. Version `0.55.7` resolved to the
-same digest `latest` pointed to at the time of the pin, so pinning was a no-op
-for the running pod while stopping uncontrolled migrations. Renovate then
-proposes controlled version bumps that can be reviewed before they apply.
-Deepen backup retention in a separate change if watch data must survive a
-bad state.
+`helm-charts/changedetection/values.yaml`. Renovate then proposes controlled version bumps that can be reviewed
+before they apply.
 
 ---
 
@@ -957,17 +887,15 @@ cluster:
 **Fix:** Never act on a raw `kor` finding. Cross-check with `kubectl get
 <kind> <name>` (for RBAC) or trace the actual consumer (controller
 logs/spec references) before treating anything as a genuine orphan.
-Confirmed genuine finds so far: the leftover `monitoring-grafana-test`
-ConfigMap/ServiceAccount pair (also flagged separately by `popeye`'s
-`POP-400`), and the unused `longhorn`/`longhorn-static` StorageClasses
-(every PVC in the cluster uses `longhorn-crypto-global` instead).
+The unused `longhorn-static` StorageClass is expected: Longhorn creates it
+by default.
 
 ---
 
 ## `runAsNonRoot: true` Needs a Numeric `runAsUser` for Named-User Images
 
-**Problem:** A container-hardening pass added `securityContext.
-runAsNonRoot: true` to several apps' charts without also setting
+**Problem:** A container-hardening pass added
+`securityContext.runAsNonRoot: true` to several apps' charts without also setting
 `runAsUser`, leaving each new ReplicaSet stuck in
 `CreateContainerConfigError`. The old ReplicaSet kept running each time, so
 there was no outage, but the rollout could not complete. Hit repeatedly
@@ -1010,12 +938,12 @@ through 2Gi). Every one of the pod's volumes failed to mount at once with
 `connection refused` to the CSI socket, since the whole plugin process
 (handling every volume on that node, not just this pod's) was down.
 
-**Why it happens:** Every PVC on this cluster uses the `longhorn-crypto-
-global` StorageClass, which is LUKS-encrypted. `cryptsetup luksDump
+**Why it happens:** Longhorn PVCs on this cluster use the
+`longhorn-crypto-global` StorageClass, which is LUKS-encrypted. `cryptsetup luksDump
 /dev/longhorn/<volume>` shows the key-derivation function is `argon2i`,
 deliberately memory-hard, with a `Memory` cost of ~65MiB *per unlock*.
-When a single pod's volumes are all mounted at pod-start, `longhorn-csi-
-plugin` runs `NodeStageVolume` for all of them concurrently in the same
+When a single pod's volumes are all mounted at pod-start,
+`longhorn-csi-plugin` runs `NodeStageVolume` for all of them concurrently in the same
 container, so the KDF memory cost multiplies by the number of volumes:
 13 volumes x ~65MiB is already ~845MiB, before the plugin's own per-volume
 gRPC/goroutine overhead and page-cache pressure from probing several
@@ -1092,14 +1020,6 @@ when Longhorn supports full resource settings for that component.
 
 ---
 
-[cilium-issue]: https://github.com/cilium/cilium/issues/19038
-[longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
-[longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
-[longhorn-6645]: https://github.com/longhorn/longhorn/issues/6645
-[longhorn-settings]: https://longhorn.io/docs/1.12.1/references/settings/
-
----
-
 ## Multi-Container Pods Fail to Schedule Despite "Enough" Free Cluster Memory
 
 **Problem:** The daily PITR verification Job `teslamate-verify-pitr` stayed
@@ -1164,23 +1084,20 @@ Free enough memory on one node:
 4. If no workload can spare it, wait until one node has the free memory.
 5. Rerun the Job.
 
-### Control-Plane Restart: Transient API VIP Blip
+---
 
-This note is separate from the `Pending` pod. It applies when you restart
-k3s on a control-plane node, for example after a scheduler config change.
+## Control-Plane Restart Causes a Transient API VIP Blip
 
-A restart of the k3s process on the control-plane nodes, even one node at
-a time, can briefly disrupt the cluster API VIP. This happens when the VIP
-is a MetalLB `LoadBalancer` Service (see
-[k3s-apiserver-loadbalancer][k3s-apiserver-loadbalancer]) rather than a
-static IP. The `metallb-controller` L2 announcement can lag by under a
-minute after that node restarts.
+Restarting k3s on a control-plane node, even one node at a time, can briefly
+disrupt the cluster API VIP. This happens because the VIP is a MetalLB
+`LoadBalancer` Service (see
+[k3s-apiserver-loadbalancer](https://github.com/siutsin/k3s-apiserver-loadbalancer))
+rather than a static IP. The `metallb-controller` L2 announcement can lag by
+under a minute after that node restarts.
 
 Direct `https://<node-ip>:6443/livez` checks on every master showed that
 the API on the node stayed up. Only the VIP announcement was briefly stale.
 No action is required. The MetalLB speakers converge again on their own.
-
-[k3s-apiserver-loadbalancer]: https://github.com/siutsin/k3s-apiserver-loadbalancer
 
 ---
 
@@ -1257,23 +1174,13 @@ considering it confirmed.
 
 ### Recurrence: Forced Architecture Pins Masking the Same Bug
 
-The same mispinning recurred three more times, discovered on
-2026-07-18 while investigating two separate stuck-`Pending` incidents
-(`monitoring-prometheus-node-exporter` and `argocd-repo-server`, both
-`FailedScheduling` on insufficient memory): `ghcr.io/openclaw/openclaw`,
-`busybox:1.38.0` (openclaw's init container), and
-`ghcr.io/siutsin/images/go-jsonnet` (the `argocd-repo-server` CMP
-sidecar) were all pinned to their arm64 child manifest instead of the
-index. Because these images were believed arm64-only, `openclaw` and
-`argocd-repoServer` both carried a `nodeSelector: kubernetes.io/arch:
-arm64`, which is exactly what turned an ordinary memory-pressure
-scheduling squeeze into a stuck rollout: neither pod could fall back to
-`nuc-00` (amd64) even when it had free headroom. One of the three --
-`go-jsonnet` -- had a comment stating it "ships an arm64-only binary"
-that was accurate when written; the image gained a real amd64 build
-later and nobody revisited the pin or the nodeSelector. Removing the
-mispinned digest and the nodeSelector let the next rollout land on
-`nuc-00` immediately, confirming the fix.
+The same mispinning recurred in an app image, its `busybox` init container,
+and the `go-jsonnet` image in the `argocd-repo-server` CMP sidecar. Two
+workloads carried a `nodeSelector: kubernetes.io/arch: arm64` on the belief
+that their images were arm64-only. That turned an ordinary memory-pressure
+squeeze into a stuck rollout, because neither pod could fall back to
+`nuc-00` (amd64). Removing the mispinned digest and the nodeSelector fixed
+it.
 
 **Lesson:** an "arch-only" comment on an image pin is a claim about the
 image at the time it was written, not a durable fact. Treat any
@@ -1566,30 +1473,16 @@ those plugins.
 
 ## Descheduler Eviction Storms Look Like Self-Resolving Blips, One Check At A Time
 
-**Problem:** On 25 Jul 2026, `home-assistant`, `changedetection`,
-`openclaw`, `teslamate`, `unifi-mcp`, and `monitoring-prometheus-server`
-had no PodDisruptionBudget. `umami` had a PDB with `minAvailable: 0`. Each
-workload has one replica. At that time the removed `consolidate` profile
-ran `HighNodeUtilization` and evicted the pod when its node crossed the
-memory threshold. Most nodes sat at 95 percent requested memory or more, so
-this was nearly constant.
+**Problem:** A single-replica workload with no PodDisruptionBudget (PDB), or
+a PDB with `minAvailable: 0`, goes down whenever `PodLifeTime`,
+`RemovePodsHavingTooManyRestarts`, or `LowNodeUtilization` evicts it.
+`monitoring-prometheus-server` was once evicted about every 5 minutes for
+over an hour and returned HTTP 503.
 
-`monitoring-prometheus-server` was evicted about every 5 minutes for over
-an hour on `raspberrypi-03`. It never stayed up long enough to load its
-TSDB. The Prometheus API returned HTTP 503.
-
-That profile is removed. A single replica with no PDB still goes down when
-`PodLifeTime`, `RemovePodsHavingTooManyRestarts`, or `LowNodeUtilization`
-evicts it.
-
-**Why it happens:** Two earlier hourly self-healing checks (09:30 and 11:30
-that day) both found the `monitoring` Argo CD Application `Progressing`.
-Each check waited until the pod that was running became `Ready` (under a
-minute both times) and logged a self-resolved transient. Each check was
-correct about that moment. Each check asked only whether the pod was up
-then, not how many times this had happened. A workload that is evicted
-every 5 minutes and returns in under a minute looks `Progressing`, then
-`Healthy`, on almost any snapshot.
+**Why it happens:** A workload that is evicted every 5 minutes and returns
+in under a minute looks `Progressing`, then `Healthy`, on almost any
+snapshot. A check that asks only whether the pod is up now misses the
+pattern.
 
 ### Symptoms: Repeated Short-Lived `Progressing` Flips
 
@@ -1624,10 +1517,6 @@ workload" in `.claude/skills/self-healing/runbooks/workloads.md`. The fix
 is a PDB in the app chart, or the subchart `podDisruptionBudget` values
 (for example the `prometheus.server` block in
 `helm-charts/monitoring/values.yaml`).
-
-The seven workloads above then showed `disruptionsAllowed: 0` and
-`currentHealthy: 1`. No further evictions were observed after that PDB
-rollout.
 
 ---
 
@@ -1893,3 +1782,8 @@ just forces an instant retry instead of waiting out `CrashLoopBackOff`'s
 backoff timer.
 
 ---
+
+[longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
+[longhorn-12225]: https://github.com/longhorn/longhorn/issues/12225
+[longhorn-6645]: https://github.com/longhorn/longhorn/issues/6645
+[longhorn-settings]: https://longhorn.io/docs/1.12.1/references/settings/
