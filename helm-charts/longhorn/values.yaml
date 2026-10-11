@@ -20,6 +20,19 @@ longhorn:
       limits:
         memory: 528Mi
         ephemeral-storage: 64Mi
+  # 2026-10-11: new in chart 1.13.0; upstream leaves resources null, which
+  # Kyverno require-workload-resources denies. Same binary as longhorn-manager
+  # (command: longhorn-manager -d global), so mirror its resources; new
+  # workload, no Prometheus baseline yet.
+  longhornGlobalManager:
+    resources:
+      requests:
+        cpu: 150m
+        memory: 250Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 528Mi
+        ephemeral-storage: 64Mi
   preUpgradeChecker:
     jobEnabled: false
   persistence:
