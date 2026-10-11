@@ -10,8 +10,9 @@ vpa:
 deployment:
   image:
     repository: ghcr.io/gchq/cyberchef
-    tag: 10.24.0@sha256:58d2bcefe3f32b066eafca07353aae31b961ca7765fe4bcb913aba6bb8b8dd81
+    tag: 11.5.0@sha256:f04a39926344faf8e4cbbc8c92fb125d2b466f9be62db09aff23c7c406101a51
 
 service:
   port: 8080
-  targetPort: 80
+  targetPort: 8080
+  # v11 moved the container port from 80 to 8080.
