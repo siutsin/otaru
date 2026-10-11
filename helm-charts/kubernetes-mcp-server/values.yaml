@@ -61,12 +61,17 @@ kubernetes-mcp-server:
           - apiGroups: ["batch"]
             resources: ["jobs", "cronjobs"]
             verbs: ["create", "patch", "update", "delete"]
+          # Test resources only (suffix -test): full access for PG upgrade testing.
+          # Production clusters are protected by resourceNames scoping.
+          - apiGroups: [""]
+            resources: ["namespaces"]
+            verbs: ["create", "delete"]
           - apiGroups: ["postgresql.cnpg.io"]
             resources: ["clusters"]
             verbs: ["create"]
           - apiGroups: ["postgresql.cnpg.io"]
             resources: ["clusters"]
-            verbs: ["patch", "update"]
+            verbs: ["patch", "update", "delete"]
             resourceNames: ["umami-pg18-test"]
           - apiGroups: ["argoproj.io"]
             resources: ["applications"]
