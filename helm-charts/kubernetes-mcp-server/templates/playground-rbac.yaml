@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mcp-playground-admin
+  namespace: playground
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mcp-playground-admin
+  namespace: playground
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-mcp-server
+    namespace: kubernetes-mcp-server
+roleRef:
+  kind: Role
+  name: mcp-playground-admin
+  apiGroup: rbac.authorization.k8s.io

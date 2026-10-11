@@ -42,6 +42,8 @@ namespaces:
     ambient: false
   - name: monitoring
   - name: onepassword
+  - name: playground
+    ambient: false
   - name: reloader
   - name: searxng
   - name: tailscale
