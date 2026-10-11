@@ -33,6 +33,8 @@ spec:
             - ""
             - --appendonly
             - "no"
+            - --protected-mode
+            - "no"
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
