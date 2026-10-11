@@ -8,7 +8,7 @@ app:
 deployment:
   image:
     repository: ghcr.io/0xerr0r/blocky
-    tag: v0.28.2@sha256:5f84a54e4ee950c4ab21db905b7497476ece2f4e1a376d23ab8c4855cabddcba
+    tag: v0.35.0@sha256:4f165b63db0d76c96ecc47c7a8f57caeedc003a912bdce29abb0e283ce02e16b
   probeExec:
     command:
       - /app/blocky
