@@ -22,7 +22,7 @@ kubernetes-mcp-server:
   image:
     registry: quay.io
     repository: containers/kubernetes_mcp_server
-    version: v0.0.63@sha256:9317449ed47916a297f71b955eab57402064de852bf1fb007c4e0705754de2b3
+    version: v0.0.67@sha256:e47f6ccc5347e1ea6be495d8d9ab55ac8a995fe87800fb984fa770cebe14ad44
   ingress:
     enabled: false
   service:
