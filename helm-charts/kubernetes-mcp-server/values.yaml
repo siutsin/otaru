@@ -61,7 +61,7 @@ kubernetes-mcp-server:
           - apiGroups: ["batch"]
             resources: ["jobs", "cronjobs"]
             verbs: ["create", "patch", "update", "delete"]
-            verbs: ["create"]
+          - apiGroups: ["argoproj.io"]
             resources: ["applications"]
             verbs: ["patch", "update"]
     extraClusterRoleBindings:
