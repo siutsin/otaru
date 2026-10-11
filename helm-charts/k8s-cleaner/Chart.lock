@@ -1,6 +1,6 @@
 dependencies:
 - name: k8s-cleaner
   repository: oci://ghcr.io/gianlucam76/charts
-  version: 0.19.1
-digest: sha256:10f3072f98c942976a37315f2d6a43eb76aa192e6bcf5aa97b99f1585e1c2f27
-generated: "2026-03-22T01:01:36.019042Z"
+  version: 0.24.0
+digest: sha256:b1e54e40dc33854a3277f6a55d3e047ce1b1b7287a772d2a8a96cdde44a2523b
+generated: "2026-10-11T00:08:41.465112171Z"
