@@ -9,13 +9,14 @@ api:
   port: 3002
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. One NuQ worker
-    # shares this pod. Request equals limit.
+    # shares this pod. Request was equal to limit until the 2026-10-11 bump.
+    # KRR 2026-10-11: 30d spike ~1947.3Mi vs 2Gi limit (95.1% — OOM risk); limit -> 2337Mi (ceil(spike*1.2)). Request stays 2Gi (scheduling unchanged).
     requests:
       cpu: 100m
       memory: 2Gi
       ephemeralStorage: 256Mi
     limits:
-      memory: 2Gi
+      memory: 2337Mi
       ephemeralStorage: 256Mi
 
 playwright:
