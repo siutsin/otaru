@@ -1,6 +1,6 @@
 dependencies:
 - name: longhorn
-  repository: file://vendor/longhorn-1.12.1
-  version: 1.12.1
-digest: sha256:c72371322e828c65ea06746bcb793932d7ad398cbd00aecc1727100f014ed834
-generated: "2026-08-26T15:35:55.56818+01:00"
+  repository: file://vendor/longhorn-1.13.0
+  version: 1.13.0
+digest: sha256:19af0f8f6389d139d0f68eade73302b3e0b9db25151b5b13474c726b43328f9e
+generated: "2026-10-11T08:04:55.767713434+08:00"

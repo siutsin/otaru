@@ -2,9 +2,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-    "helm.sh/hook": pre-delete
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  name: longhorn-uninstall
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+  name: longhorn-post-upgrade
   namespace: {{ include "release_namespace" . }}
   labels: {{- include "longhorn.labels" . | nindent 4 }}
 spec:
@@ -12,24 +12,23 @@ spec:
   backoffLimit: 1
   template:
     metadata:
-      name: longhorn-uninstall
+      name: longhorn-post-upgrade
       labels: {{- include "longhorn.labels" . | nindent 8 }}
     spec:
       containers:
-      - name: longhorn-uninstall
-        image: {{ with (coalesce .Values.global.imageRegistry (include "registry_url" .) .Values.image.longhorn.manager.registry) }}{{ . }}/{{ end }}{{ .Values.image.longhorn.manager.repository }}:{{ .Values.image.longhorn.manager.tag }}
+      - name: longhorn-post-upgrade
+        image: {{ with (coalesce .Values.global.imageRegistry (include "registry_url" .) .Values.image.longhorn.manager.registry "docker.io") }}{{ . }}/{{ end }}{{ .Values.image.longhorn.manager.repository }}:{{ .Values.image.longhorn.manager.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
         - longhorn-manager
-        - uninstall
-        - --force
+        - post-upgrade
         env:
-        - name: LONGHORN_NAMESPACE
+        - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         {{- include "longhorn.timezoneEnv" . | nindent 8 }}
-      restartPolicy: Never
+      restartPolicy: OnFailure
       {{- with (coalesce .Values.global.imagePullSecrets .Values.privateRegistry.registrySecret) }}
       imagePullSecrets:
         {{- $imagePullSecrets := list }}
