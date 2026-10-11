@@ -90,6 +90,7 @@ spec:
   frontend: blockdev
   size: {{ $value.sizeBytes | quote }}
   numberOfReplicas: {{ $replicas }}
+  dataLocality: {{ default "disabled" $value.dataLocality }}
   nodeSelector:
 {{ toYaml $nodeSelector | indent 4 }}
   fromBackup: {{ $value.fromBackup | quote }}
