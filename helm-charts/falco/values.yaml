@@ -112,7 +112,8 @@ falco:
     # the teslamate CNPG verify-pitr job installs curl.
     # The tailscale gateway chart runs a privileged `sysctler` init container
     # (sysctl ip_forward) on every pod start.
-    # Longhorn CSI runs privileged by design; scope to its images.
+    # Longhorn runs privileged by design (manager, instance-manager, engine,
+    # CSI sidecars); scope to its namespace and image prefix.
     rules-exceptions.yaml: |-
       - rule: Launch Package Management Process in Container
         exceptions:
@@ -135,13 +136,13 @@ falco:
             comps: [=, =, =]
             values:
               - [sysctler, docker.io/tailscale/tailscale, tailscale]
+          - name: longhorn_components
+            fields: [k8s.ns.name, container.image.repository]
+            comps: [=, startswith]
+            values:
+              - [longhorn-system, docker.io/longhornio/]
         override:
           exceptions: append
-      - list: longhorn_privileged_images
-        items: [longhornio/longhorn-manager, longhornio/csi-node-driver-registrar, longhornio/livenessprobe]
-      - macro: user_privileged_containers
-        condition: >-
-          (k8s.ns.name = "longhorn-system" and container.image.repository in (longhorn_privileged_images))
   falcosidekick:
     # Off. Alerts flow via metrics, not webhooks. No outputs are due.
     enabled: false
