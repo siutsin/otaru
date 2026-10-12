@@ -9,6 +9,14 @@
   },
   minimumReleaseAge: '7 days',
   rebaseWhen: 'behind-base-branch',
+  hostRules: [
+    {
+      // dhi.io rejects anonymous requests, so lookups fail without credentials.
+      matchHost: 'dhi.io',
+      username: '{{ secrets.DHI_USERNAME }}',
+      password: '{{ secrets.DHI_TOKEN }}',
+    },
+  ],
   packageRules: [
     {
       // Renovate's default conda registry URL has no channel and 404s.
