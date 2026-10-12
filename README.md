@@ -37,7 +37,7 @@ Current cluster layout:
 | `raspberrypi-02`  | Raspberry Pi 5 8GB                                             | Control plane  | Crucial P3 Plus 4TB                    |
 | `raspberrypi-03`  | Raspberry Pi 5 8GB                                             | Worker         | [Crucial P2 500GB][crucial-p2]         |
 | `ai-00`           | AI inference host                                              | Worker         | -                                      |
-| `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 64 GB SSD                              |
+| `nuc-00`[^nuc-00] | [Intel NUC Mini PC Core i3-3217U DC3217IYE 8GB][intel-nuc-8gb] | Worker         | 120 GB SSD                             |
 | `ucg-ultra`       | [UniFi Cloud Gateway Ultra][ucg-ultra]                         | Router/Gateway | -                                      |
 | `usw-lite-8-poe`  | UniFi Switch Lite 8 PoE                                        | PoE switch     | -                                      |
 | `usw-ultra`       | [UniFi Switch Ultra][usw-ultra]                                | PoE switch     | -                                      |

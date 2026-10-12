@@ -32,7 +32,8 @@ all:
       hosts:
         ai-00.local:
           ansible_host: 192.168.10.70
-          longhorn_storage_reserved_gib: 10
+          # Longhorn disk reserve (GiB) for 123 GB VM disk.
+          longhorn_storage_reserved_gib: 40
           ansible_ssh_user: ubuntu
           luks_root_disk: /dev/vda
           luks_boot_partition: /dev/vda2
@@ -45,8 +46,8 @@ all:
       hosts:
         nuc-00.local:
           ansible_host: 192.168.10.80
-          # Longhorn disk reserve (GiB) for 64 GB SSD.
-          longhorn_storage_reserved_gib: 10
+          # Longhorn disk reserve (GiB) for 108 GB SSD.
+          longhorn_storage_reserved_gib: 40
           ansible_ssh_user: ubuntu
           luks_root_disk: /dev/sda
           luks_boot_partition: /dev/sda2

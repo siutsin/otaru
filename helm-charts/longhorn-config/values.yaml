@@ -44,11 +44,12 @@ nodes:
     disks:
       default:
         path: /var/lib/longhorn/
-        storageReservedGiB: 10
+        # 123 GB VM disk; about 21G of OS, kubelet and images, plus room for image churn.
+        storageReservedGiB: 40
   nuc-00:
     allowScheduling: true
     disks:
       default:
         path: /var/lib/longhorn/
-        # 64 GB SSD; keep a generous slice for Ubuntu and kubelet on a tiny disk.
-        storageReservedGiB: 10
+        # 108 GB SSD; about 25G of OS, kubelet and images, plus room for image churn.
+        storageReservedGiB: 40
