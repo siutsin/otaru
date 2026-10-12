@@ -13,7 +13,7 @@
     {
       // dhi.io rejects anonymous requests, so lookups fail without credentials.
       matchHost: 'dhi.io',
-      username: '{{ secrets.DHI_USERNAME }}',
+      username: 'siutsin',
       password: '{{ secrets.DHI_TOKEN }}',
     },
   ],
