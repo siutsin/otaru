@@ -120,6 +120,12 @@ fetch_token() {
             curl -fsS "https://auth.docker.io/token?service=registry.docker.io&scope=${scope}" 2>/dev/null \
                 | jq -r '.token // empty' 2>/dev/null || true
             ;;
+        dhi.io)
+            [ -n "${DOCKERHUB_TOKEN:-}" ] || return 0
+            curl -fsS -u "${DOCKERHUB_USERNAME:-}:${DOCKERHUB_TOKEN}" \
+                "https://dhi.io/token?service=registry.docker.io&scope=${scope}" 2>/dev/null \
+                | jq -r '.token // empty' 2>/dev/null || true
+            ;;
         *)
             echo ""
             ;;
