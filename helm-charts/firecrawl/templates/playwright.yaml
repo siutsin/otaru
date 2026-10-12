@@ -17,6 +17,8 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
+      nodeSelector:
+        otaru.io/ai: "true"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
