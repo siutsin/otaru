@@ -19,6 +19,8 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
+      nodeSelector:
+        otaru.io/ai: "true"
       securityContext:
         runAsNonRoot: true
         # Image config has no USER. Files are owned by 977. Non-root skips

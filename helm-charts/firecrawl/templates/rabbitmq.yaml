@@ -17,6 +17,8 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
+      nodeSelector:
+        otaru.io/ai: "true"
       securityContext:
         seccompProfile:
           type: RuntimeDefault
