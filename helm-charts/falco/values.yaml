@@ -109,7 +109,10 @@ falco:
   customRules:
     # Narrow exceptions for known-benign package manager launches:
     # cyberchef runs `apk manifest nginx` from its nginx entrypoint on start;
-    # the teslamate CNPG verify-pitr job installs curl.
+    # excalidraw runs `apk` from its entrypoint script on start.
+    # The teslamate backup/verify jobs install aws-cli and curl at runtime
+    # (postgres:17-alpine) for the CNPG S3 backup flow; the pip-installed
+    # aws and curl binaries then trip the new-binary rule.
     # The tailscale gateway chart runs a privileged `sysctler` init container
     # (sysctl ip_forward) on every pod start.
     # Longhorn runs privileged by design (manager, instance-manager, engine,
@@ -122,11 +125,32 @@ falco:
             comps: [=, =]
             values:
               - [apk, ghcr.io/gchq/cyberchef]
+          - name: excalidraw_entrypoint
+            fields: [proc.name, container.image.repository]
+            comps: [=, =]
+            values:
+              - [apk, docker.io/excalidraw/excalidraw]
           - name: teslamate_verify_pitr
             fields: [proc.name, container.name, k8s.ns.name]
             comps: [=, =, =]
             values:
+              - [apk, teslamate-backup, teslamate]
+              - [apk, verify-pg-dump, teslamate]
               - [apk, verify-pitr, teslamate]
+        override:
+          exceptions: append
+      - rule: Drop and execute new binary in container
+        exceptions:
+          - name: teslamate_backup_binaries
+            fields: [proc.name, container.name, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [aws, teslamate-backup, teslamate]
+              - [curl, teslamate-backup, teslamate]
+              - [aws, verify-pg-dump, teslamate]
+              - [curl, verify-pg-dump, teslamate]
+              - [aws, verify-pitr, teslamate]
+              - [curl, verify-pitr, teslamate]
         override:
           exceptions: append
       - rule: Launch Privileged Container
