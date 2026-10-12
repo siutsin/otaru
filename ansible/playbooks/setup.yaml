@@ -14,7 +14,7 @@
 # host tuning (before the cluster starts scheduling pods)
 - import_playbook: host/000-sysctl-tuning.yaml
 # ai only
-- import_playbook: host/001-multipath-longhorn-blacklist.yaml
+- import_playbook: host/001-multipath-exclude-longhorn.yaml
 # k3s
 - import_playbook: k3s/000-init-cluster.yaml
 - import_playbook: k3s/001-cni.yaml

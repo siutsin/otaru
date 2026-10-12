@@ -6,7 +6,7 @@
   # multipathd on ai-00 claims Longhorn iSCSI disks, so luksOpen fails with
   # "device in use" and encrypted volumes never mount.
   tasks:
-    - name: Blacklist Longhorn iSCSI disks in multipath
+    - name: Exclude Longhorn iSCSI disks from multipath
       blockinfile:
         path: /etc/multipath.conf
         create: true
