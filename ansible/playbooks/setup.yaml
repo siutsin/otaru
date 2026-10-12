@@ -13,7 +13,7 @@
 - import_playbook: nuc/000-e1000e-offload.yaml
 # host tuning (before the cluster starts scheduling pods)
 - import_playbook: host/000-sysctl-tuning.yaml
-# ai only: keep multipath off Longhorn iSCSI disks
+# ai only
 - import_playbook: host/001-multipath-longhorn-blacklist.yaml
 # k3s
 - import_playbook: k3s/000-init-cluster.yaml
