@@ -94,11 +94,14 @@ longhorn:
     # CSI sidecars (attacher ~46.3, provisioner ~45.8, resizer ~47.3, snapshotter ~47.4Mi);
     # liveness-probe at 98% of its 32Mi limit (spike ~31.4Mi). Limits -> 56/55/57/57Mi and
     # 38Mi (ceil(spike*1.2)). Requests stay put so DaemonSet scheduling is unchanged.
+    # 2026-10-12 right-sizing: 30d spikes at 99.3-99.6% of the 10-10 limits
+    # (attacher ~55.7, resizer ~56.8, snapshotter ~56.6Mi). Limits -> 67/55/69/68Mi
+    # (ceil(spike*1.2)). Provisioner spike ~45.8Mi stays under 55Mi. Requests stay put.
     systemManagedCSIComponentsResourceLimits: >-
-      {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"56Mi","ephemeral-storage":"32Mi"}},
+      {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"67Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"55Mi","ephemeral-storage":"32Mi"}},
-      "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"57Mi","ephemeral-storage":"32Mi"}},
-      "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"57Mi","ephemeral-storage":"32Mi"}},
+      "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"69Mi","ephemeral-storage":"32Mi"}},
+      "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"68Mi","ephemeral-storage":"32Mi"}},
       "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"48Mi"}},
       "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"38Mi","ephemeral-storage":"48Mi"}}}
