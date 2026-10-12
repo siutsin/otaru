@@ -1,0 +1,33 @@
+---
+- hosts: node10
+  become: true
+  gather_facts: false
+
+  # multipathd is active on ai-00 and claims Longhorn iSCSI disks (IET
+  # VIRTUAL-DISK) as mpathX. cryptsetup luksOpen then fails with "Cannot use
+  # device /dev/longhorn/<vol> which is in use", so encrypted volumes never
+  # mount. Blacklist the Longhorn device so multipath leaves it alone.
+  tasks:
+    - name: Blacklist Longhorn iSCSI disks in multipath
+      blockinfile:
+        path: /etc/multipath.conf
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED: longhorn"
+        block: |
+          blacklist {
+              device {
+                  vendor "IET"
+                  product "VIRTUAL-DISK"
+              }
+          }
+      notify: Reconfigure multipathd
+
+  handlers:
+    - name: Reconfigure multipathd
+      # -F drops unused maps, so a map already claiming a Longhorn disk is
+      # released. Maps in use stay until the volume detaches.
+      shell: |
+        set -e
+        multipathd reconfigure
+        multipath -F
+      changed_when: true
