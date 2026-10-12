@@ -44,7 +44,7 @@ nodes:
     disks:
       default:
         path: /var/lib/longhorn/
-        # 123 GB VM disk; about 21G of OS, kubelet and images, plus room for image churn.
+        # 123 GB disk; about 21G of OS, kubelet and images, plus room for image churn.
         storageReservedGiB: 40
   nuc-00:
     allowScheduling: true

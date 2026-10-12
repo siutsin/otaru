@@ -32,7 +32,6 @@ all:
       hosts:
         ai-00.local:
           ansible_host: 192.168.10.70
-          # Longhorn disk reserve (GiB) for 123 GB VM disk.
           longhorn_storage_reserved_gib: 40
           ansible_ssh_user: ubuntu
           luks_root_disk: /dev/vda
