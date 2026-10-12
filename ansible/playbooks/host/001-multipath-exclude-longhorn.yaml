@@ -1,0 +1,30 @@
+---
+- hosts: node10
+  become: true
+  gather_facts: false
+
+  # multipathd on ai-00 claims Longhorn iSCSI disks, so luksOpen fails with
+  # "device in use" and encrypted volumes never mount.
+  tasks:
+    - name: Exclude Longhorn iSCSI disks from multipath
+      blockinfile:
+        path: /etc/multipath.conf
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED: longhorn"
+        block: |
+          blacklist {
+              device {
+                  vendor "IET"
+                  product "VIRTUAL-DISK"
+              }
+          }
+      notify: Reconfigure multipathd
+
+  handlers:
+    - name: Reconfigure multipathd
+      # -F drops unused maps, so an existing claim is released.
+      shell: |
+        set -e
+        multipathd reconfigure
+        multipath -F
+      changed_when: true
