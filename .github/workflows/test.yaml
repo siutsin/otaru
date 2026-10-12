@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: automation
     permissions:
       contents: read
       packages: read
@@ -30,4 +31,7 @@ jobs:
         run: make update-helm-deps
 
       - name: Run tests
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: make test
