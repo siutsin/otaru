@@ -176,6 +176,17 @@ spec:
         - operation:
             ports:
               - "3100"
+    # Prometheus scrapes /metrics only; it gets no access to the log query or push paths.
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /metrics
+            ports:
+              - "3100"
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
