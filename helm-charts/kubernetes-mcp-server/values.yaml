@@ -1,6 +1,13 @@
 name: k8s-mcp
 namespace: kubernetes-mcp-server
 
+# Namespaces where the agent may create/patch CNPG Backup objects (reads are already cluster-wide).
+backupNamespaces:
+  - firecrawl
+  - hydra
+  - teslamate
+  - umami
+
 vpa:
   enabled: true
 
