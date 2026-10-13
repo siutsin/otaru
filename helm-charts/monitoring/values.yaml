@@ -1102,6 +1102,6 @@ tempo:
           - ALL
   persistence:
     enabled: true
-    storageClassName: longhorn
+    storageClassName: longhorn-crypto-global
     # Traces are disposable learning data: no Longhorn backup group, unlike Loki.
     size: 20Gi
