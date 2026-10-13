@@ -1,0 +1,26 @@
+{{- range .Values.backupNamespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mcp-cnpg-backup
+  namespace: {{ . }}
+rules:
+  - apiGroups: ["postgresql.cnpg.io"]
+    resources: ["backups"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mcp-cnpg-backup
+  namespace: {{ . }}
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-mcp-server
+    namespace: kubernetes-mcp-server
+roleRef:
+  kind: Role
+  name: mcp-cnpg-backup
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
