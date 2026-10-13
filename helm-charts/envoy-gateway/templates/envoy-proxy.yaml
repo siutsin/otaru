@@ -43,3 +43,6 @@ spec:
       # way as every other workload in this pass (see documentation/gotcha.md).
       envoyPDB:
         minAvailable: 1
+  # OpenTelemetry tracing: spans go to the Alloy collector in monitoring.
+  telemetry:
+{{ toYaml .Values.envoyProxy.telemetry | indent 4 }}

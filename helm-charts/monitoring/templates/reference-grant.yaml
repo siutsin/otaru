@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-gateway-tracing
+  namespace: {{ .Values.namespace }}
+spec:
+  # The EnvoyProxy in the gateway namespace names this chart's Alloy
+  # Service as its tracing backend; cross-namespace references need a grant.
+  from:
+    - group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      namespace: gateway
+  to:
+    - group: ""
+      kind: Service
+      name: monitoring-alloy

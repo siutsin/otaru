@@ -147,3 +147,15 @@ envoyProxy:
             topologyKey: kubernetes.io/hostname
   resources: *envoyProxyResources
   shutdownManagerResources: *shutdownManagerResources
+  telemetry:
+    tracing:
+      provider:
+        backendRefs:
+          - name: monitoring-alloy
+            namespace: monitoring
+            port: 4317
+            kind: Service
+            group: ""
+      overallSamplingFraction:
+        numerator: 100
+        denominator: 100
