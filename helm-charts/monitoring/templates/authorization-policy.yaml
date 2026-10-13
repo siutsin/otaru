@@ -10,6 +10,7 @@
 {{- $lokiCanaryPrincipal := printf "cluster.local/ns/%s/sa/loki-canary" .Values.namespace -}}
 {{- $alertmanagerPrincipal := printf "cluster.local/ns/%s/sa/monitoring-alertmanager" .Values.namespace -}}
 {{- $alloyPrincipal := printf "cluster.local/ns/%s/sa/monitoring-alloy" .Values.namespace -}}
+{{- $tempoPrincipal := printf "cluster.local/ns/%s/sa/monitoring-tempo" .Values.namespace -}}
 {{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 {{- $yaceName := "yace" -}}
 {{- $yaceService := "monitoring-yace" -}}
@@ -526,3 +527,25 @@ spec:
               - /metrics
             ports:
               - "12345"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-tempo-headless
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-tempo-headless
+  rules:
+    # Tempo talks to itself on the headless Service for the ring.
+    - from:
+        - source:
+            principals:
+              - {{ $tempoPrincipal }}
+      to:
+        - operation:
+            ports:
+              - "3200"
