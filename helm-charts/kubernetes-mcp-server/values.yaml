@@ -8,6 +8,10 @@ backupNamespaces:
   - teslamate
   - umami
 
+# Namespaces where the agent may delete PVCs (reads are already cluster-wide).
+pvcDeleteNamespaces:
+  - monitoring
+
 vpa:
   enabled: true
 
