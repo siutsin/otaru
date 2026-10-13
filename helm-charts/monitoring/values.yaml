@@ -990,7 +990,10 @@ fluent-bit:
 alloy:
   image:
     repository: grafana/alloy
-    tag: v1.20.1@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f
+    # The digest goes in its own field, not in the tag: the chart builds
+    # the app version label from the tag, and @sha256 makes it invalid.
+    tag: v1.20.1
+    digest: sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f
   # Traces-only OTLP gateway: it needs no Kubernetes API access.
   rbac:
     create: false
