@@ -114,7 +114,8 @@ falco:
     # (postgres:17-alpine) for the CNPG S3 backup flow; the pip-installed
     # aws and curl binaries then trip the new-binary rule.
     # The tailscale gateway chart runs a privileged `sysctler` init container
-    # (sysctl ip_forward) on every pod start.
+    # (sysctl ip_forward) on every pod start; its main container is privileged
+    # by design (host routing for the gateway).
     # Longhorn runs privileged by design (manager, instance-manager, engine,
     # CSI sidecars); scope to its namespace and image prefix.
     rules-exceptions.yaml: |-
@@ -160,6 +161,11 @@ falco:
             comps: [=, =, =]
             values:
               - [sysctler, docker.io/tailscale/tailscale, tailscale]
+          - name: tailscale_gateway
+            fields: [container.name, container.image.repository, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [tailscale, docker.io/tailscale/tailscale, tailscale]
           - name: longhorn_components
             fields: [k8s.ns.name, container.image.repository]
             comps: [=, startswith]
