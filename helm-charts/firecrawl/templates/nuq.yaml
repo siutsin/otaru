@@ -21,10 +21,12 @@ spec:
   schedule: {{ $job.schedule | quote }}
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 180
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
       activeDeadlineSeconds: 60
       backoffLimit: 1
+      ttlSecondsAfterFinished: 60
       template:
         metadata:
           labels:
