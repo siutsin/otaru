@@ -247,11 +247,10 @@ lint-zizmor: ## Run zizmor audit on workflows
 lint-editorconfig: ## Check .editorconfig compliance
 	# Note: Excluding gateway-api, monitoring, and snapshot-controller generated CRD files with upstream long lines
 	# Excluding unifi terragrunt.hcl due to long SSH public key that cannot be safely split
-	# Excluding longhorn/vendor -- unmodified upstream chart source (see helm-charts/longhorn/Chart.yaml)
-	# Excluding istio vendor dirs -- unmodified upstream chart source (see the wrappers' Chart.yaml files)
+	# Excluding helm-charts/*/vendor -- unmodified upstream chart source (see the wrappers' Chart.yaml files)
 	@echo "$(GREEN)Checking .editorconfig compliance...$(NC)"
 	@editorconfig-checker \
-		-exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/longhorn/vendor/.*|helm-charts/(istio-base|istio-cni|istiod|ztunnel)/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
+		-exclude "(helm-charts/(gateway-api|monitoring|snapshot-controller)/.*|helm-charts/[^/]+/vendor/.*|infrastructure/local/lhr/unifi/terragrunt\\.hcl)" || { \
 			echo "$(RED)EditorConfig violations found. Please fix manually or use your editor's .editorconfig support.$(NC)"; \
 			exit 1; \
 		}
