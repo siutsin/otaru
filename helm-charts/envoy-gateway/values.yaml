@@ -147,6 +147,8 @@ envoyProxy:
             topologyKey: kubernetes.io/hostname
   resources: *envoyProxyResources
   shutdownManagerResources: *shutdownManagerResources
+  # No sampling field: the default samples all requests. The live
+  # EnvoyProxy CRD predates overallSamplingFraction.
   telemetry:
     tracing:
       provider:
@@ -156,6 +158,3 @@ envoyProxy:
             port: 4317
             kind: Service
             group: ""
-      overallSamplingFraction:
-        numerator: 100
-        denominator: 100
