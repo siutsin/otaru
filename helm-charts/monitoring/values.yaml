@@ -495,17 +495,18 @@ prometheus:
                 title: Log ingestion into Loki has stopped
                 summary: "Loki is receiving almost no log lines"
                 description: "Ingestion has been below 20 lines/s for over 30 minutes. Check the fluent-bit DaemonSet and the Loki pods."
-            # Floor is ~1/3 of the expected rate: gateway ~16 req/s x ~3 spans
-            # per trace (2026-10-13). Tune from real data after a week.
+            # Floor tuned from real data (2026-10-13): the quiet-period rate
+            # is ~4 spans/s, so the first floor of 15 fired on a healthy
+            # pipeline. 1 span/s still catches a full stop, with absent().
             - alert: TempoIngestionStopped
-              expr: sum(rate(tempo_distributor_spans_received_total[30m])) < 15 or absent(tempo_distributor_spans_received_total)
+              expr: sum(rate(tempo_distributor_spans_received_total[30m])) < 1 or absent(tempo_distributor_spans_received_total)
               for: 30m
               labels:
                 severity: critical
               annotations:
                 title: Trace ingestion into Tempo has stopped
                 summary: "Tempo is receiving almost no spans"
-                description: "Ingestion has been below 15 spans/s for over 30 minutes. Check the Alloy collector and the Tempo pods."
+                description: "Ingestion has been below 1 span/s for over 30 minutes. Check the Alloy collector and the Tempo pods."
         - name: falco
           rules:
             - alert: FalcoRuleFired
