@@ -68,13 +68,13 @@ falco:
             ephemeral-storage: 64Mi
       follow:
         resources:
-          # 2026-10-09: sane small default, no baseline. Resize after metrics.
+          # 2026-10-13: 30d spike ~60.0Mi vs 64Mi limit (93.8% — OOM risk); limit -> 73Mi (ceil(spike*1.2)).
           requests:
             cpu: 50m
             memory: 64Mi
             ephemeral-storage: 64Mi
           limits:
-            memory: 64Mi
+            memory: 73Mi
             ephemeral-storage: 64Mi
   # Four high-signal stable rules plus one incubating rule. Upstream
   # incubating defaults are a firehose; disable "*" keeps the rest off.

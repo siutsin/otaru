@@ -97,13 +97,15 @@ longhorn:
     # 2026-10-12 right-sizing: 30d spikes at 99.3-99.6% of the 10-10 limits
     # (attacher ~55.7, resizer ~56.8, snapshotter ~56.6Mi). Limits -> 67/55/69/68Mi
     # (ceil(spike*1.2)). Provisioner spike ~45.8Mi stays under 55Mi. Requests stay put.
+    # 2026-10-13 right-sizing: node-driver-registrar 30d spike ~28.2Mi at 88.1%
+    # of its 32Mi limit. Limit -> 34Mi (ceil(spike*1.2)). Request stays put.
     systemManagedCSIComponentsResourceLimits: >-
       {"csi-attacher":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"67Mi","ephemeral-storage":"32Mi"}},
       "csi-provisioner":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"55Mi","ephemeral-storage":"32Mi"}},
       "csi-resizer":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"69Mi","ephemeral-storage":"32Mi"}},
       "csi-snapshotter":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"32Mi"},"limits":{"memory":"68Mi","ephemeral-storage":"32Mi"}},
       "longhorn-csi-plugin":{"requests":{"cpu":"25m","memory":"64Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"4Gi","ephemeral-storage":"48Mi"}},
-      "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"32Mi","ephemeral-storage":"48Mi"}},
+      "node-driver-registrar":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"34Mi","ephemeral-storage":"48Mi"}},
       "longhorn-liveness-probe":{"requests":{"cpu":"10m","memory":"32Mi","ephemeral-storage":"48Mi"},"limits":{"memory":"38Mi","ephemeral-storage":"48Mi"}}}
   defaultBackupStore:
     backupTarget: ~
