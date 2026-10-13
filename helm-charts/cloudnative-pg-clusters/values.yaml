@@ -258,6 +258,16 @@ clusters:
     affinity:
       podAntiAffinityType: required
     instances: 2
+    # 2026-10-13: PG 18 upgrade, tested 2026-10-11 on restored data.
+    # New serverName so post-upgrade WAL cannot overwrite the 17 archive.
+    imageName: ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533
+    plugins:
+      - enabled: true
+        isWALArchiver: false
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: b2-backup
+          serverName: umami-20260614-0001-pg18
     # Light analytics DB: keep headroom for failover and vacuum.
     # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit).
     # 2026-10-06: 30d p50 ~77Mi, spike ~121Mi; request 111Mi -> 86Mi, limit 146Mi unchanged.
