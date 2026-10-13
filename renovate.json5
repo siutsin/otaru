@@ -19,6 +19,15 @@
   ],
   packageRules: [
     {
+      // The Alloy chart builds its version label from the tag, so the tag
+      // must stay bare; the digest lives in the chart's own digest field.
+      matchManagers: ['helm-values'],
+      matchPackageNames: [
+        'grafana/alloy',
+      ],
+      pinDigests: false,
+    },
+    {
       // Renovate's default conda registry URL has no channel and 404s.
       matchDatasources: ['conda'],
       registryUrls: ['https://api.anaconda.org/package/conda-forge/'],
