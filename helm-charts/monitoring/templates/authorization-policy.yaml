@@ -9,6 +9,8 @@
 {{- $lokiPrincipal := printf "cluster.local/ns/%s/sa/monitoring-loki" .Values.namespace -}}
 {{- $lokiCanaryPrincipal := printf "cluster.local/ns/%s/sa/loki-canary" .Values.namespace -}}
 {{- $alertmanagerPrincipal := printf "cluster.local/ns/%s/sa/monitoring-alertmanager" .Values.namespace -}}
+{{- $alloyPrincipal := printf "cluster.local/ns/%s/sa/monitoring-alloy" .Values.namespace -}}
+{{- $waypointPrincipal := "cluster.local/ns/istio-waypoints/sa/waypoint" -}}
 {{- $yaceName := "yace" -}}
 {{- $yaceService := "monitoring-yace" -}}
 ---
@@ -430,3 +432,97 @@ spec:
         - operation:
             ports:
               - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-tempo
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-tempo
+  rules:
+    # Alloy pushes traces over OTLP gRPC; it gets no query access.
+    - from:
+        - source:
+            principals:
+              - {{ $alloyPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /opentelemetry.proto.collector.trace.v1.TraceService/*
+            ports:
+              - "4317"
+    # Grafana queries traces; it gets no push access.
+    - from:
+        - source:
+            principals:
+              - {{ $grafanaPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /api/*
+              - /ready
+            ports:
+              - "3200"
+    # Prometheus scrapes /metrics only; no trace query or push paths.
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /metrics
+            ports:
+              - "3200"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: monitoring-alloy
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: monitoring-alloy
+  rules:
+    # The gateway pushes spans now; the shared waypoint joins with mesh tracing.
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /opentelemetry.proto.collector.trace.v1.TraceService/*
+            ports:
+              - "4317"
+    - from:
+        - source:
+            principals:
+              - {{ $gatewayPrincipal }}
+              - {{ $waypointPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /v1/traces
+            ports:
+              - "4318"
+    # Prometheus scrapes /metrics only.
+    - from:
+        - source:
+            principals:
+              - {{ $prometheusPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /metrics
+            ports:
+              - "12345"

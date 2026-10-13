@@ -56,6 +56,14 @@ prometheus:
       static_configs:
         - targets:
             - monitoring-loki.monitoring.svc.cluster.local:3100
+    - job_name: alloy
+      static_configs:
+        - targets:
+            - monitoring-alloy.monitoring.svc.cluster.local:12345
+    - job_name: tempo
+      static_configs:
+        - targets:
+            - monitoring-tempo.monitoring.svc.cluster.local:3200
   configmapReload:
     prometheus:
       resources:
@@ -487,6 +495,17 @@ prometheus:
                 title: Log ingestion into Loki has stopped
                 summary: "Loki is receiving almost no log lines"
                 description: "Ingestion has been below 20 lines/s for over 30 minutes. Check the fluent-bit DaemonSet and the Loki pods."
+            # Floor is ~1/3 of the expected rate: gateway ~16 req/s x ~3 spans
+            # per trace (2026-10-13). Tune from real data after a week.
+            - alert: TempoIngestionStopped
+              expr: sum(rate(tempo_distributor_spans_received_total[30m])) < 15 or absent(tempo_distributor_spans_received_total)
+              for: 30m
+              labels:
+                severity: critical
+              annotations:
+                title: Trace ingestion into Tempo has stopped
+                summary: "Tempo is receiving almost no spans"
+                description: "Ingestion has been below 15 spans/s for over 30 minutes. Check the Alloy collector and the Tempo pods."
         - name: falco
           rules:
             - alert: FalcoRuleFired
@@ -700,6 +719,23 @@ grafana:
           type: loki
           uid: P8E80F9AEF21F6940
           url: http://monitoring-loki.monitoring.svc.cluster.local:3100
+          jsonData:
+            derivedFields:
+              - name: TraceID
+                matcherType: regex
+                matcherRegex: '"trace_id":"([a-f0-9]+)"'
+                url: '$${__value.raw}'
+                datasourceUid: tempo
+        - name: Tempo
+          type: tempo
+          uid: tempo
+          url: http://monitoring-tempo.monitoring.svc.cluster.local:3200
+          jsonData:
+            tracesToLogsV2:
+              datasourceUid: P8E80F9AEF21F6940
+              spanStartTimeShift: -1h
+              spanEndTimeShift: 1h
+              filterByTraceID: true
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -950,3 +986,122 @@ fluent-bit:
           },
           "stream": "stream"
         }
+
+alloy:
+  image:
+    repository: grafana/alloy
+    tag: v1.17.1@sha256:4f6ddc56ffdcf8a6316748fc5162972e20cb301523cac1bb4a31957df733ae9b
+  # Traces-only OTLP gateway: it needs no Kubernetes API access.
+  rbac:
+    create: false
+  controller:
+    type: deployment
+    replicas: 1
+    podDisruptionBudget:
+      enabled: true
+      maxUnavailable: 1
+  alloy:
+    clustering:
+      enabled: false
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      # 2026-10-13: initial sizing for a new workload, no baseline yet.
+      # Right-size from Prometheus after a week of traces.
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 64Mi
+      limits:
+        memory: 256Mi
+        ephemeral-storage: 64Mi
+    configMap:
+      create: true
+      content: |
+        otelcol.receiver.otlp "default" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+
+          output {
+            traces = [otelcol.processor.transform.redact.input]
+          }
+        }
+
+        // Strip query strings before storage: some services pass keys as
+        // URL query parameters, and spans carry full URLs.
+        otelcol.processor.transform "redact" {
+          error_mode = "ignore"
+
+          trace_statements {
+            context = "span"
+            statements = [
+              "delete_key(attributes, \"url.query\")",
+              "set(attributes[\"http.url\"], Split(attributes[\"http.url\"], \"?\")[0]) where attributes[\"http.url\"] != nil",
+              "set(attributes[\"url.full\"], Split(attributes[\"url.full\"], \"?\")[0]) where attributes[\"url.full\"] != nil",
+            ]
+          }
+
+          output {
+            traces = [otelcol.processor.batch.default.input]
+          }
+        }
+
+        otelcol.processor.batch "default" {
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        otelcol.exporter.otlp "tempo" {
+          client {
+            endpoint = "monitoring-tempo.monitoring.svc.cluster.local:4317"
+
+            tls {
+              insecure = true
+            }
+          }
+        }
+
+tempo:
+  tempo:
+    repository: grafana/tempo
+    tag: 3.1.0@sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd
+    reportingEnabled: false
+    retention: 168h
+    resources:
+      # 2026-10-13: initial sizing for a new workload, no baseline yet.
+      # Right-size from Prometheus after a week of traces.
+      requests:
+        cpu: 100m
+        memory: 256Mi
+        ephemeral-storage: 128Mi
+      limits:
+        memory: 1Gi
+        ephemeral-storage: 128Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    # Traces are disposable learning data: no Longhorn backup group, unlike Loki.
+    size: 20Gi

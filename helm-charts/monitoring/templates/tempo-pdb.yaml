@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-tempo
+  namespace: {{ .Release.Namespace }}
+spec:
+  # 2026-10-13: the grafana-community tempo chart has no podDisruptionBudget
+  # support. Added in the parent chart, same as loki-pdb.yaml; patching the
+  # subchart would be overwritten by `helm dependency build`.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tempo
+      app.kubernetes.io/instance: {{ .Release.Name }}
