@@ -947,9 +947,9 @@ backend = "npm:markdownlint-cli2"
 specifiers = ["0.23.3"]
 
 [[tools."pipx:ansible-core"]]
-version = "2.21.4"
+version = "2.21.5"
 backend = "pipx:ansible-core"
-specifiers = ["2.21.4"]
+specifiers = ["2.21.5"]
 
 [[tools."pipx:poetry"]]
 version = "2.5.1"
