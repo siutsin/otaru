@@ -877,6 +877,10 @@ fluent-bit:
       memory: 73Mi
       ephemeral-storage: 64Mi
   securityContext:
+    # 2026-10-13: the hardened image defaults to nonroot (65532), which cannot read the nodes'
+    # root-owned container logs — ingestion stopped silently after the image swap. Pin root.
+    runAsUser: 0
+    runAsGroup: 0
     allowPrivilegeEscalation: false
     capabilities:
       drop:
