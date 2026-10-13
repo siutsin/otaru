@@ -990,7 +990,7 @@ fluent-bit:
 alloy:
   image:
     repository: grafana/alloy
-    tag: v1.17.1@sha256:4f6ddc56ffdcf8a6316748fc5162972e20cb301523cac1bb4a31957df733ae9b
+    tag: v1.20.1@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f
   # Traces-only OTLP gateway: it needs no Kubernetes API access.
   rbac:
     create: false
