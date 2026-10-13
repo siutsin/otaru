@@ -52,6 +52,10 @@ prometheus:
       static_configs:
         - targets:
             - k8s-ephemeral-storage-metrics.monitoring.svc.cluster.local:9100
+    - job_name: loki
+      static_configs:
+        - targets:
+            - monitoring-loki.monitoring.svc.cluster.local:3100
   configmapReload:
     prometheus:
       resources:
@@ -471,6 +475,18 @@ prometheus:
                 title: External endpoint health check failing
                 summary: "{{ $labels.instance }}"
                 description: "The HTTPS health probe has failed for over 5 minutes. Check the service, ingress, and TLS."
+            # 2026-10-13: fluent-bit shipped zero lines for 3.5 days after an image swap and
+            # nothing noticed — no loki_* series were scraped. Normal flow is ~80 lines/s
+            # around the clock; the loki canary alone is ~6/s, so 20/s separates them.
+            - alert: LokiIngestionStopped
+              expr: sum(rate(loki_distributor_lines_received_total[30m])) < 20 or absent(loki_distributor_lines_received_total)
+              for: 30m
+              labels:
+                severity: critical
+              annotations:
+                title: Log ingestion into Loki has stopped
+                summary: "Loki is receiving almost no log lines"
+                description: "Ingestion has been below 20 lines/s for over 30 minutes. Check the fluent-bit DaemonSet and the Loki pods."
         - name: falco
           rules:
             - alert: FalcoRuleFired
