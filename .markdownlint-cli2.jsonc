@@ -17,6 +17,6 @@
     "**/.terraform/**",
     "**/.venv/**",
     "**/.scratchpad/**",
-    "helm-charts/longhorn/vendor/**"
+    "helm-charts/*/vendor/**"
   ]
 }
