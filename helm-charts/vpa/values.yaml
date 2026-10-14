@@ -10,9 +10,10 @@ vertical-pod-autoscaler:
     replicas: 1
     resources:
       # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-10-14: 30d spike ~65.1Mi, limit 79Mi already equals ceil(spike*1.2); request 58->42Mi.
       requests:
         cpu: 50m
-        memory: 58Mi
+        memory: 42Mi
         ephemeral-storage: 64Mi
       limits:
         # 2026-10-10: 30d spike ~65.1Mi vs 67Mi limit (97.2% - OOM risk); limit -> 79Mi (ceil(spike*1.2)).
@@ -47,20 +48,22 @@ vertical-pod-autoscaler:
       - --pod-recommendation-min-cpu-millicores=1
     resources:
       # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-10-14: 30d spike ~73.6Mi; request 78->58Mi, limit -> 89Mi (ceil(spike*1.2)).
       requests:
         cpu: 50m
-        memory: 78Mi
+        memory: 58Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 92Mi
+        memory: 89Mi
         ephemeral-storage: 64Mi
   updater:
     replicas: 1
     resources:
       # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+      # 2026-10-14: 30d spike ~79.9Mi, limit 96Mi already equals ceil(spike*1.2); request 73->52Mi.
       requests:
         cpu: 50m
-        memory: 73Mi
+        memory: 52Mi
         ephemeral-storage: 64Mi
       limits:
         # 2026-10-10: 30d spike ~79.9Mi vs 87Mi limit (91.8% - OOM risk); limit -> 96Mi (ceil(spike*1.2)).

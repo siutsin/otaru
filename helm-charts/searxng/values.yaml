@@ -9,11 +9,13 @@ image:
   tag: 2026.10.9-2dc2b1462@sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f
 port: 8080
 resources:
-  # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+  # 2026-10-09: first deploy, no 30d series. Unmeasured.
+  # 2026-10-14: measured now — 30d p50 ~84.8Mi, spike ~132.7Mi vs 256Mi;
+  # request -> 95Mi, limit -> 160Mi (ceil(spike*1.2)).
   requests:
     cpu: 100m
-    memory: 256Mi
+    memory: 95Mi
     ephemeralStorage: 256Mi
   limits:
-    memory: 256Mi
+    memory: 160Mi
     ephemeralStorage: 256Mi
