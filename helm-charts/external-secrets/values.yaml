@@ -3,12 +3,13 @@ _shared:
   # split from the old shared anchor. Right-size formula:
   # request=ceil(p50/0.9), limit=ceil(spike*1.2).
   operatorResources: &operatorResources
+    # 2026-10-14: 30d spike ~111.5Mi vs 133Mi limit; request 67->50Mi, limit -> 134Mi (ceil(spike*1.2)).
     requests:
       cpu: 50m
-      memory: 67Mi
+      memory: 50Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 133Mi
+      memory: 134Mi
       ephemeral-storage: 64Mi
   webhookResources: &webhookResources
     # KRR 2026-09-27: 30d p50 35.4MiB (14d 35.4), max 131.9MiB — request 141MiB
@@ -23,12 +24,13 @@ _shared:
       memory: 190Mi
       ephemeral-storage: 64Mi
   certControllerResources: &certControllerResources
+    # 2026-10-14: 30d spike ~114.3Mi vs 147Mi limit; request 92->58Mi, limit -> 138Mi (ceil(spike*1.2)).
     requests:
       cpu: 50m
-      memory: 92Mi
+      memory: 58Mi
       ephemeral-storage: 64Mi
     limits:
-      memory: 147Mi
+      memory: 138Mi
       ephemeral-storage: 64Mi
   preferredPodAntiAffinity: &preferredPodAntiAffinity
     podAntiAffinity:

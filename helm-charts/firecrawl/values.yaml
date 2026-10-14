@@ -28,13 +28,15 @@ playwright:
   port: 3000
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. 1Gi ephemeral
-    # leaves room for Chromium files under /tmp. Request equals limit.
+    # leaves room for Chromium files under /tmp.
+    # 2026-10-14: measured now — 30d p50 ~204Mi, spike ~260Mi vs 2Gi;
+    # request -> 228Mi, limit -> 313Mi (ceil(spike*1.2)).
     requests:
       cpu: 200m
-      memory: 2Gi
+      memory: 228Mi
       ephemeralStorage: 1Gi
     limits:
-      memory: 2Gi
+      memory: 313Mi
       ephemeralStorage: 1Gi
 
 valkey:

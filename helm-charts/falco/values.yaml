@@ -69,9 +69,10 @@ falco:
       follow:
         resources:
           # 2026-10-13: 30d spike ~60.0Mi vs 64Mi limit (93.8% — OOM risk); limit -> 73Mi (ceil(spike*1.2)).
+          # 2026-10-14: 30d p50 at the 32Mi floor; request 64->32Mi, limit 73Mi unchanged.
           requests:
             cpu: 50m
-            memory: 64Mi
+            memory: 32Mi
             ephemeral-storage: 64Mi
           limits:
             memory: 73Mi
