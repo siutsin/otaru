@@ -6,9 +6,6 @@ version: 0.1.1
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
   - name: cni
-    version: 1.30.5
-    # 2026-10-13: the upstream chart repo now returns 403, which breaks
-    # CI and Argo CD dependency updates. Vendored the 1.30.5 chart source
-    # so neither needs the upstream URL.
-    repository: file://vendor/cni-1.30.5
+    version: 1.30.x
+    repository: https://istio-release.storage.googleapis.com/charts
     alias: istio-cni
