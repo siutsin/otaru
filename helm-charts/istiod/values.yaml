@@ -6,6 +6,13 @@ oryHydra:
 
 istiod:
   profile: ambient
+  meshConfig:
+    enableTracing: true
+    extensionProviders:
+      - name: otel-tracing
+        opentelemetry:
+          service: monitoring-alloy.monitoring.svc.cluster.local
+          port: 4317
   pilot:
     env:
       ENABLE_INGRESS_WAYPOINT_ROUTING: "true"
