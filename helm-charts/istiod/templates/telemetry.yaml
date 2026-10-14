@@ -1,0 +1,11 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: mesh-tracing
+  namespace: {{ .Values.namespace }}
+spec:
+  # Mesh-wide: in ambient mode, this targets the shared waypoint only.
+  tracing:
+    - providers:
+        - name: otel-tracing
+      randomSamplingPercentage: 100
