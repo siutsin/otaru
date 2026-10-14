@@ -7,8 +7,4 @@ icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
 - name: longhorn
   version: 1.13.0
-  # 2026-10-11: upstream published 1.13.0 but charts.longhorn.io is
-  # unreachable from some networks (helm timeouts). Vendored the 1.13.0
-  # chart source from the longhorn/charts release so CI and ArgoCD never
-  # need the upstream URL.
-  repository: file://vendor/longhorn-1.13.0
+  repository: https://charts.longhorn.io
