@@ -152,6 +152,24 @@ local _ignoreDifferences = {
       'require-pod-disruption-budget',
     ]),
   },
+  connectivity: {
+    // The API and the controller default these on the live EnvoyProxy;
+    // they never appear in the rendered chart manifest.
+    'envoy-gateway': [{
+      group: 'gateway.envoyproxy.io',
+      kind: 'EnvoyProxy',
+      name: 'gateway',
+      namespace: 'gateway',
+      jqPathExpressions: [
+        '.spec.logging.level.default',
+        '.spec.provider.kubernetes.envoyService.externalTrafficPolicy',
+        '.spec.provider.kubernetes.envoyService.type',
+        '.spec.telemetry.tracing.provider.backendRefs[].weight',
+        '.spec.telemetry.tracing.provider.port',
+        '.spec.telemetry.tracing.provider.type',
+      ],
+    }],
+  },
 };
 
 local _grafanaDashboards = [
@@ -263,7 +281,9 @@ local bootstrap = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true } },
+  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true },
+    syncOptions: ['RespectIgnoreDifferences=true'],
+    ignoreDifferences: _ignoreDifferences.connectivity['envoy-gateway'] },
   { wave: '02', name: 'tailscale-operator', namespace: 'tailscale',
     syncOptions: ['SkipDryRunOnMissingResource=true'],
     // Kyverno defaults skipBackgroundRequests on the live ClusterPolicy at
