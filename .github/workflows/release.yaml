@@ -1,30 +1,26 @@
-name: Release Charts
+name: Release longhorn-volume-lib
 
 on:
   push:
     branches:
       - master
+    paths:
+      - helm-charts/longhorn-volume-lib/**
+  workflow_dispatch:
 
 permissions: { }
 
 jobs:
   release:
-    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
-    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     permissions:
-      contents: write
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Setup mise
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
@@ -32,13 +28,25 @@ jobs:
           version: 2026.10.6
           install_args: --locked
 
-      - name: Add Helm repositories
-        run: make add-helm-repos
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
-        with:
-          charts_dir: helm-charts
-          skip_existing: true
+      - name: Publish to GHCR
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="$(yq -r '.version' helm-charts/longhorn-volume-lib/Chart.yaml)"
+          echo "$GITHUB_TOKEN" | helm registry login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          # Skip when the version is already on GHCR (chart-releaser skip_existing behaviour).
+          if helm pull oci://ghcr.io/siutsin/longhorn-volume-lib --version "$version" --destination /tmp/chart-check > /dev/null 2>&1; then
+            echo "longhorn-volume-lib $version is already published, skip"
+            exit 0
+          fi
+          helm package helm-charts/longhorn-volume-lib --destination /tmp/chart
+          for attempt in 1 2 3; do
+            if helm push "/tmp/chart/longhorn-volume-lib-$version.tgz" oci://ghcr.io/siutsin; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep 5
+            fi
+          done
+          echo "helm push failed after 3 attempts"
+          exit 1
