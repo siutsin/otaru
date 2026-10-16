@@ -41,12 +41,6 @@
       }
     },
     {
-      matchPackageNames: [
-        'helm/chart-releaser-action',
-      ],
-      abandonmentThreshold: null,
-    },
-    {
       // Floating `main` tag: upstream deletes superseded digests within days, so a
       // 7 day delay leaves the pin stale and the pull fails with NotFound.
       matchPackageNames: [
