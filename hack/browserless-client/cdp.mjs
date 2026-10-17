@@ -1,9 +1,4 @@
-// Minimal CDP client for the in-cluster browserless.
-//
-// Auth: cached Hydra JWT from mcp-cli (~/.cache/mcp-cli/token-muse.json),
-// refreshed through `mcp-cli status` when near expiry. Never printed.
-// Route: the tunnel proxy mcp-cli uses, derived from HTTPS_PROXY with the
-// port swapped to 3130 (see the local-mcp skill). Never printed.
+// Never print the token or the proxy URL.
 import WebSocket from 'ws';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { readFileSync } from 'node:fs';
@@ -11,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const TOKEN_FILE = `${process.env.HOME}/.cache/mcp-cli/token-muse.json`;
 const MCP_CLI = `${process.env.HOME}/workspace/custom-skills/local-mcp/bin/mcp-cli`;
-export const HOST = 'browserless.internal.siutsin.com';
+export const HOST = process.env.BROWSERLESS_HOST;
 
 export function getToken() {
   let t = JSON.parse(readFileSync(TOKEN_FILE, 'utf8'));
@@ -72,12 +67,10 @@ export class Cdp {
   }
 
   close() {
-    try { this.ws.close(); } catch { /* already closed */ }
+    try { this.ws.close(); } catch {}
   }
 }
 
-// query: extra connection-URL query string, e.g. "?launch=<base64>".
-// headers: pass {} to connect with no Authorization header (refusal control).
 export async function connect({ query = '', headers } = {}) {
   const hdrs = headers !== undefined ? headers : { Authorization: `Bearer ${getToken()}` };
   const ws = new WebSocket(`wss://${HOST}/chromium${query}`, {
@@ -108,7 +101,6 @@ export async function evaluate(cdp, sessionId, expression) {
   return r.result ? r.result.value : undefined;
 }
 
-// Navigates and resolves with { status, errorText } for the document.
 export async function navigate(cdp, sessionId, url, timeoutMs = 45000) {
   let status = null;
   const detach = (m) => {

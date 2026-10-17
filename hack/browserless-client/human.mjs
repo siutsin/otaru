@@ -1,40 +1,36 @@
-// The human-like stack for the in-cluster browserless. Each measure
-// below passed a live capability test against this image:
-// - Headful launch: the user agent loses the "HeadlessChrome" token
-//   and the window gains a real frame (outer != inner).
-// - --disable-blink-features=AutomationControlled: navigator.webdriver
-//   reads false.
-// - Per page, before the first navigation: Europe/London time zone,
-//   en-GB locale, 1920x1080 viewport. The native Linux user agent
-//   stays; another platform is never spoofed.
-// - NOT used, by live evidence: stealth (it spoofs a Windows user
-//   agent and a fake GPU string, which breaks coherence), humanlike
-//   (the server rejects the parameter, HTTP 400), and named
-//   --user-data-dir profiles (state does not survive a reconnect on
-//   this image, in any form). Warmth is built inside each session.
+// No stealth: it spoofs a Windows user agent on a Linux platform and breaks fingerprint coherence.
+// No humanlike option: the server rejects the parameter (HTTP 400).
+// No named --user-data-dir profiles: their state does not survive a reconnect on this image.
 import { connect, newPage, evaluate, navigate, sleep } from './cdp.mjs';
 
-const LAUNCH = {
+const envInt = (name, fallback) => {
+  const v = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isNaN(v) ? fallback : v;
+};
+
+export const CONFIG = {
+  timezone: process.env.BROWSERLESS_TZ || 'Europe/London',
+  locale: process.env.BROWSERLESS_LOCALE || 'en-GB',
+  width: envInt('BROWSERLESS_WIDTH', 1920),
+  height: envInt('BROWSERLESS_HEIGHT', 1080),
   headless: false,
-  args: ['--disable-blink-features=AutomationControlled', '--window-size=1920,1080'],
+  args: ['--disable-blink-features=AutomationControlled'],
 };
 
 export function connectHuman() {
-  const q = '?launch=' + encodeURIComponent(Buffer.from(JSON.stringify(LAUNCH)).toString('base64'));
+  const launch = { headless: CONFIG.headless, args: [...CONFIG.args, `--window-size=${CONFIG.width},${CONFIG.height}`] };
+  const q = '?launch=' + encodeURIComponent(Buffer.from(JSON.stringify(launch)).toString('base64'));
   return connect({ query: q });
 }
 
 export async function setupPage(cdp, s) {
-  await cdp.send('Emulation.setTimezoneOverride', { timezoneId: 'Europe/London' }, s);
-  await cdp.send('Emulation.setLocaleOverride', { locale: 'en-GB' }, s);
-  // Inner height 1040 under a 1920x1080 screen and window leaves a
-  // frame delta, like a real maximized window. The screen values
-  // must ride along, or screen stays at the 1024x768 display size.
+  await cdp.send('Emulation.setTimezoneOverride', { timezoneId: CONFIG.timezone }, s);
+  await cdp.send('Emulation.setLocaleOverride', { locale: CONFIG.locale }, s);
+  // screenWidth and screenHeight must ride along, or the emulated screen stays 1024x768.
   await cdp.send('Emulation.setDeviceMetricsOverride',
-    { width: 1920, height: 1040, deviceScaleFactor: 1, mobile: false, screenWidth: 1920, screenHeight: 1080 }, s);
+    { width: CONFIG.width, height: CONFIG.height - 40, deviceScaleFactor: 1, mobile: false, screenWidth: CONFIG.width, screenHeight: CONFIG.height }, s);
 }
 
-// A pause with random jitter. Never a fixed interval.
 export function humanDelay(minMs = 1200, maxMs = 3200) {
   const base = minMs + Math.random() * (maxMs - minMs);
   const jitter = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5 * 400;
@@ -69,7 +65,6 @@ export async function scrollSteps(cdp, s, times = 3) {
   }
 }
 
-// Accept a cookie banner when the page offers one. Best effort only.
 export async function acceptCookies(cdp, s) {
   const box = await evaluate(cdp, s, `(() => {
     const rx = /^(accept|accept all|allow all|agree|i agree|got it|ok)$/i;
@@ -85,9 +80,6 @@ export async function acceptCookies(cdp, s) {
   return false;
 }
 
-// Opens the site home page first, behaves like a visitor, then goes to
-// the target in the same session. With { hop: true } it first follows
-// one same-origin link on the home page, like a reader would.
 export async function warmVisit(cdp, targetUrl, { hop = false } = {}) {
   const s = await newPage(cdp);
   await setupPage(cdp, s);
