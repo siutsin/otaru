@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # 2026-10-17: the Kyverno policy require-pod-disruption-budget denied
+  # the Deployment at admission because the chart shipped no PDB, so
+  # Argo CD could not create it. Matches the single-replica PDB pattern
+  # used by the peer charts.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
