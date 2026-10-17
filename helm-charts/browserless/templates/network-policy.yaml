@@ -10,9 +10,7 @@ spec:
   policyTypes:
     - Egress
   egress:
-    # The browser resolves names through the cluster resolver only. The
-    # resolver sits inside 10.0.0.0/8, which the rule below blocks, so DNS
-    # needs its own grant.
+    # The cluster resolver sits inside the blocked 10.0.0.0/8 range, so DNS needs its own grant.
     - to:
         - namespaceSelector:
             matchLabels:
@@ -25,10 +23,7 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-    # Public addresses only. The exceptions remove the RFC1918 ranges,
-    # which also cover the cluster pod range (10.42.0.0/16), the cluster
-    # service range and the home LAN, so a page or a redirect cannot reach
-    # LAN devices or cluster-internal addresses.
+    # Public addresses only, so a page or redirect cannot reach LAN devices or cluster-internal addresses.
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
