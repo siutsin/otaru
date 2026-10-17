@@ -17,6 +17,9 @@ spec:
         remoteJWKS:
           cacheDuration: 300s
           uri: {{ .Values.authentication.jwksUri | quote }}
+        extractFrom:
+          headers:
+            - name: X-Muse-Auth
   authorization:
     defaultAction: Deny
     rules:
