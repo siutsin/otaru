@@ -35,11 +35,6 @@ spec:
           env:
             - name: HOME
               value: /tmp
-            - name: TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.name }}
-                  key: password
             - name: CONCURRENT
               value: {{ .Values.env.concurrent | quote }}
             - name: TIMEOUT
