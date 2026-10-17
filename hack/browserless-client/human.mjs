@@ -8,6 +8,8 @@ const envInt = (name, fallback) => {
   return Number.isNaN(v) ? fallback : v;
 };
 
+// Headful, so the user agent has no HeadlessChrome token and the window has a real frame.
+// AutomationControlled disabled, so navigator.webdriver reads false.
 export const CONFIG = {
   timezone: process.env.BROWSERLESS_TZ || 'Europe/London',
   locale: process.env.BROWSERLESS_LOCALE || 'en-GB',
@@ -26,6 +28,7 @@ export function connectHuman() {
 export async function setupPage(cdp, s) {
   await cdp.send('Emulation.setTimezoneOverride', { timezoneId: CONFIG.timezone }, s);
   await cdp.send('Emulation.setLocaleOverride', { locale: CONFIG.locale }, s);
+  // Height minus 40 leaves a frame delta, like a real maximized window.
   // screenWidth and screenHeight must ride along, or the emulated screen stays 1024x768.
   await cdp.send('Emulation.setDeviceMetricsOverride',
     { width: CONFIG.width, height: CONFIG.height - 40, deviceScaleFactor: 1, mobile: false, screenWidth: CONFIG.width, screenHeight: CONFIG.height }, s);

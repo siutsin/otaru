@@ -71,6 +71,7 @@ export class Cdp {
   }
 }
 
+// headers: pass {} for no Authorization header; that is the refusal control.
 export async function connect({ query = '', headers } = {}) {
   const hdrs = headers !== undefined ? headers : { Authorization: `Bearer ${getToken()}` };
   const ws = new WebSocket(`wss://${HOST}/chromium${query}`, {
