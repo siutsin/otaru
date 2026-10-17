@@ -4,3 +4,5 @@ description: A Helm chart for Kubernetes
 type: application
 version: 0.4.0
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
+annotations:
+  siutsin.com/publish-oci: "true"
