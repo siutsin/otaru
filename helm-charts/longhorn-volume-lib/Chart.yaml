@@ -2,7 +2,5 @@ apiVersion: v2
 name: longhorn-volume-lib
 description: A Helm chart for Kubernetes
 type: application
-version: 0.4.0
+version: 1.0.0
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
-annotations:
-  siutsin.com/publish-oci: "true"
