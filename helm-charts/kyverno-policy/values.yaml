@@ -50,6 +50,8 @@ clusterSecretStorePolicy:
       - b2-secret-cloudnative-pg
       - heartbeats
       - teslamate
+    trivy-operator:
+      - Docker
     unifi-mcp:
       - unifi-mcp
 
