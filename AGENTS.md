@@ -197,6 +197,20 @@ Ready on a wrong probe path). Use a peer chart (for example `httpbin`,
   should restart pods
 - [ ] Ingress: internal and/or public `HTTPRoute` as needed (path rewrites,
   hostnames under `*.internal.siutsin.com` or public names)
+- [ ] Objects the Kyverno policies mandate (`Enforce` — admission denies
+  the workload without them): a `PodDisruptionBudget` selecting the
+  workload by its `app.kubernetes.io/name` label (ClusterPolicy
+  `require-pod-disruption-budget`, every `Deployment` and `StatefulSet`),
+  plus the `SecurityPolicy` and `AuthorizationPolicy` items above
+  (`require-security-policy`, `require-mesh-authorization-policy`), and a
+  workload-selector `AuthorizationPolicy` if the pods are
+  Prometheus-scraped (`require-mesh-authorization-policy`)
+- [ ] Fields the Kyverno policies mandate on every container and
+  initContainer: cpu, memory and ephemeral-storage requests, and memory
+  and ephemeral-storage limits (`require-workload-resources`);
+  `allowPrivilegeEscalation: false` and
+  drop `ALL` (`require-container-hardening`); an explicit non-`latest`
+  image tag (`require-image-tag`)
 
 ### GitOps registration
 
@@ -239,6 +253,9 @@ Ready on a wrong probe path). Use a peer chart (for example `httpbin`,
 
 ### Verify before merge
 
+- [ ] Render the chart (`helm template`) and diff the rendered object
+  kinds against the peer chart used as the template. Account for every
+  difference before merge
 - [ ] `make test` green (Helm lint/template, YAML, markdown, EditorConfig, …)
 - [ ] After merge/sync: Application Synced/Healthy, ExternalSecret Ready (if
   any), pod Ready, HTTPRoute `Accepted`, and a real request through the
