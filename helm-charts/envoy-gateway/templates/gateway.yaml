@@ -30,6 +30,7 @@ spec:
                 values:
                   - argocd
                   - blocky
+                  - browserless
                   - changedetection
                   - cyberchef
                   - excalidraw

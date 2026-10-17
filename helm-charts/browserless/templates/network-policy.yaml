@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  policyTypes:
+    - Egress
+  egress:
+    # The browser resolves names through the cluster resolver only. The
+    # resolver sits inside 10.0.0.0/8, which the rule below blocks, so DNS
+    # needs its own grant.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Public addresses only. The exceptions remove the RFC1918 ranges,
+    # which also cover the cluster pod range (10.42.0.0/16), the cluster
+    # service range and the home LAN, so a page or a redirect cannot reach
+    # LAN devices or cluster-internal addresses.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
