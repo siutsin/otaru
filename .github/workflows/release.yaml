@@ -1,11 +1,11 @@
-name: Release longhorn-volume-lib
+name: Release charts
 
 on:
   push:
     branches:
       - master
     paths:
-      - helm-charts/longhorn-volume-lib/**
+      - helm-charts/**
   workflow_dispatch:
 
 permissions: { }
@@ -32,21 +32,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="$(yq -r '.version' helm-charts/longhorn-volume-lib/Chart.yaml)"
           echo "$GITHUB_TOKEN" | helm registry login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-          # Skip when the version is already on GHCR (chart-releaser skip_existing behaviour).
-          if helm pull oci://ghcr.io/siutsin/longhorn-volume-lib --version "$version" --destination /tmp/chart-check > /dev/null 2>&1; then
-            echo "longhorn-volume-lib $version is already published, skip"
-            exit 0
-          fi
-          helm package helm-charts/longhorn-volume-lib --destination /tmp/chart
-          for attempt in 1 2 3; do
-            if helm push "/tmp/chart/longhorn-volume-lib-$version.tgz" oci://ghcr.io/siutsin; then
-              exit 0
+          failed=0
+          for chart_yaml in helm-charts/*/Chart.yaml; do
+            # Only charts annotated siutsin.com/publish-oci: "true" are published.
+            if [ "$(yq -r '.annotations["siutsin.com/publish-oci"] // ""' "$chart_yaml")" != "true" ]; then
+              continue
             fi
-            if [ "$attempt" -lt 3 ]; then
-              sleep 5
+            name="$(yq -r '.name' "$chart_yaml")"
+            version="$(yq -r '.version' "$chart_yaml")"
+            # Skip when the version is already on GHCR (chart-releaser skip_existing behaviour).
+            if helm pull "oci://ghcr.io/siutsin/$name" --version "$version" --destination /tmp/chart-check > /dev/null 2>&1; then
+              echo "$name $version is already published, skip"
+              continue
+            fi
+            rm -rf /tmp/chart
+            helm package "$(dirname "$chart_yaml")" --destination /tmp/chart
+            pushed=0
+            for attempt in 1 2 3; do
+              if helm push "/tmp/chart/$name-$version.tgz" oci://ghcr.io/siutsin; then
+                pushed=1
+                break
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep 5
+              fi
+            done
+            if [ "$pushed" -ne 1 ]; then
+              echo "$name $version: helm push failed after 3 attempts"
+              failed=1
             fi
           done
-          echo "helm push failed after 3 attempts"
-          exit 1
+          exit "$failed"
