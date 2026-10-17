@@ -8,7 +8,7 @@ locked = true
 [tools]
 "aqua:astral-sh/uv" = "0.13.0"
 "aqua:cli/cli" = "2.102.0"
-"aqua:direnv/direnv" = "2.38.1"
+"aqua:direnv/direnv" = "2.38.2"
 "aqua:editorconfig-checker/editorconfig-checker" = "4.0.2"
 "aqua:google/go-jsonnet" = "0.22.0"
 "aqua:gruntwork-io/terragrunt" = "1.1.6"
