@@ -6,7 +6,7 @@ aqua.registries = ["aqua-registry.yaml"]
 locked = true
 
 [tools]
-"aqua:astral-sh/uv" = "0.12.24"
+"aqua:astral-sh/uv" = "0.13.0"
 "aqua:cli/cli" = "2.102.0"
 "aqua:direnv/direnv" = "2.38.1"
 "aqua:editorconfig-checker/editorconfig-checker" = "4.0.2"
