@@ -15,9 +15,7 @@ authentication:
     - mcp
 
 image:
-  # The image configuration sets USER blessuser (uid 999, gid 999), so the
-  # deployment hardening uses 999 to match the image instead of forcing a
-  # different user.
+  # The image USER is blessuser (uid 999), so the hardening matches it instead of forcing a different user.
   repository: ghcr.io/browserless/chromium
   tag: v2.57.1@sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67
   pullPolicy: IfNotPresent
@@ -25,10 +23,7 @@ image:
 port: 3000
 
 env:
-  # The default CONCURRENT is 10; one user needs one live session, plus one
-  # spare for a second tab or a retry. The default TIMEOUT is 30000 ms,
-  # which kills slow multi-step agent flows; -1 would let a stuck session
-  # hold one of only two slots forever, so the timeout stays finite.
+  # One user needs a session plus a spare slot; 120s because the 30s default kills slow agent flows, and finite so a stuck session cannot hold a slot forever.
   concurrent: "2"
   timeout: "120000"
 
@@ -44,8 +39,7 @@ probes:
     timeoutSeconds: 5
     failureThreshold: 3
 
-# Chrome crashes under load with the 64 MB container default for /dev/shm;
-# upstream docs recommend 2 GB.
+# Chrome crashes under load with the 64 MB container default for /dev/shm; upstream docs recommend 2 GB.
 shmSizeLimit: 2Gi
 
 resources:

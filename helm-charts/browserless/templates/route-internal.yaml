@@ -15,8 +15,6 @@ spec:
       name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
   rules:
-    # No matches and no rewrite: the client connects to the native
-    # browserless paths, so every path passes through unchanged.
     - backendRefs:
         - group: ""
           kind: Service

@@ -8,8 +8,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
 spec:
-  # One replica: browserless keeps CDP sessions in pod memory, so two
-  # replicas behind one Service would break a session that spans calls.
+  # One replica: CDP sessions live in pod memory, so two replicas would break sessions that span calls.
   replicas: 1
   strategy:
     type: Recreate
@@ -58,9 +57,7 @@ spec:
             - name: http
               containerPort: {{ .Values.port }}
               protocol: TCP
-          # The /pressure health endpoint requires the token once TOKEN is
-          # set, so an HTTP probe would get 401 forever. TCP confirms the
-          # listener is up.
+          # /pressure requires the token once TOKEN is set, so HTTP probes would get 401 forever; TCP proves the listener is up.
           livenessProbe:
             tcpSocket:
               port: http
