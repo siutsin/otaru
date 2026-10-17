@@ -34,6 +34,7 @@ jobs:
         run: |
           echo "$GITHUB_TOKEN" | helm registry login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           failed=0
+          mkdir -p /tmp/chart-check
           for chart_yaml in helm-charts/*/Chart.yaml; do
             # Only charts annotated siutsin.com/publish-oci: "true" are published.
             if [ "$(yq -r '.annotations["siutsin.com/publish-oci"] // ""' "$chart_yaml")" != "true" ]; then
