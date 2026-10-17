@@ -1,0 +1,63 @@
+name: browserless
+namespace: browserless
+
+gateway:
+  name: gateway
+  namespace: gateway
+
+authentication:
+  enabled: true
+  issuer: https://auth.siutsin.com/
+  jwksUri: https://auth.siutsin.com/.well-known/jwks.json
+  allowedSubjects:
+    - muse
+  requiredScopes:
+    - mcp
+
+image:
+  # The image configuration sets USER blessuser (uid 999, gid 999), so the
+  # deployment hardening uses 999 to match the image instead of forcing a
+  # different user.
+  repository: ghcr.io/browserless/chromium
+  tag: v2.57.1@sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67
+  pullPolicy: IfNotPresent
+
+port: 3000
+
+env:
+  # The default CONCURRENT is 10; one user needs one live session, plus one
+  # spare for a second tab or a retry. The default TIMEOUT is 30000 ms,
+  # which kills slow multi-step agent flows; -1 would let a stuck session
+  # hold one of only two slots forever, so the timeout stays finite.
+  concurrent: "2"
+  timeout: "120000"
+
+probes:
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 4
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# Chrome crashes under load with the 64 MB container default for /dev/shm;
+# upstream docs recommend 2 GB.
+shmSizeLimit: 2Gi
+
+resources:
+  # New workload, no usage history, so request = limit per the new-chart
+  # rule. Values come from the upstream docs light tier (2 CPU, 4 GB)
+  # scaled to two sessions, and the memory limit must also absorb the
+  # 2 GiB /dev/shm volume, which Kubernetes charges to the pod. The
+  # right-sizing pass revisits the values after 30 days of data.
+  requests:
+    cpu: 1000m
+    memory: 4Gi
+    ephemeralStorage: 1Gi
+  limits:
+    memory: 4Gi
+    ephemeralStorage: 4Gi

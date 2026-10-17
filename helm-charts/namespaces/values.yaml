@@ -9,6 +9,7 @@ namespaces:
   # mTLS can be observed in PERMISSIVE mode before tightening enforcement.
   - name: argocd
   - name: blocky
+  - name: browserless
   - name: cert-manager
   - name: changedetection
   - name: cloudflare-tunnel
