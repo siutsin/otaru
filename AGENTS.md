@@ -121,6 +121,16 @@ For mutating operations, keep GitOps as the source of truth: patch the repo and
 let Argo CD reconcile unless the user explicitly asks for an emergency live
 change.
 
+Under Istio ambient, ztunnel re-originates pod egress traffic from the node,
+so the cluster NetworkPolicy controller never evaluates egress rules for
+mesh-captured workloads. Treat egress NetworkPolicy rules as a statement of
+intent, not an enforced control. For waypoint-bound destinations, the
+destination waypoint AuthorizationPolicy is the enforced control. Gateway JWT
+validation applies only to gateway-routed traffic. Live probes from the
+browserless pod on 2026-10-17 reached pod, node and LAN addresses despite a
+correct egress policy that lists those ranges as excepted. The service-range
+probe reached the destination waypoint and was denied with 403.
+
 ## Memory sizing recommendations (KRR replacement)
 
 The self-healing loop cannot run KRR: it needs the Kubernetes API and this
