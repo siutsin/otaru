@@ -1,8 +1,8 @@
 # Browserless client — human-like browsing stack
 
 Use this client when a task browses the web through the in-cluster
-browserless. It connects by Chrome DevTools Protocol (CDP) to
-`wss://browserless.internal.siutsin.com/chromium`.
+browserless. It connects by Chrome DevTools Protocol (CDP) to the
+service's route host.
 
 ## Files
 
@@ -10,13 +10,25 @@ browserless. It connects by Chrome DevTools Protocol (CDP) to
   from mcp-cli and connects through the tunnel proxy. It never
   prints the token or the proxy address.
 - `human.mjs` — the human-like stack: `connectHuman`,
-  `setupPage`, `humanDelay`, `warmVisit`.
+  `setupPage`, `humanDelay`, `warmVisit`. Every
+  deployment-specific value lives in its exported `CONFIG`
+  object.
 
 ## Setup
 
 ```shell
 npm ci
 ```
+
+Set `BROWSERLESS_HOST` to the route host of the in-cluster
+browserless service. The client has no default for it.
+
+Optional overrides, with the defaults in use:
+
+- `BROWSERLESS_TZ` — time zone, default `Europe/London`
+- `BROWSERLESS_LOCALE` — locale, default `en-GB`
+- `BROWSERLESS_WIDTH` — window width, default `1920`
+- `BROWSERLESS_HEIGHT` — window height, default `1080`
 
 ## How to browse
 
@@ -28,18 +40,13 @@ const page = await warmVisit(cdp, 'https://www.example.com/target');
 cdp.close();
 ```
 
-`connectHuman` launches the browser headful with the
-AutomationControlled flag. `warmVisit` opens the site home page
-first, waits, scrolls, accepts a cookie banner when one appears,
-and then navigates to the target in the same session. Pass
-`{ hop: true }` to follow one same-origin link on the home page
-first, like a reader.
+`warmVisit` opens the site home page first, then navigates to
+the target in the same session. Pass `{ hop: true }` to follow
+one same-origin link on the home page first.
 
-For a plain page without warm-up, call `newPage` from `cdp.mjs`,
-then `setupPage` from `human.mjs`, then `navigate`. Run
-`setupPage` before the first navigation on every new page. It
-sets the time zone to `Europe/London`, the locale to `en-GB`,
-and the viewport to 1920 by 1080.
+For a plain page without warm-up, call `newPage` from
+`cdp.mjs`, then `setupPage` from `human.mjs`, then `navigate`.
+Run `setupPage` before the first navigation on every new page.
 
 ## Rules
 
