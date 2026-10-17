@@ -11,6 +11,11 @@ trivy-operator:
     # Daily reports, one scan at a time. Upstream runs 10 concurrent.
     scannerReportTTL: "24h"
     scanJobsConcurrentLimit: 1
+    # Scan jobs have no imagePullSecrets to inherit: node pulls use the
+    # containerd registry config instead. Point the operator at the
+    # dockerconfigjson secret from templates/external-secret.yaml,
+    # keyed by the namespace the secret lives in.
+    privateRegistryScanSecretsNames: { "trivy-operator": "docker-hub" }
   trivy:
     # No outbound Maven calls from scans.
     offlineScan: true
