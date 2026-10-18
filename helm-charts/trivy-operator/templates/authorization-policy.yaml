@@ -1,0 +1,63 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: trivy-operator-metrics
+  namespace: trivy-operator
+spec:
+  action: ALLOW
+  # Prometheus scrapes the operator pod directly through ztunnel.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trivy-operator
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+      to:
+        - operation:
+            ports:
+              - "8080"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: trivy-operator
+  namespace: trivy-operator
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: trivy-operator
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+      to:
+        - operation:
+            ports:
+              - "80"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: trivy-service
+  namespace: trivy-operator
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: trivy-service
+  rules:
+    # Scan job pods run under the operator service account.
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/trivy-operator/sa/trivy-operator
+      to:
+        - operation:
+            ports:
+              - "4954"
