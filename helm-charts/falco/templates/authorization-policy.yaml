@@ -1,0 +1,41 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: falco-metrics
+  namespace: falco
+spec:
+  action: ALLOW
+  # Prometheus scrapes the falco pod directly through ztunnel.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: falco
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+      to:
+        - operation:
+            ports:
+              - "8765"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: falco
+  namespace: falco
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: falco-metrics
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+      to:
+        - operation:
+            ports:
+              - "8765"

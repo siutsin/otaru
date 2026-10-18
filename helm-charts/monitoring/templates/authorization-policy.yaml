@@ -78,8 +78,9 @@ spec:
         - operation:
             ports:
               - "9093"
-    # Falco sidekick (ns falco, ambient off for eBPF) has no mesh identity,
-    # so no principal can match it. Open only the alerts receive path.
+    # 2026-10-18: falcosidekick is disabled, so nothing in the falco
+    # namespace posts alerts today. The open alerts path stays for a
+    # future sidekick; give it a principal rule when it is enabled.
     - to:
         - operation:
             paths:
