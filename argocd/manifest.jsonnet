@@ -226,6 +226,22 @@ local cnpgClustersHelm = { parameters: [
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
+local trivyOperatorHelm = {
+  valuesObject: {
+    'trivy-operator': {
+      trivy: {
+        server: {
+          resources: {
+            limits: {
+              // 2026-10-18: null removes the subchart default CPU limit; the house rule sets no CPU limits.
+              cpu: null,
+            },
+          },
+        },
+      },
+    },
+  },
+};
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'browserless', namespace: 'browserless' },
@@ -348,7 +364,7 @@ local security = [
   { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security['kyverno-policy'] },
   { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
-  { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator' },
+  { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator', helm: trivyOperatorHelm },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];
 

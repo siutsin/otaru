@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: trivy-server
+  namespace: trivy-operator
+spec:
+  # 2026-10-18: Kyverno require-pod-disruption-budget denies the server
+  # StatefulSet without one. Upstream chart ships no PDB; hand-written here.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trivy-server
+      app.kubernetes.io/instance: trivy-server

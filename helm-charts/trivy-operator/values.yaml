@@ -11,6 +11,11 @@ trivy-operator:
     # Daily reports, one scan at a time. Upstream runs 10 concurrent.
     scannerReportTTL: "24h"
     scanJobsConcurrentLimit: 1
+    # 2026-10-18: standalone scan pods run one Trivy process per workload
+    # container over one shared BoltDB cache; the lock timeouts fail scan
+    # jobs (BackoffLimitExceeded). The built-in server ends the sharing:
+    # scan jobs become its clients and share no cache.
+    builtInTrivyServer: true
     # Scan jobs have no imagePullSecrets to inherit: node pulls use the
     # containerd registry config instead. Point the operator at the
     # dockerconfigjson secret from templates/external-secret.yaml,
@@ -31,6 +36,31 @@ trivy-operator:
       limits:
         memory: 500Mi
         ephemeralStorage: 2Gi
+    server:
+      # 2026-10-18: new workload, starts at the upstream sizes with
+      # ephemeral-storage added because Kyverno require-workload-resources
+      # demands it. The database and cache live on the PVC, so ephemeral
+      # storage covers temp files only. Resize after metrics. The wrapper
+      # sets only these five fields; the subchart default's cpu limit is
+      # removed by a null override in the trivy-operator Application values.
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+          ephemeral-storage: 512Mi
+        limits:
+          memory: 1Gi
+          ephemeral-storage: 1Gi
+      # 2026-10-18: Kyverno require-container-hardening demands
+      # allowPrivilegeEscalation: false and drop ALL; the upstream
+      # defaults omit both. The block is set in full.
+      securityContext:
+        allowPrivilegeEscalation: false
+        privileged: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
   resources:
     # 2026-10-09: OOMKilled at 256Mi on first sync (exit 137). Raise to
     # 512Mi. Resize after metrics.
