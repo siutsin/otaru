@@ -45,6 +45,8 @@ trivy-operator:
       # storage covers temp files only. Resize after metrics. The wrapper
       # sets only these five fields; the subchart default's cpu limit is
       # removed by a null override in the trivy-operator Application values.
+      # 2026-10-19: the server pod was evicted once at the 1Gi
+      # ephemeral-storage limit. Limit raised to 2Gi, request stays 512Mi.
       resources:
         requests:
           cpu: 200m
@@ -52,7 +54,7 @@ trivy-operator:
           ephemeral-storage: 512Mi
         limits:
           memory: 1Gi
-          ephemeral-storage: 1Gi
+          ephemeral-storage: 2Gi
       # 2026-10-18: Kyverno require-container-hardening demands
       # allowPrivilegeEscalation: false and drop ALL; the upstream
       # defaults omit both. The block is set in full.
