@@ -15,7 +15,13 @@ spec:
       name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
   rules:
-    - backendRefs:
+    # The server adds this match as a default when it is absent, and the
+    # added field then reads as drift that never settles.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - group: ""
           kind: Service
           name: {{ .Values.name }}
