@@ -1,3 +1,6 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
@@ -37,6 +40,24 @@ spec:
         - operation:
             ports:
               - {{ .Values.api.port | quote }}
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+            {{- if .Values.authentication.enabled }}
+            requestPrincipals:
+              - "*"
+            {{- end }}
+      to:
+        - operation:
+            ports:
+              - {{ .Values.api.port | quote }}
+      {{- if .Values.authentication.enabled }}
+      when:
+        - key: request.auth.claims[sub]
+          values:
+            {{- toYaml .Values.authentication.allowedSubjects | nindent 12 }}
+      {{- end }}
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy

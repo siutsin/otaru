@@ -34,6 +34,7 @@ spec:
                   - changedetection
                   - cyberchef
                   - excalidraw
+                  - firecrawl
                   - gateway
                   - hermes
                   - home-assistant
@@ -48,6 +49,7 @@ spec:
                   - kubernetes-mcp-server
                   - longhorn-system
                   - monitoring
+                  - searxng
                   - teslamate
                   - umami
                   - unifi-mcp
