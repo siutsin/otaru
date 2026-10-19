@@ -40,47 +40,101 @@ export function humanDelay(minMs = 1200, maxMs = 3200) {
   return sleep(Math.max(300, base + jitter));
 }
 
-async function mouseTo(cdp, s, x, y, steps = 14) {
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+// Centre-weighted random in -1..1.
+const tri = () => Math.random() + Math.random() - 1;
+
+function sampleInBox(x, y, w, h) {
+  if (w <= 6 || h <= 6) return [x + w / 2, y + h / 2];
+  return [
+    clamp(x + w / 2 + tri() * w * 0.3, x + 2, x + w - 2),
+    clamp(y + h / 2 + tri() * h * 0.3, y + 2, y + h - 2),
+  ];
+}
+
+async function mouseTo(cdp, s, x, y) {
   const from = await evaluate(cdp, s, 'window.__blMouse || [640, 400]').catch(() => [640, 400]);
-  const bend = (Math.random() - 0.5) * 160;
+  const dx = x - from[0];
+  const dy = y - from[1];
+  const dist = Math.hypot(dx, dy);
+  if (dist < 2) {
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y }, s);
+    await evaluate(cdp, s, `window.__blMouse = [${x}, ${y}]; true`).catch(() => {});
+    return;
+  }
+  const steps = clamp(Math.round(dist / 20), 6, 48);
+  // sin(e * PI) is 0 at both ends, so the curve ends exactly on target.
+  const bend = (Math.random() - 0.5) * Math.min(160, dist * 0.4);
+  const ux = -dy / dist;
+  const uy = dx / dist;
+  const over = dist > 600 && Math.random() < 0.35 ? 6 + Math.random() * 14 : 0;
+  const tx = x + (dx / dist) * over;
+  const ty = y + (dy / dist) * over;
   for (let i = 1; i <= steps; i++) {
     const t = i / steps;
-    const px = from[0] + (x - from[0]) * t + Math.sin(t * Math.PI) * bend * (1 - t);
-    const py = from[1] + (y - from[1]) * t + Math.cos(t * Math.PI) * bend * 0.4 * (1 - t);
+    const e = t * t * (3 - 2 * t);
+    let px = from[0] + (tx - from[0]) * e + ux * Math.sin(e * Math.PI) * bend;
+    let py = from[1] + (ty - from[1]) * e + uy * Math.sin(e * Math.PI) * bend;
+    if (i < steps) {
+      px += (Math.random() - 0.5) * 2;
+      py += (Math.random() - 0.5) * 2;
+    } else {
+      px = tx;
+      py = ty;
+    }
     await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: px, y: py }, s);
-    await sleep(16 + Math.random() * 30);
+    await sleep(10 + Math.random() * 22);
+  }
+  for (let i = 1; over && i <= 4; i++) {
+    const px = tx + (x - tx) * (i / 4);
+    const py = ty + (y - ty) * (i / 4);
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: px, y: py }, s);
+    await sleep(14 + Math.random() * 24);
   }
   await evaluate(cdp, s, `window.__blMouse = [${x}, ${y}]; true`).catch(() => {});
 }
 
-async function clickAt(cdp, s, x, y) {
+async function clickAt(cdp, s, x, y, rx = x, ry = y) {
   await mouseTo(cdp, s, x, y);
   await sleep(120 + Math.random() * 200);
   await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 }, s);
   await sleep(60 + Math.random() * 120);
-  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 }, s);
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: rx, y: ry, button: 'left', clickCount: 1 }, s);
 }
 
 export async function scrollSteps(cdp, s, times = 3) {
+  // Wheel events act on the element under the pointer.
+  const [x, y] = await evaluate(cdp, s, 'window.__blMouse || [640, 400]').catch(() => [640, 400]);
   for (let i = 0; i < times; i++) {
-    await evaluate(cdp, s, `window.scrollBy(0, ${Math.round(380 + Math.random() * 320)}); true`).catch(() => {});
+    let left = 380 + Math.random() * 320;
+    while (left > 0) {
+      const chunk = Math.min(left, 60 + Math.random() * 120);
+      await cdp.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX: 0, deltaY: chunk }, s);
+      left -= chunk;
+      await sleep(40 + Math.random() * 90);
+    }
     await humanDelay(700, 1600);
   }
 }
 
 export async function acceptCookies(cdp, s) {
-  const box = await evaluate(cdp, s, `(() => {
+  const rect = await evaluate(cdp, s, `(() => {
     const rx = /^(accept|accept all|allow all|agree|i agree|got it|ok)$/i;
     for (const el of document.querySelectorAll('button, [role="button"], a')) {
       if (rx.test((el.innerText || '').trim())) {
         const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) return [r.x + r.width / 2, r.y + r.height / 2];
+        if (r.width > 0 && r.height > 0) return [r.x, r.y, r.width, r.height];
       }
     }
     return null;
   })()`).catch(() => null);
-  if (box) { await clickAt(cdp, s, box[0], box[1]); await humanDelay(); return true; }
-  return false;
+  if (!rect) return false;
+  const [px, py] = sampleInBox(...rect);
+  // A 7 px box on the press point: the release stays within 1.5 px and inside the element.
+  const [ex, ey] = rect[2] > 6 && rect[3] > 6 ? sampleInBox(px - 3.5, py - 3.5, 7, 7) : [px, py];
+  await clickAt(cdp, s, px, py, ex, ey);
+  await humanDelay();
+  return true;
 }
 
 export async function warmVisit(cdp, targetUrl, { hop = false } = {}) {
