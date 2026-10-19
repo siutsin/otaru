@@ -41,12 +41,9 @@ export function humanDelay(minMs = 1200, maxMs = 3200) {
 }
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-// Centre-weighted random in -1..1: sampled points differ per click,
-// wild points stay rare.
+// Centre-weighted random in -1..1.
 const tri = () => Math.random() + Math.random() - 1;
 
-// A fresh point inside the box per click, kept off the edges by the
-// clamp; a box too small to sample falls back to its centre.
 function sampleInBox(x, y, w, h) {
   if (w <= 6 || h <= 6) return [x + w / 2, y + h / 2];
   return [
@@ -66,12 +63,10 @@ async function mouseTo(cdp, s, x, y) {
     return;
   }
   const steps = clamp(Math.round(dist / 20), 6, 48);
-  // The bend rides the perpendicular and sin(e * PI) is 0 at both ends,
-  // so the curve starts and ends exactly on the true points.
+  // sin(e * PI) is 0 at both ends, so the curve ends exactly on target.
   const bend = (Math.random() - 0.5) * Math.min(160, dist * 0.4);
   const ux = -dy / dist;
   const uy = dx / dist;
-  // Long moves sometimes pass the target, then correct back.
   const over = dist > 600 && Math.random() < 0.35 ? 6 + Math.random() * 14 : 0;
   const tx = x + (dx / dist) * over;
   const ty = y + (dy / dist) * over;
@@ -108,8 +103,7 @@ async function clickAt(cdp, s, x, y, rx = x, ry = y) {
 }
 
 export async function scrollSteps(cdp, s, times = 3) {
-  // Wheel events land on the element under the pointer, so they scroll
-  // from wherever the pointer rests (page body in this kit's flows).
+  // Wheel events act on the element under the pointer.
   const [x, y] = await evaluate(cdp, s, 'window.__blMouse || [640, 400]').catch(() => [640, 400]);
   for (let i = 0; i < times; i++) {
     let left = 380 + Math.random() * 320;
@@ -136,9 +130,7 @@ export async function acceptCookies(cdp, s) {
   })()`).catch(() => null);
   if (!rect) return false;
   const [px, py] = sampleInBox(...rect);
-  // A 7 px box centred on the press point samples the release within
-  // 1.5 px of it; the press sits at least 2 px off every edge, so the
-  // release stays inside the element.
+  // A 7 px box on the press point: the release stays within 1.5 px and inside the element.
   const [ex, ey] = rect[2] > 6 && rect[3] > 6 ? sampleInBox(px - 3.5, py - 3.5, 7, 7) : [px, py];
   await clickAt(cdp, s, px, py, ex, ey);
   await humanDelay();
