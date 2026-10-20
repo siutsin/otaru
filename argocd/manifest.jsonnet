@@ -226,6 +226,7 @@ local cnpgClustersHelm = { parameters: [
 ] };
 local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
 local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
+local zotHelm = { valueFiles: ['generated.yaml'] };
 local trivyOperatorHelm = {
   valuesObject: {
     'trivy-operator': {
@@ -259,6 +260,7 @@ local application = [
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
+  { wave: '10', name: 'zot', namespace: 'zot', helm: zotHelm },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'hermes', namespace: 'hermes' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },

@@ -1,0 +1,2056 @@
+{
+  "record": "Census of every image and chart pin in the repo, committed as the oracle for the generated pin files. Only dhi.io keeps poll, on the sync-identity proof.",
+  "repo": "siutsin/otaru",
+  "repo_commit": "0130a05a609a3bffd6ecd7c8dcbe7f8398b8c443",
+  "measured_at": "2026-10-20",
+  "images": {
+    "distinct_pinned_images": 55,
+    "distinct_pin_strings": 57,
+    "per_host": {
+      "dhi.io": 19,
+      "docker.io": 15,
+      "ghcr.io": 18,
+      "quay.io": 2,
+      "registry.k8s.io": 1
+    },
+    "parser_artefact_exclusions": [
+      "kubernetes.io/os \u2014 a platform-field string from vendored subchart defaults, not an image; excluded by name"
+    ],
+    "entries": [
+      {
+        "image": "dhi.io/alertmanager",
+        "host": "dhi.io",
+        "repository": "alertmanager",
+        "zot_path": "/dhi.io/alertmanager",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.34.1",
+            "digest": "sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4",
+            "pin": "dhi.io/alertmanager:0.34.1@sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "prometheus.alertmanager.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/amazon-eks-pod-identity-webhook",
+        "host": "dhi.io",
+        "repository": "amazon-eks-pod-identity-webhook",
+        "zot_path": "/dhi.io/amazon-eks-pod-identity-webhook",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.6.17",
+            "digest": "sha256:7820c7816b039d1e0caadd49d47b6e3a639ffb6ddb846df05d0769581da1a391",
+            "pin": "dhi.io/amazon-eks-pod-identity-webhook:0.6.17@sha256:7820c7816b039d1e0caadd49d47b6e3a639ffb6ddb846df05d0769581da1a391",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/amazon-eks-pod-identity-webhook/values.yaml",
+                "yaml_path": "pod-identity-webhook.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/coredns",
+        "host": "dhi.io",
+        "repository": "coredns",
+        "zot_path": "/dhi.io/coredns",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "1.14.7",
+            "digest": "sha256:b9622e21e32a46c9762006520b7464845d5085ecc7bee19b18717e74c492de4c",
+            "pin": "dhi.io/coredns:1.14.7@sha256:b9622e21e32a46c9762006520b7464845d5085ecc7bee19b18717e74c492de4c",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/coredns/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/descheduler",
+        "host": "dhi.io",
+        "repository": "descheduler",
+        "zot_path": "/dhi.io/descheduler",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.36.0",
+            "digest": "sha256:d9d3cc1bac7fd17e5fc92a61183a64ea326202157ec5e17feef2db6032ea308d",
+            "pin": "dhi.io/descheduler:0.36.0@sha256:d9d3cc1bac7fd17e5fc92a61183a64ea326202157ec5e17feef2db6032ea308d",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/descheduler/values.yaml",
+                "yaml_path": "descheduler.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/envoy-gateway",
+        "host": "dhi.io",
+        "repository": "envoy-gateway",
+        "zot_path": "/dhi.io/envoy-gateway",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "1.9.2",
+            "digest": "sha256:5e59d3741e939ac11bb48bf274098c6d0c2cb2ed4818f5269682f64869728d26",
+            "pin": "dhi.io/envoy-gateway:1.9.2@sha256:5e59d3741e939ac11bb48bf274098c6d0c2cb2ed4818f5269682f64869728d26",
+            "form": "image-string",
+            "sources": [
+              {
+                "file": "helm-charts/envoy-gateway/values.yaml",
+                "yaml_path": "envoy-gateway.global.images.envoyGateway.image"
+              },
+              {
+                "file": "helm-charts/envoy-gateway/values.yaml",
+                "yaml_path": "envoy-gateway.global.images.envoyGateway.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/falco",
+        "host": "dhi.io",
+        "repository": "falco",
+        "zot_path": "/dhi.io/falco",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.45.0",
+            "digest": "sha256:9da930770190c0117855cfb121e251e452f8dc0fff149d0c4a5e636115b027fc",
+            "pin": "dhi.io/falco:0.45.0@sha256:9da930770190c0117855cfb121e251e452f8dc0fff149d0c4a5e636115b027fc",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/falco/values.yaml",
+                "yaml_path": "falco.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/fluent-bit",
+        "host": "dhi.io",
+        "repository": "fluent-bit",
+        "zot_path": "/dhi.io/fluent-bit",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "5.1.3",
+            "digest": "sha256:12a255ba489dcfe381dacab1b87de87869109a1f04ec536492a9a9f4dda0487d",
+            "pin": "dhi.io/fluent-bit:5.1.3@sha256:12a255ba489dcfe381dacab1b87de87869109a1f04ec536492a9a9f4dda0487d",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "fluent-bit.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/httpbin",
+        "host": "dhi.io",
+        "repository": "httpbin",
+        "zot_path": "/dhi.io/httpbin",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.2.3",
+            "digest": "sha256:fc75b950ce256399e42dfc7d851052a41a93b002da6df85154310c5db87bfbb9",
+            "pin": "dhi.io/httpbin:0.2.3@sha256:fc75b950ce256399e42dfc7d851052a41a93b002da6df85154310c5db87bfbb9",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/httpbin/values.yaml",
+                "yaml_path": "app.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/keda",
+        "host": "dhi.io",
+        "repository": "keda",
+        "zot_path": "/dhi.io/keda",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "2.21.0",
+            "digest": "sha256:7b607bf215f17c8c79b9fc9169795fcf72e5f895f39a181d18e3b2621e066186",
+            "pin": "dhi.io/keda:2.21.0@sha256:7b607bf215f17c8c79b9fc9169795fcf72e5f895f39a181d18e3b2621e066186",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/keda/values.yaml",
+                "yaml_path": "keda.image.keda"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/keda-admission-webhooks",
+        "host": "dhi.io",
+        "repository": "keda-admission-webhooks",
+        "zot_path": "/dhi.io/keda-admission-webhooks",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "2.21.0",
+            "digest": "sha256:906e90316363e1216b0de9ae40520fad6a21f3985fecf58c2cfaae6d2db6a831",
+            "pin": "dhi.io/keda-admission-webhooks:2.21.0@sha256:906e90316363e1216b0de9ae40520fad6a21f3985fecf58c2cfaae6d2db6a831",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/keda/values.yaml",
+                "yaml_path": "keda.image.webhooks"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/keda-metrics-apiserver",
+        "host": "dhi.io",
+        "repository": "keda-metrics-apiserver",
+        "zot_path": "/dhi.io/keda-metrics-apiserver",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "2.21.0",
+            "digest": "sha256:85851c7cf5e2b1a5bb83ffc0ff3506b2881fae8c7f623e84260e8db1d4c979a0",
+            "pin": "dhi.io/keda-metrics-apiserver:2.21.0@sha256:85851c7cf5e2b1a5bb83ffc0ff3506b2881fae8c7f623e84260e8db1d4c979a0",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/keda/values.yaml",
+                "yaml_path": "keda.image.metricsApiServer"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/kiali",
+        "host": "dhi.io",
+        "repository": "kiali",
+        "zot_path": "/dhi.io/kiali",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "2.33.0",
+            "digest": "sha256:950c6a0ad21651e995b625498302fd57aee47de2495a82bc8441e0602902f026",
+            "pin": "dhi.io/kiali:2.33.0@sha256:950c6a0ad21651e995b625498302fd57aee47de2495a82bc8441e0602902f026",
+            "form": "image_name+image_version",
+            "sources": [
+              {
+                "file": "helm-charts/kiali/values.yaml",
+                "yaml_path": "kiali-server.deployment"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/kube-state-metrics",
+        "host": "dhi.io",
+        "repository": "kube-state-metrics",
+        "zot_path": "/dhi.io/kube-state-metrics",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "2.20.0",
+            "digest": "sha256:447969f7908b0e60b2768931152e287b112ba597ffd4b93ad667ff7314fb2cc3",
+            "pin": "dhi.io/kube-state-metrics:2.20.0@sha256:447969f7908b0e60b2768931152e287b112ba597ffd4b93ad667ff7314fb2cc3",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "prometheus.kube-state-metrics.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/kyverno",
+        "host": "dhi.io",
+        "repository": "kyverno",
+        "zot_path": "/dhi.io/kyverno",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "1.19.1",
+            "digest": "sha256:3d04295edeff998bdd46c0f2b8f88a9f2f0e55781f71acc4af67f4a9829220b6",
+            "pin": "dhi.io/kyverno:1.19.1@sha256:3d04295edeff998bdd46c0f2b8f88a9f2f0e55781f71acc4af67f4a9829220b6",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/kyverno/values.yaml",
+                "yaml_path": "kyverno.admissionController.container.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/metrics-server",
+        "host": "dhi.io",
+        "repository": "metrics-server",
+        "zot_path": "/dhi.io/metrics-server",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "0.9.0",
+            "digest": "sha256:3bbc311640a292cc3aeefd56d5ff7a729931ec54911f738e2c3c72923a989d09",
+            "pin": "dhi.io/metrics-server:0.9.0@sha256:3bbc311640a292cc3aeefd56d5ff7a729931ec54911f738e2c3c72923a989d09",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/metrics-server/values.yaml",
+                "yaml_path": "metrics-server.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/node-exporter",
+        "host": "dhi.io",
+        "repository": "node-exporter",
+        "zot_path": "/dhi.io/node-exporter",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "1.12.1",
+            "digest": "sha256:09e7c92c4ff5f925adb2c66e2728596c47c7a8e070bf3236401783fa429a15ac",
+            "pin": "dhi.io/node-exporter:1.12.1@sha256:09e7c92c4ff5f925adb2c66e2728596c47c7a8e070bf3236401783fa429a15ac",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "prometheus.prometheus-node-exporter.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/prometheus",
+        "host": "dhi.io",
+        "repository": "prometheus",
+        "zot_path": "/dhi.io/prometheus",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "3.15.0",
+            "digest": "sha256:2561b55e40f7c621c6ad84b08cba0c24fc41a4c717fb006d3675a2bf5e902ab1",
+            "pin": "dhi.io/prometheus:3.15.0@sha256:2561b55e40f7c621c6ad84b08cba0c24fc41a4c717fb006d3675a2bf5e902ab1",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "prometheus.server.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/pushgateway",
+        "host": "dhi.io",
+        "repository": "pushgateway",
+        "zot_path": "/dhi.io/pushgateway",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "1.11.3",
+            "digest": "sha256:7715052ac6a02bf9fc6776beb1b631798431f3377916652f2f24c8b57f20f887",
+            "pin": "dhi.io/pushgateway:1.11.3@sha256:7715052ac6a02bf9fc6776beb1b631798431f3377916652f2f24c8b57f20f887",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "prometheus.prometheus-pushgateway.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "dhi.io/valkey",
+        "host": "dhi.io",
+        "repository": "valkey",
+        "zot_path": "/dhi.io/valkey",
+        "sync_mode": "poll",
+        "pin_strings": [
+          {
+            "tag": "9.1.2",
+            "digest": "sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1",
+            "pin": "dhi.io/valkey:9.1.2@sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/firecrawl/values.yaml",
+                "yaml_path": "valkey.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/alpine/kubectl",
+        "host": "docker.io",
+        "repository": "alpine/kubectl",
+        "zot_path": "/docker.io/alpine/kubectl",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "1.37.1",
+            "digest": "sha256:7b4cc9a9ce0d064cedeb85550266c11f2b32f010ca299525518646261e4d955e",
+            "pin": "docker.io/alpine/kubectl:1.37.1@sha256:7b4cc9a9ce0d064cedeb85550266c11f2b32f010ca299525518646261e4d955e",
+            "form": "image-string",
+            "sources": [
+              {
+                "file": "helm-charts/argocd/values.yaml",
+                "yaml_path": "argo-cd.repoServer.initContainers[0].image"
+              },
+              {
+                "file": "helm-charts/argocd/values.yaml",
+                "yaml_path": "argo-cd.repoServer.initContainers[0].image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 142330308,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/cloudflare/cloudflared",
+        "host": "docker.io",
+        "repository": "cloudflare/cloudflared",
+        "zot_path": "/docker.io/cloudflare/cloudflared",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "2026.10.0",
+            "digest": "sha256:9b49eed8f62806d5d45ddf59ecefb5710429598ea6d3fcccd2af938f621b2b07",
+            "pin": "docker.io/cloudflare/cloudflared:2026.10.0@sha256:9b49eed8f62806d5d45ddf59ecefb5710429598ea6d3fcccd2af938f621b2b07",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/cloudflare-tunnel/values.yaml",
+                "yaml_path": "image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 56816058,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/dgtlmoon/sockpuppetbrowser",
+        "host": "docker.io",
+        "repository": "dgtlmoon/sockpuppetbrowser",
+        "zot_path": "/docker.io/dgtlmoon/sockpuppetbrowser",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": null,
+            "digest": "sha256:1d8f72d2ce2085faed4232e5ae1e65c02efe5b831a18e127829b267c260b4fb2",
+            "pin": "docker.io/dgtlmoon/sockpuppetbrowser@sha256:1d8f72d2ce2085faed4232e5ae1e65c02efe5b831a18e127829b267c260b4fb2",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/changedetection/values.yaml",
+                "yaml_path": "browser.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1024287332,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/excalidraw/excalidraw",
+        "host": "docker.io",
+        "repository": "excalidraw/excalidraw",
+        "zot_path": "/docker.io/excalidraw/excalidraw",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "latest",
+            "digest": "sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9",
+            "pin": "docker.io/excalidraw/excalidraw:latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/excalidraw/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 128078014,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/grafana/alloy",
+        "host": "docker.io",
+        "repository": "grafana/alloy",
+        "zot_path": "/docker.io/grafana/alloy",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v1.20.1",
+            "digest": "sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
+            "pin": "docker.io/grafana/alloy:v1.20.1@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "alloy.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 745264031,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/grafana/grafana",
+        "host": "docker.io",
+        "repository": "grafana/grafana",
+        "zot_path": "/docker.io/grafana/grafana",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "12.3.6",
+            "digest": "sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
+            "pin": "docker.io/grafana/grafana:12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
+            "form": "split: tag/digest in wrapper, repository from vendored defaults",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "grafana.image",
+                "repository_source": "helm-charts/monitoring/charts/grafana-10.5.15.tgz!grafana/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 583773717,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/grafana/tempo",
+        "host": "docker.io",
+        "repository": "grafana/tempo",
+        "zot_path": "/docker.io/grafana/tempo",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "3.1.0",
+            "digest": "sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd",
+            "pin": "docker.io/grafana/tempo:3.1.0@sha256:3076b8dcdfb32fd6bc5ccef85e7b7313e6199b9cb84366257fc17ecb696db5fd",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "tempo.tempo"
+              }
+            ],
+            "compressed_bytes_all_platforms": 76782574,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/library/busybox",
+        "host": "docker.io",
+        "repository": "library/busybox",
+        "zot_path": "/docker.io/library/busybox",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "1.38.0",
+            "digest": "sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+            "pin": "docker.io/library/busybox:1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/changedetection/values.yaml",
+                "yaml_path": "browser.cleanup.image"
+              },
+              {
+                "file": "helm-charts/hermes/values.yaml",
+                "yaml_path": "initContainer.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 17450063,
+            "size_status": "measured"
+          },
+          {
+            "tag": "stable",
+            "digest": "sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+            "pin": "docker.io/library/busybox:stable@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+            "form": "split: tag/digest in wrapper, repository from vendored defaults",
+            "sources": [
+              {
+                "file": "helm-charts/hydra/values.yaml",
+                "yaml_path": "hydra.test.busybox",
+                "repository_source": "helm-charts/hydra/charts/hydra-0.64.0.tgz!hydra/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 17270262,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/library/rabbitmq",
+        "host": "docker.io",
+        "repository": "library/rabbitmq",
+        "zot_path": "/docker.io/library/rabbitmq",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "4-management",
+            "digest": "sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd",
+            "pin": "docker.io/library/rabbitmq:4-management@sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/firecrawl/values.yaml",
+                "yaml_path": "rabbitmq.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 683952614,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/nousresearch/hermes-agent",
+        "host": "docker.io",
+        "repository": "nousresearch/hermes-agent",
+        "zot_path": "/docker.io/nousresearch/hermes-agent",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v2026.9.24",
+            "digest": "sha256:fca358f12efd65bfaaca05884166f15c0e2788375ca30d77061ac1ebc96452b7",
+            "pin": "docker.io/nousresearch/hermes-agent:v2026.9.24@sha256:fca358f12efd65bfaaca05884166f15c0e2788375ca30d77061ac1ebc96452b7",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/hermes/values.yaml",
+                "yaml_path": "image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1919546324,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/oryd/hydra",
+        "host": "docker.io",
+        "repository": "oryd/hydra",
+        "zot_path": "/docker.io/oryd/hydra",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v26.2.0",
+            "digest": "sha256:ff67c7fb5f95074fa53374d41151713554960504b340cd3f95b09e65deaea2a9",
+            "pin": "docker.io/oryd/hydra:v26.2.0@sha256:ff67c7fb5f95074fa53374d41151713554960504b340cd3f95b09e65deaea2a9",
+            "form": "split: tag/digest in wrapper, repository from vendored defaults",
+            "sources": [
+              {
+                "file": "helm-charts/hydra/values.yaml",
+                "yaml_path": "hydra.image",
+                "repository_source": "helm-charts/hydra/charts/hydra-0.64.0.tgz!hydra/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 75381063,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/oryd/hydra-maester",
+        "host": "docker.io",
+        "repository": "oryd/hydra-maester",
+        "zot_path": "/docker.io/oryd/hydra-maester",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.0.42",
+            "digest": "sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156",
+            "pin": "docker.io/oryd/hydra-maester:v0.0.42@sha256:0a7a2bfd0e7d4c730faec3d6fbd6184e8ed2aa9f88c0a88a8f5a35e18385d156",
+            "form": "split: tag/digest in wrapper, repository from vendored defaults",
+            "sources": [
+              {
+                "file": "helm-charts/hydra/values.yaml",
+                "yaml_path": "hydra.hydra-maester.image",
+                "repository_source": "helm-charts/hydra/charts/hydra-0.64.0.tgz!hydra/charts/hydra-maester/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 28888824,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/searxng/searxng",
+        "host": "docker.io",
+        "repository": "searxng/searxng",
+        "zot_path": "/docker.io/searxng/searxng",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "2026.10.9-2dc2b1462",
+            "digest": "sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f",
+            "pin": "docker.io/searxng/searxng:2026.10.9-2dc2b1462@sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/searxng/values.yaml",
+                "yaml_path": "image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 286426431,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/tailscale/k8s-operator",
+        "host": "docker.io",
+        "repository": "tailscale/k8s-operator",
+        "zot_path": "/docker.io/tailscale/k8s-operator",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v1.102.4",
+            "digest": "sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34",
+            "pin": "docker.io/tailscale/k8s-operator:v1.102.4@sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/tailscale-operator/values.yaml",
+                "yaml_path": "tailscale-operator.operatorConfig.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 194288940,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/tailscale/tailscale",
+        "host": "docker.io",
+        "repository": "tailscale/tailscale",
+        "zot_path": "/docker.io/tailscale/tailscale",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v1.102.5",
+            "digest": "sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
+            "pin": "docker.io/tailscale/tailscale:v1.102.5@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/tailscale-operator/values.yaml",
+                "yaml_path": "tailscale-operator.proxyConfig.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 229010069,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/0xerr0r/blocky",
+        "host": "ghcr.io",
+        "repository": "0xerr0r/blocky",
+        "zot_path": "/ghcr.io/0xerr0r/blocky",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.35.0",
+            "digest": "sha256:4f165b63db0d76c96ecc47c7a8f57caeedc003a912bdce29abb0e283ce02e16b",
+            "pin": "ghcr.io/0xerr0r/blocky:v0.35.0@sha256:4f165b63db0d76c96ecc47c7a8f57caeedc003a912bdce29abb0e283ce02e16b",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/blocky/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 50964950,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/browserless/chromium",
+        "host": "ghcr.io",
+        "repository": "browserless/chromium",
+        "zot_path": "/ghcr.io/browserless/chromium",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v2.57.1",
+            "digest": "sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67",
+            "pin": "ghcr.io/browserless/chromium:v2.57.1@sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/browserless/values.yaml",
+                "yaml_path": "image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/cloudnative-pg/postgresql",
+        "host": "ghcr.io",
+        "repository": "cloudnative-pg/postgresql",
+        "zot_path": "/ghcr.io/cloudnative-pg/postgresql",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "17.11",
+            "digest": "sha256:70664ebcfa1100361b5bdc28bbf06fdbe08db2dc4ad7bd14de33c5e05fe8ea8e",
+            "pin": "ghcr.io/cloudnative-pg/postgresql:17.11@sha256:70664ebcfa1100361b5bdc28bbf06fdbe08db2dc4ad7bd14de33c5e05fe8ea8e",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/firecrawl/values.yaml",
+                "yaml_path": "nuq.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 522685445,
+            "size_status": "measured"
+          },
+          {
+            "tag": "18.6",
+            "digest": "sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533",
+            "pin": "ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533",
+            "form": "image-string",
+            "sources": [
+              {
+                "file": "helm-charts/cloudnative-pg-clusters/values.yaml",
+                "yaml_path": "clusters.umami.imageName"
+              },
+              {
+                "file": "helm-charts/cloudnative-pg-clusters/values.yaml",
+                "yaml_path": "clusters.umami.imageName"
+              }
+            ],
+            "compressed_bytes_all_platforms": 520250018,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/dgtlmoon/changedetection.io",
+        "host": "ghcr.io",
+        "repository": "dgtlmoon/changedetection.io",
+        "zot_path": "/ghcr.io/dgtlmoon/changedetection.io",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "0.60.9",
+            "digest": "sha256:04eaae7915bad711160cb15abe160f6d3fabe98bbbd658509d4b7a654000fb2d",
+            "pin": "ghcr.io/dgtlmoon/changedetection.io:0.60.9@sha256:04eaae7915bad711160cb15abe160f6d3fabe98bbbd658509d4b7a654000fb2d",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/changedetection/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1265207156,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/firecrawl/firecrawl",
+        "host": "ghcr.io",
+        "repository": "firecrawl/firecrawl",
+        "zot_path": "/ghcr.io/firecrawl/firecrawl",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "2.11.514",
+            "digest": "sha256:47779e925e19d6ae9cdb050b92e1c851b9ad19a27ad4bbf9faafb08786532b5b",
+            "pin": "ghcr.io/firecrawl/firecrawl:2.11.514@sha256:47779e925e19d6ae9cdb050b92e1c851b9ad19a27ad4bbf9faafb08786532b5b",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/firecrawl/values.yaml",
+                "yaml_path": "api.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1172020101,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/firecrawl/playwright-service",
+        "host": "ghcr.io",
+        "repository": "firecrawl/playwright-service",
+        "zot_path": "/ghcr.io/firecrawl/playwright-service",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "latest",
+            "digest": "sha256:717699bf8a61d94451926c810d19ca1d36278192907e307bf5229a558b08fcc6",
+            "pin": "ghcr.io/firecrawl/playwright-service:latest@sha256:717699bf8a61d94451926c810d19ca1d36278192907e307bf5229a558b08fcc6",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/firecrawl/values.yaml",
+                "yaml_path": "playwright.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1141809414,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/gchq/cyberchef",
+        "host": "ghcr.io",
+        "repository": "gchq/cyberchef",
+        "zot_path": "/ghcr.io/gchq/cyberchef",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "11.5.0",
+            "digest": "sha256:f04a39926344faf8e4cbbc8c92fb125d2b466f9be62db09aff23c7c406101a51",
+            "pin": "ghcr.io/gchq/cyberchef:11.5.0@sha256:f04a39926344faf8e4cbbc8c92fb125d2b466f9be62db09aff23c7c406101a51",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/cyberchef/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 358845788,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/ggml-org/llama.cpp",
+        "host": "ghcr.io",
+        "repository": "ggml-org/llama.cpp",
+        "zot_path": "/ghcr.io/ggml-org/llama.cpp",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "server-b11434",
+            "digest": "sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257",
+            "pin": "ghcr.io/ggml-org/llama.cpp:server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/inference/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 672716515,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/home-assistant/home-assistant",
+        "host": "ghcr.io",
+        "repository": "home-assistant/home-assistant",
+        "zot_path": "/ghcr.io/home-assistant/home-assistant",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "2026.10.1",
+            "digest": "sha256:130241f28d01fa80dfa3b44f7d89781c188d8642ecab9024f079f19f9f82baa0",
+            "pin": "ghcr.io/home-assistant/home-assistant:2026.10.1@sha256:130241f28d01fa80dfa3b44f7d89781c188d8642ecab9024f079f19f9f82baa0",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/home-assistant/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 1288513675,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics",
+        "host": "ghcr.io",
+        "repository": "jmcgrath207/k8s-ephemeral-storage-metrics",
+        "zot_path": "/ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "1.21.1",
+            "digest": "sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7",
+            "pin": "ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics:1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "k8s-ephemeral-storage-metrics.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 38767427,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/project-zot/zot",
+        "host": "ghcr.io",
+        "repository": "project-zot/zot",
+        "zot_path": "/ghcr.io/project-zot/zot",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v2.1.22",
+            "digest": "sha256:96cda11459ce6f8c60da3b03f03e9f67fd11b3ae2d82c4c04c92b3c608996080",
+            "pin": "ghcr.io/project-zot/zot:v2.1.22@sha256:96cda11459ce6f8c60da3b03f03e9f67fd11b3ae2d82c4c04c92b3c608996080",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/zot/values.yaml",
+                "yaml_path": "zot.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/sirkirby/unifi-network-mcp",
+        "host": "ghcr.io",
+        "repository": "sirkirby/unifi-network-mcp",
+        "zot_path": "/ghcr.io/sirkirby/unifi-network-mcp",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "0.37.0",
+            "digest": "sha256:03544ffb16c7bdd2848d4a01542270338fcf232927143542ccabd1c2ad22c808",
+            "pin": "ghcr.io/sirkirby/unifi-network-mcp:0.37.0@sha256:03544ffb16c7bdd2848d4a01542270338fcf232927143542ccabd1c2ad22c808",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/unifi-mcp/values.yaml",
+                "yaml_path": "containers.network.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 201583902,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/siutsin/images/go-jsonnet",
+        "host": "ghcr.io",
+        "repository": "siutsin/images/go-jsonnet",
+        "zot_path": "/ghcr.io/siutsin/images/go-jsonnet",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.22.0",
+            "digest": "sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206",
+            "pin": "ghcr.io/siutsin/images/go-jsonnet:v0.22.0@sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206",
+            "form": "image-string",
+            "sources": [
+              {
+                "file": "helm-charts/argocd/values.yaml",
+                "yaml_path": "argo-cd.repoServer.extraContainers[0].image"
+              },
+              {
+                "file": "helm-charts/argocd/values.yaml",
+                "yaml_path": "argo-cd.repoServer.extraContainers[0].image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 16685657,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/siutsin/images/jsoncrack",
+        "host": "ghcr.io",
+        "repository": "siutsin/images/jsoncrack",
+        "zot_path": "/ghcr.io/siutsin/images/jsoncrack",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v5.0.0-202610190650",
+            "digest": "sha256:77c16c04081bc6ee8677b2070729d4cceb5241403f991fb2a94b536a0d093b8c",
+            "pin": "ghcr.io/siutsin/images/jsoncrack:v5.0.0-202610190650@sha256:77c16c04081bc6ee8677b2070729d4cceb5241403f991fb2a94b536a0d093b8c",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/jsoncrack/values.yaml",
+                "yaml_path": "deployment.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/siutsin/telegram-jung2-bot",
+        "host": "ghcr.io",
+        "repository": "siutsin/telegram-jung2-bot",
+        "zot_path": "/ghcr.io/siutsin/telegram-jung2-bot",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "jung2bot-6.1.5",
+            "digest": "sha256:b1198776a153ccb15a1bab99e8e3dc2193828cbe05098391a98a25e916467096",
+            "pin": "ghcr.io/siutsin/telegram-jung2-bot:jung2bot-6.1.5@sha256:b1198776a153ccb15a1bab99e8e3dc2193828cbe05098391a98a25e916467096",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/jung2bot/values.yaml",
+                "yaml_path": "app.image"
+              },
+              {
+                "file": "helm-charts/jung2bot/value/dev.yaml",
+                "yaml_path": "app.image",
+                "repository_source": "helm-charts/jung2bot/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 26810103,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/teslamate-org/teslamate",
+        "host": "ghcr.io",
+        "repository": "teslamate-org/teslamate",
+        "zot_path": "/ghcr.io/teslamate-org/teslamate",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "main",
+            "digest": "sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
+            "pin": "main@sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/teslamate-org/teslamate/grafana",
+        "host": "ghcr.io",
+        "repository": "teslamate-org/teslamate/grafana",
+        "zot_path": "/ghcr.io/teslamate-org/teslamate/grafana",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "main",
+            "digest": "sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
+            "pin": "main@sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/umami-software/umami",
+        "host": "ghcr.io",
+        "repository": "umami-software/umami",
+        "zot_path": "/ghcr.io/umami-software/umami",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "postgresql-latest",
+            "digest": "sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367",
+            "pin": "ghcr.io/umami-software/umami:postgresql-latest@sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/umami/values.yaml",
+                "yaml_path": "image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 642626478,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "quay.io/containers/kubernetes_mcp_server",
+        "host": "quay.io",
+        "repository": "containers/kubernetes_mcp_server",
+        "zot_path": "/quay.io/containers/kubernetes_mcp_server",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.0.67",
+            "digest": "sha256:e47f6ccc5347e1ea6be495d8d9ab55ac8a995fe87800fb984fa770cebe14ad44",
+            "pin": "quay.io/containers/kubernetes_mcp_server:v0.0.67@sha256:e47f6ccc5347e1ea6be495d8d9ab55ac8a995fe87800fb984fa770cebe14ad44",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/kubernetes-mcp-server/values.yaml",
+                "yaml_path": "kubernetes-mcp-server.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 255716640,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "quay.io/prometheuscommunity/yet-another-cloudwatch-exporter",
+        "host": "quay.io",
+        "repository": "prometheuscommunity/yet-another-cloudwatch-exporter",
+        "zot_path": "/quay.io/prometheuscommunity/yet-another-cloudwatch-exporter",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.67.0",
+            "digest": "sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb",
+            "pin": "quay.io/prometheuscommunity/yet-another-cloudwatch-exporter:v0.67.0@sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb",
+            "form": "split: tag/digest in wrapper, repository from vendored defaults",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "yace.image",
+                "repository_source": "helm-charts/monitoring/charts/prometheus-yet-another-cloudwatch-exporter-0.48.0.tgz!prometheus-yet-another-cloudwatch-exporter/values.yaml"
+              }
+            ],
+            "compressed_bytes_all_platforms": 44937474,
+            "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "registry.k8s.io/sig-storage/snapshot-controller",
+        "host": "registry.k8s.io",
+        "repository": "sig-storage/snapshot-controller",
+        "zot_path": "/registry.k8s.io/sig-storage/snapshot-controller",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v8.6.0",
+            "digest": "sha256:81e79f205083f105e573ba2ebfe5964ede7f69a154e8627f53ebbbccd3ed9f70",
+            "pin": "registry.k8s.io/sig-storage/snapshot-controller:v8.6.0@sha256:81e79f205083f105e573ba2ebfe5964ede7f69a154e8627f53ebbbccd3ed9f70",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/snapshot-controller/values.yaml",
+                "yaml_path": "controller.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": 221387575,
+            "size_status": "measured"
+          }
+        ]
+      }
+    ]
+  },
+  "charts": {
+    "distinct_charts": 35,
+    "sync_form": 25,
+    "conversion_form": 10,
+    "entries": [
+      {
+        "name": "alloy",
+        "locked_version": "1.13.1",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://grafana.github.io/helm-charts",
+        "archive_bytes": 32738,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "grafana.github.io",
+        "zot_path": "/grafana.github.io/helm-charts/alloy",
+        "tag_form": "1.13.1",
+        "classic_index": {
+          "entries_total": 59,
+          "entries_with_digest": 59,
+          "locked_version_digest": "6c2b7df23e39438bb11f1e1fcf19eb9eb7c8bfeab7d49b7c975b6212abd0f99a",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "amazon-eks-pod-identity-webhook",
+        "locked_version": "2.6.5",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "amazon-eks-pod-identity-webhook"
+        ],
+        "classic_repository": "https://jkroepke.github.io/helm-charts/",
+        "archive_bytes": 10917,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/jkroepke/helm-charts/amazon-eks-pod-identity-webhook",
+        "zot_path": "/ghcr.io/jkroepke/helm-charts/amazon-eks-pod-identity-webhook",
+        "tag_form": "2.6.5",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "argo-cd",
+        "locked_version": "10.10.3",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "argocd"
+        ],
+        "classic_repository": "https://argoproj.github.io/argo-helm",
+        "archive_bytes": 237642,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/argoproj/argo-helm/argo-cd",
+        "zot_path": "/ghcr.io/argoproj/argo-helm/argo-cd",
+        "tag_form": "10.10.3",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "base",
+        "locked_version": "1.30.6",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "istio-base"
+        ],
+        "classic_repository": "https://istio-release.storage.googleapis.com/charts",
+        "archive_bytes": 75218,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "istio_home_checked": {
+          "gcr.io/istio-release/charts": 200,
+          "ghcr.io/istio/release/charts": 200
+        },
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/istio/release/charts/base",
+        "zot_path": "/ghcr.io/istio/release/charts/base",
+        "tag_form": "1.30.6",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "cert-manager",
+        "locked_version": "v1.21.2",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "cert-manager"
+        ],
+        "classic_repository": "https://charts.jetstack.io",
+        "archive_bytes": 153322,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "quay.io",
+        "oci_reference": "oci://quay.io/jetstack/charts/cert-manager",
+        "zot_path": "/quay.io/jetstack/charts/cert-manager",
+        "tag_form": "v1.21.2",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "cloudnative-pg",
+        "locked_version": "0.28.2",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "(direct chart source)"
+        ],
+        "classic_repository": "https://cloudnative-pg.io/charts/",
+        "archive_bytes": 196201,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg",
+        "zot_path": "/ghcr.io/cloudnative-pg/charts/cloudnative-pg",
+        "tag_form": "0.28.2",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "cni",
+        "locked_version": "1.30.6",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "istio-cni"
+        ],
+        "classic_repository": "https://istio-release.storage.googleapis.com/charts",
+        "archive_bytes": 13010,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "istio_home_checked": {
+          "gcr.io/istio-release/charts": 200,
+          "ghcr.io/istio/release/charts": 200
+        },
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/istio/release/charts/cni",
+        "zot_path": "/ghcr.io/istio/release/charts/cni",
+        "tag_form": "1.30.6",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "connect",
+        "locked_version": "2.4.2",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "onepassword-connect"
+        ],
+        "classic_repository": "https://1password.github.io/connect-helm-charts",
+        "archive_bytes": 24340,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/1password/connect",
+        "zot_path": "/ghcr.io/1password/connect",
+        "tag_form": "2.4.2",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "descheduler",
+        "locked_version": "0.37.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "descheduler"
+        ],
+        "classic_repository": "https://kubernetes-sigs.github.io/descheduler/",
+        "archive_bytes": 11924,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "kubernetes-sigs.github.io",
+        "zot_path": "/kubernetes-sigs.github.io/descheduler/descheduler",
+        "tag_form": "0.37.0",
+        "classic_index": {
+          "entries_total": 34,
+          "entries_with_digest": 34,
+          "locked_version_digest": "adfcd1d2820e1ad08dafe95b5959c83c721e8710dd6fcbe3ee4a8881be4f8658",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "external-secrets",
+        "locked_version": "2.12.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "external-secrets"
+        ],
+        "classic_repository": "https://charts.external-secrets.io/",
+        "archive_bytes": 213414,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/external-secrets/charts/external-secrets",
+        "zot_path": "/ghcr.io/external-secrets/charts/external-secrets",
+        "tag_form": "2.12.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "falco",
+        "locked_version": "9.2.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "falco"
+        ],
+        "classic_repository": "https://falcosecurity.github.io/charts",
+        "archive_bytes": 186021,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/falcosecurity/charts/falco",
+        "zot_path": "/ghcr.io/falcosecurity/charts/falco",
+        "tag_form": "9.2.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "fluent-bit",
+        "locked_version": "0.58.3",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://fluent.github.io/helm-charts",
+        "archive_bytes": 18802,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/fluent/helm-charts/fluent-bit",
+        "zot_path": "/ghcr.io/fluent/helm-charts/fluent-bit",
+        "tag_form": "0.58.3",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "gateway-helm",
+        "locked_version": "1.9.2",
+        "form": "sync",
+        "audit_class": "already-oci",
+        "wrappers": [
+          "envoy-gateway"
+        ],
+        "classic_repository": null,
+        "archive_bytes": 545404,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "docker.io",
+        "oci_reference": "oci://docker.io/envoyproxy/gateway-helm",
+        "zot_path": "/docker.io/envoyproxy/gateway-helm",
+        "tag_form": "1.9.2",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "grafana",
+        "locked_version": "10.5.15",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring",
+          "teslamate"
+        ],
+        "classic_repository": "https://grafana.github.io/helm-charts",
+        "archive_bytes": 50028,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/grafana-community/helm-charts/grafana",
+        "zot_path": "/ghcr.io/grafana-community/helm-charts/grafana",
+        "tag_form": "10.5.15",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "hydra",
+        "locked_version": "0.64.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "hydra"
+        ],
+        "classic_repository": "https://k8s.ory.com/helm/charts",
+        "archive_bytes": 28378,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "k8s.ory.com",
+        "zot_path": "/k8s.ory.com/helm/charts/hydra",
+        "tag_form": "0.64.0",
+        "classic_index": {
+          "entries_total": 203,
+          "entries_with_digest": 203,
+          "locked_version_digest": "963c327878d7b21b27f37ab6d97d827eb34ac92dbc757935bf7e264108411859",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "istiod",
+        "locked_version": "1.30.6",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "istiod"
+        ],
+        "classic_repository": "https://istio-release.storage.googleapis.com/charts",
+        "archive_bytes": 39228,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "istio_home_checked": {
+          "gcr.io/istio-release/charts": 200,
+          "ghcr.io/istio/release/charts": 200
+        },
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/istio/release/charts/istiod",
+        "zot_path": "/ghcr.io/istio/release/charts/istiod",
+        "tag_form": "1.30.6",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "k8s-cleaner",
+        "locked_version": "0.24.0",
+        "form": "sync",
+        "audit_class": "already-oci",
+        "wrappers": [
+          "k8s-cleaner"
+        ],
+        "classic_repository": null,
+        "archive_bytes": 10879,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/gianlucam76/charts/k8s-cleaner",
+        "zot_path": "/ghcr.io/gianlucam76/charts/k8s-cleaner",
+        "tag_form": "0.24.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "k8s-ephemeral-storage-metrics",
+        "locked_version": "1.21.3",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart",
+        "archive_bytes": 15133,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "jmcgrath207.github.io",
+        "zot_path": "/jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart/k8s-ephemeral-storage-metrics",
+        "tag_form": "1.21.3",
+        "classic_index": {
+          "entries_total": 55,
+          "entries_with_digest": 55,
+          "locked_version_digest": "64f916134aeb805b41bc3245beb05384c4637c6e0a37418a4f3830743b07ef8d",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "keda",
+        "locked_version": "2.21.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "keda"
+        ],
+        "classic_repository": "https://kedacore.github.io/charts",
+        "archive_bytes": 121909,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "kedacore.github.io",
+        "zot_path": "/kedacore.github.io/charts/keda",
+        "tag_form": "2.21.0",
+        "classic_index": {
+          "entries_total": 79,
+          "entries_with_digest": 79,
+          "locked_version_digest": "a7da56bf41a33dad9d2fc82a6fdecee552fff947d80bf1e1dbcf4db0f9e26dee",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "kiali-server",
+        "locked_version": "2.33.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "kiali"
+        ],
+        "classic_repository": "https://kiali.org/helm-charts",
+        "archive_bytes": 15477,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "kiali.org",
+        "zot_path": "/kiali.org/helm-charts/kiali-server",
+        "tag_form": "2.33.0",
+        "classic_index": {
+          "entries_total": 138,
+          "entries_with_digest": 138,
+          "locked_version_digest": "6d0c1b4e6ccc30b210b3784b3b257440161e5ec39e97bef93f0f41124d5320bd",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "kubernetes-mcp-server",
+        "locked_version": "0.1.0",
+        "form": "sync",
+        "audit_class": "already-oci",
+        "wrappers": [
+          "kubernetes-mcp-server"
+        ],
+        "classic_repository": null,
+        "archive_bytes": 13945,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/containers/charts/kubernetes-mcp-server",
+        "zot_path": "/ghcr.io/containers/charts/kubernetes-mcp-server",
+        "tag_form": "0.1.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "kyverno",
+        "locked_version": "3.9.1",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "kyverno"
+        ],
+        "classic_repository": "https://kyverno.github.io/kyverno/",
+        "archive_bytes": 778684,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/kyverno/charts/kyverno",
+        "zot_path": "/ghcr.io/kyverno/charts/kyverno",
+        "tag_form": "3.9.1",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "loki",
+        "locked_version": "7.3.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://grafana.github.io/helm-charts",
+        "archive_bytes": 169094,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/grafana/helm-charts/loki",
+        "zot_path": "/ghcr.io/grafana/helm-charts/loki",
+        "tag_form": "7.3.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "longhorn",
+        "locked_version": "1.13.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "longhorn"
+        ],
+        "classic_repository": "https://charts.longhorn.io",
+        "archive_bytes": 89067,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "charts.longhorn.io",
+        "zot_path": "/charts.longhorn.io/longhorn",
+        "tag_form": "1.13.0",
+        "classic_index": {
+          "entries_total": 54,
+          "entries_with_digest": 54,
+          "locked_version_digest": "e57f010d2a8bcf0da5b8b03ffecf49c5bc35ddc2663588ce8f22b7567b6133ed",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "metallb",
+        "locked_version": "0.16.1",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "metallb"
+        ],
+        "classic_repository": "https://metallb.github.io/metallb",
+        "archive_bytes": 45209,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "quay.io",
+        "oci_reference": "oci://quay.io/metallb/chart/metallb",
+        "zot_path": "/quay.io/metallb/chart/metallb",
+        "tag_form": "0.16.1",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "metrics-server",
+        "locked_version": "3.14.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "metrics-server"
+        ],
+        "classic_repository": "https://kubernetes-sigs.github.io/metrics-server/",
+        "archive_bytes": 14677,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "kubernetes-sigs.github.io",
+        "zot_path": "/kubernetes-sigs.github.io/metrics-server/metrics-server",
+        "tag_form": "3.14.0",
+        "classic_index": {
+          "entries_total": 17,
+          "entries_with_digest": 15,
+          "locked_version_digest": "c2ca1185c01e6e7f53dd1b7d131f0c9b3fa50e003ed068b784563a1b5a3422a1",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "prometheus",
+        "locked_version": "29.36.1",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://prometheus-community.github.io/helm-charts",
+        "archive_bytes": 91710,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus",
+        "zot_path": "/ghcr.io/prometheus-community/charts/prometheus",
+        "tag_form": "29.36.1",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "prometheus-blackbox-exporter",
+        "locked_version": "11.20.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://prometheus-community.github.io/helm-charts",
+        "archive_bytes": 14216,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
+        "zot_path": "/ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
+        "tag_form": "11.20.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "prometheus-yet-another-cloudwatch-exporter",
+        "locked_version": "0.48.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://prometheus-community.github.io/helm-charts",
+        "archive_bytes": 6970,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus-yet-another-cloudwatch-exporter",
+        "zot_path": "/ghcr.io/prometheus-community/charts/prometheus-yet-another-cloudwatch-exporter",
+        "tag_form": "0.48.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "reloader",
+        "locked_version": "2.2.18",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "reloader"
+        ],
+        "classic_repository": "https://stakater.github.io/stakater-charts",
+        "archive_bytes": 18976,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/stakater/charts/reloader",
+        "zot_path": "/ghcr.io/stakater/charts/reloader",
+        "tag_form": "2.2.18",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "tailscale-operator",
+        "locked_version": "1.102.4",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "tailscale-operator"
+        ],
+        "classic_repository": "https://pkgs.tailscale.com/helmcharts",
+        "archive_bytes": 52582,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "pkgs.tailscale.com",
+        "zot_path": "/pkgs.tailscale.com/helmcharts/tailscale-operator",
+        "tag_form": "1.102.4",
+        "classic_index": {
+          "entries_total": 51,
+          "entries_with_digest": 51,
+          "locked_version_digest": "f298a860775749037dd6f42bf764369bbe2865bdfff0289e864851a4bc90c1e2",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "tempo",
+        "locked_version": "3.1.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "monitoring"
+        ],
+        "classic_repository": "https://grafana-community.github.io/helm-charts",
+        "archive_bytes": 13005,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/grafana-community/helm-charts/tempo",
+        "zot_path": "/ghcr.io/grafana-community/helm-charts/tempo",
+        "tag_form": "3.1.0",
+        "tag_verified_at_oci_home": true
+      },
+      {
+        "name": "trivy-operator",
+        "locked_version": "0.37.0",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "trivy-operator"
+        ],
+        "classic_repository": "https://aquasecurity.github.io/helm-charts",
+        "archive_bytes": 52056,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/aquasecurity/helm-charts/trivy-operator",
+        "zot_path": "/ghcr.io/aquasecurity/helm-charts/trivy-operator",
+        "tag_form": "0.37.0",
+        "tag_verified_at_oci_home": false
+      },
+      {
+        "name": "vertical-pod-autoscaler",
+        "locked_version": "0.13.0",
+        "form": "conversion",
+        "audit_class": "classic-only",
+        "wrappers": [
+          "vpa"
+        ],
+        "classic_repository": "https://kubernetes.github.io/autoscaler",
+        "archive_bytes": 23021,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "upstream_host": "kubernetes.github.io",
+        "zot_path": "/kubernetes.github.io/autoscaler/vertical-pod-autoscaler",
+        "tag_form": "0.13.0",
+        "classic_index": {
+          "entries_total": 16,
+          "entries_with_digest": 16,
+          "locked_version_digest": "0b7e22e4170f18bf281d22ba2a0ab8ff31f5af832d687284df097d5bf0538c74",
+          "locked_version_digest_present": true,
+          "archive_sha256_matches_index_digest": true
+        }
+      },
+      {
+        "name": "ztunnel",
+        "locked_version": "1.30.6",
+        "form": "sync",
+        "audit_class": "classic-with-oci-home",
+        "wrappers": [
+          "ztunnel"
+        ],
+        "classic_repository": "https://istio-release.storage.googleapis.com/charts",
+        "archive_bytes": 9792,
+        "unpackaged_dependencies": [],
+        "excluded_from_optin": false,
+        "istio_home_checked": {
+          "gcr.io/istio-release/charts": 200,
+          "ghcr.io/istio/release/charts": 200
+        },
+        "upstream_host": "ghcr.io",
+        "oci_reference": "oci://ghcr.io/istio/release/charts/ztunnel",
+        "zot_path": "/ghcr.io/istio/release/charts/ztunnel",
+        "tag_form": "1.30.6",
+        "tag_verified_at_oci_home": true
+      }
+    ]
+  },
+  "exceptions": [
+    {
+      "chart": "trivy-operator",
+      "finding": "The locked version 0.37.0 is not served at its OCI home oci://ghcr.io/aquasecurity/helm-charts/trivy-operator: tags end at 0.32.1, manifest GETs 404.",
+      "evidence": "evidence/chart-live-checks.json + evidence/chart-live-checks-fixup.json"
+    },
+    {
+      "chart": "loki",
+      "finding": "Audit home oci://ghcr.io/grafana-community/helm-charts/loki lacks 7.3.0; it resolves at oci://ghcr.io/grafana/helm-charts/loki, which the census uses.",
+      "evidence": "evidence/chart-live-checks-fixup.json"
+    },
+    {
+      "chart": "base/cni/istiod/ztunnel (istio)",
+      "finding": "All four locked versions (1.30.6) resolve at both gcr.io/istio-release/charts and ghcr.io/istio/release/charts. The mapping uses the ghcr.io home.",
+      "evidence": "evidence/chart-live-checks.json probes"
+    }
+  ]
+}

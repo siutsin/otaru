@@ -56,3 +56,4 @@ namespaces:
   - name: umami
   - name: unifi-mcp
   - name: vpa
+  - name: zot

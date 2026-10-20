@@ -1,0 +1,25 @@
+{{- $cidrs := .Files.Get "cidrs.json" | fromJson -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .Values.name }}-node-sources
+  namespace: {{ .Values.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: {{ .Values.name }}-internal
+  # No JWT rule: containerd presents no token, so this route is the one
+  # deliberate exception to the JWT policy (see the Kyverno
+  # PolicyException). The source list is the whole rule: one /32 per
+  # node from cidrs.json, and every other source is denied.
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: allow-node-sources
+        action: Allow
+        principal:
+          clientCIDRs:
+            {{- range $cidrs.nodes }}
+            - {{ .cidr }}
+            {{- end }}

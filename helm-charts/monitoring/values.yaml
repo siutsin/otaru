@@ -64,6 +64,22 @@ prometheus:
       static_configs:
         - targets:
             - monitoring-tempo.monitoring.svc.cluster.local:3200
+    # Endpoints discovery scrapes the pod directly, because the
+    # metrics grant sits on the zot workload, not the Service.
+    - job_name: zot
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - zot
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: zot
+          action: keep
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          target_label: service
   configmapReload:
     prometheus:
       resources:
@@ -517,6 +533,81 @@ prometheus:
                 title: Falco rule fired
                 summary: "{{ $labels.rule_name }}"
                 description: "The Falco rule {{ $labels.rule_name }} matched in the last 10 minutes. Search Loki for the rule name to find the pod and command."
+        - name: zot
+          rules:
+            - alert: ZotPVCUsageHigh
+              expr: kubelet_volume_stats_used_bytes{namespace="zot"} / kubelet_volume_stats_capacity_bytes{namespace="zot"} > 0.75
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Zot registry volume above 75 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "The zot registry volume has been above 75 percent full for over 15 minutes. Check retention and volume growth."
+            - alert: ZotPVCUsageCritical
+              expr: kubelet_volume_stats_used_bytes{namespace="zot"} / kubelet_volume_stats_capacity_bytes{namespace="zot"} > 0.85
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Zot registry volume above 85 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "The zot registry volume has been above 85 percent full for over 15 minutes. Expand the volume or tighten retention."
+            # Linear fit over 7 days of used bytes reaches capacity within 14 days.
+            - alert: ZotPVCStorageGrowth
+              expr: predict_linear(kubelet_volume_stats_used_bytes{namespace="zot"}[7d], 14 * 24 * 3600) > kubelet_volume_stats_capacity_bytes{namespace="zot"}
+              for: 1h
+              labels:
+                severity: warning
+              annotations:
+                title: Zot registry volume fills within 14 days at the current growth rate
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "Seven days of volume growth predict a full zot registry volume within 14 days. Expand the volume or tighten retention."
+            - alert: ZotDown
+              expr: absent(up{job="zot", namespace="zot", service="zot"})
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                title: Zot registry scrape target missing
+                summary: "zot in zot"
+                description: "Prometheus has no scrape target for the zot service. Check the zot StatefulSet and service."
+            # 2026-10-20: the gateway-wide 5xx ratio over 7 days is ~0.0073
+            # percent, so 5 percent sits far above baseline. The rate floor
+            # keeps low-traffic noise from firing the ratio.
+            - alert: ZotErrorRateHigh
+              expr: |
+                (
+                  sum(rate(zot_http_requests_total{namespace="zot", code=~"5.."}[10m]))
+                  /
+                  sum(rate(zot_http_requests_total{namespace="zot"}[10m]))
+                ) > 0.05
+                and
+                sum(rate(zot_http_requests_total{namespace="zot"}[10m])) > 0.01
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                title: Zot registry error rate high
+                summary: "zot in zot"
+                description: "Over 5 percent of zot registry requests returned a 5xx response in the last 10 minutes. Check the zot pod logs."
+            # 2026-10-20: the gateway exposes denied requests per listener
+            # only, with no per-route label, and the baseline is ~2 denials
+            # in 30 days across the whole gateway. Containerd falls back to
+            # upstream when the route denies a pull, so denials here would
+            # otherwise hide as a silent cache bypass.
+            - alert: ZotRouteRequestsDenied
+              expr: |
+                sum(increase(envoy_http_rbac_denied{envoy_http_conn_manager_prefix="https-10443"}[15m])) >= 5
+                or
+                absent(envoy_http_rbac_denied{envoy_http_conn_manager_prefix="https-10443"})
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                title: Gateway denied requests above baseline
+                summary: "internal gateway listener"
+                description: "The internal gateway denied at least 5 requests in 15 minutes, or the denied-request series is missing. Check the zot route SecurityPolicy client CIDRs first."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox

@@ -54,6 +54,8 @@ clusterSecretStorePolicy:
       - Docker
     unifi-mcp:
       - unifi-mcp
+    zot:
+      - Docker
 
 workloadResourcesPolicy:
   enabled: true

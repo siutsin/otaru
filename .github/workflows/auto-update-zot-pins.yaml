@@ -1,0 +1,90 @@
+name: Auto Update Zot Pins
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Prevent concurrent runs to avoid race conditions when creating branches/PRs
+# Scoped per workflow and branch to allow parallel runs on different branches
+# New runs wait for current run to complete rather than cancelling it
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  regenerate-zot-pins:
+    # Prevent execution from forks to protect PAT-backed operations
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    environment: automation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup mise
+        uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
+        with:
+          version: 2026.10.8
+          install_args: --locked
+
+      - name: Install Poetry dependencies
+        run: make poetry-install
+
+      - name: Regenerate the zot pin artefacts
+        run: |
+          cd diagrams && poetry run python ../helm-charts/zot/generate.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          PATHS="helm-charts/zot/census.json helm-charts/zot/generated.yaml"
+          PATHS="$PATHS helm-charts/zot/pin-state.json helm-charts/argocd/zot-chart-mapping.yaml"
+          if [[ -n $(git status --porcelain -- $PATHS) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+
+      - name: Generate App Token
+        if: steps.check_changes.outputs.changes == 'true'
+        id: app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          base: ${{ github.event.repository.default_branch }}
+          add-paths: |
+            helm-charts/zot/census.json
+            helm-charts/zot/generated.yaml
+            helm-charts/zot/pin-state.json
+            helm-charts/argocd/zot-chart-mapping.yaml
+          commit-message: |
+            chore: regenerate zot pin artefacts
+
+            Created by .github/workflows/auto-update-zot-pins.yaml
+          branch: automated/zot-regenerate
+          delete-branch: true
+          title: 'chore: regenerate zot pin artefacts'
+          body: |
+            Automated regeneration of the zot pin artefacts after a pin change landed on master.
+          labels: |
+            automated
+            dependencies
