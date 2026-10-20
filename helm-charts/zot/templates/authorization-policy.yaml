@@ -33,15 +33,17 @@ spec:
             ports:
               - {{ .Values.port | quote }}
 ---
+# Prometheus scrapes the pod IP, which targetRefs policies do not cover.
+# A selector policy makes ztunnel enforce L4 authorization on the pod for
+# ALL traffic, so the gateway and the waypoint are re-allowed here.
+# L7 rules would not apply at ztunnel.
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ .Values.name }}-metrics
+  name: {{ .Values.name }}-workload
   namespace: {{ .Values.namespace }}
 spec:
   action: ALLOW
-  # Prometheus scrapes the pod directly, so the grant sits on the
-  # workload, not the Service.
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.name }}
@@ -49,12 +51,10 @@ spec:
     - from:
         - source:
             principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
               - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+              - cluster.local/ns/istio-waypoints/sa/waypoint
       to:
         - operation:
-            methods:
-              - GET
-            paths:
-              - /metrics
             ports:
               - {{ .Values.port | quote }}

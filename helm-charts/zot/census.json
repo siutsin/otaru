@@ -1860,7 +1860,7 @@
       },
       {
         "name": "prometheus",
-        "locked_version": "29.36.1",
+        "locked_version": "29.36.2",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1873,7 +1873,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus",
-        "tag_form": "29.36.1",
+        "tag_form": "29.36.2",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1932,7 +1932,7 @@
       },
       {
         "name": "tailscale-operator",
-        "locked_version": "1.102.4",
+        "locked_version": "1.104.1",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1944,7 +1944,7 @@
         "excluded_from_optin": false,
         "upstream_host": "pkgs.tailscale.com",
         "zot_path": "/pkgs.tailscale.com/helmcharts/tailscale-operator",
-        "tag_form": "1.102.4",
+        "tag_form": "1.104.1",
         "classic_index": {
           "entries_total": 51,
           "entries_with_digest": 51,

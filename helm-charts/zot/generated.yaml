@@ -875,6 +875,7 @@ config:
         keepTags:
         - patterns:
           - ^29\.36\.1$
+          - ^29\.36\.2$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -911,6 +912,7 @@ config:
         keepTags:
         - patterns:
           - ^1\.102\.4$
+          - ^1\.104\.1$
         - patterns:
           - .*
           pulledWithin: 720h
