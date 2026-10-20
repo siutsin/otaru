@@ -1210,17 +1210,12 @@
         "pin_strings": [
           {
             "tag": "main",
-            "digest": "sha256:935f09f8c2415f3351b52cc62c1d55c31b20cb4f6e16ce9ac4bfa2371e12e2c0",
-            "pin": "ghcr.io/teslamate-org/teslamate:main@sha256:935f09f8c2415f3351b52cc62c1d55c31b20cb4f6e16ce9ac4bfa2371e12e2c0",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/teslamate/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 156327311,
-            "size_status": "measured"
+            "digest": "sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
+            "pin": "main@sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1233,17 +1228,12 @@
         "pin_strings": [
           {
             "tag": "main",
-            "digest": "sha256:ebbd089216358b58d983d09b67e704d07d983dd00e2e5d7c10b4eff9597cd2a7",
-            "pin": "ghcr.io/teslamate-org/teslamate/grafana:main@sha256:ebbd089216358b58d983d09b67e704d07d983dd00e2e5d7c10b4eff9597cd2a7",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/teslamate/values.yaml",
-                "yaml_path": "grafana.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 927338725,
-            "size_status": "measured"
+            "digest": "sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
+            "pin": "main@sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
