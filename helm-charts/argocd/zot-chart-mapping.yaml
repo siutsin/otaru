@@ -159,8 +159,8 @@ zotChartMapping:
     repository: https://kubernetes-sigs.github.io/metrics-server/
   - name: prometheus
     zotPath: /ghcr.io/prometheus-community/charts/prometheus
-    lockedVersion: 29.36.1
-    tagForm: 29.36.1
+    lockedVersion: 29.36.2
+    tagForm: 29.36.2
     form: sync
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-blackbox-exporter
@@ -183,8 +183,8 @@ zotChartMapping:
     repository: https://stakater.github.io/stakater-charts
   - name: tailscale-operator
     zotPath: /pkgs.tailscale.com/helmcharts/tailscale-operator
-    lockedVersion: 1.102.4
-    tagForm: 1.102.4
+    lockedVersion: 1.104.1
+    tagForm: 1.104.1
     form: conversion
     repository: https://pkgs.tailscale.com/helmcharts
   - name: tempo
