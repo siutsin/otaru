@@ -1,0 +1,207 @@
+{
+  "dhi_poll": false,
+  "images": {
+    "dhi.io/alertmanager": [
+      "0.34.1"
+    ],
+    "dhi.io/amazon-eks-pod-identity-webhook": [
+      "0.6.17"
+    ],
+    "dhi.io/coredns": [
+      "1.14.7"
+    ],
+    "dhi.io/descheduler": [
+      "0.36.0"
+    ],
+    "dhi.io/envoy-gateway": [
+      "1.9.2"
+    ],
+    "dhi.io/falco": [
+      "0.45.0"
+    ],
+    "dhi.io/fluent-bit": [
+      "5.1.3"
+    ],
+    "dhi.io/httpbin": [
+      "0.2.3"
+    ],
+    "dhi.io/keda": [
+      "2.21.0"
+    ],
+    "dhi.io/keda-admission-webhooks": [
+      "2.21.0"
+    ],
+    "dhi.io/keda-metrics-apiserver": [
+      "2.21.0"
+    ],
+    "dhi.io/kiali": [
+      "2.33.0"
+    ],
+    "dhi.io/kube-state-metrics": [
+      "2.20.0"
+    ],
+    "dhi.io/kyverno": [
+      "1.19.1"
+    ],
+    "dhi.io/metrics-server": [
+      "0.9.0"
+    ],
+    "dhi.io/node-exporter": [
+      "1.12.1"
+    ],
+    "dhi.io/prometheus": [
+      "3.15.0"
+    ],
+    "dhi.io/pushgateway": [
+      "1.11.3"
+    ],
+    "dhi.io/valkey": [
+      "9.1.2"
+    ],
+    "docker.io/alpine/kubectl": [
+      "1.37.1"
+    ],
+    "docker.io/cloudflare/cloudflared": [
+      "2026.10.0"
+    ],
+    "docker.io/dgtlmoon/sockpuppetbrowser": [],
+    "docker.io/excalidraw/excalidraw": [
+      "latest"
+    ],
+    "docker.io/grafana/alloy": [
+      "v1.20.1"
+    ],
+    "docker.io/grafana/grafana": [
+      "12.3.6"
+    ],
+    "docker.io/grafana/tempo": [
+      "3.1.0"
+    ],
+    "docker.io/library/busybox": [
+      "1.38.0",
+      "stable"
+    ],
+    "docker.io/library/rabbitmq": [
+      "4-management"
+    ],
+    "docker.io/nousresearch/hermes-agent": [
+      "v2026.9.24"
+    ],
+    "docker.io/oryd/hydra": [
+      "v26.2.0"
+    ],
+    "docker.io/oryd/hydra-maester": [
+      "v0.0.42"
+    ],
+    "docker.io/searxng/searxng": [
+      "2026.10.9-2dc2b1462"
+    ],
+    "docker.io/tailscale/k8s-operator": [
+      "v1.102.4"
+    ],
+    "docker.io/tailscale/tailscale": [
+      "v1.102.5"
+    ],
+    "ghcr.io/0xerr0r/blocky": [
+      "v0.35.0"
+    ],
+    "ghcr.io/browserless/chromium": [
+      "v2.57.1"
+    ],
+    "ghcr.io/cloudnative-pg/postgresql": [
+      "17.11",
+      "18.6"
+    ],
+    "ghcr.io/dgtlmoon/changedetection.io": [
+      "0.60.9"
+    ],
+    "ghcr.io/firecrawl/firecrawl": [
+      "2.11.514"
+    ],
+    "ghcr.io/firecrawl/playwright-service": [
+      "latest"
+    ],
+    "ghcr.io/gchq/cyberchef": [
+      "11.5.0"
+    ],
+    "ghcr.io/ggml-org/llama.cpp": [
+      "server-b11434"
+    ],
+    "ghcr.io/home-assistant/home-assistant": [
+      "2026.10.1"
+    ],
+    "ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics": [
+      "1.21.1"
+    ],
+    "ghcr.io/project-zot/zot": [
+      "v2.1.22"
+    ],
+    "ghcr.io/sirkirby/unifi-network-mcp": [
+      "0.37.0"
+    ],
+    "ghcr.io/siutsin/images/go-jsonnet": [
+      "v0.22.0"
+    ],
+    "ghcr.io/siutsin/images/jsoncrack": [
+      "v5.0.0-202610190650"
+    ],
+    "ghcr.io/siutsin/telegram-jung2-bot": [
+      "jung2bot-6.1.5"
+    ],
+    "ghcr.io/teslamate-org/teslamate": [
+      "main"
+    ],
+    "ghcr.io/teslamate-org/teslamate/grafana": [
+      "main"
+    ],
+    "ghcr.io/umami-software/umami": [
+      "postgresql-latest"
+    ],
+    "quay.io/containers/kubernetes_mcp_server": [
+      "v0.0.67"
+    ],
+    "quay.io/prometheuscommunity/yet-another-cloudwatch-exporter": [
+      "v0.67.0"
+    ],
+    "registry.k8s.io/sig-storage/snapshot-controller": [
+      "v8.6.0"
+    ]
+  },
+  "charts": {
+    "alloy": "1.13.1",
+    "amazon-eks-pod-identity-webhook": "2.6.5",
+    "argo-cd": "10.10.3",
+    "base": "1.30.6",
+    "cert-manager": "v1.21.2",
+    "cloudnative-pg": "0.28.2",
+    "cni": "1.30.6",
+    "connect": "2.4.2",
+    "descheduler": "0.37.0",
+    "external-secrets": "2.12.0",
+    "falco": "9.2.0",
+    "fluent-bit": "0.58.3",
+    "gateway-helm": "1.9.2",
+    "grafana": "10.5.15",
+    "hydra": "0.64.0",
+    "istiod": "1.30.6",
+    "k8s-cleaner": "0.24.0",
+    "k8s-ephemeral-storage-metrics": "1.21.3",
+    "keda": "2.21.0",
+    "kiali-server": "2.33.0",
+    "kubernetes-mcp-server": "0.1.0",
+    "kyverno": "3.9.1",
+    "loki": "7.3.0",
+    "longhorn": "1.13.0",
+    "metallb": "0.16.1",
+    "metrics-server": "3.14.0",
+    "prometheus": "29.36.1",
+    "prometheus-blackbox-exporter": "11.20.0",
+    "prometheus-yet-another-cloudwatch-exporter": "0.48.0",
+    "reloader": "2.2.18",
+    "tailscale-operator": "1.102.4",
+    "tempo": "3.1.0",
+    "trivy-operator": "0.37.0",
+    "vertical-pod-autoscaler": "0.13.0",
+    "ztunnel": "1.30.6"
+  }
+}

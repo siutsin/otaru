@@ -1,0 +1,60 @@
+{{- $gateway := .Values.gateway | default dict -}}
+{{- $gatewayName := $gateway.name | default "gateway" -}}
+{{- $gatewayNamespace := $gateway.namespace | default "gateway" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}
+    # The headless Service selects the same pod, and Istio applies
+    # this policy to the workload either way.
+    - group: ""
+      kind: Service
+      name: {{ .Values.name }}-headless
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
+      to:
+        - operation:
+            methods:
+              - GET
+              - HEAD
+            paths:
+              - /v2
+              - /v2/*
+            ports:
+              - {{ .Values.port | quote }}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.name }}-metrics
+  namespace: {{ .Values.namespace }}
+spec:
+  action: ALLOW
+  # Prometheus scrapes the pod directly, so the grant sits on the
+  # workload, not the Service.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.name }}
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-prometheus-server
+      to:
+        - operation:
+            methods:
+              - GET
+            paths:
+              - /metrics
+            ports:
+              - {{ .Values.port | quote }}

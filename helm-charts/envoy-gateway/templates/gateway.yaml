@@ -53,6 +53,7 @@ spec:
                   - teslamate
                   - umami
                   - unifi-mcp
+                  - zot
     - name: jellyfin-sftp
       protocol: TCP
       port: 2022

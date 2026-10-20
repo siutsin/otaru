@@ -1,0 +1,130 @@
+name: zot
+namespace: zot
+
+gateway:
+  name: gateway
+  namespace: gateway
+
+port: 5000
+
+syncCredentials:
+  # Reused, not a dedicated item: the existing Docker item.
+  item: Docker
+  secretName: zot-sync-credentials
+
+# Set by generated.yaml, which the Argo CD entry adds as a values file.
+chartRepositories: []
+
+zot:
+  namespace: zot
+  replicaCount: 1
+  image:
+    repository: ghcr.io/project-zot/zot
+    tag: v2.1.22@sha256:96cda11459ce6f8c60da3b03f03e9f67fd11b3ae2d82c4c04c92b3c608996080
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5000
+  # The wrapper owns the ServiceAccount so the token automount is off;
+  # the upstream chart renders no pod-level automount field.
+  serviceAccount:
+    create: false
+    name: zot
+  # The wrapper owns the PodDisruptionBudget: the upstream selector
+  # also matches the instance label, which the Kyverno mandate forbids.
+  podDisruptionBudget:
+    enabled: false
+  deploymentAnnotations:
+    reloader.stakater.com/auto: "true"
+  podAnnotations: {}
+  # The upstream StatefulSet renders its serviceName only with the
+  # headless Service on.
+  serviceHeadless:
+    enabled: true
+  persistence: true
+  pvc:
+    create: true
+    accessModes:
+      - ReadWriteOnce
+    # 50 GiB flat: the measured pinned set stays under 25 GiB, so the
+    # two-times rule for measured sets does not trigger. The dhi.io
+    # pins are unmeasured.
+    storage: 50Gi
+    storageClassName: longhorn-crypto-global
+  # 2026-10-20: starting size. Field reports put zot at 512 MiB to
+  # 1 GiB of memory; the sizing rule adjusts from Prometheus data
+  # later. No CPU limit, per house rule.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1Gi
+      ephemeral-storage: 512Mi
+    limits:
+      memory: 1Gi
+      ephemeral-storage: 2Gi
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+  externalSecrets:
+    - secretName: zot-sync-credentials
+      mountPath: /etc/zot/sync-credentials
+  extraVolumes:
+    - name: config
+      secret:
+        secretName: zot-config
+  extraVolumeMounts:
+    - name: config
+      mountPath: /etc/zot
+
+# The upstream chart cannot drop its sample config.json from a parent
+# values file, so the wrapper renders the config Secret itself and
+# mounts it through the upstream chart's extra volume hooks.
+config:
+  distSpecVersion: 1.1.1
+  storage:
+    # The upstream chart mounts the volume at this path.
+    rootDirectory: /var/lib/registry
+    dedupe: true
+    gc: true
+    gcDelay: 1h
+    gcInterval: 24h
+  http:
+    address: 0.0.0.0
+    port: "5000"
+    # Verified on v2.1.22: this flag alone gives digest-exact
+    # pulls. preserveDigest changes nothing and stays unset.
+    compat:
+      - docker2s2
+    # No auth or access control: the gateway and the mesh decide who may call.
+  log:
+    level: info
+  extensions:
+    metrics:
+      enable: true
+      prometheus:
+        path: /metrics
+    scrub:
+      enable: true
+      interval: 24h
+    search:
+      enable: false
+    ui:
+      enable: false
+    sync:
+      enable: true
+      credentialsFile: /etc/zot/sync-credentials/credentials.json
+      # registries and the storage retention policies come from
+      # generated.yaml, the second values file in the Argo CD entry.

@@ -151,3 +151,10 @@ spec:
           names:
             - umami-collect
             - umami-internal
+      - resources:
+          kinds:
+            - HTTPRoute
+          namespaces:
+            - zot
+          names:
+            - zot-internal
