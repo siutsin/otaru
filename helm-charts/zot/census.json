@@ -1200,8 +1200,8 @@
         "pin_strings": [
           {
             "tag": "main",
-            "digest": "sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
-            "pin": "main@sha256:249ef3e062d3154613571a0f5c0249173b0d08121763082882d19fce84f667ff",
+            "digest": "sha256:388a4405fb240064f9c17edb4bf4b839295e0b14fd11297b0f9562e00a262700",
+            "pin": "main@sha256:388a4405fb240064f9c17edb4bf4b839295e0b14fd11297b0f9562e00a262700",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -1218,8 +1218,8 @@
         "pin_strings": [
           {
             "tag": "main",
-            "digest": "sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
-            "pin": "main@sha256:d2cd2f631e3243c4f1eda060af8d8f888fcbd45ffa4a71d8b5255626b529f0c3",
+            "digest": "sha256:9c4a2f12e35bd607e35c8512f82a0383ce388f025c91b33781b6af696d1b0c80",
+            "pin": "main@sha256:9c4a2f12e35bd607e35c8512f82a0383ce388f025c91b33781b6af696d1b0c80",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -1850,7 +1850,7 @@
       },
       {
         "name": "prometheus",
-        "locked_version": "29.36.2",
+        "locked_version": "29.37.0",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1863,7 +1863,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus",
-        "tag_form": "29.36.2",
+        "tag_form": "29.37.0",
         "tag_verified_at_oci_home": true
       },
       {
