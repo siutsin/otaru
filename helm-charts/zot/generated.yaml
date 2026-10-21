@@ -443,6 +443,7 @@ config:
         keepTags:
         - patterns:
           - ^v1\.102\.5$
+          - ^v1\.104\.1$
         - patterns:
           - .*
           pulledWithin: 720h
