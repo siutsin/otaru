@@ -791,18 +791,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v1.102.4",
-            "digest": "sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34",
-            "pin": "docker.io/tailscale/k8s-operator:v1.102.4@sha256:3c8958c42fb3c46068e8553e11b944f2133b4671d4f36c86adc11f206746bf34",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/tailscale-operator/values.yaml",
-                "yaml_path": "tailscale-operator.operatorConfig.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 194288940,
-            "size_status": "measured"
+            "tag": "v1.104.1",
+            "digest": "sha256:38351d6333edc490a832b27b244665d40f4a5fe1765ade76af2264c99dbbfe0e",
+            "pin": "v1.104.1@sha256:38351d6333edc490a832b27b244665d40f4a5fe1765ade76af2264c99dbbfe0e",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1991,7 +1986,7 @@
       },
       {
         "name": "vertical-pod-autoscaler",
-        "locked_version": "0.13.0",
+        "locked_version": "0.14.0",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -2003,7 +1998,7 @@
         "excluded_from_optin": false,
         "upstream_host": "kubernetes.github.io",
         "zot_path": "/kubernetes.github.io/autoscaler/vertical-pod-autoscaler",
-        "tag_form": "0.13.0",
+        "tag_form": "0.14.0",
         "classic_index": {
           "entries_total": 16,
           "entries_with_digest": 16,

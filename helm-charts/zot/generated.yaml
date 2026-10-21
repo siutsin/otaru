@@ -433,6 +433,7 @@ config:
         keepTags:
         - patterns:
           - ^v1\.102\.4$
+          - ^v1\.104\.1$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -940,6 +941,7 @@ config:
         keepTags:
         - patterns:
           - ^0\.13\.0$
+          - ^0\.14\.0$
         - patterns:
           - .*
           pulledWithin: 720h

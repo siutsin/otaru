@@ -11,8 +11,8 @@ spec:
       name: {{ .Values.name }}-internal
   # No JWT rule: containerd presents no token, so this route is the one
   # deliberate exception to the JWT policy (see the Kyverno
-  # PolicyException). The source list is the whole rule: one /32 per
-  # node from cidrs.json, and every other source is denied.
+  # PolicyException). The source list is the rule: one /32 per node
+  # from cidrs.json, plus the one local exception below.
   authorization:
     defaultAction: Deny
     rules:
@@ -23,3 +23,11 @@ spec:
             {{- range $cidrs.nodes }}
             - {{ .cidr }}
             {{- end }}
+      # Node traffic served by the gateway pod on its own node arrives
+      # SNATed to the ambient host address, not the node /32. Ordinary
+      # pod traffic keeps its pod IP, so pods stay denied.
+      - name: allow-local-ztunnel
+        action: Allow
+        principal:
+          clientCIDRs:
+            - 169.254.7.127/32
