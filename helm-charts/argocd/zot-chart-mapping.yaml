@@ -159,8 +159,8 @@ zotChartMapping:
     repository: https://kubernetes-sigs.github.io/metrics-server/
   - name: prometheus
     zotPath: /ghcr.io/prometheus-community/charts/prometheus
-    lockedVersion: 29.36.2
-    tagForm: 29.36.2
+    lockedVersion: 29.37.0
+    tagForm: 29.37.0
     form: sync
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-blackbox-exporter

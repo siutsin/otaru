@@ -194,7 +194,7 @@
     "longhorn": "1.13.0",
     "metallb": "0.16.1",
     "metrics-server": "3.14.0",
-    "prometheus": "29.36.1",
+    "prometheus": "29.36.2",
     "prometheus-blackbox-exporter": "11.20.0",
     "prometheus-yet-another-cloudwatch-exporter": "0.48.0",
     "reloader": "2.2.18",
