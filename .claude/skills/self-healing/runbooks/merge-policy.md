@@ -57,7 +57,20 @@ Merge automatically once reviewed and green when **all** of the following hold:
   pass whose every hunk is only resource requests/limits/replicas (multi-chart
   resource-only is still one concern). Not a mixed bulk rewrite of unrelated
   concerns.
-- Tests already passed for this branch (`make test` before open; CI green)
+- Tests already passed for this branch (`make test` before open; CI green).
+  A failing check does not block trivial classification or merge when the
+  same check fails the same way on current master, the diff does not touch
+  that check or its inputs, and the proof is recorded in the PR body or the
+  journal.
+- **Merge is not apply:** classify on the effect of the merge itself. A
+  change can be trivial on merge when the merge triggers no automated apply
+  and the change takes effect only through a separate run (an Ansible
+  playbook run, a rollout runbook) that is authorised for that run. The gate
+  stays on the run, not on the merge.
+- A change confined to one alert rule's expression in the monitoring chart,
+  validated against live Prometheus data with the proof recorded in the PR
+  body or the journal, is a single concern. That alone does not make it a
+  borderline `values.yaml` edit.
 
 ### Incident-fix exception
 
