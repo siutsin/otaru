@@ -809,18 +809,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v1.102.5",
-            "digest": "sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
-            "pin": "docker.io/tailscale/tailscale:v1.102.5@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/tailscale-operator/values.yaml",
-                "yaml_path": "tailscale-operator.proxyConfig.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 229010069,
-            "size_status": "measured"
+            "tag": "v1.104.1",
+            "digest": "sha256:87c55d6be56ad85b3d8bceca5f87f73de288c609131460dd1be1874c250cc41d",
+            "pin": "v1.104.1@sha256:87c55d6be56ad85b3d8bceca5f87f73de288c609131460dd1be1874c250cc41d",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
