@@ -553,16 +553,31 @@ prometheus:
                 title: Zot registry volume above 85 percent full
                 summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
                 description: "The zot registry volume has been above 85 percent full for over 15 minutes. Expand the volume or tighten retention."
-            # Linear fit over 7 days of used bytes reaches capacity within 14 days.
+            # Guards: the 7-day offset term is empty until a full 7 days of
+            # samples exist, and the 1-day term keeps a one-off step from
+            # refiring as it ages through the window while usage is flat.
             - alert: ZotPVCStorageGrowth
-              expr: predict_linear(kubelet_volume_stats_used_bytes{namespace="zot"}[7d], 14 * 24 * 3600) > kubelet_volume_stats_capacity_bytes{namespace="zot"}
+              expr: |
+                (
+                  predict_linear(kubelet_volume_stats_used_bytes{namespace="zot"}[7d], 14 * 24 * 3600)
+                  >
+                  kubelet_volume_stats_capacity_bytes{namespace="zot"}
+                )
+                and on (namespace, persistentvolumeclaim)
+                (
+                  (kubelet_volume_stats_used_bytes{namespace="zot"} - kubelet_volume_stats_used_bytes{namespace="zot"} offset 7d) > 0
+                )
+                and on (namespace, persistentvolumeclaim)
+                (
+                  (kubelet_volume_stats_used_bytes{namespace="zot"} - kubelet_volume_stats_used_bytes{namespace="zot"} offset 1d) > 0
+                )
               for: 1h
               labels:
                 severity: warning
               annotations:
                 title: Zot registry volume fills within 14 days at the current growth rate
                 summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
-                description: "Seven days of volume growth predict a full zot registry volume within 14 days. Expand the volume or tighten retention."
+                description: "The 7-day fit predicts a full zot registry volume within 14 days, and used bytes grew over both the last 7 days and the last day. Expand the volume or tighten retention."
             - alert: ZotDown
               expr: absent(up{job="zot", namespace="zot", service="zot"})
               for: 5m
