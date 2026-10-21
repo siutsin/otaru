@@ -13,11 +13,14 @@ tags plus the state file's previous tags.
 4. CIDR oracle: cidrs.json holds one /32 per Ansible inventory node,
 each the base of a distinct /24 inside the pod CIDR range, and
 the rendered SecurityPolicy carries exactly those CIDRs.
+5. Mirror drift: the mirror list in the registries playbook equals
+the sync host set in the generated configuration.
 """
 
 import ipaddress
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -252,6 +255,47 @@ def main():
         got_cidrs == want_cidrs,
         "rendered SecurityPolicy carries exactly the cidrs.json list",
     )
+
+    sync_hosts = {
+        content["destination"].lstrip("/")
+        for registry in registries
+        for content in registry.get("content", [])
+    }
+    playbook = (ROOT / "ansible/playbooks/k3s/003-registries.yaml").read_text()
+    mirror_block = re.search(r"mirror_registries = \[(.*?)\]", playbook, re.S)
+    mirror_text = mirror_block.group(1) if mirror_block else ""
+    mirrors = set(re.findall(r"'([^']+)'", mirror_text))
+    missing = sorted(sync_hosts - mirrors)
+    extra = sorted(mirrors - sync_hosts)
+    if missing or extra:
+        lines = ["mirror registry drift:"]
+        for host in missing:
+            lines.append(
+                f"  {host} is in the census sync host set but not in "
+                "mirror_registries: add it to mirror_registries in "
+                "ansible/playbooks/k3s/003-registries.yaml"
+            )
+        for host in extra:
+            lines.append(
+                f"  {host} is in mirror_registries but not in the census "
+                "sync host set: remove it from mirror_registries in "
+                "ansible/playbooks/k3s/003-registries.yaml"
+            )
+        lines.append(
+            "  Source of truth: the registry host set in "
+            "helm-charts/zot/census.json, generated into the sync "
+            "destinations in helm-charts/zot/generated.yaml. The mirror "
+            "list must match that set. If the census itself is wrong, "
+            "do not edit the mirror list to match a wrong census: fix "
+            "the repo image pins and regenerate the census with "
+            "helm-charts/zot/generate.py, then update the mirror list."
+        )
+        check(False, "\n".join(lines))
+    else:
+        check(
+            True,
+            f"mirror registries match the census sync hosts ({len(mirrors)})",
+        )
 
     if FAILURES:
         print(f"\n{len(FAILURES)} zot census check(s) failed")

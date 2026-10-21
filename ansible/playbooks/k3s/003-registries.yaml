@@ -1,5 +1,6 @@
 ---
 # Docker Hub and Docker Hardened Images (dhi.io) pull credentials for containerd on every node.
+# Every registry pull tries the zot mirror first; containerd falls back to the upstream host on a mirror error.
 # k3s renders them into its containerd config on service restart.
 # The secret is read on the controller from 1Password (`op` must be signed in).
 - hosts: k3s_cluster
@@ -22,6 +23,19 @@
         content: |
           {% set username = lookup('pipe', 'op read op://github-otaru/Docker/username') | to_json %}
           {% set password = lookup('pipe', 'op read op://github-otaru/Docker/credential') | to_json %}
+          {% set mirror_registries = [
+            'docker.io', 'dhi.io', 'ghcr.io', 'quay.io',
+            'registry.k8s.io', 'public.ecr.aws', 'ecr-public.aws.com', 'mirror.gcr.io',
+            'registry.istio.io', 'cr.fluentbit.io', 'falco.docker.scarf.sh', 'us-docker.pkg.dev'
+          ] %}
+          mirrors:
+          {% for registry in mirror_registries %}
+            {{ registry }}:
+              endpoint:
+                - https://zot.internal.siutsin.com
+              rewrite:
+                "(.*)": "{{ registry }}/$1"
+          {% endfor %}
           configs:
           {% for registry in ['docker.io', 'dhi.io'] %}
             {{ registry }}:
