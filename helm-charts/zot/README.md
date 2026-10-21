@@ -47,9 +47,10 @@ on their own when zot does not answer.
 ## Access
 
 No local users exist in zot: it carries no auth of its own.
-The mesh grants named workloads method- and path-scoped
-access, and the gateway route admits the node sources for
-GET and HEAD only.
+The mesh grants the gateway method- and path-scoped access
+at the waypoint. The workload policy is port-only, because
+ztunnel cannot apply L7 rules. The gateway route admits the
+node sources for GET and HEAD only.
 
 ## Sync credential rotation
 
@@ -65,3 +66,16 @@ revocation is not complete.
 A node addition or replacement re-runs `generate.py --cidrs` in the
 same change, so the route SecurityPolicy always matches the live
 node pod CIDRs.
+
+## Retention behaviour
+
+A tag that entered by a full pull is not stale-pruned, and a
+retention keep on it is honoured. An untagged digest is the
+exception: it can be stale-pruned even after its children are
+fetched. Content fetched by manifest only (an index without
+its child manifests and blobs) is pruned at the next garbage
+collection even when a retention policy keeps it: zot v2.1.22
+logs the retention KEEP and the stale-manifest prune for the
+same digest. The warm-up pulls in full, so pinned images are
+not affected by this prune. A tag that must survive must be
+pulled in full, not only resolved.
