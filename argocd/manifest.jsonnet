@@ -100,6 +100,46 @@ local alertmanagerSsaDefaults = [{
   ],
 }];
 
+// zot subchart + ServerSideApply: kube defaults, the null pod-template
+// annotations and the reloader env entry differ from the rendered manifest.
+// The workload takes its whole config from the mounted Secret, so the only
+// env entry is the one reloader injects.
+local zotStatefulsetSsaDefaults = [{
+  group: 'apps',
+  kind: 'StatefulSet',
+  name: 'zot',
+  namespace: 'zot',
+  jqPathExpressions: [
+    '.spec.persistentVolumeClaimRetentionPolicy',
+    '.spec.podManagementPolicy',
+    '.spec.revisionHistoryLimit',
+    '.spec.updateStrategy',
+    '.spec.template.metadata.annotations',
+    '.spec.template.spec.containers[].env',
+    '.spec.template.spec.containers[].livenessProbe.failureThreshold',
+    '.spec.template.spec.containers[].livenessProbe.periodSeconds',
+    '.spec.template.spec.containers[].livenessProbe.successThreshold',
+    '.spec.template.spec.containers[].livenessProbe.timeoutSeconds',
+    '.spec.template.spec.containers[].readinessProbe.failureThreshold',
+    '.spec.template.spec.containers[].readinessProbe.periodSeconds',
+    '.spec.template.spec.containers[].readinessProbe.successThreshold',
+    '.spec.template.spec.containers[].readinessProbe.timeoutSeconds',
+    '.spec.template.spec.containers[].startupProbe.successThreshold',
+    '.spec.template.spec.containers[].startupProbe.timeoutSeconds',
+    '.spec.template.spec.containers[].terminationMessagePath',
+    '.spec.template.spec.containers[].terminationMessagePolicy',
+    '.spec.template.spec.restartPolicy',
+    '.spec.template.spec.schedulerName',
+    '.spec.template.spec.serviceAccount',
+    '.spec.template.spec.terminationGracePeriodSeconds',
+    '.spec.template.spec.volumes[].secret.defaultMode',
+    '.spec.volumeClaimTemplates[]?.apiVersion',
+    '.spec.volumeClaimTemplates[]?.kind',
+    '.spec.volumeClaimTemplates[]?.spec.volumeMode',
+    '.spec.volumeClaimTemplates[]?.status',
+  ],
+}];
+
 local cnpgClusterOperatorDefaults = [{
   group: 'postgresql.cnpg.io',
   kind: 'Cluster',
@@ -260,7 +300,7 @@ local application = [
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
-  { wave: '10', name: 'zot', namespace: 'zot', helm: zotHelm },
+  { wave: '10', name: 'zot', namespace: 'zot', helm: zotHelm, syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: zotStatefulsetSsaDefaults },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'hermes', namespace: 'hermes' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
