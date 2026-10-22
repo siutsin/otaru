@@ -653,6 +653,8 @@ yace:
   irsa:
     awsAccountId: ~
   image:
+    registry: quay.io
+    repository: prometheuscommunity/yet-another-cloudwatch-exporter
     tag: v0.67.0@sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb
   serviceAccount:
     name: monitoring-yace
@@ -787,6 +789,7 @@ grafana:
   # CVE-2026-27876. Chart 10.5.15 is the latest release and still bundles
   # 12.3.1, so pin the image directly.
   image:
+    repository: grafana/grafana
     tag: 12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8
   resources:
     # Keep memory at 512Mi: dashboard use pushed Grafana against the 128Mi limit and caused probe failures.
