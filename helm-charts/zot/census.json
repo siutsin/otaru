@@ -62,8 +62,8 @@
         "pin_strings": [
           {
             "tag": "1.14.7",
-            "digest": "sha256:e060cf7f79924ae4e2b073414e5c84152b4068e370715ed25a95ce4b6cfb9fa1",
-            "pin": "1.14.7@sha256:e060cf7f79924ae4e2b073414e5c84152b4068e370715ed25a95ce4b6cfb9fa1",
+            "digest": "sha256:effa7f9954b712ba42622acd8245b33c5d147aa9234076eb6e3a580088adc517",
+            "pin": "1.14.7@sha256:effa7f9954b712ba42622acd8245b33c5d147aa9234076eb6e3a580088adc517",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -80,8 +80,8 @@
         "pin_strings": [
           {
             "tag": "0.37.0",
-            "digest": "sha256:00fa056365137f2457e9c2b7daa6c8bb90a161d5d86168a82e3d69e5ac476a35",
-            "pin": "0.37.0@sha256:00fa056365137f2457e9c2b7daa6c8bb90a161d5d86168a82e3d69e5ac476a35",
+            "digest": "sha256:66db5a1afa98232b970757db2b4d9f621950230b3c1612129ddc357d723d0b8e",
+            "pin": "0.37.0@sha256:66db5a1afa98232b970757db2b4d9f621950230b3c1612129ddc357d723d0b8e",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -98,8 +98,8 @@
         "pin_strings": [
           {
             "tag": "1.9.2",
-            "digest": "sha256:479b8f07e604ba58a0b80269df84a0dde17749c323c2bb07831bf8ec1a5bcdc6",
-            "pin": "1.9.2@sha256:479b8f07e604ba58a0b80269df84a0dde17749c323c2bb07831bf8ec1a5bcdc6",
+            "digest": "sha256:b7190d997eb04bf45c336e47a94b221344b217eaa845aa8470dbb179b4291283",
+            "pin": "1.9.2@sha256:b7190d997eb04bf45c336e47a94b221344b217eaa845aa8470dbb179b4291283",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -759,9 +759,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v2.57.2",
-            "digest": "sha256:7bc12b4978044715292cbe9da4bef8ffd09b4f702b35b84f78b2beaccd091ecd",
-            "pin": "v2.57.2@sha256:7bc12b4978044715292cbe9da4bef8ffd09b4f702b35b84f78b2beaccd091ecd",
+            "tag": "v2.57.3",
+            "digest": "sha256:40dff7c23e0e378ba451c23ef66394ffb81bd11e6b9fe8ef3066d59eb402cc5d",
+            "pin": "v2.57.3@sha256:40dff7c23e0e378ba451c23ef66394ffb81bd11e6b9fe8ef3066d59eb402cc5d",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -841,9 +841,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.594",
-            "digest": "sha256:95923f46752f4b6916450d577e12371d5ef7365a50960fc74ed7e252a3aa83c4",
-            "pin": "2.11.594@sha256:95923f46752f4b6916450d577e12371d5ef7365a50960fc74ed7e252a3aa83c4",
+            "tag": "2.11.604",
+            "digest": "sha256:3e29294e7bf82bde54358c1a8236a7f7cc5b9e63e9d852d88644637bc68ad618",
+            "pin": "2.11.604@sha256:3e29294e7bf82bde54358c1a8236a7f7cc5b9e63e9d852d88644637bc68ad618",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -860,8 +860,8 @@
         "pin_strings": [
           {
             "tag": "latest",
-            "digest": "sha256:5c6690c0d6606aaffbe146398526fecbe82bcba6eb4af881969745908c90d00d",
-            "pin": "latest@sha256:5c6690c0d6606aaffbe146398526fecbe82bcba6eb4af881969745908c90d00d",
+            "digest": "sha256:d0f0dd32edc9a63a441b25567115ce79d4cea456ccd81a971d630b28e1e74447",
+            "pin": "latest@sha256:d0f0dd32edc9a63a441b25567115ce79d4cea456ccd81a971d630b28e1e74447",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -982,9 +982,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "0.39.1",
-            "digest": "sha256:652e84fbec4c3467425b6d5ab543aa65ef51fac59910fc68cf8e53f58a57937b",
-            "pin": "0.39.1@sha256:652e84fbec4c3467425b6d5ab543aa65ef51fac59910fc68cf8e53f58a57937b",
+            "tag": "0.39.3",
+            "digest": "sha256:46dd60f81049480fdd0238df6bdd8846f9263f5f7f95bbbdd86cc71989428314",
+            "pin": "0.39.3@sha256:46dd60f81049480fdd0238df6bdd8846f9263f5f7f95bbbdd86cc71989428314",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
