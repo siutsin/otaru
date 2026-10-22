@@ -37,7 +37,7 @@ playwright:
     # 2026-10-09: upstream publishes no x.y.z tag. `latest` is the only
     # multi-arch tag. The digest is the index. Kyverno excepts this pod.
     repository: ghcr.io/firecrawl/playwright-service
-    tag: latest@sha256:5c6690c0d6606aaffbe146398526fecbe82bcba6eb4af881969745908c90d00d
+    tag: latest@sha256:d0f0dd32edc9a63a441b25567115ce79d4cea456ccd81a971d630b28e1e74447
   port: 3000
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. 1Gi ephemeral
