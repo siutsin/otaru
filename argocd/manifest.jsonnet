@@ -1,288 +1,9 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
+local HelmOverrides = import 'lib/helm-overrides.libsonnet';
+local IgnoreDiff = import 'lib/ignore-differences.libsonnet';
 
 local revision = 'HEAD';
 
-local divisorJqPath = '.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor';
-local resourceFieldRefDivisor(name) = [{
-  group: 'apps',
-  kind: 'Deployment',
-  name: name,
-  jqPathExpressions: [divisorJqPath],
-}];
-
-local webhookCaBundleAndFailurePolicy(name) = [{
-  group: 'admissionregistration.k8s.io',
-  kind: 'ValidatingWebhookConfiguration',
-  name: name,
-  jqPathExpressions: [
-    '.webhooks[]?.clientConfig.caBundle',
-    '.webhooks[]?.failurePolicy',
-  ],
-}];
-
-local crdConversionCABundle(name) = [{
-  group: 'apiextensions.k8s.io',
-  kind: 'CustomResourceDefinition',
-  name: name,
-  jsonPointers: [
-    '/spec/conversion/webhook/clientConfig/caBundle',
-  ],
-}];
-
-local kyvernoClusterPolicyApiCallDefaults(policyNames) = [
-  {
-    group: 'kyverno.io',
-    kind: 'ClusterPolicy',
-    name: policyName,
-    jqPathExpressions: [
-      '.spec.rules[].context[]?.apiCall?.method',
-      '.spec.rules[].skipBackgroundRequests',
-    ],
-  }
-  for policyName in policyNames
-];
-
-local kyvernoDefaultedCrdFields(crdNames) = [
-  {
-    group: 'apiextensions.k8s.io',
-    kind: 'CustomResourceDefinition',
-    name: crdName,
-    jsonPointers: [
-      '/spec/conversion',
-    ],
-    jqPathExpressions: [
-      '.metadata.annotations | select(. == {})',
-      '.metadata.labels | select(. == {})',
-    ],
-  }
-  for crdName in crdNames
-];
-
-local cleanerExcludeDeleted = [{
-  group: 'apps.projectsveltos.io',
-  kind: 'Cleaner',
-  jqPathExpressions: ['.spec.resourcePolicySet.resourceSelectors[].excludeDeleted'],
-}];
-
-local alertmanagerSsaDefaults = [{
-  group: 'apps',
-  kind: 'StatefulSet',
-  name: 'monitoring-alertmanager',
-  namespace: 'monitoring',
-  jqPathExpressions: [
-    '.spec.minReadySeconds',
-    '.spec.persistentVolumeClaimRetentionPolicy',
-    '.spec.podManagementPolicy',
-    '.spec.updateStrategy',
-    '.spec.volumeClaimTemplates[]?.status',
-    '.spec.template.spec.containers[].volumeMounts[]?.subPath',
-    '.spec.template.spec.containers[].livenessProbe.failureThreshold',
-    '.spec.template.spec.containers[].livenessProbe.periodSeconds',
-    '.spec.template.spec.containers[].livenessProbe.successThreshold',
-    '.spec.template.spec.containers[].livenessProbe.timeoutSeconds',
-    '.spec.template.spec.containers[].livenessProbe.httpGet.scheme',
-    '.spec.template.spec.containers[].readinessProbe.failureThreshold',
-    '.spec.template.spec.containers[].readinessProbe.periodSeconds',
-    '.spec.template.spec.containers[].readinessProbe.successThreshold',
-    '.spec.template.spec.containers[].readinessProbe.timeoutSeconds',
-    '.spec.template.spec.containers[].readinessProbe.httpGet.scheme',
-    '.spec.template.spec.containers[].terminationMessagePath',
-    '.spec.template.spec.containers[].terminationMessagePolicy',
-    '.spec.template.spec.dnsPolicy',
-    '.spec.template.spec.restartPolicy',
-    '.spec.template.spec.schedulerName',
-    '.spec.template.spec.terminationGracePeriodSeconds',
-    '.spec.template.spec.serviceAccount',
-    '.spec.template.spec.volumes[].secret.defaultMode',
-    '.spec.volumeClaimTemplates[]?.apiVersion',
-    '.spec.volumeClaimTemplates[]?.kind',
-    '.spec.volumeClaimTemplates[]?.spec.volumeMode',
-  ],
-}];
-
-// zot subchart + ServerSideApply: kube defaults, the null pod-template
-// annotations and the reloader env entry differ from the rendered manifest.
-// The workload takes its whole config from the mounted Secret, so the only
-// env entry is the one reloader injects.
-local zotStatefulsetSsaDefaults = [{
-  group: 'apps',
-  kind: 'StatefulSet',
-  name: 'zot',
-  namespace: 'zot',
-  jqPathExpressions: [
-    '.spec.persistentVolumeClaimRetentionPolicy',
-    '.spec.podManagementPolicy',
-    '.spec.revisionHistoryLimit',
-    '.spec.updateStrategy',
-    '.spec.template.metadata.annotations',
-    '.spec.template.spec.containers[].env',
-    '.spec.template.spec.containers[].livenessProbe.failureThreshold',
-    '.spec.template.spec.containers[].livenessProbe.periodSeconds',
-    '.spec.template.spec.containers[].livenessProbe.successThreshold',
-    '.spec.template.spec.containers[].livenessProbe.timeoutSeconds',
-    '.spec.template.spec.containers[].readinessProbe.failureThreshold',
-    '.spec.template.spec.containers[].readinessProbe.periodSeconds',
-    '.spec.template.spec.containers[].readinessProbe.successThreshold',
-    '.spec.template.spec.containers[].readinessProbe.timeoutSeconds',
-    '.spec.template.spec.containers[].startupProbe.successThreshold',
-    '.spec.template.spec.containers[].startupProbe.timeoutSeconds',
-    '.spec.template.spec.containers[].terminationMessagePath',
-    '.spec.template.spec.containers[].terminationMessagePolicy',
-    '.spec.template.spec.restartPolicy',
-    '.spec.template.spec.schedulerName',
-    '.spec.template.spec.serviceAccount',
-    '.spec.template.spec.terminationGracePeriodSeconds',
-    '.spec.template.spec.volumes[].secret.defaultMode',
-    '.spec.volumeClaimTemplates[]?.apiVersion',
-    '.spec.volumeClaimTemplates[]?.kind',
-    '.spec.volumeClaimTemplates[]?.spec.volumeMode',
-    '.spec.volumeClaimTemplates[]?.status',
-  ],
-}];
-
-local cnpgClusterOperatorDefaults = [{
-  group: 'postgresql.cnpg.io',
-  kind: 'Cluster',
-  jqPathExpressions: [
-    '.metadata.annotations["kubectl.kubernetes.io/restartedAt"]',
-    '.metadata.annotations["cnpg.io/reloadedAt"]',
-    '.spec.bootstrap.initdb.encoding',
-    '.spec.bootstrap.initdb.localeCType',
-    '.spec.bootstrap.initdb.localeCollate',
-    '.spec.managed.roles[].inherit',
-    '.spec.probes',
-    '.spec.storage.resizeInUseVolumes',
-  ],
-}];
-
-local _ignoreDifferences = {
-  bootstrap: {
-    metallb: crdConversionCABundle('bgppeers.metallb.io'),
-  },
-  scheduling: {
-    'k8s-cleaner': resourceFieldRefDivisor('k8s-cleaner') + cleanerExcludeDeleted,
-    reloader: resourceFieldRefDivisor('reloader-reloader'),
-  },
-  serviceMesh: {
-    'istio-base': webhookCaBundleAndFailurePolicy('istiod-default-validator'),
-    istiod: webhookCaBundleAndFailurePolicy('istio-validator-istio-system'),
-  },
-  monitoring: {
-    // alertmanager subchart + ServerSideApply: kube defaults and subPath: null differ from rendered manifest.
-    alertmanager: alertmanagerSsaDefaults,
-  },
-  security: {
-    // Re-check this list against rendered Kyverno CRDs when bumping the kyverno chart.
-    kyverno: kyvernoDefaultedCrdFields([
-      'deletingpolicies.policies.kyverno.io',
-      'generatingpolicies.policies.kyverno.io',
-      'imagevalidatingpolicies.policies.kyverno.io',
-      'mutatingpolicies.policies.kyverno.io',
-      'namespaceddeletingpolicies.policies.kyverno.io',
-      'namespacedgeneratingpolicies.policies.kyverno.io',
-      'namespacedimagevalidatingpolicies.policies.kyverno.io',
-      'namespacedmutatingpolicies.policies.kyverno.io',
-      'namespacedvalidatingpolicies.policies.kyverno.io',
-      'policyexceptions.policies.kyverno.io',
-      'validatingpolicies.policies.kyverno.io',
-    ]),
-    // Kyverno defaults these on the live ClusterPolicy at admission time;
-    // they never appear in the rendered chart manifest.
-    'kyverno-policy': kyvernoClusterPolicyApiCallDefaults([
-      'require-pod-disruption-budget',
-    ]),
-  },
-  connectivity: {
-    // The API and the controller default these on the live EnvoyProxy;
-    // they never appear in the rendered chart manifest.
-    'envoy-gateway': [{
-      group: 'gateway.envoyproxy.io',
-      kind: 'EnvoyProxy',
-      name: 'gateway',
-      namespace: 'gateway',
-      jqPathExpressions: [
-        '.spec.logging.level.default',
-        '.spec.provider.kubernetes.envoyService.externalTrafficPolicy',
-        '.spec.provider.kubernetes.envoyService.type',
-        '.spec.telemetry.tracing.provider.backendRefs[].weight',
-        '.spec.telemetry.tracing.provider.port',
-        '.spec.telemetry.tracing.provider.type',
-      ],
-    }],
-  },
-};
-
-local _grafanaDashboards = [
-  'dashboards/blocky.yaml',
-  'dashboards/container-log-dashboard.yaml',
-  'dashboards/jung2bot.yaml',
-  'dashboards/kyverno-policy-metrics.yaml',
-  'dashboards/onzack-cluster-monitoring.yaml',
-  'dashboards/prometheus-stats.yaml',
-  'dashboards/vpa.yaml',
-];
-
-local jung2botHelm = { parameters: [{ name: 'irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }] };
-local kedaHelm = {
-  valuesObject: {
-    keda: {
-      serviceAccount: {
-        operator: {
-          annotations: {
-            'eks.amazonaws.com/role-arn': 'arn:aws:iam::' + std.extVar('AWS_ACCOUNT_ID') + ':role/keda',
-          },
-        },
-      },
-    },
-  },
-};
-local monitoringHelm = {
-  parameters: [{ name: 'yace.irsa.awsAccountId', value: std.extVar('AWS_ACCOUNT_ID') }],
-  valueFiles: _grafanaDashboards,
-};
-local cnpgHelm = {
-  releaseName: 'cloudnative-pg',
-  valuesObject: {
-    podLabels: {
-      'istio.io/dataplane-mode': 'none',
-    },
-    resources: {
-      requests: {
-        cpu: '100m',
-        memory: '128Mi',
-        'ephemeral-storage': '128Mi',
-      },
-      limits: {
-        // 2026-10-10: 30d spike ~116.8Mi vs 128Mi limit (91.3% - OOM risk); limit -> 141Mi (ceil(spike*1.2)). Request stays 128Mi.
-        memory: '141Mi',
-        'ephemeral-storage': '128Mi',
-      },
-    },
-  },
-};
-local cnpgClustersHelm = { parameters: [
-  { name: 'backup.b2.bucket', value: std.extVar('CNPG_BACKUP_BUCKET') },
-  { name: 'backup.b2.endpoint', value: std.extVar('CNPG_BACKUP_ENDPOINT') },
-] };
-local longhornHelm = { parameters: [{ name: 'longhorn.defaultBackupStore.backupTarget', value: std.extVar('LONGHORN_BACKUP_TARGET') }] };
-local homeAssistantVolumeHelm = { parameters: [{ name: 'longhorn-volume-lib.volumes.home-assistant-config.fromBackup', value: std.extVar('HOME_ASSISTANT_VOLUME_FROM_BACKUP') }] };
-local zotHelm = { valueFiles: ['generated.yaml'] };
-local trivyOperatorHelm = {
-  valuesObject: {
-    'trivy-operator': {
-      trivy: {
-        server: {
-          resources: {
-            limits: {
-              // 2026-10-18: null removes the subchart default CPU limit; the house rule sets no CPU limits.
-              cpu: null,
-            },
-          },
-        },
-      },
-    },
-  },
-};
 local application = [
   { wave: '10', name: 'blocky', namespace: 'blocky' },
   { wave: '10', name: 'browserless', namespace: 'browserless' },
@@ -291,7 +12,7 @@ local application = [
   { wave: '10', name: 'excalidraw', namespace: 'excalidraw' },
   { wave: '10', name: 'firecrawl', namespace: 'firecrawl' },
   { wave: '10', name: 'hermes-volume', namespace: 'hermes' },
-  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: homeAssistantVolumeHelm },
+  { wave: '10', name: 'home-assistant-volume', namespace: 'home-assistant', helm: HelmOverrides.homeAssistantVolume },
   { wave: '10', name: 'hydra', namespace: 'hydra' },
   { wave: '10', name: 'inference-volume', namespace: 'inference' },
   { wave: '10', name: 'jsoncrack', namespace: 'jsoncrack' },
@@ -300,13 +21,13 @@ local application = [
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
-  { wave: '10', name: 'zot', namespace: 'zot', helm: zotHelm, syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: zotStatefulsetSsaDefaults },
+  { wave: '10', name: 'zot', namespace: 'zot', helm: HelmOverrides.zot, ignoreDiff: IgnoreDiff.zotStatefulsetSsaDefaults },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'hermes', namespace: 'hermes' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
   { wave: '11', name: 'inference', namespace: 'inference' },
-  { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: jung2botHelm },
-  { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: jung2botHelm { valueFiles: ['value/dev.yaml'] } },
+  { wave: '30', name: 'jung2bot', namespace: 'jung2bot', path: 'helm-charts/jung2bot', helm: HelmOverrides.jung2bot },
+  { wave: '30', name: 'jung2bot-dev', namespace: 'jung2bot-dev', path: 'helm-charts/jung2bot', helm: HelmOverrides.jung2bot { valueFiles: ['value/dev.yaml'] } },
 ];
 
 local baseline = [
@@ -331,7 +52,7 @@ local bootstrap = [
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
-  { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.bootstrap.metallb },
+  { wave: '20', name: 'metallb', namespace: 'metallb-system', ignoreDiff: IgnoreDiff.entries.bootstrap.metallb },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
   // Keep the Argo CD Application name stable during the chart rename so the
   // old app finalizer does not prune the live Kubernetes API VIP resources.
@@ -340,14 +61,8 @@ local bootstrap = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true },
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: _ignoreDifferences.connectivity['envoy-gateway'] },
-  { wave: '02', name: 'tailscale-operator', namespace: 'tailscale',
-    syncOptions: ['SkipDryRunOnMissingResource=true'],
-    // Kyverno defaults skipBackgroundRequests on the live ClusterPolicy at
-    // admission time; it never appears in the rendered chart manifest.
-    ignoreDifferences: kyvernoClusterPolicyApiCallDefaults(['tailscale-proxy-secret-scope']), },
+  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true }, ignoreDiff: IgnoreDiff.entries.connectivity['envoy-gateway'] },
+  { wave: '02', name: 'tailscale-operator', namespace: 'tailscale', syncOptions: ['SkipDryRunOnMissingResource=true'] },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
@@ -363,63 +78,48 @@ local database = [
       repoURL: 'https://cloudnative-pg.io/charts/',
       chart: s.name,
       targetRevision: '0.28.2',
-      helm: cnpgHelm,
+      helm: HelmOverrides.cnpg,
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
-  {
-    wave: '06',
-    name: 'cloudnative-pg-clusters',
-    namespace: 'cnpg-system',
-    helm: cnpgClustersHelm,
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: cnpgClusterOperatorDefaults,
-  },
+  { wave: '06', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: HelmOverrides.cnpgClusters, ignoreDiff: IgnoreDiff.cnpgClusterOperatorDefaults },
 ];
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
   { wave: '05', name: 'kiali', namespace: 'kiali' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
-  {
-    wave: '10',
-    name: 'monitoring',
-    namespace: 'monitoring',
-    helm: monitoringHelm,
-    serverSideDiff: 'true',
-    syncOptions: ['RespectIgnoreDifferences=true'],
-    ignoreDifferences: _ignoreDifferences.monitoring.alertmanager,
-  },
+  { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: HelmOverrides.monitoring, serverSideDiff: 'true', ignoreDiff: IgnoreDiff.entries.monitoring.alertmanager },
 ];
 
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
-  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling['k8s-cleaner'] },
-  { wave: '02', name: 'keda', namespace: 'keda', helm: kedaHelm },
-  { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.scheduling.reloader },
+  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', ignoreDiff: IgnoreDiff.entries.scheduling['k8s-cleaner'] },
+  { wave: '02', name: 'keda', namespace: 'keda', helm: HelmOverrides.keda },
+  { wave: '02', name: 'reloader', namespace: 'reloader', ignoreDiff: IgnoreDiff.entries.scheduling.reloader },
   { wave: '05', name: 'vpa', namespace: 'vpa' },  // after cert-manager (wave 02)
 ];
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
-  { wave: '03', name: 'kyverno', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security.kyverno },
-  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.security['kyverno-policy'] },
+  { wave: '03', name: 'kyverno', namespace: 'kyverno', ignoreDiff: IgnoreDiff.entries.security.kyverno },
+  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', ignoreDiff: IgnoreDiff.entries.security['kyverno-policy'] },
   { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
-  { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator', helm: trivyOperatorHelm },
+  { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator', helm: HelmOverrides.trivyOperator },
   { wave: '20', name: 'amazon-eks-pod-identity-webhook', namespace: 'default' },
 ];
 
 local storage = [
   { wave: '03', name: 'snapshot-controller', namespace: 'kube-system' },
-  { wave: '04', name: 'longhorn', namespace: 'longhorn-system', helm: longhornHelm },
+  { wave: '04', name: 'longhorn', namespace: 'longhorn-system', helm: HelmOverrides.longhorn },
   { wave: '05', name: 'longhorn-config', namespace: 'longhorn-system' },
 ];
 
 local serviceMesh = [
-  { wave: '03', name: 'istio-base', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh['istio-base'] },
+  { wave: '03', name: 'istio-base', namespace: 'istio-system', ignoreDiff: IgnoreDiff.entries.serviceMesh['istio-base'] },
   { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
-  { wave: '04', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: _ignoreDifferences.serviceMesh.istiod },
+  { wave: '04', name: 'istiod', namespace: 'istio-system', ignoreDiff: IgnoreDiff.entries.serviceMesh.istiod },
   { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
   { wave: '06', name: 'waypoints', namespace: 'argocd' },
 ];
