@@ -1151,14 +1151,14 @@ alloy:
         drop:
           - ALL
     resources:
-      # 2026-10-13: initial sizing for a new workload, no baseline yet.
-      # Right-size from Prometheus after a week of traces.
+      # KRR 2026-10-22: 30d peak 253.2Mi is 98.9% of the old 256Mi limit;
+      # p50 71.2Mi. Request = ceil(p50 / 0.9), limit = ceil(peak x 1.2).
       requests:
         cpu: 50m
-        memory: 128Mi
+        memory: 80Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 256Mi
+        memory: 304Mi
         ephemeral-storage: 64Mi
     configMap:
       create: true
