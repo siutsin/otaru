@@ -585,19 +585,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "12.3.6",
-            "digest": "sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
-            "pin": "docker.io/grafana/grafana:12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
-            "form": "split: tag/digest in wrapper, repository from vendored defaults",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "grafana.image",
-                "repository_source": "helm-charts/monitoring/charts/grafana-10.5.15.tgz!grafana/values.yaml"
-              }
-            ],
-            "compressed_bytes_all_platforms": 583773717,
-            "size_status": "measured"
+            "tag": "12.4.13",
+            "digest": "sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+            "pin": "12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
