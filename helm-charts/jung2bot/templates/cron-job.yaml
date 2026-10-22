@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
             - name: off-work
-              image: curlimages/curl:8.21.0
+              image: curlimages/curl:8.23.0
               securityContext:
                 runAsNonRoot: true
                 # curlimages/curl's non-root user ("curl_user") is named, not
@@ -70,7 +70,7 @@ spec:
         spec:
           containers:
             - name: scale-up-database
-              image: curlimages/curl:8.21.0
+              image: curlimages/curl:8.23.0
               securityContext:
                 runAsNonRoot: true
                 runAsUser: 100
