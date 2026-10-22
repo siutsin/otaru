@@ -57,7 +57,7 @@ containers:
     enabled: true
     image:
       repository: ghcr.io/sirkirby/unifi-network-mcp
-      tag: 0.39.1@sha256:652e84fbec4c3467425b6d5ab543aa65ef51fac59910fc68cf8e53f58a57937b
+      tag: 0.39.3@sha256:46dd60f81049480fdd0238df6bdd8846f9263f5f7f95bbbdd86cc71989428314
       pullPolicy: IfNotPresent
     port: 3000
     env:
