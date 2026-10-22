@@ -12,13 +12,16 @@ longhorn:
       prometheus.io/port: "9500"
     # KRR 2026-07-10: peak ~115m cpu / 403Mi mem over 14d; was unset.
     # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
+    # 2026-10-22: manager on raspberrypi-01 OOMKilled (exit 137) ~4s after
+    # each start at 528Mi; steady state ~253Mi max over 1d, so the startup
+    # spike is the problem and it is unscraped. Limit 528Mi -> 768Mi.
     resources:
       requests:
         cpu: 150m
         memory: 250Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 528Mi
+        memory: 768Mi
         ephemeral-storage: 64Mi
   # 2026-10-11: new in chart 1.13.0; upstream leaves resources null, which
   # Kyverno require-workload-resources denies. Same binary as longhorn-manager
@@ -31,7 +34,7 @@ longhorn:
         memory: 250Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 528Mi
+        memory: 768Mi
         ephemeral-storage: 64Mi
   preUpgradeChecker:
     jobEnabled: false
