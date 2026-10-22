@@ -7,7 +7,9 @@
   major: {
     automerge: false,
   },
-  minimumReleaseAge: '1 day',
+  minimumReleaseAge: '3 days',
+  osvVulnerabilityAlerts: true,
+  vulnerabilityAlerts: { enabled: true },
   rebaseWhen: 'behind-base-branch',
   hostRules: [
     {
@@ -18,6 +20,11 @@
     },
   ],
   packageRules: [
+    {
+      // Image CVE fixes keep the 1 day wait. Routine updates wait 3 days.
+      matchManagers: ['docker', 'helm-values'],
+      minimumReleaseAge: '1 day',
+    },
     {
       // The Alloy chart builds its version label from the tag, so the tag
       // must stay bare; the digest lives in the chart's own digest field.
