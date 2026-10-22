@@ -505,16 +505,11 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "3.6.12",
-            "digest": "sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a",
-            "pin": "docker.io/grafana/loki:3.6.12@sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "loki.loki.image"
-              }
-            ],
+            "tag": "3.7.8",
+            "digest": "sha256:1107dd5274e0ada47e42472b7a7e71f3b2a2fe878878108f3e2f9e51528f0193",
+            "pin": "3.7.8@sha256:1107dd5274e0ada47e42472b7a7e71f3b2a2fe878878108f3e2f9e51528f0193",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -1727,7 +1722,7 @@
       },
       {
         "name": "prometheus-blackbox-exporter",
-        "locked_version": "11.20.0",
+        "locked_version": "11.20.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1740,7 +1735,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
-        "tag_form": "11.20.0",
+        "tag_form": "11.20.1",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1804,7 +1799,7 @@
       },
       {
         "name": "tempo",
-        "locked_version": "3.2.0",
+        "locked_version": "3.2.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1817,7 +1812,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/grafana-community/helm-charts/tempo",
         "zot_path": "/ghcr.io/grafana-community/helm-charts/tempo",
-        "tag_form": "3.2.0",
+        "tag_form": "3.2.1",
         "tag_verified_at_oci_home": true
       },
       {
