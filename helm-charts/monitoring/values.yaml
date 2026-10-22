@@ -790,7 +790,7 @@ grafana:
   # 12.3.1, so pin the image directly.
   image:
     repository: grafana/grafana
-    tag: 12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8
+    tag: 12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185
   resources:
     # Keep memory at 512Mi: dashboard use pushed Grafana against the 128Mi limit and caused probe failures.
     # ephemeral-storage 2026-07-06: 14d peak ~50Mi vs 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) -- bumped to 128Mi.
