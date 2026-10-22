@@ -365,6 +365,15 @@ config:
           - .*
           pulledWithin: 720h
       - repositories:
+        - docker.io/grafana/loki
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^3\.6\.12$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
         - docker.io/grafana/tempo
         deleteUntagged: false
         keepTags:
