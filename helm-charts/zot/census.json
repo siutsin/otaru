@@ -1287,7 +1287,7 @@
       },
       {
         "name": "cloudnative-pg",
-        "locked_version": "0.28.2",
+        "locked_version": "0.29.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1300,7 +1300,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg",
         "zot_path": "/ghcr.io/cloudnative-pg/charts/cloudnative-pg",
-        "tag_form": "0.28.2",
+        "tag_form": "0.29.1",
         "tag_verified_at_oci_home": true
       },
       {
