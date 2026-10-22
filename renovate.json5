@@ -11,6 +11,12 @@
   osvVulnerabilityAlerts: true,
   vulnerabilityAlerts: { enabled: true },
   rebaseWhen: 'behind-base-branch',
+  logLevelRemap: [
+    {
+      matchMessage: "/Some .+ did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding/",
+      newLogLevel: 'info',
+    },
+  ],
   hostRules: [
     {
       // dhi.io rejects anonymous requests, so lookups fail without credentials.
