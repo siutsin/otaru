@@ -71,7 +71,7 @@ rabbitmq:
   image:
     # 2026-10-09: multi-arch index digest of the upstream compose image.
     repository: docker.io/library/rabbitmq
-    tag: 4-management@sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd
+    tag: 4-management@sha256:c200fd496482cda18c412be4e6f244830e1e75949b8cf5f0e887cea9ea456109
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Limit above
     # request: queue depth can push memory past idle (~150-200Mi).
