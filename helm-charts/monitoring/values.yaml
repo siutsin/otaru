@@ -762,7 +762,7 @@ k8s-ephemeral-storage-metrics:
     enable: false
   image:
     repository: ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics
-    tag: 1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7
+    tag: 1.21.3@sha256:8297aa4a92787ebda42827be98da6f7a77206f4c8d140858626c97c469997b67
     imagePullPolicy: IfNotPresent
   resources:
     # KRR 2026-09-29: correct the 2026-09-28 downsize — it read the
