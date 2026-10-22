@@ -478,8 +478,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^v2\.57\.1$
           - ^v2\.57\.2$
+          - ^v2\.57\.3$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -507,8 +507,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^2\.11\.514$
           - ^2\.11\.594$
+          - ^2\.11\.604$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -573,8 +573,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^0\.37\.0$
           - ^0\.39\.1$
+          - ^0\.39\.3$
         - patterns:
           - .*
           pulledWithin: 720h
