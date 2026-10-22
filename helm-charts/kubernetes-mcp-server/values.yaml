@@ -12,6 +12,10 @@ backupNamespaces:
 pvcDeleteNamespaces:
   - monitoring
 
+# Namespaces where the agent may patch Longhorn volumes and engines, for engine upgrades.
+longhornNamespaces:
+  - longhorn-system
+
 vpa:
   enabled: true
 
