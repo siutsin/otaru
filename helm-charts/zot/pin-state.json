@@ -100,10 +100,10 @@
       "2026.10.9-2dc2b1462"
     ],
     "docker.io/tailscale/k8s-operator": [
-      "v1.102.4"
+      "v1.104.1"
     ],
     "docker.io/tailscale/tailscale": [
-      "v1.102.5"
+      "v1.104.1"
     ],
     "ghcr.io/0xerr0r/blocky": [
       "v0.35.0"
@@ -197,14 +197,14 @@
     "longhorn": "1.13.0",
     "metallb": "0.16.1",
     "metrics-server": "3.14.0",
-    "prometheus": "29.36.2",
+    "prometheus": "29.37.0",
     "prometheus-blackbox-exporter": "11.20.0",
     "prometheus-yet-another-cloudwatch-exporter": "0.48.0",
     "reloader": "2.2.18",
-    "tailscale-operator": "1.102.4",
+    "tailscale-operator": "1.104.1",
     "tempo": "3.1.0",
     "trivy-operator": "0.37.0",
-    "vertical-pod-autoscaler": "0.13.0",
+    "vertical-pod-autoscaler": "0.14.0",
     "ztunnel": "1.30.6"
   }
 }
