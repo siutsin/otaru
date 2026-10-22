@@ -55,7 +55,7 @@ playwright:
 valkey:
   image:
     repository: dhi.io/valkey
-    tag: 9.1.2@sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1
+    tag: 9.1.2@sha256:88c9f6749db5757ecd2270fbb000840bad1f3a002662ad034c86e1809f2b46b1
   port: 6379
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
