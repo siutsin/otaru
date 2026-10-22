@@ -1,7 +1,7 @@
 metrics-server:
   image:
     repository: dhi.io/metrics-server
-    tag: 0.9.0@sha256:3bbc311640a292cc3aeefd56d5ff7a729931ec54911f738e2c3c72923a989d09
+    tag: 0.9.0@sha256:8931be2a1c097ce70d8bee3a2ae7db6e8c0830c81211612f5e426f5b8765aef5
   podLabels:
     # metrics-server is scraped directly by the Kubernetes API aggregation path; keep its Pod IP outside ambient interception.
     istio.io/dataplane-mode: none
