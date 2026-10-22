@@ -794,15 +794,18 @@ grafana:
   resources:
     # Keep memory at 512Mi: dashboard use pushed Grafana against the 128Mi limit and caused probe failures.
     # ephemeral-storage 2026-07-06: 14d peak ~50Mi vs 64Mi limit (80.6% via ephemeral_storage_container_limit_percentage) -- bumped to 128Mi.
+    # ephemeral-storage 2026-10-22: Grafana 13.2.4 startup writes (fresh SQLite
+    # database, Bleve unified-storage index, bundled plugin extracts) pass 128Mi;
+    # the kubelet evicted every pod within ~90s -- raised to 1Gi.
     # 2026-09-22: relax req==limit (user-approved). Steady use ~96Mi; keep
     # the 512Mi limit for dashboard bursts. Request 348Mi (2026-09-23: right-sized).
     requests:
       cpu: 50m
       memory: 348Mi
-      ephemeral-storage: 128Mi
+      ephemeral-storage: 1Gi
     limits:
       memory: 512Mi
-      ephemeral-storage: 128Mi
+      ephemeral-storage: 1Gi
   downloadDashboards:
     resources: *smallResources
   initChownData:
