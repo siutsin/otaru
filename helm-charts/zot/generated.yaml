@@ -924,6 +924,7 @@ config:
         keepTags:
         - patterns:
           - ^3\.1\.0$
+          - ^3\.2\.0$
         - patterns:
           - .*
           pulledWithin: 720h

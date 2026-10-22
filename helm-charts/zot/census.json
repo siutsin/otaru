@@ -1945,7 +1945,7 @@
       },
       {
         "name": "tempo",
-        "locked_version": "3.1.0",
+        "locked_version": "3.2.0",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1958,7 +1958,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/grafana-community/helm-charts/tempo",
         "zot_path": "/ghcr.io/grafana-community/helm-charts/tempo",
-        "tag_form": "3.1.0",
+        "tag_form": "3.2.0",
         "tag_verified_at_oci_home": true
       },
       {
