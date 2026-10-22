@@ -202,7 +202,7 @@
     "prometheus-yet-another-cloudwatch-exporter": "0.48.0",
     "reloader": "2.2.18",
     "tailscale-operator": "1.104.1",
-    "tempo": "3.1.0",
+    "tempo": "3.2.0",
     "trivy-operator": "0.37.0",
     "vertical-pod-autoscaler": "0.14.0",
     "ztunnel": "1.30.6"

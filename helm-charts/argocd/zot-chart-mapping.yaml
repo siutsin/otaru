@@ -165,8 +165,8 @@ zotChartMapping:
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-blackbox-exporter
     zotPath: /ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter
-    lockedVersion: 11.20.0
-    tagForm: 11.20.0
+    lockedVersion: 11.20.1
+    tagForm: 11.20.1
     form: sync
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-yet-another-cloudwatch-exporter
@@ -189,8 +189,8 @@ zotChartMapping:
     repository: https://pkgs.tailscale.com/helmcharts
   - name: tempo
     zotPath: /ghcr.io/grafana-community/helm-charts/tempo
-    lockedVersion: 3.2.0
-    tagForm: 3.2.0
+    lockedVersion: 3.2.1
+    tagForm: 3.2.1
     form: sync
     repository: https://grafana-community.github.io/helm-charts
   - name: trivy-operator
