@@ -2,7 +2,7 @@ controller:
   image:
     # Upstream v8.6.0 deploys this v8.5.0 controller image.
     repository: registry.k8s.io/sig-storage/snapshot-controller
-    tag: v8.6.0@sha256:81e79f205083f105e573ba2ebfe5964ede7f69a154e8627f53ebbbccd3ed9f70
+    tag: v8.7.0@sha256:8511f417d0072efcd937aedd7cc79a937d5066e64ee17beb6097301c92742f19
   resources:
     # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     # KRR 2026-09-27: 30d p50 18.5MiB (14d 17.7), max 61.8MiB — request 68MiB
