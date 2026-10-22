@@ -26,15 +26,10 @@
         "pin_strings": [
           {
             "tag": "0.34.1",
-            "digest": "sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4",
-            "pin": "dhi.io/alertmanager:0.34.1@sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "prometheus.alertmanager.image"
-              }
-            ],
+            "digest": "sha256:d2e254cd3d9848a14369fc020176d6a5776d1b52d67191fc764888f54ff91c20",
+            "pin": "0.34.1@sha256:d2e254cd3d9848a14369fc020176d6a5776d1b52d67191fc764888f54ff91c20",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -84,16 +79,11 @@
         "sync_mode": "poll",
         "pin_strings": [
           {
-            "tag": "0.36.0",
-            "digest": "sha256:d9d3cc1bac7fd17e5fc92a61183a64ea326202157ec5e17feef2db6032ea308d",
-            "pin": "dhi.io/descheduler:0.36.0@sha256:d9d3cc1bac7fd17e5fc92a61183a64ea326202157ec5e17feef2db6032ea308d",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/descheduler/values.yaml",
-                "yaml_path": "descheduler.image"
-              }
-            ],
+            "tag": "0.37.0",
+            "digest": "sha256:00fa056365137f2457e9c2b7daa6c8bb90a161d5d86168a82e3d69e5ac476a35",
+            "pin": "0.37.0@sha256:00fa056365137f2457e9c2b7daa6c8bb90a161d5d86168a82e3d69e5ac476a35",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -108,19 +98,10 @@
         "pin_strings": [
           {
             "tag": "1.9.2",
-            "digest": "sha256:5e59d3741e939ac11bb48bf274098c6d0c2cb2ed4818f5269682f64869728d26",
-            "pin": "dhi.io/envoy-gateway:1.9.2@sha256:5e59d3741e939ac11bb48bf274098c6d0c2cb2ed4818f5269682f64869728d26",
-            "form": "image-string",
-            "sources": [
-              {
-                "file": "helm-charts/envoy-gateway/values.yaml",
-                "yaml_path": "envoy-gateway.global.images.envoyGateway.image"
-              },
-              {
-                "file": "helm-charts/envoy-gateway/values.yaml",
-                "yaml_path": "envoy-gateway.global.images.envoyGateway.image"
-              }
-            ],
+            "digest": "sha256:479b8f07e604ba58a0b80269df84a0dde17749c323c2bb07831bf8ec1a5bcdc6",
+            "pin": "1.9.2@sha256:479b8f07e604ba58a0b80269df84a0dde17749c323c2bb07831bf8ec1a5bcdc6",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -134,16 +115,11 @@
         "sync_mode": "poll",
         "pin_strings": [
           {
-            "tag": "0.45.0",
-            "digest": "sha256:9da930770190c0117855cfb121e251e452f8dc0fff149d0c4a5e636115b027fc",
-            "pin": "dhi.io/falco:0.45.0@sha256:9da930770190c0117855cfb121e251e452f8dc0fff149d0c4a5e636115b027fc",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/falco/values.yaml",
-                "yaml_path": "falco.image"
-              }
-            ],
+            "tag": "0.45.1",
+            "digest": "sha256:3e776aaba69d8302a16b2476b764b3bf039ceb7bcde1a479576b52de0c4d7ef7",
+            "pin": "0.45.1@sha256:3e776aaba69d8302a16b2476b764b3bf039ceb7bcde1a479576b52de0c4d7ef7",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -157,16 +133,11 @@
         "sync_mode": "poll",
         "pin_strings": [
           {
-            "tag": "5.1.3",
-            "digest": "sha256:12a255ba489dcfe381dacab1b87de87869109a1f04ec536492a9a9f4dda0487d",
-            "pin": "dhi.io/fluent-bit:5.1.3@sha256:12a255ba489dcfe381dacab1b87de87869109a1f04ec536492a9a9f4dda0487d",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "fluent-bit.image"
-              }
-            ],
+            "tag": "5.1.4",
+            "digest": "sha256:c1b58063aeba16bea01f423f61bd4dd2a52fc6d40d837fd3343f59ee5fa48a6e",
+            "pin": "5.1.4@sha256:c1b58063aeba16bea01f423f61bd4dd2a52fc6d40d837fd3343f59ee5fa48a6e",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -181,15 +152,10 @@
         "pin_strings": [
           {
             "tag": "0.2.3",
-            "digest": "sha256:fc75b950ce256399e42dfc7d851052a41a93b002da6df85154310c5db87bfbb9",
-            "pin": "dhi.io/httpbin:0.2.3@sha256:fc75b950ce256399e42dfc7d851052a41a93b002da6df85154310c5db87bfbb9",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/httpbin/values.yaml",
-                "yaml_path": "app.image"
-              }
-            ],
+            "digest": "sha256:5450aa8abfc56548fed05225a2acf3f705f221eb130254c0eaa33da3933da05f",
+            "pin": "0.2.3@sha256:5450aa8abfc56548fed05225a2acf3f705f221eb130254c0eaa33da3933da05f",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -296,15 +262,10 @@
         "pin_strings": [
           {
             "tag": "2.20.0",
-            "digest": "sha256:447969f7908b0e60b2768931152e287b112ba597ffd4b93ad667ff7314fb2cc3",
-            "pin": "dhi.io/kube-state-metrics:2.20.0@sha256:447969f7908b0e60b2768931152e287b112ba597ffd4b93ad667ff7314fb2cc3",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "prometheus.kube-state-metrics.image"
-              }
-            ],
+            "digest": "sha256:2e38c4477b3b8cd8b666d04814e05579dac29fadffcfeec309ef1fe911abd6c3",
+            "pin": "2.20.0@sha256:2e38c4477b3b8cd8b666d04814e05579dac29fadffcfeec309ef1fe911abd6c3",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -337,15 +298,10 @@
         "pin_strings": [
           {
             "tag": "0.9.0",
-            "digest": "sha256:3bbc311640a292cc3aeefd56d5ff7a729931ec54911f738e2c3c72923a989d09",
-            "pin": "dhi.io/metrics-server:0.9.0@sha256:3bbc311640a292cc3aeefd56d5ff7a729931ec54911f738e2c3c72923a989d09",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/metrics-server/values.yaml",
-                "yaml_path": "metrics-server.image"
-              }
-            ],
+            "digest": "sha256:8931be2a1c097ce70d8bee3a2ae7db6e8c0830c81211612f5e426f5b8765aef5",
+            "pin": "0.9.0@sha256:8931be2a1c097ce70d8bee3a2ae7db6e8c0830c81211612f5e426f5b8765aef5",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -360,15 +316,10 @@
         "pin_strings": [
           {
             "tag": "1.12.1",
-            "digest": "sha256:09e7c92c4ff5f925adb2c66e2728596c47c7a8e070bf3236401783fa429a15ac",
-            "pin": "dhi.io/node-exporter:1.12.1@sha256:09e7c92c4ff5f925adb2c66e2728596c47c7a8e070bf3236401783fa429a15ac",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "prometheus.prometheus-node-exporter.image"
-              }
-            ],
+            "digest": "sha256:2bf73eace0e49be4c1c61f14e349b738fdd182fb63560b1e7ed6c7c6885236d8",
+            "pin": "1.12.1@sha256:2bf73eace0e49be4c1c61f14e349b738fdd182fb63560b1e7ed6c7c6885236d8",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -383,15 +334,10 @@
         "pin_strings": [
           {
             "tag": "3.15.0",
-            "digest": "sha256:2561b55e40f7c621c6ad84b08cba0c24fc41a4c717fb006d3675a2bf5e902ab1",
-            "pin": "dhi.io/prometheus:3.15.0@sha256:2561b55e40f7c621c6ad84b08cba0c24fc41a4c717fb006d3675a2bf5e902ab1",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "prometheus.server.image"
-              }
-            ],
+            "digest": "sha256:839c37b75b190fa24215bf9498bee570fd4276978aa13de44ceaf5108d1a8cde",
+            "pin": "3.15.0@sha256:839c37b75b190fa24215bf9498bee570fd4276978aa13de44ceaf5108d1a8cde",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -405,16 +351,11 @@
         "sync_mode": "poll",
         "pin_strings": [
           {
-            "tag": "1.11.3",
-            "digest": "sha256:7715052ac6a02bf9fc6776beb1b631798431f3377916652f2f24c8b57f20f887",
-            "pin": "dhi.io/pushgateway:1.11.3@sha256:7715052ac6a02bf9fc6776beb1b631798431f3377916652f2f24c8b57f20f887",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "prometheus.prometheus-pushgateway.image"
-              }
-            ],
+            "tag": "1.11.4",
+            "digest": "sha256:34a2f94f817343520b5a377f56f4845a151bd7bab067f2007b819298e120f391",
+            "pin": "1.11.4@sha256:34a2f94f817343520b5a377f56f4845a151bd7bab067f2007b819298e120f391",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -429,15 +370,10 @@
         "pin_strings": [
           {
             "tag": "9.1.2",
-            "digest": "sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1",
-            "pin": "dhi.io/valkey:9.1.2@sha256:584360beba4d379bb2fa107bdccbcb2da82f65365ccdedcfd32ac509e907dfc1",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/firecrawl/values.yaml",
-                "yaml_path": "valkey.image"
-              }
-            ],
+            "digest": "sha256:88c9f6749db5757ecd2270fbb000840bad1f3a002662ad034c86e1809f2b46b1",
+            "pin": "9.1.2@sha256:88c9f6749db5757ecd2270fbb000840bad1f3a002662ad034c86e1809f2b46b1",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -469,18 +405,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2026.10.0",
-            "digest": "sha256:9b49eed8f62806d5d45ddf59ecefb5710429598ea6d3fcccd2af938f621b2b07",
-            "pin": "docker.io/cloudflare/cloudflared:2026.10.0@sha256:9b49eed8f62806d5d45ddf59ecefb5710429598ea6d3fcccd2af938f621b2b07",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/cloudflare-tunnel/values.yaml",
-                "yaml_path": "image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 56816058,
-            "size_status": "measured"
+            "tag": "2026.10.3",
+            "digest": "sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39",
+            "pin": "2026.10.3@sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -538,18 +469,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v1.20.1",
+            "tag": "v1.21.1",
             "digest": "sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
-            "pin": "docker.io/grafana/alloy:v1.20.1@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "alloy.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 745264031,
-            "size_status": "measured"
+            "pin": "v1.21.1@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -668,17 +594,12 @@
         "pin_strings": [
           {
             "tag": "4-management",
-            "digest": "sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd",
-            "pin": "docker.io/library/rabbitmq:4-management@sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/firecrawl/values.yaml",
-                "yaml_path": "rabbitmq.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 683952614,
-            "size_status": "measured"
+            "digest": "sha256:c200fd496482cda18c412be4e6f244830e1e75949b8cf5f0e887cea9ea456109",
+            "pin": "4-management@sha256:c200fd496482cda18c412be4e6f244830e1e75949b8cf5f0e887cea9ea456109",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -784,9 +705,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v1.104.1",
-            "digest": "sha256:38351d6333edc490a832b27b244665d40f4a5fe1765ade76af2264c99dbbfe0e",
-            "pin": "v1.104.1@sha256:38351d6333edc490a832b27b244665d40f4a5fe1765ade76af2264c99dbbfe0e",
+            "tag": "v1.104.2",
+            "digest": "sha256:9cddfcbe75a7eab2b46d610966d519a28699a5e38235a2cb3aec960487c4aa48",
+            "pin": "v1.104.2@sha256:9cddfcbe75a7eab2b46d610966d519a28699a5e38235a2cb3aec960487c4aa48",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -802,9 +723,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v1.104.1",
-            "digest": "sha256:87c55d6be56ad85b3d8bceca5f87f73de288c609131460dd1be1874c250cc41d",
-            "pin": "v1.104.1@sha256:87c55d6be56ad85b3d8bceca5f87f73de288c609131460dd1be1874c250cc41d",
+            "tag": "v1.104.2",
+            "digest": "sha256:b11583ad2e93e4671128538c88cf11f460444a5d7e449311dd1933a400ab849d",
+            "pin": "v1.104.2@sha256:b11583ad2e93e4671128538c88cf11f460444a5d7e449311dd1933a400ab849d",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -843,16 +764,11 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v2.57.1",
-            "digest": "sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67",
-            "pin": "ghcr.io/browserless/chromium:v2.57.1@sha256:93dc614e2532ee66bac78f68b6229c33392309293c626d2a0899ccdf0c8aac67",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/browserless/values.yaml",
-                "yaml_path": "image"
-              }
-            ],
+            "tag": "v2.57.2",
+            "digest": "sha256:7bc12b4978044715292cbe9da4bef8ffd09b4f702b35b84f78b2beaccd091ecd",
+            "pin": "v2.57.2@sha256:7bc12b4978044715292cbe9da4bef8ffd09b4f702b35b84f78b2beaccd091ecd",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -930,18 +846,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.514",
-            "digest": "sha256:47779e925e19d6ae9cdb050b92e1c851b9ad19a27ad4bbf9faafb08786532b5b",
-            "pin": "ghcr.io/firecrawl/firecrawl:2.11.514@sha256:47779e925e19d6ae9cdb050b92e1c851b9ad19a27ad4bbf9faafb08786532b5b",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/firecrawl/values.yaml",
-                "yaml_path": "api.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 1172020101,
-            "size_status": "measured"
+            "tag": "2.11.594",
+            "digest": "sha256:95923f46752f4b6916450d577e12371d5ef7365a50960fc74ed7e252a3aa83c4",
+            "pin": "2.11.594@sha256:95923f46752f4b6916450d577e12371d5ef7365a50960fc74ed7e252a3aa83c4",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -954,17 +865,12 @@
         "pin_strings": [
           {
             "tag": "latest",
-            "digest": "sha256:717699bf8a61d94451926c810d19ca1d36278192907e307bf5229a558b08fcc6",
-            "pin": "ghcr.io/firecrawl/playwright-service:latest@sha256:717699bf8a61d94451926c810d19ca1d36278192907e307bf5229a558b08fcc6",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/firecrawl/values.yaml",
-                "yaml_path": "playwright.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 1141809414,
-            "size_status": "measured"
+            "digest": "sha256:5c6690c0d6606aaffbe146398526fecbe82bcba6eb4af881969745908c90d00d",
+            "pin": "latest@sha256:5c6690c0d6606aaffbe146398526fecbe82bcba6eb4af881969745908c90d00d",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1022,18 +928,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2026.10.1",
-            "digest": "sha256:130241f28d01fa80dfa3b44f7d89781c188d8642ecab9024f079f19f9f82baa0",
-            "pin": "ghcr.io/home-assistant/home-assistant:2026.10.1@sha256:130241f28d01fa80dfa3b44f7d89781c188d8642ecab9024f079f19f9f82baa0",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/home-assistant/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 1288513675,
-            "size_status": "measured"
+            "tag": "2026.10.2",
+            "digest": "sha256:33afb0659d786213264c2211f8d91c5fe87461c56eba6a3a546eb05fc71e89f4",
+            "pin": "2026.10.2@sha256:33afb0659d786213264c2211f8d91c5fe87461c56eba6a3a546eb05fc71e89f4",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1045,18 +946,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "1.21.1",
-            "digest": "sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7",
-            "pin": "ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics:1.21.1@sha256:33d77422cd327f9710ea204b53867e3465e76bf02d2574fe871e64a2b8b574a7",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "k8s-ephemeral-storage-metrics.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 38767427,
-            "size_status": "measured"
+            "tag": "1.21.3",
+            "digest": "sha256:8297aa4a92787ebda42827be98da6f7a77206f4c8d140858626c97c469997b67",
+            "pin": "1.21.3@sha256:8297aa4a92787ebda42827be98da6f7a77206f4c8d140858626c97c469997b67",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1091,18 +987,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "0.37.0",
-            "digest": "sha256:03544ffb16c7bdd2848d4a01542270338fcf232927143542ccabd1c2ad22c808",
-            "pin": "ghcr.io/sirkirby/unifi-network-mcp:0.37.0@sha256:03544ffb16c7bdd2848d4a01542270338fcf232927143542ccabd1c2ad22c808",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/unifi-mcp/values.yaml",
-                "yaml_path": "containers.network.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 201583902,
-            "size_status": "measured"
+            "tag": "0.39.1",
+            "digest": "sha256:652e84fbec4c3467425b6d5ab543aa65ef51fac59910fc68cf8e53f58a57937b",
+            "pin": "0.39.1@sha256:652e84fbec4c3467425b6d5ab543aa65ef51fac59910fc68cf8e53f58a57937b",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1260,19 +1151,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v0.67.0",
-            "digest": "sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb",
-            "pin": "quay.io/prometheuscommunity/yet-another-cloudwatch-exporter:v0.67.0@sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb",
-            "form": "split: tag/digest in wrapper, repository from vendored defaults",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "yace.image",
-                "repository_source": "helm-charts/monitoring/charts/prometheus-yet-another-cloudwatch-exporter-0.48.0.tgz!prometheus-yet-another-cloudwatch-exporter/values.yaml"
-              }
-            ],
-            "compressed_bytes_all_platforms": 44937474,
-            "size_status": "measured"
+            "tag": "v0.68.0",
+            "digest": "sha256:651b4041d9c3289f7766fac755127fe610ed7857c6dec687dc66015b7ac987be",
+            "pin": "v0.68.0@sha256:651b4041d9c3289f7766fac755127fe610ed7857c6dec687dc66015b7ac987be",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1284,18 +1169,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v8.6.0",
-            "digest": "sha256:81e79f205083f105e573ba2ebfe5964ede7f69a154e8627f53ebbbccd3ed9f70",
-            "pin": "registry.k8s.io/sig-storage/snapshot-controller:v8.6.0@sha256:81e79f205083f105e573ba2ebfe5964ede7f69a154e8627f53ebbbccd3ed9f70",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/snapshot-controller/values.yaml",
-                "yaml_path": "controller.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 221387575,
-            "size_status": "measured"
+            "tag": "v8.7.0",
+            "digest": "sha256:8511f417d0072efcd937aedd7cc79a937d5066e64ee17beb6097301c92742f19",
+            "pin": "v8.7.0@sha256:8511f417d0072efcd937aedd7cc79a937d5066e64ee17beb6097301c92742f19",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       }
@@ -1308,7 +1188,7 @@
     "entries": [
       {
         "name": "alloy",
-        "locked_version": "1.13.1",
+        "locked_version": "1.14.1",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1320,7 +1200,7 @@
         "excluded_from_optin": false,
         "upstream_host": "grafana.github.io",
         "zot_path": "/grafana.github.io/helm-charts/alloy",
-        "tag_form": "1.13.1",
+        "tag_form": "1.14.1",
         "classic_index": {
           "entries_total": 59,
           "entries_with_digest": 59,
@@ -1349,7 +1229,7 @@
       },
       {
         "name": "argo-cd",
-        "locked_version": "10.10.3",
+        "locked_version": "10.10.5",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1362,7 +1242,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/argoproj/argo-helm/argo-cd",
         "zot_path": "/ghcr.io/argoproj/argo-helm/argo-cd",
-        "tag_form": "10.10.3",
+        "tag_form": "10.10.5",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1488,7 +1368,7 @@
       },
       {
         "name": "external-secrets",
-        "locked_version": "2.12.0",
+        "locked_version": "2.13.0",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1501,12 +1381,12 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/external-secrets/charts/external-secrets",
         "zot_path": "/ghcr.io/external-secrets/charts/external-secrets",
-        "tag_form": "2.12.0",
+        "tag_form": "2.13.0",
         "tag_verified_at_oci_home": true
       },
       {
         "name": "falco",
-        "locked_version": "9.2.0",
+        "locked_version": "9.2.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1519,7 +1399,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/falcosecurity/charts/falco",
         "zot_path": "/ghcr.io/falcosecurity/charts/falco",
-        "tag_form": "9.2.0",
+        "tag_form": "9.2.1",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1729,7 +1609,7 @@
       },
       {
         "name": "kyverno",
-        "locked_version": "3.9.1",
+        "locked_version": "3.9.2",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1742,7 +1622,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/kyverno/charts/kyverno",
         "zot_path": "/ghcr.io/kyverno/charts/kyverno",
-        "tag_form": "3.9.1",
+        "tag_form": "3.9.2",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1829,7 +1709,7 @@
       },
       {
         "name": "prometheus",
-        "locked_version": "29.37.0",
+        "locked_version": "29.37.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1842,7 +1722,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus",
-        "tag_form": "29.37.0",
+        "tag_form": "29.37.1",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1901,7 +1781,7 @@
       },
       {
         "name": "tailscale-operator",
-        "locked_version": "1.104.1",
+        "locked_version": "1.104.2",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1913,7 +1793,7 @@
         "excluded_from_optin": false,
         "upstream_host": "pkgs.tailscale.com",
         "zot_path": "/pkgs.tailscale.com/helmcharts/tailscale-operator",
-        "tag_form": "1.104.1",
+        "tag_form": "1.104.2",
         "classic_index": {
           "entries_total": 51,
           "entries_with_digest": 51,
@@ -1960,7 +1840,7 @@
       },
       {
         "name": "vertical-pod-autoscaler",
-        "locked_version": "0.14.0",
+        "locked_version": "0.15.0",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1972,7 +1852,7 @@
         "excluded_from_optin": false,
         "upstream_host": "kubernetes.github.io",
         "zot_path": "/kubernetes.github.io/autoscaler/vertical-pod-autoscaler",
-        "tag_form": "0.14.0",
+        "tag_form": "0.15.0",
         "classic_index": {
           "entries_total": 16,
           "entries_with_digest": 16,
