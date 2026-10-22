@@ -21,8 +21,8 @@ zotChartMapping:
     repository: https://argoproj.github.io/argo-helm
   - name: base
     zotPath: /ghcr.io/istio/release/charts/base
-    lockedVersion: 1.30.6
-    tagForm: 1.30.6
+    lockedVersion: 1.30.7
+    tagForm: 1.30.7
     form: sync
     repository: https://istio-release.storage.googleapis.com/charts
   - name: cert-manager
@@ -39,8 +39,8 @@ zotChartMapping:
     repository: https://cloudnative-pg.io/charts/
   - name: cni
     zotPath: /ghcr.io/istio/release/charts/cni
-    lockedVersion: 1.30.6
-    tagForm: 1.30.6
+    lockedVersion: 1.30.7
+    tagForm: 1.30.7
     form: sync
     repository: https://istio-release.storage.googleapis.com/charts
   - name: connect
@@ -93,8 +93,8 @@ zotChartMapping:
     repository: https://k8s.ory.com/helm/charts
   - name: istiod
     zotPath: /ghcr.io/istio/release/charts/istiod
-    lockedVersion: 1.30.6
-    tagForm: 1.30.6
+    lockedVersion: 1.30.7
+    tagForm: 1.30.7
     form: sync
     repository: https://istio-release.storage.googleapis.com/charts
   - name: k8s-cleaner
@@ -207,7 +207,7 @@ zotChartMapping:
     repository: https://kubernetes.github.io/autoscaler
   - name: ztunnel
     zotPath: /ghcr.io/istio/release/charts/ztunnel
-    lockedVersion: 1.30.6
-    tagForm: 1.30.6
+    lockedVersion: 1.30.7
+    tagForm: 1.30.7
     form: sync
     repository: https://istio-release.storage.googleapis.com/charts

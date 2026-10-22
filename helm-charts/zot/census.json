@@ -1367,7 +1367,7 @@
       },
       {
         "name": "base",
-        "locked_version": "1.30.6",
+        "locked_version": "1.30.7",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1384,7 +1384,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/istio/release/charts/base",
         "zot_path": "/ghcr.io/istio/release/charts/base",
-        "tag_form": "1.30.6",
+        "tag_form": "1.30.7",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1425,7 +1425,7 @@
       },
       {
         "name": "cni",
-        "locked_version": "1.30.6",
+        "locked_version": "1.30.7",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1442,7 +1442,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/istio/release/charts/cni",
         "zot_path": "/ghcr.io/istio/release/charts/cni",
-        "tag_form": "1.30.6",
+        "tag_form": "1.30.7",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1602,7 +1602,7 @@
       },
       {
         "name": "istiod",
-        "locked_version": "1.30.6",
+        "locked_version": "1.30.7",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1619,7 +1619,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/istio/release/charts/istiod",
         "zot_path": "/ghcr.io/istio/release/charts/istiod",
-        "tag_form": "1.30.6",
+        "tag_form": "1.30.7",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1983,7 +1983,7 @@
       },
       {
         "name": "ztunnel",
-        "locked_version": "1.30.6",
+        "locked_version": "1.30.7",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -2000,7 +2000,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/istio/release/charts/ztunnel",
         "zot_path": "/ghcr.io/istio/release/charts/ztunnel",
-        "tag_form": "1.30.6",
+        "tag_form": "1.30.7",
         "tag_verified_at_oci_home": true
       }
     ]
