@@ -49,15 +49,10 @@
         "pin_strings": [
           {
             "tag": "0.6.17",
-            "digest": "sha256:7820c7816b039d1e0caadd49d47b6e3a639ffb6ddb846df05d0769581da1a391",
-            "pin": "dhi.io/amazon-eks-pod-identity-webhook:0.6.17@sha256:7820c7816b039d1e0caadd49d47b6e3a639ffb6ddb846df05d0769581da1a391",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/amazon-eks-pod-identity-webhook/values.yaml",
-                "yaml_path": "pod-identity-webhook.image"
-              }
-            ],
+            "digest": "sha256:358a36b40965968a929963939cf05af269583273b0a30714dbadeac5574df9d9",
+            "pin": "0.6.17@sha256:358a36b40965968a929963939cf05af269583273b0a30714dbadeac5574df9d9",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -72,15 +67,10 @@
         "pin_strings": [
           {
             "tag": "1.14.7",
-            "digest": "sha256:b9622e21e32a46c9762006520b7464845d5085ecc7bee19b18717e74c492de4c",
-            "pin": "dhi.io/coredns:1.14.7@sha256:b9622e21e32a46c9762006520b7464845d5085ecc7bee19b18717e74c492de4c",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/coredns/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
+            "digest": "sha256:e060cf7f79924ae4e2b073414e5c84152b4068e370715ed25a95ce4b6cfb9fa1",
+            "pin": "1.14.7@sha256:e060cf7f79924ae4e2b073414e5c84152b4068e370715ed25a95ce4b6cfb9fa1",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -329,15 +319,10 @@
         "pin_strings": [
           {
             "tag": "1.19.1",
-            "digest": "sha256:3d04295edeff998bdd46c0f2b8f88a9f2f0e55781f71acc4af67f4a9829220b6",
-            "pin": "dhi.io/kyverno:1.19.1@sha256:3d04295edeff998bdd46c0f2b8f88a9f2f0e55781f71acc4af67f4a9829220b6",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/kyverno/values.yaml",
-                "yaml_path": "kyverno.admissionController.container.image"
-              }
-            ],
+            "digest": "sha256:a85b9b6c63a1ba42309d31b6779c360d776f747189a914f810a302028d321f79",
+            "pin": "1.19.1@sha256:a85b9b6c63a1ba42309d31b6779c360d776f747189a914f810a302028d321f79",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
@@ -467,21 +452,12 @@
         "pin_strings": [
           {
             "tag": "1.37.1",
-            "digest": "sha256:7b4cc9a9ce0d064cedeb85550266c11f2b32f010ca299525518646261e4d955e",
-            "pin": "docker.io/alpine/kubectl:1.37.1@sha256:7b4cc9a9ce0d064cedeb85550266c11f2b32f010ca299525518646261e4d955e",
-            "form": "image-string",
-            "sources": [
-              {
-                "file": "helm-charts/argocd/values.yaml",
-                "yaml_path": "argo-cd.repoServer.initContainers[0].image"
-              },
-              {
-                "file": "helm-charts/argocd/values.yaml",
-                "yaml_path": "argo-cd.repoServer.initContainers[0].image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 142330308,
-            "size_status": "measured"
+            "digest": "sha256:8c72f6f732ce7ef11cdb1bea25faa4f4a521872a12c89e3f40ba9edb52a4d4f2",
+            "pin": "1.37.1@sha256:8c72f6f732ce7ef11cdb1bea25faa4f4a521872a12c89e3f40ba9edb52a4d4f2",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -590,6 +566,29 @@
             "pin": "13.2.4@sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f",
             "form": "generator-scan",
             "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/grafana/loki",
+        "host": "docker.io",
+        "repository": "grafana/loki",
+        "zot_path": "/docker.io/grafana/loki",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "3.6.12",
+            "digest": "sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a",
+            "pin": "docker.io/grafana/loki:3.6.12@sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/monitoring/values.yaml",
+                "yaml_path": "loki.loki.image"
+              }
+            ],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }

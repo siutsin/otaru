@@ -943,6 +943,12 @@ loki:
     service:
       publishNotReadyAddresses: true
   loki:
+    # Chart 7.3.0 defaults this tag to 3.6.11 while its appVersion is 3.6.12;
+    # pin 3.6.12 here until the chart default catches up.
+    image:
+      repository: grafana/loki
+      tag: 3.6.12
+      digest: sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a
     commonConfig:
       replication_factor: 1
     auth_enabled: false
