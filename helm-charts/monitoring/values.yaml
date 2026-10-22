@@ -158,7 +158,7 @@ prometheus:
     enabled: true
     image:
       repository: dhi.io/alertmanager
-      tag: 0.34.1@sha256:b8c45bd2893376fcb93883d73ab7402fb614293e470d2ffca44c1e009dba3ef4
+      tag: 0.34.1@sha256:d2e254cd3d9848a14369fc020176d6a5776d1b52d67191fc764888f54ff91c20
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
