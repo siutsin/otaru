@@ -655,7 +655,7 @@ yace:
   image:
     registry: quay.io
     repository: prometheuscommunity/yet-another-cloudwatch-exporter
-    tag: v0.67.0@sha256:404791bf0b2f6efc0773f1cb65f314e6205cac3521064ce1b9d640f5bb268cfb
+    tag: v0.68.0@sha256:651b4041d9c3289f7766fac755127fe610ed7857c6dec687dc66015b7ac987be
   serviceAccount:
     name: monitoring-yace
     annotations:
