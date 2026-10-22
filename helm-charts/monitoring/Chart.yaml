@@ -28,7 +28,7 @@ dependencies:
   version: 1.14.1
   repository: https://grafana.github.io/helm-charts
 - name: tempo
-  version: 3.2.0
+  version: 3.2.1
   repository: https://grafana-community.github.io/helm-charts
 - name: k8s-ephemeral-storage-metrics
   version: 1.21.3
