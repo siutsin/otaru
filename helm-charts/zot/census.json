@@ -585,19 +585,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "12.3.6",
-            "digest": "sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
-            "pin": "docker.io/grafana/grafana:12.3.6@sha256:ee4573c0ff6b558d1690c2f453b440183df32392d9619e6216c504795e4458e8",
-            "form": "split: tag/digest in wrapper, repository from vendored defaults",
-            "sources": [
-              {
-                "file": "helm-charts/monitoring/values.yaml",
-                "yaml_path": "grafana.image",
-                "repository_source": "helm-charts/monitoring/charts/grafana-10.5.15.tgz!grafana/values.yaml"
-              }
-            ],
-            "compressed_bytes_all_platforms": 583773717,
-            "size_status": "measured"
+            "tag": "12.4.13",
+            "digest": "sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+            "pin": "12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1122,21 +1116,12 @@
         "pin_strings": [
           {
             "tag": "v0.22.0",
-            "digest": "sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206",
-            "pin": "ghcr.io/siutsin/images/go-jsonnet:v0.22.0@sha256:a038fd5585c30591a0c06f815a0888f32c6f6606a72bb5331f8e208177586206",
-            "form": "image-string",
-            "sources": [
-              {
-                "file": "helm-charts/argocd/values.yaml",
-                "yaml_path": "argo-cd.repoServer.extraContainers[0].image"
-              },
-              {
-                "file": "helm-charts/argocd/values.yaml",
-                "yaml_path": "argo-cd.repoServer.extraContainers[0].image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 16685657,
-            "size_status": "measured"
+            "digest": "sha256:d90a473fb44ee9fe8a58a2090866c05df92803492b733528b62b03d2fba3c5ed",
+            "pin": "v0.22.0@sha256:d90a473fb44ee9fe8a58a2090866c05df92803492b733528b62b03d2fba3c5ed",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1148,16 +1133,11 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v5.0.0-202610190650",
-            "digest": "sha256:77c16c04081bc6ee8677b2070729d4cceb5241403f991fb2a94b536a0d093b8c",
-            "pin": "ghcr.io/siutsin/images/jsoncrack:v5.0.0-202610190650@sha256:77c16c04081bc6ee8677b2070729d4cceb5241403f991fb2a94b536a0d093b8c",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/jsoncrack/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
+            "tag": "v5.0.0-202610212353",
+            "digest": "sha256:7639df3612d8eafad56ac29f83b82f35834a378bafb665b539291087860d1411",
+            "pin": "v5.0.0-202610212353@sha256:7639df3612d8eafad56ac29f83b82f35834a378bafb665b539291087860d1411",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }

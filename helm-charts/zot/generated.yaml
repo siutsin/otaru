@@ -360,6 +360,7 @@ config:
         keepTags:
         - patterns:
           - ^12\.3\.6$
+          - ^12\.4\.13$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -571,6 +572,7 @@ config:
         keepTags:
         - patterns:
           - ^v5\.0\.0\-202610190650$
+          - ^v5\.0\.0\-202610212353$
         - patterns:
           - .*
           pulledWithin: 720h
