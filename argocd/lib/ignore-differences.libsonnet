@@ -144,13 +144,32 @@ local cnpgClusterOperatorDefaults = [{ group: 'postgresql.cnpg.io', kind: 'Clust
       alertmanager: alertmanagerSsaDefaults,
     },
     security: {
-      kyverno: kyvernoDefaultedCrdFields(['deletingpolicies.policies.kyverno.io', 'generatingpolicies.policies.kyverno.io', 'imagevalidatingpolicies.policies.kyverno.io', 'mutatingpolicies.policies.kyverno.io', 'namespaceddeletingpolicies.policies.kyverno.io', 'namespacedgeneratingpolicies.policies.kyverno.io', 'namespacedimagevalidatingpolicies.policies.kyverno.io', 'namespacedmutatingpolicies.policies.kyverno.io', 'namespacedvalidatingpolicies.policies.kyverno.io', 'policyexceptions.policies.kyverno.io', 'validatingpolicies.policies.kyverno.io']),
+      kyverno: kyvernoDefaultedCrdFields([
+        'deletingpolicies.policies.kyverno.io',
+        'generatingpolicies.policies.kyverno.io',
+        'imagevalidatingpolicies.policies.kyverno.io',
+        'mutatingpolicies.policies.kyverno.io',
+        'namespaceddeletingpolicies.policies.kyverno.io',
+        'namespacedgeneratingpolicies.policies.kyverno.io',
+        'namespacedimagevalidatingpolicies.policies.kyverno.io',
+        'namespacedmutatingpolicies.policies.kyverno.io',
+        'namespacedvalidatingpolicies.policies.kyverno.io',
+        'policyexceptions.policies.kyverno.io',
+        'validatingpolicies.policies.kyverno.io',
+      ]),
       'kyverno-policy': kyvernoClusterPolicyApiCallDefaults(['require-pod-disruption-budget']),
     },
     connectivity: {
       // The API and the controller default these on the live EnvoyProxy;
       // they never appear in the rendered chart manifest.
-      'envoy-gateway': [{ group: 'gateway.envoyproxy.io', kind: 'EnvoyProxy', name: 'gateway', namespace: 'gateway', jqPathExpressions: ['.spec.logging.level.default', '.spec.provider.kubernetes.envoyService.externalTrafficPolicy', '.spec.provider.kubernetes.envoyService.type', '.spec.telemetry.tracing.provider.backendRefs[].weight', '.spec.telemetry.tracing.provider.port', '.spec.telemetry.tracing.provider.type'] }],
+      'envoy-gateway': [{ group: 'gateway.envoyproxy.io', kind: 'EnvoyProxy', name: 'gateway', namespace: 'gateway', jqPathExpressions: [
+        '.spec.logging.level.default',
+        '.spec.provider.kubernetes.envoyService.externalTrafficPolicy',
+        '.spec.provider.kubernetes.envoyService.type',
+        '.spec.telemetry.tracing.provider.backendRefs[].weight',
+        '.spec.telemetry.tracing.provider.port',
+        '.spec.telemetry.tracing.provider.type',
+      ] }],
     },
   },
 

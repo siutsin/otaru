@@ -1,6 +1,6 @@
 local ArgoCDApplication = import 'lib/argocd-application.libsonnet';
 local HelmOverrides = import 'lib/helm-overrides.libsonnet';
-local IgnoreDifferences = import 'lib/ignore-differences.libsonnet';
+local IgnoreDiff = import 'lib/ignore-differences.libsonnet';
 
 local revision = 'HEAD';
 
@@ -21,7 +21,7 @@ local application = [
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
-  { wave: '10', name: 'zot', namespace: 'zot', helm: HelmOverrides.zot, syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.zotStatefulsetSsaDefaults },
+  { wave: '10', name: 'zot', namespace: 'zot', helm: HelmOverrides.zot, ignoreDiff: IgnoreDiff.zotStatefulsetSsaDefaults },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'hermes', namespace: 'hermes' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },
@@ -52,7 +52,7 @@ local bootstrap = [
   { wave: '20', name: 'external-secrets', namespace: 'external-secrets' },
   { wave: '20', name: 'gateway-api', namespace: 'kube-system' },
   { wave: '20', name: 'k3s-apiserver-loadbalancer', namespace: 'k3s-apiserver-loadbalancer-system' },
-  { wave: '20', name: 'metallb', namespace: 'metallb-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.bootstrap.metallb },
+  { wave: '20', name: 'metallb', namespace: 'metallb-system', ignoreDiff: IgnoreDiff.entries.bootstrap.metallb },
   { wave: '20', name: 'onepassword-connect', namespace: 'onepassword' },
   // Keep the Argo CD Application name stable during the chart rename so the
   // old app finalizer does not prune the live Kubernetes API VIP resources.
@@ -61,7 +61,7 @@ local bootstrap = [
 
 local connectivity = [
   { wave: '01', name: 'cloudflare-tunnel', namespace: 'cloudflare-tunnel' },
-  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true }, syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.connectivity['envoy-gateway'] },
+  { wave: '02', name: 'envoy-gateway', namespace: 'envoy-gateway-system', helm: { skipCrds: true }, ignoreDiff: IgnoreDiff.entries.connectivity['envoy-gateway'] },
   { wave: '02', name: 'tailscale-operator', namespace: 'tailscale', syncOptions: ['SkipDryRunOnMissingResource=true'] },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
@@ -82,28 +82,28 @@ local database = [
     },
   },
   { wave: '04', name: 'cloudnative-pg-plugin-barman-cloud', namespace: 'cnpg-system' },
-  { wave: '06', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: HelmOverrides.cnpgClusters, syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.cnpgClusterOperatorDefaults },
+  { wave: '06', name: 'cloudnative-pg-clusters', namespace: 'cnpg-system', helm: HelmOverrides.cnpgClusters, ignoreDiff: IgnoreDiff.cnpgClusterOperatorDefaults },
 ];
 
 local monitoring = [
   { wave: '05', name: 'heartbeats', namespace: 'heartbeats-operator-system' },
   { wave: '05', name: 'kiali', namespace: 'kiali' },
   { wave: '10', name: 'metrics-server', namespace: 'monitoring' },
-  { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: HelmOverrides.monitoring, serverSideDiff: 'true', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.monitoring.alertmanager },
+  { wave: '10', name: 'monitoring', namespace: 'monitoring', helm: HelmOverrides.monitoring, serverSideDiff: 'true', ignoreDiff: IgnoreDiff.entries.monitoring.alertmanager },
 ];
 
 local scheduling = [
   { wave: '02', name: 'descheduler', namespace: 'descheduler' },
-  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.scheduling['k8s-cleaner'] },
+  { wave: '02', name: 'k8s-cleaner', namespace: 'k8s-cleaner', ignoreDiff: IgnoreDiff.entries.scheduling['k8s-cleaner'] },
   { wave: '02', name: 'keda', namespace: 'keda', helm: HelmOverrides.keda },
-  { wave: '02', name: 'reloader', namespace: 'reloader', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.scheduling.reloader },
+  { wave: '02', name: 'reloader', namespace: 'reloader', ignoreDiff: IgnoreDiff.entries.scheduling.reloader },
   { wave: '05', name: 'vpa', namespace: 'vpa' },  // after cert-manager (wave 02)
 ];
 
 local security = [
   { wave: '02', name: 'cert-manager', namespace: 'cert-manager' },
-  { wave: '03', name: 'kyverno', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.security.kyverno },
-  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.security['kyverno-policy'] },
+  { wave: '03', name: 'kyverno', namespace: 'kyverno', ignoreDiff: IgnoreDiff.entries.security.kyverno },
+  { wave: '04', name: 'kyverno-policy', namespace: 'kyverno', ignoreDiff: IgnoreDiff.entries.security['kyverno-policy'] },
   { wave: '10', name: 'falco', namespace: 'falco' },
   { wave: '10', name: 'oidc-provider', namespace: 'default' },
   { wave: '10', name: 'trivy-operator', namespace: 'trivy-operator', helm: HelmOverrides.trivyOperator },
@@ -117,9 +117,9 @@ local storage = [
 ];
 
 local serviceMesh = [
-  { wave: '03', name: 'istio-base', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.serviceMesh['istio-base'] },
+  { wave: '03', name: 'istio-base', namespace: 'istio-system', ignoreDiff: IgnoreDiff.entries.serviceMesh['istio-base'] },
   { wave: '03', name: 'istio-cni', namespace: 'kube-system' },
-  { wave: '04', name: 'istiod', namespace: 'istio-system', syncOptions: ['RespectIgnoreDifferences=true'], ignoreDifferences: IgnoreDifferences.entries.serviceMesh.istiod },
+  { wave: '04', name: 'istiod', namespace: 'istio-system', ignoreDiff: IgnoreDiff.entries.serviceMesh.istiod },
   { wave: '05', name: 'ztunnel', namespace: 'istio-system' },
   { wave: '06', name: 'waypoints', namespace: 'argocd' },
 ];

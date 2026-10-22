@@ -39,7 +39,7 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
       syncOptions: [
         'ServerSideApply=true',
         'CreateNamespace=true',
-      ] + std.get(config, 'syncOptions', []),
+      ] + (if 'ignoreDiff' in config then ['RespectIgnoreDifferences=true'] else []) + std.get(config, 'syncOptions', []),
     },
     ignoreDifferences: [
       {
@@ -49,7 +49,7 @@ local ArgoCDApplication(config={}, revision=defaultRevision) = {
           '/spec/preserveUnknownFields',
         ],
       },
-    ] + (if 'ignoreDifferences' in config then config.ignoreDifferences else []),
+    ] + (if 'ignoreDiff' in config then config.ignoreDiff else []),
   },
 };
 {
