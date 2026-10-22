@@ -5,8 +5,8 @@
 
 local divisorJqPath = '.spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor';
 
-// The API defaults resourceFieldRef.divisor to 1 on the live Deployment;
-// the rendered chart manifest omits it.
+// The live Deployment stores a divisor on its resourceFieldRef env
+// entries; the rendered chart manifest omits it.
 local resourceFieldRefDivisor(name) = [{
   group: 'apps',
   kind: 'Deployment',
@@ -224,9 +224,6 @@ local cnpgClusterOperatorDefaults = [{
           '.spec.telemetry.tracing.provider.type',
         ],
       }],
-      'tailscale-operator': kyvernoClusterPolicyApiCallDefaults([
-        'tailscale-proxy-secret-scope',
-      ]),
     },
   },
 }

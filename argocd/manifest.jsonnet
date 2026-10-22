@@ -72,8 +72,7 @@ local connectivity = [
     syncOptions: ['RespectIgnoreDifferences=true'],
     ignoreDifferences: IgnoreDifferences.entries.connectivity['envoy-gateway'] },
   { wave: '02', name: 'tailscale-operator', namespace: 'tailscale',
-    syncOptions: ['SkipDryRunOnMissingResource=true'],
-    ignoreDifferences: IgnoreDifferences.entries.connectivity['tailscale-operator'] },
+    syncOptions: ['SkipDryRunOnMissingResource=true'] },
   { wave: '10', name: 'httpbin', namespace: 'httpbin' },
 ];
 
