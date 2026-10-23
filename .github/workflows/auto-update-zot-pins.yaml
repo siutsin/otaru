@@ -35,6 +35,12 @@ jobs:
           version: 2026.10.17
           install_args: --locked
 
+      # The generator resolves tag-only pins against the vendored
+      # subchart archives, which are gitignored and exist only after
+      # this step runs (the Test workflow runs the same step).
+      - name: Update Helm dependencies
+        run: make update-helm-deps
+
       - name: Install Poetry dependencies
         run: make poetry-install
 
