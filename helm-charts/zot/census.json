@@ -1185,18 +1185,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "v0.0.67",
-            "digest": "sha256:e47f6ccc5347e1ea6be495d8d9ab55ac8a995fe87800fb984fa770cebe14ad44",
-            "pin": "quay.io/containers/kubernetes_mcp_server:v0.0.67@sha256:e47f6ccc5347e1ea6be495d8d9ab55ac8a995fe87800fb984fa770cebe14ad44",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/kubernetes-mcp-server/values.yaml",
-                "yaml_path": "kubernetes-mcp-server.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 255716640,
-            "size_status": "measured"
+            "tag": "v0.0.69",
+            "digest": "sha256:1da9d62ad0c008a6cadcf2718c86c2e2d18753ca1d9f1f3313068980794b24f2",
+            "pin": "v0.0.69@sha256:1da9d62ad0c008a6cadcf2718c86c2e2d18753ca1d9f1f3313068980794b24f2",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
