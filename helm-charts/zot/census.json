@@ -777,36 +777,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "17.11",
-            "digest": "sha256:70664ebcfa1100361b5bdc28bbf06fdbe08db2dc4ad7bd14de33c5e05fe8ea8e",
-            "pin": "ghcr.io/cloudnative-pg/postgresql:17.11@sha256:70664ebcfa1100361b5bdc28bbf06fdbe08db2dc4ad7bd14de33c5e05fe8ea8e",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/firecrawl/values.yaml",
-                "yaml_path": "nuq.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 522685445,
-            "size_status": "measured"
-          },
-          {
             "tag": "18.6",
             "digest": "sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533",
-            "pin": "ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533",
-            "form": "image-string",
-            "sources": [
-              {
-                "file": "helm-charts/cloudnative-pg-clusters/values.yaml",
-                "yaml_path": "clusters.umami.imageName"
-              },
-              {
-                "file": "helm-charts/cloudnative-pg-clusters/values.yaml",
-                "yaml_path": "clusters.umami.imageName"
-              }
-            ],
-            "compressed_bytes_all_platforms": 520250018,
-            "size_status": "measured"
+            "pin": "18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
