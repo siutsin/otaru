@@ -4,13 +4,15 @@ vpa:
 _shared:
   # 2026-08-03: ephemeral-storage 64Mi -> 96Mi. 14d peak hit ~49.9Mi (78% of the old limit); live pod at 70.95%.
   # No evictions, but headroom was thin. VPA manages memory, not ephemeral-storage.
+  # 2026-10-23: memory 64Mi -> 80Mi. connect-api spiked to ~61Mi while the VPA target sat at ~35Mi,
+  # so kubelet rejected the in-place limit cut (ResizeError). 80Mi covers the spike x 1.2.
   resources: &resources
     requests:
       cpu: 50m
-      memory: 64Mi
+      memory: 80Mi
       ephemeral-storage: 96Mi
     limits:
-      memory: 64Mi
+      memory: 80Mi
       ephemeral-storage: 96Mi
   preferredPodAntiAffinity: &preferredPodAntiAffinity
     podAntiAffinity:
