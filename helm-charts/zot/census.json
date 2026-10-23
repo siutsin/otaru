@@ -1078,17 +1078,12 @@
         "pin_strings": [
           {
             "tag": "postgresql-latest",
-            "digest": "sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367",
-            "pin": "ghcr.io/umami-software/umami:postgresql-latest@sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/umami/values.yaml",
-                "yaml_path": "image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 642626478,
-            "size_status": "measured"
+            "digest": "sha256:e69d1a7932e9dab0fc523edc7be1f3a53f3c261f57856fc2167ae74a8fc022e8",
+            "pin": "postgresql-latest@sha256:e69d1a7932e9dab0fc523edc7be1f3a53f3c261f57856fc2167ae74a8fc022e8",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
