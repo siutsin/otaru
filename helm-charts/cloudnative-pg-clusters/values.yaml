@@ -127,6 +127,16 @@ clusters:
     instances: 1
     minSyncReplicas: 0
     maxSyncReplicas: 0
+    # 2026-10-23: PG 18 upgrade, tested 2026-10-23 on restored data.
+    # New serverName so post-upgrade WAL cannot overwrite the 17 archive.
+    imageName: ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533
+    plugins:
+      - enabled: true
+        isWALArchiver: false
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: b2-backup
+          serverName: hydra-20260726-0001-pg18
     # 2026-09-23: retro sizing from 30d usage (p50 request, spike limit);
     # keep vacuum headroom.
     resources:
