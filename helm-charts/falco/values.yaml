@@ -112,7 +112,7 @@ falco:
     # cyberchef runs `apk manifest nginx` from its nginx entrypoint on start;
     # excalidraw runs `apk` from its entrypoint script on start.
     # The teslamate backup/verify jobs install aws-cli and curl at runtime
-    # (postgres:17-alpine) for the CNPG S3 backup flow; the pip-installed
+    # (postgres:18-alpine) for the CNPG S3 backup flow; the pip-installed
     # aws and curl binaries then trip the new-binary rule.
     # The tailscale gateway chart runs a privileged `sysctler` init container
     # (sysctl ip_forward) on every pod start; its main container is privileged
