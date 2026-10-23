@@ -806,6 +806,9 @@ grafana:
     limits:
       memory: 512Mi
       ephemeral-storage: 1Gi
+  downloadDashboardsImage:
+    # 2026-10-23: chart default 8.9.1 scans 2 crit / 15 high; 8.23.0 scans clean. Drop when the chart default passes 8.23.0.
+    tag: 8.23.0@sha256:11e64e28c5f58c8d93ee95fcf22ac055f48b0bc440e0ce7d8013bbb5ad6aa8ac
   downloadDashboards:
     resources: *smallResources
   initChownData:

@@ -64,6 +64,9 @@
     "docker.io/cloudflare/cloudflared": [
       "2026.10.0"
     ],
+    "docker.io/curlimages/curl": [
+      "8.23.0"
+    ],
     "docker.io/dgtlmoon/sockpuppetbrowser": [],
     "docker.io/excalidraw/excalidraw": [
       "latest"
