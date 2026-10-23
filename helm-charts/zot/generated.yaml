@@ -154,6 +154,7 @@ config:
         keepTags:
         - patterns:
           - ^0\.6\.17$
+          - ^0\.6\.18$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -364,8 +365,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^v1\.20\.1$
           - ^v1\.21\.1$
+          - ^v1\.21\.2$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -589,8 +590,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^2026\.10\.1$
           - ^2026\.10\.2$
+          - ^2026\.10\.3$
         - patterns:
           - .*
           pulledWithin: 720h
