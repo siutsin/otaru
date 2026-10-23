@@ -516,6 +516,24 @@
         ]
       },
       {
+        "image": "docker.io/grafana/loki-canary",
+        "host": "docker.io",
+        "repository": "grafana/loki-canary",
+        "zot_path": "/docker.io/grafana/loki-canary",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "3.6.19",
+            "digest": "sha256:43f68b496f2cdf49177dfa1136cc962afbf43f45ed34393ec345dab3701b0e88",
+            "pin": "3.6.19@sha256:43f68b496f2cdf49177dfa1136cc962afbf43f45ed34393ec345dab3701b0e88",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
         "image": "docker.io/grafana/tempo",
         "host": "docker.io",
         "repository": "grafana/tempo",
@@ -581,6 +599,24 @@
         ]
       },
       {
+        "image": "docker.io/library/memcached",
+        "host": "docker.io",
+        "repository": "library/memcached",
+        "zot_path": "/docker.io/library/memcached",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "1.6.45-alpine",
+            "digest": "sha256:6d687bc26426d092694743054fc674fc54d3c161fefa1ad20b54192f8580a8c1",
+            "pin": "1.6.45-alpine@sha256:6d687bc26426d092694743054fc674fc54d3c161fefa1ad20b54192f8580a8c1",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
         "image": "docker.io/library/rabbitmq",
         "host": "docker.io",
         "repository": "library/rabbitmq",
@@ -591,6 +627,24 @@
             "tag": "4-management",
             "digest": "sha256:c200fd496482cda18c412be4e6f244830e1e75949b8cf5f0e887cea9ea456109",
             "pin": "4-management@sha256:c200fd496482cda18c412be4e6f244830e1e75949b8cf5f0e887cea9ea456109",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/nginxinc/nginx-unprivileged",
+        "host": "docker.io",
+        "repository": "nginxinc/nginx-unprivileged",
+        "zot_path": "/docker.io/nginxinc/nginx-unprivileged",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "1.31-alpine",
+            "digest": "sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e",
+            "pin": "1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -666,6 +720,24 @@
             ],
             "compressed_bytes_all_platforms": 28888824,
             "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/prom/memcached-exporter",
+        "host": "docker.io",
+        "repository": "prom/memcached-exporter",
+        "zot_path": "/docker.io/prom/memcached-exporter",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "v0.18.0",
+            "digest": "sha256:1458b31d4cae1a6618e85c8d31ecc49c4ebdcee3c8530be8d80d93e8792c4a58",
+            "pin": "v0.18.0@sha256:1458b31d4cae1a6618e85c8d31ecc49c4ebdcee3c8530be8d80d93e8792c4a58",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
