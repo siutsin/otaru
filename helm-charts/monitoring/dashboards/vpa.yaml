@@ -320,7 +320,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(vpa_recommender_metric_server_responses{is_error=\"true\"}[5m])) * 60",
+                    "expr": "sum(rate(vpa_recommender_metric_server_responses{is_error=\"true\"}[5m])) * 60 or vector(0)",
                     "legendFormat": "",
                     "range": false,
                     "refId": "A",

@@ -9118,9 +9118,9 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})\n/\n(\n  sum(kube_node_status_allocatable:cpu:sum{role=~\"$noderole\"}) * (1 - $nodecpumemreserve)\n  -\n  sum(role:kube_node_status_allocatable:cpu:avg{role=~\"$noderole\"}) * (1 - $nodecpumemreserve) * $sparenodesfactor\n)",
+                        "expr": "sum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})\n/\n(\n  sum(kube_node_status_allocatable:cpu:sum{role=~\"$noderole\"}) * (1 - $nodecpumemreserve)\n  -\n  sum(role:kube_node_status_allocatable:cpu:avg{role=~\"$noderole\"}) * (1 - $nodecpumemreserve) * $sparenodesfactor\n)",
                         "interval": "",
-                        "legendFormat": "k8s",
+                        "legendFormat": "all",
                         "refId": "A"
                       }
                     ],
@@ -9722,9 +9722,9 @@ grafana:
                           "uid": "${datasource}"
                         },
                         "exemplar": false,
-                        "expr": "sum(container_cpu_usage_seconds_total:sum_rate5m:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})\n/\nsum(kube_pod_container_resource_limits:cpu:running:namespace{namespace=~\"kube-.*|cattle-.*|openshift-.*\", role=~\"$noderole\"})",
+                        "expr": "sum(container_cpu_usage_seconds_total:sum_rate5m:namespace{role=~\"$noderole\"})\n/\nsum(kube_pod_container_resource_limits:cpu:running:namespace{role=~\"$noderole\"})",
                         "interval": "",
-                        "legendFormat": "k8s (used)",
+                        "legendFormat": "all (used)",
                         "refId": "B"
                       }
                     ],

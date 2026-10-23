@@ -1233,7 +1233,7 @@ grafana:
                       "uid": "PBFA97CFB590B2093"
                     },
                     "editorMode": "code",
-                    "expr": "kyverno_policy_rule_info_total{status_ready=\"false\"}",
+                    "expr": "kyverno_policy_rule_info_total{status_ready=\"false\"} or on() vector(0)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
