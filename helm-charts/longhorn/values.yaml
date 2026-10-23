@@ -15,13 +15,17 @@ longhorn:
     # 2026-10-22: manager on raspberrypi-01 OOMKilled (exit 137) ~4s after
     # each start at 528Mi; steady state ~253Mi max over 1d, so the startup
     # spike is the problem and it is unscraped. Limit 528Mi -> 768Mi.
+    # 2026-10-23: manager on ai-00 OOMKilled at 768Mi within ~1s of each
+    # start. Prometheus max for that pod was 169Mi and the 30d hourly max
+    # across managers was 377Mi, so the state-sync spike is still
+    # unscraped. Limit 768Mi -> 1536Mi (2x the failed limit).
     resources:
       requests:
         cpu: 150m
         memory: 250Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 768Mi
+        memory: 1536Mi
         ephemeral-storage: 64Mi
   # 2026-10-11: new in chart 1.13.0; upstream leaves resources null, which
   # Kyverno require-workload-resources denies. Same binary as longhorn-manager
@@ -34,7 +38,7 @@ longhorn:
         memory: 250Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 768Mi
+        memory: 1536Mi
         ephemeral-storage: 64Mi
   preUpgradeChecker:
     jobEnabled: false
