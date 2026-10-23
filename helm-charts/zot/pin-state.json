@@ -77,6 +77,9 @@
     "docker.io/grafana/loki": [
       "3.7.8"
     ],
+    "docker.io/grafana/loki-canary": [
+      "3.6.19"
+    ],
     "docker.io/grafana/tempo": [
       "3.1.0"
     ],
@@ -84,8 +87,14 @@
       "1.38.0",
       "stable"
     ],
+    "docker.io/library/memcached": [
+      "1.6.45-alpine"
+    ],
     "docker.io/library/rabbitmq": [
       "4-management"
+    ],
+    "docker.io/nginxinc/nginx-unprivileged": [
+      "1.31-alpine"
     ],
     "docker.io/nousresearch/hermes-agent": [
       "v2026.9.24"
@@ -95,6 +104,9 @@
     ],
     "docker.io/oryd/hydra-maester": [
       "v0.0.42"
+    ],
+    "docker.io/prom/memcached-exporter": [
+      "v0.18.0"
     ],
     "docker.io/searxng/searxng": [
       "2026.10.9-2dc2b1462"

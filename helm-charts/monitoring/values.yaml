@@ -865,6 +865,9 @@ grafana:
 loki:
   deploymentMode: SingleBinary
   lokiCanary:
+    image:
+      # 2026-10-23: chart default (the chart appVersion, 3.6.12) scans 0 crit / 20 high; 3.6.19 scans clean. Drop when the chart appVersion passes 3.6.19.
+      tag: 3.6.19@sha256:43f68b496f2cdf49177dfa1136cc962afbf43f45ed34393ec345dab3701b0e88
     resources:
       requests:
         cpu: 50m
@@ -875,6 +878,9 @@ loki:
         memory: 59Mi
         ephemeral-storage: 64Mi
   gateway:
+    image:
+      # 2026-10-23: chart default 1.29-alpine scans 0 crit / 32 high; 1.31-alpine scans clean. Drop when the chart default passes 1.31-alpine.
+      tag: 1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
     resources:
       requests:
         cpu: 50m
@@ -919,7 +925,14 @@ loki:
       limits:
         memory: 32Mi
         ephemeral-storage: 64Mi
+  memcached:
+    image:
+      # 2026-10-23: chart default 1.6.39-alpine scans 2 crit / 9 high; 1.6.45-alpine scans clean. Drop when the chart default passes 1.6.45-alpine.
+      tag: 1.6.45-alpine@sha256:6d687bc26426d092694743054fc674fc54d3c161fefa1ad20b54192f8580a8c1
   memcachedExporter:
+    image:
+      # 2026-10-23: chart default v0.15.4 scans 1 crit / 41 high; v0.18.0 scans clean. Drop when the chart default passes v0.18.0.
+      tag: v0.18.0@sha256:1458b31d4cae1a6618e85c8d31ecc49c4ebdcee3c8530be8d80d93e8792c4a58
     resources:
       requests:
         cpu: 50m

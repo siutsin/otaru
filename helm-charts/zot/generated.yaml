@@ -381,6 +381,15 @@ config:
           - .*
           pulledWithin: 720h
       - repositories:
+        - docker.io/grafana/loki-canary
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^3\.6\.19$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
         - docker.io/grafana/tempo
         deleteUntagged: false
         keepTags:
@@ -400,11 +409,29 @@ config:
           - .*
           pulledWithin: 720h
       - repositories:
+        - docker.io/library/memcached
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^1\.6\.45\-alpine$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
         - docker.io/library/rabbitmq
         deleteUntagged: false
         keepTags:
         - patterns:
           - ^4\-management$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
+        - docker.io/nginxinc/nginx-unprivileged
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^1\.31\-alpine$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -432,6 +459,15 @@ config:
         keepTags:
         - patterns:
           - ^v0\.0\.42$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
+        - docker.io/prom/memcached-exporter
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^v0\.18\.0$
         - patterns:
           - .*
           pulledWithin: 720h
