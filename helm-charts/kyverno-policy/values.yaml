@@ -44,6 +44,8 @@ clusterSecretStorePolicy:
       - grafana
       - heartbeats
       - monitoring
+    playground:
+      - b2-secret-cloudnative-pg
     tailscale:
       - tailscale-operator
     teslamate:
@@ -85,6 +87,11 @@ barmanObjectStorePolicy:
       credentialSecrets:
         - b2-backup-credentials
     hydra:
+      objectStores:
+        - b2-backup
+      credentialSecrets:
+        - b2-backup-credentials
+    playground:
       objectStores:
         - b2-backup
       credentialSecrets:
