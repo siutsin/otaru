@@ -14,13 +14,15 @@ spec:
     updateMode: InPlaceOrRecreate
   resourcePolicy:
     containerPolicies:
+      # 2026-10-23: memory floors sit above observed spike usage; the old 16Mi floor let the
+      # target drop under live usage and kubelet rejected the in-place resize (ResizeError).
       - containerName: connect-api
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
         minAllowed:
-          memory: 16Mi
+          memory: 80Mi
         maxAllowed:
-          memory: 64Mi
+          memory: 128Mi
       - containerName: connect-api
         controlledResources: [cpu]
         controlledValues: RequestsOnly  # this repo sets no cpu limits
@@ -32,9 +34,9 @@ spec:
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
         minAllowed:
-          memory: 16Mi
-        maxAllowed:
           memory: 64Mi
+        maxAllowed:
+          memory: 128Mi
       - containerName: connect-sync
         controlledResources: [cpu]
         controlledValues: RequestsOnly  # this repo sets no cpu limits
