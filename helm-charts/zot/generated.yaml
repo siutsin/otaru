@@ -334,6 +334,15 @@ config:
           - .*
           pulledWithin: 720h
       - repositories:
+        - docker.io/curlimages/curl
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^8\.23\.0$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
         - docker.io/dgtlmoon/sockpuppetbrowser
         deleteUntagged: false
         keepTags:

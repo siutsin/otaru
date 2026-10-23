@@ -80,8 +80,8 @@
         "pin_strings": [
           {
             "tag": "0.37.0",
-            "digest": "sha256:66db5a1afa98232b970757db2b4d9f621950230b3c1612129ddc357d723d0b8e",
-            "pin": "0.37.0@sha256:66db5a1afa98232b970757db2b4d9f621950230b3c1612129ddc357d723d0b8e",
+            "digest": "sha256:c001d4b2109add71516c51f5b1421a2ae20f893a034f26bb6bc3295aa8cdf849",
+            "pin": "0.37.0@sha256:c001d4b2109add71516c51f5b1421a2ae20f893a034f26bb6bc3295aa8cdf849",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -98,8 +98,8 @@
         "pin_strings": [
           {
             "tag": "1.9.2",
-            "digest": "sha256:b7190d997eb04bf45c336e47a94b221344b217eaa845aa8470dbb179b4291283",
-            "pin": "1.9.2@sha256:b7190d997eb04bf45c336e47a94b221344b217eaa845aa8470dbb179b4291283",
+            "digest": "sha256:0e37ec14809ddcdbccf46cef0fec6b599bfbdc6b5dccc9cab1524cf535872f56",
+            "pin": "1.9.2@sha256:0e37ec14809ddcdbccf46cef0fec6b599bfbdc6b5dccc9cab1524cf535872f56",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -408,6 +408,24 @@
             "tag": "2026.10.3",
             "digest": "sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39",
             "pin": "2026.10.3@sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
+          }
+        ]
+      },
+      {
+        "image": "docker.io/curlimages/curl",
+        "host": "docker.io",
+        "repository": "curlimages/curl",
+        "zot_path": "/docker.io/curlimages/curl",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "8.23.0",
+            "digest": "sha256:11e64e28c5f58c8d93ee95fcf22ac055f48b0bc440e0ce7d8013bbb5ad6aa8ac",
+            "pin": "8.23.0@sha256:11e64e28c5f58c8d93ee95fcf22ac055f48b0bc440e0ce7d8013bbb5ad6aa8ac",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
