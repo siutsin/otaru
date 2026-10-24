@@ -54,3 +54,34 @@ gateway:
 
 env:
   TZ: Europe/London
+
+# 2026-10-24: daily restore verification for the CNPG backups, mirroring
+# teslamate-verify-pitr. The job restores the newest completed base backup
+# into an ephemeral cluster, fails unless website_event has rows, then pins
+# the verified set under cnpg-floor/ outside the 30-day CNPG retention and
+# keeps the newest 3 sets (one set is about 0.05 GiB for this cluster).
+backup:
+  verifyPitr:
+    schedule: "0 15 * * *"
+    activeDeadlineSeconds: 7200 # 2 hours
+    timeoutSeconds: 3600 # 1 hour
+    verificationQuery: "SELECT count(*) FROM website_event;"
+    restore:
+      storage:
+        size: 2Gi
+        storageClass: longhorn-crypto-global
+  floor:
+    keepLast: 3
+    bucket: github-otaru-cloudnative-pg-backup
+    endpoint: s3.eu-central-003.backblazeb2.com
+  # 7 days (teslamate used 10 minutes until 2026-10-24): the verified count
+  # lives only in the job log, so a short TTL deletes the evidence.
+  ttlSecondsAfterFinished: 604800
+  backoffLimit: 4
+  concurrencyPolicy: Forbid
+  database:
+    clusterName: umami-20260614-0001
+    name: umami
+    owner: app
+    imageName: ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533
+    serverName: umami-20260614-0001-pg18
