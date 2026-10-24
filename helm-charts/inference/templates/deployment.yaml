@@ -114,7 +114,7 @@ spec:
               # They are on the GPU now. Trim after watching a full load.
               memory: 24Gi
               ephemeral-storage: 2Gi
-              # One GPU, served by the device plugin below.
+              # One GPU, served by the generic-device-plugin chart.
               devic.es/dri: "1"
           volumeMounts:
             - name: models
