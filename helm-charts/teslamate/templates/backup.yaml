@@ -27,6 +27,15 @@ spec:
 
                   apk add --no-cache aws-cli curl
 
+                  # 2026-10-24: refuse to dump an emptied DB; an empty dump rotates out the last good dumps.
+                  CONTENT_COUNT=$(psql -tAc "SELECT count(*) FROM positions")
+                  case "${CONTENT_COUNT}" in
+                    ''|*[!0-9]*|0)
+                      echo "Error: positions count is '${CONTENT_COUNT}'; refusing to dump."
+                      exit 1
+                      ;;
+                  esac
+
                   BACKUP_FILE_NAME="${PGDATABASE}-$(date +%F-%H_%M_%S).sql.gz"
                   S3_URI="s3://${BUCKET}/${S3_PATH}/${BACKUP_FILE_NAME}"
 
