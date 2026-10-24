@@ -872,7 +872,7 @@ grafana:
     auth.jwt:
       enabled: true
       header_name: Authorization
-      jwk_set_url: http://hydra-public.hydra.svc.cluster.local:4444/.well-known/jwks.json
+      jwk_set_url: https://auth.siutsin.com/.well-known/jwks.json
       cache_ttl: 60m
       username_claim: sub
       email_claim: sub
