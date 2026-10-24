@@ -22,6 +22,18 @@ spec:
         - operation:
             ports:
               - "4444"
+    # 2026-10-24: Grafana verifies Hydra JWTs locally and needs the key set.
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/monitoring/sa/monitoring-grafana
+              - cluster.local/ns/teslamate/sa/teslamate-grafana
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/.well-known/jwks.json"]
+            ports:
+              - "4444"
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
