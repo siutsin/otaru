@@ -321,7 +321,14 @@ spec:
                   PRIMARY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}')
 
                   echo "Verifying PITR with query: ${VERIFY_QUERY}"
-                  kubectl exec -n "${VERIFY_NAMESPACE}" "${PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -tAc "${VERIFY_QUERY}"
+                  VERIFY_COUNT=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -tAc "${VERIFY_QUERY}")
+                  # 2026-10-24: fail when the count is not a positive number; it means the newest backups hold an emptied database.
+                  case "${VERIFY_COUNT}" in
+                    ''|*[!0-9]*|0)
+                      echo "Error: PITR restore has no content (count '${VERIFY_COUNT}')."
+                      exit 1
+                      ;;
+                  esac
                   echo "PITR verification successful!"
 
                   if [ -n "${VERIFY_PITR_HEARTBEAT:-}" ]; then

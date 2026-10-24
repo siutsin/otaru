@@ -65,7 +65,18 @@ spec:
                   echo "Restored pg_dump from ${S3_URI}/${LATEST_BACKUP}..."
 
                   echo "Verifying pg_dump with query: ${VERIFY_QUERY}"
-                  psql -c "${VERIFY_QUERY}"
+                  # 2026-10-24: fail before the prune below when the count is not a positive
+                  # number, so an empty dump cannot rotate out the last good backups; the
+                  # pkill lets the pod exit. A failed query lands in the same branch.
+                  VERIFY_COUNT=$(psql -tAc "${VERIFY_QUERY}") || VERIFY_COUNT=""
+                  case "${VERIFY_COUNT}" in
+                    ''|*[!0-9]*|0)
+                      echo "Error: restored dump failed verification (count '${VERIFY_COUNT}'); refusing to prune."
+                      pkill -TERM postgres || true
+                      sleep 2
+                      exit 1
+                      ;;
+                  esac
                   echo "pg_dump verification successful!"
 
                   KEEP_LAST=7
