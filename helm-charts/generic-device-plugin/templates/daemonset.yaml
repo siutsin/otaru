@@ -3,6 +3,7 @@
 {{- $dirs = append $dirs (dir .path) -}}
 {{- end }}{{ end }}{{ end }}
 {{- $dirs = $dirs | uniq | sortAlpha -}}
+{{- $version := regexReplaceAll "@sha256:.*$" .Values.image.tag "" -}}
 # Registers node devices with the kubelet, so a pod can request them without privileges.
 apiVersion: apps/v1
 kind: DaemonSet
@@ -11,6 +12,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/version: {{ $version | quote }}
 spec:
   selector:
     matchLabels:
@@ -21,8 +23,13 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.name }}
+        app.kubernetes.io/version: {{ $version | quote }}
     spec:
+      serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
