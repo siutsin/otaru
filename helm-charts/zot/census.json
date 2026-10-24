@@ -4,12 +4,12 @@
   "repo_commit": "0130a05a609a3bffd6ecd7c8dcbe7f8398b8c443",
   "measured_at": "2026-10-20",
   "images": {
-    "distinct_pinned_images": 55,
-    "distinct_pin_strings": 57,
+    "distinct_pinned_images": 56,
+    "distinct_pin_strings": 58,
     "per_host": {
       "dhi.io": 19,
       "docker.io": 15,
-      "ghcr.io": 18,
+      "ghcr.io": 19,
       "quay.io": 2,
       "registry.k8s.io": 1
     },
@@ -967,18 +967,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "server-b11434",
-            "digest": "sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257",
-            "pin": "ghcr.io/ggml-org/llama.cpp:server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/inference/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 672716515,
-            "size_status": "measured"
+            "tag": "server-vulkan-b11434",
+            "digest": "sha256:251a422e814aebadcb0be861c82469f6e6a76af8ef14f1a0e8aba02730aedaa4",
+            "pin": "server-vulkan-b11434@sha256:251a422e814aebadcb0be861c82469f6e6a76af8ef14f1a0e8aba02730aedaa4",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
@@ -1120,6 +1115,29 @@
             ],
             "compressed_bytes_all_platforms": 26810103,
             "size_status": "measured"
+          }
+        ]
+      },
+      {
+        "image": "ghcr.io/squat/generic-device-plugin",
+        "host": "ghcr.io",
+        "repository": "squat/generic-device-plugin",
+        "zot_path": "/ghcr.io/squat/generic-device-plugin",
+        "sync_mode": "on-demand",
+        "pin_strings": [
+          {
+            "tag": "2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f",
+            "digest": "sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9",
+            "pin": "ghcr.io/squat/generic-device-plugin:2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9",
+            "form": "repository+tag/digest",
+            "sources": [
+              {
+                "file": "helm-charts/inference/values.yaml",
+                "yaml_path": "devicePlugin.image"
+              }
+            ],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },

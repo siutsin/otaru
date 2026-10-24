@@ -166,6 +166,9 @@
     "ghcr.io/siutsin/telegram-jung2-bot": [
       "jung2bot-6.1.5"
     ],
+    "ghcr.io/squat/generic-device-plugin": [
+      "2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f"
+    ],
     "ghcr.io/teslamate-org/teslamate": [
       "main"
     ],
