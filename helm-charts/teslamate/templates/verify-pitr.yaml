@@ -438,15 +438,15 @@ spec:
               # under). This container polls the CNPG cluster/psql in a tight
               # loop during restore, so real usage is above the original
               # guess.
-              # 2026-10-24: memory 128Mi -> 256Mi. The floor pin step runs the
-              # Python aws-cli in this container, which does not fit the
-              # 128Mi sized for the poll loop. Validate against the first runs.
+              # 2026-10-24: memory 128Mi -> 256Mi for the Python aws-cli.
+              # Ephemeral storage 128Mi -> 512Mi: its apk install exceeds
+              # 128Mi, and kubelet killed the first live runs with exit 137.
               resources:
                 requests:
                   cpu: 200m
                   memory: 256Mi
-                  ephemeral-storage: 128Mi
+                  ephemeral-storage: 512Mi
                 limits:
                   memory: 256Mi
-                  ephemeral-storage: 128Mi
+                  ephemeral-storage: 512Mi
           restartPolicy: OnFailure
