@@ -114,6 +114,8 @@ falco:
     # The teslamate backup/verify jobs install aws-cli and curl at runtime
     # (postgres:18-alpine) for the CNPG S3 backup flow; the pip-installed
     # aws and curl binaries then trip the new-binary rule.
+    # The hydra and umami verify-pitr jobs do the same apk install of
+    # aws-cli (alpine/kubectl) for their CNPG S3 backup checks.
     # The tailscale gateway chart runs a privileged `sysctler` init container
     # (sysctl ip_forward) on every pod start; its main container is privileged
     # by design (host routing for the gateway).
@@ -139,6 +141,8 @@ falco:
               - [apk, teslamate-backup, teslamate]
               - [apk, verify-pg-dump, teslamate]
               - [apk, verify-pitr, teslamate]
+              - [apk, verify-pitr, hydra]
+              - [apk, verify-pitr, umami]
         override:
           exceptions: append
       - rule: Drop and execute new binary in container
