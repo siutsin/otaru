@@ -334,8 +334,8 @@
         "pin_strings": [
           {
             "tag": "3.15.1",
-            "digest": "sha256:c091f75c739ff9afb02a2a28a083908db2540a785bc09911254823ebdb9bc337",
-            "pin": "3.15.1@sha256:c091f75c739ff9afb02a2a28a083908db2540a785bc09911254823ebdb9bc337",
+            "digest": "sha256:ecd43d22d286703ff3aa92d6b72ece4db58a91366b6ddd5eee667b5320194a54",
+            "pin": "3.15.1@sha256:ecd43d22d286703ff3aa92d6b72ece4db58a91366b6ddd5eee667b5320194a54",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
