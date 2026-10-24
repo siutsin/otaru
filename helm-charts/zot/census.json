@@ -908,9 +908,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.604",
-            "digest": "sha256:3e29294e7bf82bde54358c1a8236a7f7cc5b9e63e9d852d88644637bc68ad618",
-            "pin": "2.11.604@sha256:3e29294e7bf82bde54358c1a8236a7f7cc5b9e63e9d852d88644637bc68ad618",
+            "tag": "2.11.605",
+            "digest": "sha256:eeb84bf012c49556ed384ae9351abb8e66f6605f945ecca6d2fe4f1f61792f04",
+            "pin": "2.11.605@sha256:eeb84bf012c49556ed384ae9351abb8e66f6605f945ecca6d2fe4f1f61792f04",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
