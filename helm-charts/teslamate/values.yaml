@@ -176,7 +176,17 @@ backup:
       storage:
         size: 5Gi
         storageClass: longhorn-crypto-global
-  ttlSecondsAfterFinished: 600 # 10 minutes
+  # 2026-10-24: after the count passes, verify-pitr pins the verified backup
+  # set under cnpg-floor/ in the same bucket, outside the 30-day CNPG
+  # retention, and keeps the newest 3 sets. One set is the base backup plus
+  # its WAL span (about 0.39 GiB for this cluster).
+  floor:
+    keepLast: 3
+    bucket: github-otaru-cloudnative-pg-backup
+    endpoint: s3.eu-central-003.backblazeb2.com
+  # 2026-10-24: 7 days (was 10 minutes). The verify counts live only in job
+  # logs; at 10 minutes they vanished before anyone could audit them.
+  ttlSecondsAfterFinished: 604800
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:

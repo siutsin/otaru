@@ -92,7 +92,7 @@ spec:
                 - |
                   set -e -o pipefail
 
-                  apk add --no-cache curl
+                  apk add --no-cache aws-cli curl
 
                   VERIFY_CLUSTER="${VERIFY_JOB_NAME:-{{ .Values.name }}-verify-pitr-$(date +%s)}"
                   VERIFY_NAMESPACE="{{ .Values.namespace }}"
@@ -331,6 +331,94 @@ spec:
                   esac
                   echo "PITR verification successful!"
 
+                  # 2026-10-24: pin the verified backup set under cnpg-floor/, outside
+                  # the 30-day CNPG retention. A set is the base backup plus the WAL
+                  # span from backup.info; backup.info is copied last as the
+                  # completeness marker, so a failed pin is retried by the next run.
+                  FLOOR_BUCKET="{{ .Values.backup.floor.bucket }}"
+                  FLOOR_EP="--endpoint-url https://{{ .Values.backup.floor.endpoint }}"
+                  FLOOR_SERVER="{{ .Values.backup.database.serverName }}"
+                  FLOOR_SET="${FLOOR_SERVER}-${VERIFY_BACKUP_ID}"
+                  FLOOR_SRC="s3://${FLOOR_BUCKET}/cnpg-backups/${FLOOR_SERVER}"
+                  FLOOR_DST="s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET}"
+                  if [ -n "$(aws ${FLOOR_EP} s3 ls "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info" 2>/dev/null)" ]; then
+                    echo "Floor: ${FLOOR_SET} is already pinned."
+                  else
+                    BACKUP_INFO=$(aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" -)
+                    BEGIN_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^begin_wal=//p')
+                    END_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^end_wal=//p')
+                    TIMELINE=$(echo "${BACKUP_INFO}" | sed -n 's/^timeline=//p')
+                    if [ -z "${BEGIN_WAL}" ] || [ -z "${END_WAL}" ] || [ -z "${TIMELINE}" ]; then
+                      echo "Error: backup.info for ${VERIFY_BACKUP_ID} lacks begin_wal, end_wal or timeline; refusing to pin."
+                      exit 1
+                    fi
+                    aws ${FLOOR_EP} s3 sync --exclude "backup.info" "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/"
+                    BEGIN_DIR=$(echo "${BEGIN_WAL}" | cut -c1-16)
+                    END_DIR=$(echo "${END_WAL}" | cut -c1-16)
+                    COPIED_BEGIN=""
+                    COPIED_END=""
+                    WAL_DIRS=$(aws ${FLOOR_EP} s3 ls "${FLOOR_SRC}/wals/" | awk '{print $2}' | tr -d /)
+                    for WAL_DIR in ${WAL_DIRS}; do
+                      case "${WAL_DIR}" in
+                        ''|*[!0-9A-F]*) continue ;;
+                      esac
+                      if [ "${WAL_DIR}" \< "${BEGIN_DIR}" ] || [ "${WAL_DIR}" \> "${END_DIR}" ]; then
+                        continue
+                      fi
+                      WAL_FILES=$(aws ${FLOOR_EP} s3 ls "${FLOOR_SRC}/wals/${WAL_DIR}/" | awk '{print $4}')
+                      for WAL_FILE in ${WAL_FILES}; do
+                        case "${WAL_FILE}" in
+                          ''|*.backup) continue ;;
+                        esac
+                        if [ "${WAL_FILE}" \< "${BEGIN_WAL}" ] || [ "${WAL_FILE}" \> "${END_WAL}" ]; then
+                          continue
+                        fi
+                        aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${WAL_DIR}/${WAL_FILE}" "${FLOOR_DST}/wals/${WAL_DIR}/${WAL_FILE}"
+                        if [ "${WAL_FILE}" = "${BEGIN_WAL}" ]; then
+                          COPIED_BEGIN=1
+                        fi
+                        if [ "${WAL_FILE}" = "${END_WAL}" ]; then
+                          COPIED_END=1
+                        fi
+                      done
+                    done
+                    if [ -z "${COPIED_BEGIN}" ] || [ -z "${COPIED_END}" ]; then
+                      echo "Error: WAL span ${BEGIN_WAL} to ${END_WAL} did not copy in full; refusing to pin."
+                      exit 1
+                    fi
+                    if [ "${TIMELINE}" -gt 1 ]; then
+                      HISTORY_FILE=$(printf '%08d.history' "${TIMELINE}")
+                      aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${HISTORY_FILE}" "${FLOOR_DST}/wals/${HISTORY_FILE}"
+                    fi
+                    aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info"
+                    echo "Floor: pinned ${FLOOR_SET} (WAL ${BEGIN_WAL} to ${END_WAL})."
+                  fi
+                  FLOOR_LS=$(aws ${FLOOR_EP} s3 ls "s3://${FLOOR_BUCKET}/cnpg-floor/")
+                  FLOOR_SETS=""
+                  for FLOOR_SET_NAME in $(echo "${FLOOR_LS}" | awk '{print $2}' | grep "^${FLOOR_SERVER}-" || true); do
+                    FLOOR_SET_NAME="${FLOOR_SET_NAME%/}"
+                    SET_BACKUP_ID="${FLOOR_SET_NAME#${FLOOR_SERVER}-}"
+                    if [ -n "$(aws ${FLOOR_EP} s3 ls "s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET_NAME}/base/${SET_BACKUP_ID}/backup.info" 2>/dev/null)" ]; then
+                      FLOOR_SETS="${FLOOR_SETS} ${FLOOR_SET_NAME}"
+                    else
+                      echo "Floor: deleting incomplete set ${FLOOR_SET_NAME} (no backup.info marker)."
+                      aws ${FLOOR_EP} s3 rm "s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET_NAME}" --recursive
+                    fi
+                  done
+                  FLOOR_TOTAL=$(echo "${FLOOR_SETS}" | wc -w)
+                  if [ "${FLOOR_TOTAL}" -gt {{ .Values.backup.floor.keepLast }} ]; then
+                    FLOOR_DELETE=$((FLOOR_TOTAL - {{ .Values.backup.floor.keepLast }}))
+                    FLOOR_PRUNED=0
+                    for OLD_SET in $(echo "${FLOOR_SETS}" | tr ' ' '\n' | sort); do
+                      if [ "${FLOOR_PRUNED}" -ge "${FLOOR_DELETE}" ]; then
+                        break
+                      fi
+                      echo "Floor: pruning old set ${OLD_SET}"
+                      aws ${FLOOR_EP} s3 rm "s3://${FLOOR_BUCKET}/cnpg-floor/${OLD_SET}" --recursive
+                      FLOOR_PRUNED=$((FLOOR_PRUNED + 1))
+                    done
+                  fi
+
                   if [ -n "${VERIFY_PITR_HEARTBEAT:-}" ]; then
                     echo "Sending heartbeat to ${VERIFY_PITR_HEARTBEAT}..."
                     RESPONSE=$(curl -m 10 --retry 5 -sS "${VERIFY_PITR_HEARTBEAT}")
@@ -339,6 +427,8 @@ spec:
               envFrom:
                 - secretRef:
                     name: {{ .Values.name }}-heartbeat
+                - secretRef:
+                    name: b2-backup-credentials
               env:
                 - name: VERIFY_JOB_NAME
                   valueFrom:
@@ -347,13 +437,16 @@ spec:
               # KRR 2026-08-26: 14d peak ~208m CPU against a 50m request (~4x
               # under). This container polls the CNPG cluster/psql in a tight
               # loop during restore, so real usage is above the original
-              # guess. Memory unchanged (still GOOD at 128Mi).
+              # guess.
+              # 2026-10-24: memory 128Mi -> 256Mi. The floor pin step runs the
+              # Python aws-cli in this container, which does not fit the
+              # 128Mi sized for the poll loop. Validate against the first runs.
               resources:
                 requests:
                   cpu: 200m
-                  memory: 128Mi
+                  memory: 256Mi
                   ephemeral-storage: 128Mi
                 limits:
-                  memory: 128Mi
+                  memory: 256Mi
                   ephemeral-storage: 128Mi
           restartPolicy: OnFailure

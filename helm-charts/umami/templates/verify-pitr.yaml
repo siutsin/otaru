@@ -1,0 +1,377 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+rules:
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - backups
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - persistentvolumeclaims
+      - secrets
+    verbs:
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.name }}-verify-pitr
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.name }}-verify-pitr
+    namespace: {{ .Values.namespace }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.name }}-verify-pitr
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: {{ .Values.backup.verifyPitr.schedule | quote }}
+  concurrencyPolicy: {{ .Values.backup.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: {{ .Values.backup.ttlSecondsAfterFinished }}
+      backoffLimit: {{ .Values.backup.backoffLimit }}
+      activeDeadlineSeconds: {{ .Values.backup.verifyPitr.activeDeadlineSeconds }}
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ .Values.name }}-verify-pitr
+        spec:
+          serviceAccountName: {{ .Values.name }}-verify-pitr
+          containers:
+            - name: verify-pitr
+              image: alpine/kubectl:1.37.1@sha256:b568e8beb6a79aee269c142343078a278b85e7710f1c0e7d8d6b21d1eb566a48
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e -o pipefail
+
+                  apk add --no-cache aws-cli
+
+                  VERIFY_CLUSTER="${VERIFY_JOB_NAME:-{{ .Values.name }}-verify-pitr-$(date +%s)}"
+                  VERIFY_NAMESPACE="{{ .Values.namespace }}"
+                  VERIFY_SOURCE_CLUSTER="{{ .Values.backup.database.clusterName }}"
+                  VERIFY_DATABASE="{{ .Values.backup.database.name }}"
+                  VERIFY_OWNER="{{ .Values.backup.database.owner }}"
+                  VERIFY_TIMEOUT_SECONDS={{ .Values.backup.verifyPitr.timeoutSeconds }}
+                  VERIFY_QUERY='{{ .Values.backup.verifyPitr.verificationQuery }}'
+
+                  cleanup() {
+                    echo "Cleaning up ${VERIFY_CLUSTER}..."
+                    kubectl delete cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" --ignore-not-found=true --wait=false || true
+
+                    for _ in $(seq 1 60); do
+                      if ! kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" >/dev/null 2>&1; then
+                        break
+                      fi
+                      sleep 5
+                    done
+
+                    kubectl delete pvc -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" --ignore-not-found=true || true
+                    kubectl delete secret -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" --ignore-not-found=true || true
+                    kubectl delete secret -n "${VERIFY_NAMESPACE}" \
+                      "${VERIFY_CLUSTER}-app" \
+                      "${VERIFY_CLUSTER}-ca" \
+                      "${VERIFY_CLUSTER}-replication" \
+                      "${VERIFY_CLUSTER}-server" \
+                      --ignore-not-found=true || true
+                  }
+
+                  trap cleanup EXIT INT TERM
+                  cleanup
+
+                  VERIFY_BACKUP_JSONPATH='{range .items[*]}{.spec.cluster.name}{"|"}'
+                  VERIFY_BACKUP_JSONPATH="${VERIFY_BACKUP_JSONPATH}{.status.phase}{\"|\"}"
+                  VERIFY_BACKUP_JSONPATH="${VERIFY_BACKUP_JSONPATH}{.status.stoppedAt}{\"|\"}{.status.backupId}{\"\\n\"}{end}"
+                  VERIFY_BACKUP_META=$(
+                    kubectl get backups.postgresql.cnpg.io \
+                      -n "${VERIFY_NAMESPACE}" \
+                      -o "jsonpath=${VERIFY_BACKUP_JSONPATH}" |
+                      awk -F'|' -v cluster="${VERIFY_SOURCE_CLUSTER}" '$1 == cluster && $2 == "completed" { print $3 "|" $4 }' |
+                      sort |
+                      tail -n1
+                  )
+                  VERIFY_BACKUP_ID=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f2)
+                  if [ -z "${VERIFY_BACKUP_ID}" ]; then
+                    echo "Error: no completed backup found for cluster ${VERIFY_SOURCE_CLUSTER}."
+                    exit 1
+                  fi
+
+                  echo "Using backupID ${VERIFY_BACKUP_ID}"
+
+                  cat <<EOF | kubectl apply -f -
+                  apiVersion: postgresql.cnpg.io/v1
+                  kind: Cluster
+                  metadata:
+                    name: ${VERIFY_CLUSTER}
+                    namespace: ${VERIFY_NAMESPACE}
+                    labels:
+                      app.kubernetes.io/managed-by: {{ .Values.name }}-verify-pitr
+                  spec:
+                    instances: 1
+                    imageName: {{ .Values.backup.database.imageName }}
+                    inheritedMetadata:
+                      # 2026-10-04: CNPG inherits this onto every generated Service.
+                      # Each verify run creates unique -r/-ro/-rw Service names, so no
+                      # static AuthorizationPolicy can target them. The annotation opts
+                      # them out of require-mesh-authorization-policy as non-ambient
+                      # endpoints (the job is a per-run test of backup recovery).
+                      annotations:
+                        mesh.otaru.io/non-ambient-endpoints: "true"
+                      labels:
+                        # 2026-07-07: CNPG operator scrapes instance status over direct
+                        # pod HTTPS. Without this label the ephemeral recovery pod sits
+                        # on the ambient Istio dataplane and the operator cannot reach
+                        # it, leaving the cluster stuck in "Instance Status Extraction
+                        # Error". Production clusters get this label via
+                        # cloudnative-pg-clusters' inheritedMetadata default.
+                        istio.io/dataplane-mode: none
+                    resources:
+                      requests:
+                        cpu: 250m
+                        memory: 512Mi
+                        ephemeral-storage: 512Mi
+                      limits:
+                        memory: 512Mi
+                        ephemeral-storage: 512Mi
+                    storage:
+                      size: {{ .Values.backup.verifyPitr.restore.storage.size }}
+                      storageClass: {{ .Values.backup.verifyPitr.restore.storage.storageClass }}
+                    plugins:
+                      - enabled: true
+                        isWALArchiver: false
+                        name: barman-cloud.cloudnative-pg.io
+                        parameters:
+                          barmanObjectName: b2-backup
+                    postgresql:
+                      parameters:
+                        archive_mode: "off"
+                        dynamic_shared_memory_type: posix
+                        full_page_writes: "on"
+                        wal_keep_size: 512MB
+                        wal_level: logical
+                        wal_log_hints: "on"
+                        wal_receiver_timeout: 5s
+                        wal_sender_timeout: 5s
+                      pg_hba:
+                        - hostssl all all 0.0.0.0/0 scram-sha-256
+                        - hostssl all all ::0/0 scram-sha-256
+                    bootstrap:
+                      recovery:
+                        source: verify-pitr-source
+                        database: ${VERIFY_DATABASE}
+                        owner: ${VERIFY_OWNER}
+                        recoveryTarget:
+                          backupID: "${VERIFY_BACKUP_ID}"
+                    externalClusters:
+                      - name: verify-pitr-source
+                        plugin:
+                          enabled: true
+                          isWALArchiver: false
+                          name: barman-cloud.cloudnative-pg.io
+                          parameters:
+                            barmanObjectName: b2-backup
+                            serverName: {{ .Values.backup.database.serverName }}
+                  EOF
+
+                  START_TIME=$(date +%s)
+                  VERIFY_RECOVERY_JOB="${VERIFY_CLUSTER}-1-full-recovery"
+                  while true; do
+                    PHASE=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+                    READY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.readyInstances}' 2>/dev/null || true)
+                    PRIMARY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}' 2>/dev/null || true)
+
+                    if [ "${PHASE}" = "Cluster in healthy state" ] && [ "${READY}" = "1" ] && [ -n "${PRIMARY}" ]; then
+                      echo "Restore cluster ${VERIFY_CLUSTER} is ready."
+                      break
+                    fi
+
+                    if kubectl get job "${VERIFY_RECOVERY_JOB}" -n "${VERIFY_NAMESPACE}" >/dev/null 2>&1; then
+                      VERIFY_RECOVERY_FAILED=$(kubectl get job "${VERIFY_RECOVERY_JOB}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.failed}' 2>/dev/null || true)
+                      VERIFY_RECOVERY_ACTIVE=$(kubectl get job "${VERIFY_RECOVERY_JOB}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.active}' 2>/dev/null || true)
+                      if [ -n "${VERIFY_RECOVERY_FAILED}" ] && [ "${VERIFY_RECOVERY_FAILED}" != "0" ] && [ -z "${VERIFY_RECOVERY_ACTIVE}" ]; then
+                        echo "Error: CNPG full-recovery job ${VERIFY_RECOVERY_JOB} failed."
+                        kubectl get pods -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" -o wide || true
+                        kubectl logs -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" --tail=40 || true
+                        exit 1
+                      fi
+                    fi
+
+                    if [ $(( $(date +%s) - START_TIME )) -ge "${VERIFY_TIMEOUT_SECONDS}" ]; then
+                      echo "Error: Timed out waiting for restore cluster ${VERIFY_CLUSTER}."
+                      kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o yaml || true
+                      kubectl get pods -n "${VERIFY_NAMESPACE}" -l cnpg.io/cluster="${VERIFY_CLUSTER}" -o wide || true
+                      exit 1
+                    fi
+
+                    sleep 10
+                  done
+
+                  PRIMARY=$(kubectl get cluster "${VERIFY_CLUSTER}" -n "${VERIFY_NAMESPACE}" -o jsonpath='{.status.currentPrimary}')
+
+                  echo "Verifying restore with query: ${VERIFY_QUERY}"
+                  VERIFY_COUNT=$(kubectl exec -n "${VERIFY_NAMESPACE}" "${PRIMARY}" -- psql -d "${VERIFY_DATABASE}" -tAc "${VERIFY_QUERY}")
+                  # 2026-10-24: fail when the count is not a positive number; it means the newest backups hold an emptied database.
+                  case "${VERIFY_COUNT}" in
+                    ''|*[!0-9]*|0)
+                      echo "Error: restore has no content (count '${VERIFY_COUNT}')."
+                      exit 1
+                      ;;
+                  esac
+                  echo "Restore verification successful!"
+
+                  # 2026-10-24: pin the verified backup set under cnpg-floor/, outside
+                  # the 30-day CNPG retention. A set is the base backup plus the WAL
+                  # span from backup.info; backup.info is copied last as the
+                  # completeness marker, so a failed pin is retried by the next run.
+                  FLOOR_BUCKET="{{ .Values.backup.floor.bucket }}"
+                  FLOOR_EP="--endpoint-url https://{{ .Values.backup.floor.endpoint }}"
+                  FLOOR_SERVER="{{ .Values.backup.database.serverName }}"
+                  FLOOR_SET="${FLOOR_SERVER}-${VERIFY_BACKUP_ID}"
+                  FLOOR_SRC="s3://${FLOOR_BUCKET}/cnpg-backups/${FLOOR_SERVER}"
+                  FLOOR_DST="s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET}"
+                  if [ -n "$(aws ${FLOOR_EP} s3 ls "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info" 2>/dev/null)" ]; then
+                    echo "Floor: ${FLOOR_SET} is already pinned."
+                  else
+                    BACKUP_INFO=$(aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" -)
+                    BEGIN_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^begin_wal=//p')
+                    END_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^end_wal=//p')
+                    TIMELINE=$(echo "${BACKUP_INFO}" | sed -n 's/^timeline=//p')
+                    if [ -z "${BEGIN_WAL}" ] || [ -z "${END_WAL}" ] || [ -z "${TIMELINE}" ]; then
+                      echo "Error: backup.info for ${VERIFY_BACKUP_ID} lacks begin_wal, end_wal or timeline; refusing to pin."
+                      exit 1
+                    fi
+                    aws ${FLOOR_EP} s3 sync --exclude "backup.info" "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/"
+                    BEGIN_DIR=$(echo "${BEGIN_WAL}" | cut -c1-16)
+                    END_DIR=$(echo "${END_WAL}" | cut -c1-16)
+                    COPIED_BEGIN=""
+                    COPIED_END=""
+                    WAL_DIRS=$(aws ${FLOOR_EP} s3 ls "${FLOOR_SRC}/wals/" | awk '{print $2}' | tr -d /)
+                    for WAL_DIR in ${WAL_DIRS}; do
+                      case "${WAL_DIR}" in
+                        ''|*[!0-9A-F]*) continue ;;
+                      esac
+                      if [ "${WAL_DIR}" \< "${BEGIN_DIR}" ] || [ "${WAL_DIR}" \> "${END_DIR}" ]; then
+                        continue
+                      fi
+                      WAL_FILES=$(aws ${FLOOR_EP} s3 ls "${FLOOR_SRC}/wals/${WAL_DIR}/" | awk '{print $4}')
+                      for WAL_FILE in ${WAL_FILES}; do
+                        case "${WAL_FILE}" in
+                          ''|*.backup) continue ;;
+                        esac
+                        if [ "${WAL_FILE}" \< "${BEGIN_WAL}" ] || [ "${WAL_FILE}" \> "${END_WAL}" ]; then
+                          continue
+                        fi
+                        aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${WAL_DIR}/${WAL_FILE}" "${FLOOR_DST}/wals/${WAL_DIR}/${WAL_FILE}"
+                        if [ "${WAL_FILE}" = "${BEGIN_WAL}" ]; then
+                          COPIED_BEGIN=1
+                        fi
+                        if [ "${WAL_FILE}" = "${END_WAL}" ]; then
+                          COPIED_END=1
+                        fi
+                      done
+                    done
+                    if [ -z "${COPIED_BEGIN}" ] || [ -z "${COPIED_END}" ]; then
+                      echo "Error: WAL span ${BEGIN_WAL} to ${END_WAL} did not copy in full; refusing to pin."
+                      exit 1
+                    fi
+                    if [ "${TIMELINE}" -gt 1 ]; then
+                      HISTORY_FILE=$(printf '%08d.history' "${TIMELINE}")
+                      aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${HISTORY_FILE}" "${FLOOR_DST}/wals/${HISTORY_FILE}"
+                    fi
+                    aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info"
+                    echo "Floor: pinned ${FLOOR_SET} (WAL ${BEGIN_WAL} to ${END_WAL})."
+                  fi
+                  FLOOR_LS=$(aws ${FLOOR_EP} s3 ls "s3://${FLOOR_BUCKET}/cnpg-floor/")
+                  FLOOR_SETS=""
+                  for FLOOR_SET_NAME in $(echo "${FLOOR_LS}" | awk '{print $2}' | grep "^${FLOOR_SERVER}-" || true); do
+                    FLOOR_SET_NAME="${FLOOR_SET_NAME%/}"
+                    SET_BACKUP_ID="${FLOOR_SET_NAME#${FLOOR_SERVER}-}"
+                    if [ -n "$(aws ${FLOOR_EP} s3 ls "s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET_NAME}/base/${SET_BACKUP_ID}/backup.info" 2>/dev/null)" ]; then
+                      FLOOR_SETS="${FLOOR_SETS} ${FLOOR_SET_NAME}"
+                    else
+                      echo "Floor: deleting incomplete set ${FLOOR_SET_NAME} (no backup.info marker)."
+                      aws ${FLOOR_EP} s3 rm "s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET_NAME}" --recursive
+                    fi
+                  done
+                  FLOOR_TOTAL=$(echo "${FLOOR_SETS}" | wc -w)
+                  if [ "${FLOOR_TOTAL}" -gt {{ .Values.backup.floor.keepLast }} ]; then
+                    FLOOR_DELETE=$((FLOOR_TOTAL - {{ .Values.backup.floor.keepLast }}))
+                    FLOOR_PRUNED=0
+                    for OLD_SET in $(echo "${FLOOR_SETS}" | tr ' ' '\n' | sort); do
+                      if [ "${FLOOR_PRUNED}" -ge "${FLOOR_DELETE}" ]; then
+                        break
+                      fi
+                      echo "Floor: pruning old set ${OLD_SET}"
+                      aws ${FLOOR_EP} s3 rm "s3://${FLOOR_BUCKET}/cnpg-floor/${OLD_SET}" --recursive
+                      FLOOR_PRUNED=$((FLOOR_PRUNED + 1))
+                    done
+                  fi
+              envFrom:
+                - secretRef:
+                    name: b2-backup-credentials
+              env:
+                - name: AWS_DEFAULT_REGION
+                  value: eu-central-003
+                - name: VERIFY_JOB_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.labels['batch.kubernetes.io/job-name']
+              # 2026-10-24: sized for the kubectl poll loop plus the floor pin
+              # step, which runs the Python aws-cli in this container.
+              # Validate the 256Mi against the first runs' peak.
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 256Mi
+                  ephemeral-storage: 128Mi
+                limits:
+                  memory: 256Mi
+                  ephemeral-storage: 128Mi
+          restartPolicy: OnFailure
