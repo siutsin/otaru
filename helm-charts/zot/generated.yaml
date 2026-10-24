@@ -293,6 +293,7 @@ config:
         keepTags:
         - patterns:
           - ^3\.15\.0$
+          - ^3\.15\.1$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -301,8 +302,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^1\.11\.3$
           - ^1\.11\.4$
+          - ^1\.11\.5$
         - patterns:
           - .*
           pulledWithin: 720h
