@@ -9,7 +9,8 @@ deployment:
   terminationGracePeriodSeconds: 600
   image:
     repository: ghcr.io/ggml-org/llama.cpp
-    tag: server-b11434@sha256:af8c29600d1de84945de13fa7f126d06fdae16c4b19dc7db1c69c74287eae257
+    # Vulkan build. It needs the node's GPU, see the device plugin below.
+    tag: server-vulkan-b11434@sha256:251a422e814aebadcb0be861c82469f6e6a76af8ef14f1a0e8aba02730aedaa4
   env:
     LLAMA_ARG_HF_REPO: meta-models/Muse-Glimmer-30B-GGUF
     # Pin the higher-quality official file. Without this, the server selects Q4_K_M.
@@ -20,13 +21,16 @@ deployment:
     LLAMA_ARG_CTX_SIZE: "262144"
     # Two slots let a second client run while the first is busy.
     LLAMA_ARG_N_PARALLEL: "2"
-    # Generation threads, set by benchmark. Leave batch threads at the default.
+    # Offload every layer to the GPU. In llama-bench this gave 2.3x faster decode and 6x faster prompts than 10 CPU threads.
+    LLAMA_ARG_N_GPU_LAYERS: "99"
+    # Flash attention gave +11% decode, and a 1024 micro-batch a little faster prompts, in llama-bench on the GPU.
+    LLAMA_ARG_FLASH_ATTN: "on"
+    LLAMA_ARG_UBATCH: "1024"
+    # Threads only feed the GPU now.
     LLAMA_ARG_THREADS: "10"
     LLAMA_ARG_ENDPOINT_METRICS: "1"
     # A full-size SWA cache lets a restored slot reuse its prompt. It adds about 10GiB of KV memory.
     LLAMA_ARG_SWA_FULL: "1"
-    # The drafter proposes blocks of tokens and the main model verifies them, so decode is faster.
-    LLAMA_ARG_SPEC_TYPE: draft-dflash
     LLAMA_CACHE: /models
     XDG_CACHE_HOME: /models
     HF_HOME: /models
@@ -41,10 +45,12 @@ monitoring:
   namespace: monitoring
   prometheusServiceAccount: monitoring-prometheus-server
 
-# The init container downloads the drafter once, pinned to the model commit. It stays on the volume.
-drafter:
-  url: https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/resolve/70bf1b61ac09f91b24d39038091b41c582bc5d7a/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
-  path: /models/dflash/dflash-Muse-Glimmer-30B-Q4_K_M.gguf
+# generic-device-plugin exposes the node's GPU render node as a schedulable resource.
+devicePlugin:
+  image:
+    repository: ghcr.io/squat/generic-device-plugin
+    tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9
+  devicePath: /dev/dri/renderD128
 
 slotCache:
   path: /models/slots
