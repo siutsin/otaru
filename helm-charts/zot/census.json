@@ -1132,8 +1132,8 @@
             "form": "repository+tag/digest",
             "sources": [
               {
-                "file": "helm-charts/inference/values.yaml",
-                "yaml_path": "devicePlugin.image"
+                "file": "helm-charts/generic-device-plugin/values.yaml",
+                "yaml_path": "image"
               }
             ],
             "compressed_bytes_all_platforms": null,

@@ -1,0 +1,21 @@
+name: generic-device-plugin
+namespace: generic-device-plugin
+
+image:
+  repository: ghcr.io/squat/generic-device-plugin
+  tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9
+
+nodeSelector:
+  otaru.io/ai: "true"
+
+# Resources are named <domain>/<device name>. Pods request them in resources.limits.
+domain: devic.es
+
+# Each device path must sit in a subdirectory, such as /dev/dri/renderD128. The chart mounts the
+# parent directory read-only, so a path directly under /dev would mount all of /dev.
+devices:
+  - name: dri
+    groups:
+      - count: 1
+        paths:
+          - path: /dev/dri/renderD128
