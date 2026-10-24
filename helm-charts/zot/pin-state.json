@@ -146,7 +146,7 @@
       "server-b11434"
     ],
     "ghcr.io/home-assistant/home-assistant": [
-      "2026.10.2"
+      "2026.10.3"
     ],
     "ghcr.io/jmcgrath207/k8s-ephemeral-storage-metrics": [
       "1.21.1"
