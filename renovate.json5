@@ -27,7 +27,7 @@
   ],
   packageRules: [
     {
-      // Image CVE fixes keep the 1 day wait. Routine updates wait 3 days.
+      // Image updates keep the 1 day wait. Routine updates wait 3 days.
       matchManagers: ['docker', 'dockerfile', 'helm', 'helm-values'],
       minimumReleaseAge: '1 day',
       minimumReleaseAgeBehaviour: 'timestamp-optional',
@@ -62,6 +62,13 @@
         'ghcr.io/teslamate-org/teslamate/grafana',
       ],
       matchUpdateTypes: ['digest'],
+      minimumReleaseAge: null,
+    },
+    {
+      // Vulnerability fixes ship at once. The age wait stays for all other updates.
+      matchJsonata: [
+        '$exists(vulnerabilityFixVersion) or $exists(isVulnerabilityAlert)',
+      ],
       minimumReleaseAge: null,
     },
   ],
