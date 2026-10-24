@@ -1044,9 +1044,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "0.39.3",
-            "digest": "sha256:46dd60f81049480fdd0238df6bdd8846f9263f5f7f95bbbdd86cc71989428314",
-            "pin": "0.39.3@sha256:46dd60f81049480fdd0238df6bdd8846f9263f5f7f95bbbdd86cc71989428314",
+            "tag": "0.40.0",
+            "digest": "sha256:e1830abb0ddc7a51f2dfd07ccb19ef61d361460e3225bc51baf796cfb8ac71ed",
+            "pin": "0.40.0@sha256:e1830abb0ddc7a51f2dfd07ccb19ef61d361460e3225bc51baf796cfb8ac71ed",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
