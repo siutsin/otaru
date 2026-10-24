@@ -363,15 +363,15 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.labels['batch.kubernetes.io/job-name']
-              # 2026-10-24: sized for the kubectl poll loop plus the floor pin
-              # step, which runs the Python aws-cli in this container.
-              # Validate the 256Mi against the first runs' peak.
+              # 2026-10-24: the apk aws-cli install exceeds 128Mi of
+              # ephemeral storage. Kubelet killed the first live runs
+              # with exit 137 before the restore could finish.
               resources:
                 requests:
                   cpu: 200m
                   memory: 256Mi
-                  ephemeral-storage: 128Mi
+                  ephemeral-storage: 512Mi
                 limits:
                   memory: 256Mi
-                  ephemeral-storage: 128Mi
+                  ephemeral-storage: 512Mi
           restartPolicy: OnFailure
