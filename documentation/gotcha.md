@@ -1781,6 +1781,25 @@ The live `sysctl -w` takes effect immediately with no reboot; the pod delete
 just forces an instant retry instead of waiting out `CrashLoopBackOff`'s
 backoff timer.
 
+## Inference Fails With `ErrorOutOfDeviceMemory` When the GPU Window Is Too Small
+
+The inference pod runs llama.cpp on the node's GPU with the Vulkan backend.
+Weights and the KV cache are mapped through the GPU's host memory window. Its
+size is fixed outside the cluster. When the window is smaller than the model
+plus KV cache, the server fails at load:
+
+```text
+ggml_vulkan: vk::Device::mapMemory: ErrorOutOfDeviceMemory
+llama_model_load: error loading model: unable to allocate Vulkan0 buffer
+```
+
+Small models still load. Check the window size in the node's kernel log
+(`dmesg | grep "Host memory window"`) and compare it with the working set. The
+current settings (262144 context, 2 slots, full SWA cache, 18.3GiB weights)
+need about 61GiB, so the window must be 64GiB, a power of two. Raising it
+needs a restart of the node, and a LUKS node then needs the initramfs unlock
+(`make unlock <node-name>`).
+
 ---
 
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143

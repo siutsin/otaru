@@ -7,7 +7,7 @@ N=${LLAMA_ARG_N_PARALLEL:-2}
 
 log() { echo "slot-cache: $*" >/proc/1/fd/1 2>/dev/null; }
 
-# The key changes with the server settings, the model file or the drafter, so a stale cache is never restored.
+# The key changes with the server settings or the model file, so a stale cache is never restored.
 key() {
   # An updated snapshot can leave two links to the same blob, so count unique blobs.
   found=$(find /models -name "$LLAMA_ARG_HF_FILE" 2>/dev/null)
@@ -19,7 +19,6 @@ key() {
   {
     env | grep '^LLAMA_ARG_' | sort
     stat -L -c '%s %Y' "$model"
-    stat -L -c '%s' "$LLAMA_ARG_SPEC_DRAFT_MODEL" 2>/dev/null
   } | sha256sum | cut -c1-16
 }
 

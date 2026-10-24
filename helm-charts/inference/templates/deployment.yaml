@@ -33,26 +33,10 @@ spec:
       nodeSelector:
         otaru.io/ai: "true"
       initContainers:
-        - name: fetch-drafter
+        - name: init-slots
           image: {{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              # The server refuses to start if the slot save path is missing.
-              mkdir -p "$SLOT_PATH"
-              [ -s "$DRAFT_PATH" ] && exit 0
-              mkdir -p "$(dirname "$DRAFT_PATH")"
-              curl -fL --retry 3 --connect-timeout 30 --max-time 3600 -o "$DRAFT_PATH.tmp" "$DRAFT_URL"
-              mv "$DRAFT_PATH.tmp" "$DRAFT_PATH"
-          env:
-            - name: DRAFT_URL
-              value: {{ .Values.drafter.url | quote }}
-            - name: DRAFT_PATH
-              value: {{ .Values.drafter.path | quote }}
-            - name: SLOT_PATH
-              value: {{ .Values.slotCache.path | quote }}
+          # The server refuses to start if the slot save path is missing.
+          command: ["mkdir", "-p", {{ .Values.slotCache.path | quote }}]
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -60,13 +44,13 @@ spec:
                 - ALL
           resources:
             requests:
-              cpu: 50m
-              # curl writes a 1.6GB file. Dirty page cache counts toward the cgroup, so keep headroom.
-              memory: 256Mi
-              ephemeral-storage: 64Mi
+              cpu: 10m
+              # mkdir only. 32Mi is the floor.
+              memory: 32Mi
+              ephemeral-storage: 16Mi
             limits:
-              memory: 256Mi
-              ephemeral-storage: 64Mi
+              memory: 32Mi
+              ephemeral-storage: 16Mi
           volumeMounts:
             - name: models
               mountPath: /models
@@ -121,16 +105,17 @@ spec:
           resources:
             requests:
               cpu: "2"
-              # Q4 weights are 18.3GiB. Two 131072 slots with a full-size SWA cache and the drafter showed a 60.8GiB working set after a restore.
-              # That figure includes the mapped weights, so 64Gi leaves little headroom.
-              memory: 64Gi
+              # Weights and KV cache sit in GPU memory. The server process measured 0.4GiB RSS after load.
+              # Load maps the 19.6GB model file once, and those clean pages are reclaimable.
+              memory: 4Gi
               ephemeral-storage: 1Gi
             limits:
-              # 2026-10-09: pod inference-5c76bc4b7-xx2cm OOMKilled in the last 7d; 30d spike ~64Gi vs 64Gi limit.
-              # Limit -> 77Gi (ceil(spike*1.2)). Request stays 64Gi: ai-00 has 92Gi allocatable and the pod is
-              # already scheduled — a matching request bump would needlessly squeeze the rest of the node.
-              memory: 77Gi
+              # The earlier OOMKill guardrail (64Gi, 2026-10-09) came from CPU mode, with weights and KV cache in RAM.
+              # They are on the GPU now. Trim after watching a full load.
+              memory: 24Gi
               ephemeral-storage: 2Gi
+              # One GPU, served by the device plugin below.
+              devic.es/dri: "1"
           volumeMounts:
             - name: models
               mountPath: /models
