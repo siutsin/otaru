@@ -155,7 +155,7 @@
       "v2.1.22"
     ],
     "ghcr.io/sirkirby/unifi-network-mcp": [
-      "0.39.1"
+      "0.39.3"
     ],
     "ghcr.io/siutsin/images/go-jsonnet": [
       "v0.22.0"
