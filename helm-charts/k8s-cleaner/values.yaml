@@ -21,6 +21,9 @@ failedPods:
 
 longhornRecurringJobPods:
   namespace: longhorn-system
+  # Failed pods are kept this long after they finish, so their logs survive
+  # for investigation. Succeeded pods are still deleted at once.
+  failedPodMaxAgeSeconds: 604800
   jobs:
     - backup
     - trim
