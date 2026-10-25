@@ -158,6 +158,7 @@ falco:
               - [aws, verify-pitr, teslamate]
               - [curl, verify-pitr, teslamate]
               - [aws, verify-pitr, umami]
+              - [aws, verify-pitr, hydra]
         override:
           exceptions: append
       - rule: Launch Privileged Container
