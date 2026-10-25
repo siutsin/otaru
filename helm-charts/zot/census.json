@@ -1792,7 +1792,7 @@
       },
       {
         "name": "prometheus-blackbox-exporter",
-        "locked_version": "11.20.1",
+        "locked_version": "11.20.2",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1805,7 +1805,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter",
-        "tag_form": "11.20.1",
+        "tag_form": "11.20.2",
         "tag_verified_at_oci_home": true
       },
       {

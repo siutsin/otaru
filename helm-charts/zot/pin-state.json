@@ -216,7 +216,7 @@
     "metallb": "0.16.1",
     "metrics-server": "3.14.0",
     "prometheus": "29.37.0",
-    "prometheus-blackbox-exporter": "11.20.0",
+    "prometheus-blackbox-exporter": "11.20.1",
     "prometheus-yet-another-cloudwatch-exporter": "0.48.0",
     "reloader": "2.2.18",
     "tailscale-operator": "1.104.1",

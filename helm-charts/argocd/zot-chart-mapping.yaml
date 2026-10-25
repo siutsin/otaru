@@ -165,8 +165,8 @@ zotChartMapping:
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-blackbox-exporter
     zotPath: /ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter
-    lockedVersion: 11.20.1
-    tagForm: 11.20.1
+    lockedVersion: 11.20.2
+    tagForm: 11.20.2
     form: sync
     repository: https://prometheus-community.github.io/helm-charts
   - name: prometheus-yet-another-cloudwatch-exporter
