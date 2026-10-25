@@ -98,6 +98,7 @@ spec:
           names:
             - jellyfin-internal
             - jellyfin-sftpgo-internal-http
+            - jellyfin-threadfin-internal-http
       - resources:
           kinds:
             - HTTPRoute
