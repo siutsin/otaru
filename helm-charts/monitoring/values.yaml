@@ -867,8 +867,8 @@ grafana:
     # 2026-10-24: the connector signs in with a Hydra JWT for client `muse`.
     # Stored service account tokens die with the ephemeral database.
     # expect_claims pins the issuer, subject and client id, so no other
-    # Hydra client passes. The hydra chart grants both Grafana service
-    # accounts GET on the exact path /.well-known/jwks.json only.
+    # Hydra client passes. Grafana fetches the signing keys from the
+    # public gateway address, so no in-cluster grant is needed.
     auth.jwt:
       enabled: true
       header_name: Authorization
