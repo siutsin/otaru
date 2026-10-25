@@ -3,8 +3,8 @@ zotChartMapping:
   charts:
   - name: alloy
     zotPath: /grafana.github.io/helm-charts/alloy
-    lockedVersion: 1.14.1
-    tagForm: 1.14.1
+    lockedVersion: 1.14.2
+    tagForm: 1.14.2
     form: conversion
     repository: https://grafana.github.io/helm-charts
   - name: amazon-eks-pod-identity-webhook
@@ -45,8 +45,8 @@ zotChartMapping:
     repository: https://istio-release.storage.googleapis.com/charts
   - name: connect
     zotPath: /ghcr.io/1password/connect
-    lockedVersion: 2.4.2
-    tagForm: 2.4.2
+    lockedVersion: 2.4.3
+    tagForm: 2.4.3
     form: sync
     repository: https://1password.github.io/connect-helm-charts
   - name: descheduler
