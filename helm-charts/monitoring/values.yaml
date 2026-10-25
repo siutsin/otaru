@@ -215,7 +215,7 @@ prometheus:
       # registry.k8s.io, so both must be set.
       registry: dhi.io
       repository: kube-state-metrics
-      tag: 2.20.0@sha256:8d2c314c5725a89b90713afa1611c33c7c1ad48bee6498d3c46ef4e66710c6a8
+      tag: 2.20.0@sha256:66f3fbb37b1d5901de33f30279469bb8a9e0e24241d36c603b91ceb494cab97c
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
