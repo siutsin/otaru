@@ -908,9 +908,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.606",
-            "digest": "sha256:aa5afc0b3057013fbd4ece94979ef911121705d9c86cb634936d9993690fa665",
-            "pin": "2.11.606@sha256:aa5afc0b3057013fbd4ece94979ef911121705d9c86cb634936d9993690fa665",
+            "tag": "2.11.607",
+            "digest": "sha256:1969a758092e9abdc9a6eff959cf3d4197ffcd0ba74c98c1db005f4ba61b50db",
+            "pin": "2.11.607@sha256:1969a758092e9abdc9a6eff959cf3d4197ffcd0ba74c98c1db005f4ba61b50db",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -1127,15 +1127,10 @@
         "pin_strings": [
           {
             "tag": "2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f",
-            "digest": "sha256:d5a8149d9e050ba132054b1c571e03759231944d3db57a8e1dd8cece2afeb5a8",
-            "pin": "ghcr.io/siutsin/images/generic-device-plugin:2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:d5a8149d9e050ba132054b1c571e03759231944d3db57a8e1dd8cece2afeb5a8",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/generic-device-plugin/values.yaml",
-                "yaml_path": "image"
-              }
-            ],
+            "digest": "sha256:2a0c3334b13ef2376c0260c4b449b1b3cd3112b221583d0e714a71d6cc704792",
+            "pin": "2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:2a0c3334b13ef2376c0260c4b449b1b3cd3112b221583d0e714a71d6cc704792",
+            "form": "generator-scan",
+            "sources": [],
             "compressed_bytes_all_platforms": null,
             "size_status": "not-measured"
           }
