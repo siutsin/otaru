@@ -19,6 +19,24 @@ spec:
             operation: Equal
             value: {{ . }}
         evaluate: |
+          function convertTimestamp(ts)
+            -- No trailing Z in the pattern: finishedAt can carry fractional seconds.
+            local y, mon, d, h, mi, s = ts:match(
+              "(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)"
+            )
+            if y == nil then
+              return nil
+            end
+            return os.time({
+              year = tonumber(y),
+              month = tonumber(mon),
+              day = tonumber(d),
+              hour = tonumber(h),
+              min = tonumber(mi),
+              sec = tonumber(s),
+            })
+          end
+
           function evaluate()
             local result = {}
             result.matching = false
@@ -27,8 +45,29 @@ spec:
               return result
             end
 
-            if obj.status.phase == "Succeeded" or obj.status.phase == "Failed" then
+            if obj.status.phase == "Succeeded" then
               result.matching = true
+            end
+
+            if obj.status.phase == "Failed" then
+              local finishedAt = obj.metadata.creationTimestamp
+              if obj.status.containerStatuses ~= nil then
+                for _, cs in ipairs(obj.status.containerStatuses) do
+                  if cs.state ~= nil and cs.state.terminated ~= nil
+                    and cs.state.terminated.finishedAt ~= nil then
+                    finishedAt = cs.state.terminated.finishedAt
+                  end
+                end
+              end
+              if finishedAt ~= nil then
+                local finished = convertTimestamp(finishedAt)
+                if finished ~= nil then
+                  local age = os.difftime(os.time(), finished)
+                  if age > {{ $.Values.longhornRecurringJobPods.failedPodMaxAgeSeconds }} then
+                    result.matching = true
+                  end
+                end
+              end
             end
 
             return result
