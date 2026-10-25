@@ -1253,7 +1253,7 @@
     "entries": [
       {
         "name": "alloy",
-        "locked_version": "1.14.1",
+        "locked_version": "1.14.2",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1265,7 +1265,7 @@
         "excluded_from_optin": false,
         "upstream_host": "grafana.github.io",
         "zot_path": "/grafana.github.io/helm-charts/alloy",
-        "tag_form": "1.14.1",
+        "tag_form": "1.14.2",
         "classic_index": {
           "entries_total": 59,
           "entries_with_digest": 59,
@@ -1392,7 +1392,7 @@
       },
       {
         "name": "connect",
-        "locked_version": "2.4.2",
+        "locked_version": "2.4.3",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1405,7 +1405,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/1password/connect",
         "zot_path": "/ghcr.io/1password/connect",
-        "tag_form": "2.4.2",
+        "tag_form": "2.4.3",
         "tag_verified_at_oci_home": true
       },
       {
