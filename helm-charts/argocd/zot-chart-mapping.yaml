@@ -135,8 +135,8 @@ zotChartMapping:
     repository: https://kyverno.github.io/kyverno/
   - name: loki
     zotPath: /ghcr.io/grafana/helm-charts/loki
-    lockedVersion: 7.3.0
-    tagForm: 7.3.0
+    lockedVersion: 7.5.0
+    tagForm: 7.5.0
     form: sync
     repository: https://grafana.github.io/helm-charts
   - name: longhorn
