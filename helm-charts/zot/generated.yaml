@@ -582,8 +582,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^server\-b11434$
           - ^server\-vulkan\-b11434$
+          - ^server\-vulkan\-b11706$
         - patterns:
           - .*
           pulledWithin: 720h
