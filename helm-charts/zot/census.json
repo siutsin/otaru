@@ -967,9 +967,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "server-vulkan-b11434",
-            "digest": "sha256:251a422e814aebadcb0be861c82469f6e6a76af8ef14f1a0e8aba02730aedaa4",
-            "pin": "server-vulkan-b11434@sha256:251a422e814aebadcb0be861c82469f6e6a76af8ef14f1a0e8aba02730aedaa4",
+            "tag": "server-vulkan-b11706",
+            "digest": "sha256:5096299bac58e2b24f0371221c83eac786b206165bf8235dabc83d3ed514eb48",
+            "pin": "server-vulkan-b11706@sha256:5096299bac58e2b24f0371221c83eac786b206165bf8235dabc83d3ed514eb48",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
