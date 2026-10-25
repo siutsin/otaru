@@ -1119,16 +1119,16 @@
         ]
       },
       {
-        "image": "ghcr.io/squat/generic-device-plugin",
+        "image": "ghcr.io/siutsin/images/generic-device-plugin",
         "host": "ghcr.io",
-        "repository": "squat/generic-device-plugin",
-        "zot_path": "/ghcr.io/squat/generic-device-plugin",
+        "repository": "siutsin/images/generic-device-plugin",
+        "zot_path": "/ghcr.io/siutsin/images/generic-device-plugin",
         "sync_mode": "on-demand",
         "pin_strings": [
           {
             "tag": "2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f",
-            "digest": "sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9",
-            "pin": "ghcr.io/squat/generic-device-plugin:2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9",
+            "digest": "sha256:d5a8149d9e050ba132054b1c571e03759231944d3db57a8e1dd8cece2afeb5a8",
+            "pin": "ghcr.io/siutsin/images/generic-device-plugin:2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:d5a8149d9e050ba132054b1c571e03759231944d3db57a8e1dd8cece2afeb5a8",
             "form": "repository+tag/digest",
             "sources": [
               {

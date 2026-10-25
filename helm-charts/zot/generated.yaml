@@ -627,6 +627,15 @@ config:
           - .*
           pulledWithin: 720h
       - repositories:
+        - ghcr.io/siutsin/images/generic-device-plugin
+        deleteUntagged: false
+        keepTags:
+        - patterns:
+          - ^2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f$
+        - patterns:
+          - .*
+          pulledWithin: 720h
+      - repositories:
         - ghcr.io/siutsin/images/go-jsonnet
         deleteUntagged: false
         keepTags:
@@ -651,15 +660,6 @@ config:
         keepTags:
         - patterns:
           - ^jung2bot\-6\.1\.5$
-        - patterns:
-          - .*
-          pulledWithin: 720h
-      - repositories:
-        - ghcr.io/squat/generic-device-plugin
-        deleteUntagged: false
-        keepTags:
-        - patterns:
-          - ^2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f$
         - patterns:
           - .*
           pulledWithin: 720h
