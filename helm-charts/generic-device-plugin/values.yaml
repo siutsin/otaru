@@ -2,8 +2,11 @@ name: generic-device-plugin
 namespace: generic-device-plugin
 
 image:
-  repository: ghcr.io/squat/generic-device-plugin
-  tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:73b6b5d4042dc7f27cd1ce97bfba50b36f597dbaf8eee5be9bcb2c24069a16c9
+  # Estate rebuild of the same upstream commit: the upstream image carries
+  # critical and high-severity flaws in its 2023 Go build, with no fixed
+  # upstream image of this source.
+  repository: ghcr.io/siutsin/images/generic-device-plugin
+  tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:d5a8149d9e050ba132054b1c571e03759231944d3db57a8e1dd8cece2afeb5a8
 
 nodeSelector:
   otaru.io/ai: "true"
