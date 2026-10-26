@@ -25,7 +25,7 @@ deployment:
     # restart. Deliberate reviewed patch bumps only. See documentation/gotcha.md.
     # 2026-10-10: minor bump to 0.60.8 for 11 critical CVEs; 0.55.8->0.60.8
     # release notes show no datastore migration.
-    tag: 0.60.9@sha256:04eaae7915bad711160cb15abe160f6d3fabe98bbbd658509d4b7a654000fb2d
+    tag: 0.60.10@sha256:72f97681f390e4d6ae3e6585e1e0036449910f347144b766fc23910458566a1a
     pullPolicy: IfNotPresent
   # Keep at 1Gi: browser-backed watches stitch screenshots in this app process;
   # 256Mi caused OOMKilled exit 137 while processing an Amazon watch.
