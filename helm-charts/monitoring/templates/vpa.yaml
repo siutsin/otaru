@@ -23,7 +23,7 @@ spec:
         controlledResources: [memory]
         controlledValues: RequestsAndLimits
         minAllowed:
-          memory: 2652Mi
+          memory: 3683Mi
         maxAllowed:
           # Retention growth headroom. Above ~4Gi verify node scheduling
           # headroom first -- 2026-07-22: 3840Mi failed to schedule.
