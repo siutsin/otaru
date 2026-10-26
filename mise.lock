@@ -662,19 +662,21 @@ url = "https://github.com/google/go-jsonnet/releases/download/v0.22.0/go-jsonnet
 url_api = "https://api.github.com/repos/google/go-jsonnet/releases/assets/380558841"
 
 [[tools."aqua:gruntwork-io/terragrunt"]]
-version = "1.2.0"
+version = "1.2.1"
 backend = "aqua:gruntwork-io/terragrunt"
-specifiers = ["1.2.0"]
+specifiers = ["1.2.1"]
 
 [tools."aqua:gruntwork-io/terragrunt"."platforms.linux-x64"]
-checksum = "sha256:23b5f2f9203d34919f7fd270a4b635b721b4903beca9762a1e4853b159bc9be8"
-url = "https://github.com/gruntwork-io/terragrunt/releases/download/v1.2.0/terragrunt_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/gruntwork-io/terragrunt/releases/assets/662437263"
+checksum = "sha256:08c8844cc69e4f03451ebb8f347cb57d9bd6b8db7b16e437ae5ec6f001228ef9"
+checksum_source = "mise-versions"
+url = "https://github.com/gruntwork-io/terragrunt/releases/download/v1.2.1/terragrunt_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/gruntwork-io/terragrunt/releases/assets/670001904"
 
 [tools."aqua:gruntwork-io/terragrunt"."platforms.macos-arm64"]
-checksum = "sha256:79790d841ce71fe94c689fb6f5034afd31ad53d5904937c7a10934cca9d9734b"
-url = "https://github.com/gruntwork-io/terragrunt/releases/download/v1.2.0/terragrunt_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/gruntwork-io/terragrunt/releases/assets/662436516"
+checksum = "sha256:0aded323f844ce6567a15feb26393b67eff1400dc1722203fa4dd4e23b3bb182"
+checksum_source = "mise-versions"
+url = "https://github.com/gruntwork-io/terragrunt/releases/download/v1.2.1/terragrunt_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/gruntwork-io/terragrunt/releases/assets/670001110"
 
 [[tools."aqua:helm/helm"]]
 version = "4.3.1"
