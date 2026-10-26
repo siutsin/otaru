@@ -3,8 +3,8 @@ zotChartMapping:
   charts:
   - name: alloy
     zotPath: /grafana.github.io/helm-charts/alloy
-    lockedVersion: 1.14.2
-    tagForm: 1.14.2
+    lockedVersion: 1.14.3
+    tagForm: 1.14.3
     form: conversion
     repository: https://grafana.github.io/helm-charts
   - name: amazon-eks-pod-identity-webhook

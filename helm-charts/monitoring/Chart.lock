@@ -19,12 +19,12 @@ dependencies:
   version: 10.5.15
 - name: alloy
   repository: https://grafana.github.io/helm-charts
-  version: 1.14.2
+  version: 1.14.3
 - name: tempo
   repository: https://grafana-community.github.io/helm-charts
   version: 3.2.1
 - name: k8s-ephemeral-storage-metrics
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
   version: 1.21.3
-digest: sha256:fcdfbda91f718791265aea9222947575ceb9b76eb09b36b401e5ffa9e7289338
-generated: "2026-10-26T06:23:36.559833052Z"
+digest: sha256:43dc76165d6cd820bef089fd16995fb4c2b50a59ad17f353644ddb6e7eae59e4
+generated: "2026-10-26T22:59:22.529684752Z"
