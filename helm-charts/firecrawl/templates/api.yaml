@@ -20,8 +20,11 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
-      nodeSelector:
-        otaru.io/ai: "true"
+      # No nodeSelector (2026-10-26): the api reaches Postgres, Valkey,
+      # RabbitMQ and Playwright over the network, so it does not need the
+      # AI node. The ai-00 pin starved a rollout: ai-00 CPU requests were
+      # saturated, so the surge pod stayed Pending for over two hours and
+      # the rollout hit its progress deadline.
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
