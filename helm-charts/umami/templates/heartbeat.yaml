@@ -10,6 +10,14 @@ spec:
   target:
     creationPolicy: Owner
   data:
+    - secretKey: VERIFY_PITR_HEARTBEAT
+      remoteRef:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        key: Umami
+        metadataPolicy: None
+        property: DATABASE_VERIFY_HEARTBEAT
 {{- $endpointTypes := list "target" "healthy" "unhealthy" }}
 {{- range $endpointTypes }}
     - secretKey: {{ $.Values.name }}-{{ . }}-endpoint

@@ -92,7 +92,7 @@ spec:
                 - |
                   set -e -o pipefail
 
-                  apk add --no-cache aws-cli
+                  apk add --no-cache aws-cli curl
 
                   VERIFY_CLUSTER="${VERIFY_JOB_NAME:-{{ .Values.name }}-verify-pitr-$(date +%s)}"
                   VERIFY_NAMESPACE="{{ .Values.namespace }}"
@@ -353,7 +353,15 @@ spec:
                       FLOOR_PRUNED=$((FLOOR_PRUNED + 1))
                     done
                   fi
+
+                  if [ -n "${VERIFY_PITR_HEARTBEAT:-}" ]; then
+                    echo "Sending heartbeat to ${VERIFY_PITR_HEARTBEAT}..."
+                    RESPONSE=$(curl -m 10 --retry 5 -sS "${VERIFY_PITR_HEARTBEAT}")
+                    echo "Response body: ${RESPONSE}"
+                  fi
               envFrom:
+                - secretRef:
+                    name: {{ .Values.name }}-heartbeat
                 - secretRef:
                     name: b2-backup-credentials
               env:
