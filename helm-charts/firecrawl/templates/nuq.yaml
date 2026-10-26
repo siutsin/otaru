@@ -37,7 +37,7 @@ spec:
           automountServiceAccountToken: false
           # No nodeSelector (2026-10-26): the jobs run psql over the network,
           # so they do not need the AI node. The ai-00 pin starved them on
-          # their 60s deadline: ai-00 CPU requests were saturated, so the
+          # their 60s deadline. ai-00 CPU requests were saturated, so the
           # jobs failed scheduling and the app health flapped.
           securityContext:
             runAsNonRoot: true
