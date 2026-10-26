@@ -331,8 +331,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^2026\.10\.0$
           - ^2026\.10\.3$
+          - ^2026\.10\.4$
         - patterns:
           - .*
           pulledWithin: 720h

@@ -62,7 +62,7 @@
       "1.37.1"
     ],
     "docker.io/cloudflare/cloudflared": [
-      "2026.10.0"
+      "2026.10.3"
     ],
     "docker.io/curlimages/curl": [
       "8.23.0"
