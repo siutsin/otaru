@@ -129,12 +129,19 @@ prometheus:
       # (limit raised for retention growth).
       # 2026-10-08: 30d spike ~3974Mi vs 4335Mi limit (91.7% — OOM risk); limit -> 4770Mi (ceil(spike*1.2)).
       # KRR 2026-10-11: 30d spike ~4202.1Mi vs 4770Mi limit (88.1% — OOM risk, still climbing after the 2026-10-08 bump); limit -> 5043Mi (ceil(spike*1.2)). Request stays 2652Mi.
+      # 2026-10-26: this pod's rollout landed on raspberrypi-01 at the 2652Mi
+      # request and was at ~2.5Gi two minutes later; the node ran out of
+      # memory and the kernel OOM killed a Longhorn process. Request ->
+      # 3683Mi (live VPA lower bound, 3861399057 bytes on 2026-10-26), so
+      # the scheduler must find that much unrequested memory before it
+      # places the pod. Limit -> 5818Mi (30d spike ~4848Mi x 1.2, the repo
+      # sizing rule); the old 5043Mi limit sat at 96% of that spike.
       requests:
         cpu: 200m
-        memory: 2652Mi
+        memory: 3683Mi
         ephemeral-storage: 256Mi
       limits:
-        memory: 5043Mi
+        memory: 5818Mi
         ephemeral-storage: 256Mi
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -481,6 +488,30 @@ prometheus:
                 title: Cluster node not ready
                 summary: "{{ $labels.node }}"
                 description: "This node has been NotReady for over 5 minutes. Workloads on it may be evicted."
+            # 2026-10-26: raspberrypi-01 fell to 139Mi available before its
+            # node OOM and nothing alerted on memory. 512Mi warns while the
+            # node is still reachable.
+            - alert: NodeMemoryAvailableLow
+              expr: node_memory_MemAvailable_bytes < 512 * 1024 * 1024
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                title: Node available memory below 512Mi
+                summary: "{{ $labels.node }}"
+                description: "This node has had under 512Mi of available memory for over 5 minutes. A growing workload on it can trigger a kernel OOM kill. Check the largest pods on the node."
+            # 2026-10-26: the raspberrypi-01 node OOM killed 7 processes
+            # (node_vmstat_oom_kill 424 -> 431) with no alert. The window is
+            # 30m because that node's exporter was unreachable for 29m
+            # during the incident; a 15m window sees no step.
+            - alert: NodeOOMKill
+              expr: increase(node_vmstat_oom_kill[30m]) > 0
+              labels:
+                severity: critical
+              annotations:
+                title: Kernel OOM kill on node
+                summary: "{{ $labels.node }}"
+                description: "The kernel OOM killer killed at least one process on this node in the last 30 minutes. Check node memory pressure and the largest pods on the node."
             - alert: CertificateExpiringSoon
               expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 7 * 24 * 3600
               for: 1h
