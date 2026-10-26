@@ -19,8 +19,10 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       automountServiceAccountToken: false
-      nodeSelector:
-        otaru.io/ai: "true"
+      # No nodeSelector (2026-10-26): searxng reaches its search engines
+      # over the network, so it does not need the AI node. The ai-00 pin
+      # starved a rollout: ai-00 CPU requests were saturated, so the new
+      # pod stayed Pending for over half an hour.
       securityContext:
         runAsNonRoot: true
         # Image config has no USER. Files are owned by 977. Non-root skips
