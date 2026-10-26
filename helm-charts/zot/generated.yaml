@@ -488,6 +488,7 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
+          - ^2026\.10\.25\-54ca1d9cf$
           - ^2026\.10\.9\-2dc2b1462$
         - patterns:
           - .*
