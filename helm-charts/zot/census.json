@@ -885,18 +885,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "0.60.9",
-            "digest": "sha256:04eaae7915bad711160cb15abe160f6d3fabe98bbbd658509d4b7a654000fb2d",
-            "pin": "ghcr.io/dgtlmoon/changedetection.io:0.60.9@sha256:04eaae7915bad711160cb15abe160f6d3fabe98bbbd658509d4b7a654000fb2d",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/changedetection/values.yaml",
-                "yaml_path": "deployment.image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 1265207156,
-            "size_status": "measured"
+            "tag": "0.60.10",
+            "digest": "sha256:72f97681f390e4d6ae3e6585e1e0036449910f347144b766fc23910458566a1a",
+            "pin": "0.60.10@sha256:72f97681f390e4d6ae3e6585e1e0036449910f347144b766fc23910458566a1a",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },

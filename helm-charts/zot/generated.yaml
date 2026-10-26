@@ -546,6 +546,7 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
+          - ^0\.60\.10$
           - ^0\.60\.9$
         - patterns:
           - .*
