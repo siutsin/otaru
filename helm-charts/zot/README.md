@@ -12,8 +12,6 @@ and the PodDisruptionBudget.
 - `values.yaml` holds the full zot configuration. It holds the
   sync entries, the retention policy, the resources and the data
   volume. Edit this file by hand.
-- `chartRepositories` in `values.yaml` lists the chart paths that
-  zot caches. Add a path when a chart starts to come through zot.
 - `cidrs.json` holds one /32 per node. The /32 is the base address
   of the node pod CIDR. The route SecurityPolicy allows exactly
   these sources.
@@ -47,9 +45,9 @@ prune for the same digest in that case.
 
 ## Node changes
 
-A node addition or a node replacement changes the node pod
-CIDRs. Run `hack/zot-cidrs.py` in the same change. The script
-reads the live node objects and rewrites `cidrs.json`. The
+When a node is added or replaced, edit `cidrs.json` by hand in
+the same change. Add the node with its pod CIDR, and set its
+`cidr` field to the base address of that pod CIDR as a /32. The
 route SecurityPolicy then matches the live node pod CIDRs.
 
 ## Upgrades

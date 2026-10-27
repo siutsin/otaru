@@ -12,45 +12,6 @@ syncCredentials:
   item: Docker
   secretName: zot-sync-credentials
 
-# The chart paths zot caches. Hand-maintained: add a path here when
-# a chart starts to come through zot.
-chartRepositories:
-  - /charts.longhorn.io/longhorn
-  - /docker.io/envoyproxy/gateway-helm
-  - /ghcr.io/1password/connect
-  - /ghcr.io/aquasecurity/helm-charts/trivy-operator
-  - /ghcr.io/argoproj/argo-helm/argo-cd
-  - /ghcr.io/cloudnative-pg/charts/cloudnative-pg
-  - /ghcr.io/containers/charts/kubernetes-mcp-server
-  - /ghcr.io/external-secrets/charts/external-secrets
-  - /ghcr.io/falcosecurity/charts/falco
-  - /ghcr.io/fluent/helm-charts/fluent-bit
-  - /ghcr.io/gianlucam76/charts/k8s-cleaner
-  - /ghcr.io/grafana-community/helm-charts/grafana
-  - /ghcr.io/grafana-community/helm-charts/tempo
-  - /ghcr.io/grafana/helm-charts/loki
-  - /ghcr.io/istio/release/charts/base
-  - /ghcr.io/istio/release/charts/cni
-  - /ghcr.io/istio/release/charts/istiod
-  - /ghcr.io/istio/release/charts/ztunnel
-  - /ghcr.io/jkroepke/helm-charts/amazon-eks-pod-identity-webhook
-  - /ghcr.io/kyverno/charts/kyverno
-  - /ghcr.io/prometheus-community/charts/prometheus
-  - /ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter
-  - /ghcr.io/prometheus-community/charts/prometheus-yet-another-cloudwatch-exporter
-  - /ghcr.io/stakater/charts/reloader
-  - /grafana.github.io/helm-charts/alloy
-  - /jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart/k8s-ephemeral-storage-metrics
-  - /k8s.ory.com/helm/charts/hydra
-  - /kedacore.github.io/charts/keda
-  - /kiali.org/helm-charts/kiali-server
-  - /kubernetes-sigs.github.io/descheduler/descheduler
-  - /kubernetes-sigs.github.io/metrics-server/metrics-server
-  - /kubernetes.github.io/autoscaler/vertical-pod-autoscaler
-  - /pkgs.tailscale.com/helmcharts/tailscale-operator
-  - /quay.io/jetstack/charts/cert-manager
-  - /quay.io/metallb/chart/metallb
-
 zot:
   namespace: zot
   replicaCount: 1
@@ -138,7 +99,6 @@ config:
     gcDelay: 1h
     gcInterval: 24h
     retention:
-      dryRun: false
       policies:
         - repositories:
             - "**"
@@ -179,132 +139,108 @@ config:
         - urls:
             - https://registry-1.docker.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /docker.io
-              stripPrefix: false
         - urls:
             - https://dhi.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 24h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /dhi.io
-              stripPrefix: false
         - urls:
             - https://ghcr.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /ghcr.io
-              stripPrefix: false
         - urls:
             - https://quay.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /quay.io
-              stripPrefix: false
         - urls:
             - https://registry.k8s.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /registry.k8s.io
-              stripPrefix: false
         - urls:
             - https://public.ecr.aws
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /public.ecr.aws
-              stripPrefix: false
         - urls:
             - https://ecr-public.aws.com
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /ecr-public.aws.com
-              stripPrefix: false
         - urls:
             - https://mirror.gcr.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /mirror.gcr.io
-              stripPrefix: false
         - urls:
             - https://registry.istio.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /registry.istio.io
-              stripPrefix: false
         - urls:
             - https://cr.fluentbit.io
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /cr.fluentbit.io
-              stripPrefix: false
         - urls:
             - https://falco.docker.scarf.sh
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /falco.docker.scarf.sh
-              stripPrefix: false
         - urls:
             - https://us-docker.pkg.dev
           onDemand: true
-          tlsVerify: true
           syncTimeout: 60s
           manifestCheckInterval: 1h
           syncLegacyCosignTags: false
           content:
             - prefix: "**"
               destination: /us-docker.pkg.dev
-              stripPrefix: false
