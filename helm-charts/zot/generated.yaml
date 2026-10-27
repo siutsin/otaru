@@ -747,8 +747,8 @@ config:
         deleteUntagged: true
         keepTags:
         - patterns:
-          - ^10\.10\.3$
           - ^10\.10\.5$
+          - ^10\.11\.1$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -816,8 +816,8 @@ config:
         deleteUntagged: true
         keepTags:
         - patterns:
-          - ^2\.12\.0$
           - ^2\.13\.0$
+          - ^2\.14\.0$
         - patterns:
           - .*
           pulledWithin: 720h

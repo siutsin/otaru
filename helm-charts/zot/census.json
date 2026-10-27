@@ -1284,7 +1284,7 @@
       },
       {
         "name": "argo-cd",
-        "locked_version": "10.10.5",
+        "locked_version": "10.11.1",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1297,7 +1297,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/argoproj/argo-helm/argo-cd",
         "zot_path": "/ghcr.io/argoproj/argo-helm/argo-cd",
-        "tag_form": "10.10.5",
+        "tag_form": "10.11.1",
         "tag_verified_at_oci_home": true
       },
       {
@@ -1423,7 +1423,7 @@
       },
       {
         "name": "external-secrets",
-        "locked_version": "2.13.0",
+        "locked_version": "2.14.0",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1436,7 +1436,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/external-secrets/charts/external-secrets",
         "zot_path": "/ghcr.io/external-secrets/charts/external-secrets",
-        "tag_form": "2.13.0",
+        "tag_form": "2.14.0",
         "tag_verified_at_oci_home": true
       },
       {
