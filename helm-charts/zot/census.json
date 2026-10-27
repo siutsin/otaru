@@ -903,9 +903,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.608",
-            "digest": "sha256:14f7ca86d0a9eab127dbbbea62d60df7d0d09390d56f31282eb0503631665b20",
-            "pin": "2.11.608@sha256:14f7ca86d0a9eab127dbbbea62d60df7d0d09390d56f31282eb0503631665b20",
+            "tag": "2.11.612",
+            "digest": "sha256:dbf060e5d7d29fceb25bedcf6ff96a103b36dc7576996690d810ab7b5a639d67",
+            "pin": "2.11.612@sha256:dbf060e5d7d29fceb25bedcf6ff96a103b36dc7576996690d810ab7b5a639d67",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -1248,7 +1248,7 @@
     "entries": [
       {
         "name": "alloy",
-        "locked_version": "1.14.2",
+        "locked_version": "1.14.3",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1260,7 +1260,7 @@
         "excluded_from_optin": false,
         "upstream_host": "grafana.github.io",
         "zot_path": "/grafana.github.io/helm-charts/alloy",
-        "tag_form": "1.14.2",
+        "tag_form": "1.14.3",
         "classic_index": {
           "entries_total": 59,
           "entries_with_digest": 59,

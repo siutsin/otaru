@@ -134,7 +134,7 @@
       "0.60.9"
     ],
     "ghcr.io/firecrawl/firecrawl": [
-      "2.11.607"
+      "2.11.608"
     ],
     "ghcr.io/firecrawl/playwright-service": [
       "latest"
@@ -189,7 +189,7 @@
     ]
   },
   "charts": {
-    "alloy": "1.14.1",
+    "alloy": "1.14.2",
     "amazon-eks-pod-identity-webhook": "2.6.5",
     "argo-cd": "10.10.3",
     "base": "1.30.6",
