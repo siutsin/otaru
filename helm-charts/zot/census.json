@@ -1623,7 +1623,7 @@
       },
       {
         "name": "kiali-server",
-        "locked_version": "2.33.0",
+        "locked_version": "2.34.0",
         "form": "conversion",
         "audit_class": "classic-only",
         "wrappers": [
@@ -1635,7 +1635,7 @@
         "excluded_from_optin": false,
         "upstream_host": "kiali.org",
         "zot_path": "/kiali.org/helm-charts/kiali-server",
-        "tag_form": "2.33.0",
+        "tag_form": "2.34.0",
         "classic_index": {
           "entries_total": 138,
           "entries_with_digest": 138,

@@ -117,8 +117,8 @@ zotChartMapping:
     repository: https://kedacore.github.io/charts
   - name: kiali-server
     zotPath: /kiali.org/helm-charts/kiali-server
-    lockedVersion: 2.33.0
-    tagForm: 2.33.0
+    lockedVersion: 2.34.0
+    tagForm: 2.34.0
     form: conversion
     repository: https://kiali.org/helm-charts
   - name: kubernetes-mcp-server
