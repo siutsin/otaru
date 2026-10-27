@@ -22,7 +22,7 @@ local application = [
   { wave: '10', name: 'teslamate', namespace: 'teslamate' },
   { wave: '10', name: 'umami', namespace: 'umami' },
   { wave: '10', name: 'unifi-mcp', namespace: 'unifi-mcp' },
-  { wave: '10', name: 'zot', namespace: 'zot', helm: HelmOverrides.zot, ignoreDiff: IgnoreDiff.zotStatefulsetSsaDefaults },
+  { wave: '10', name: 'zot', namespace: 'zot', ignoreDiff: IgnoreDiff.zotStatefulsetSsaDefaults },
   { wave: '11', name: 'changedetection', namespace: 'changedetection' },
   { wave: '11', name: 'hermes', namespace: 'hermes' },
   { wave: '11', name: 'home-assistant', namespace: 'home-assistant' },

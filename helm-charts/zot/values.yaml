@@ -12,9 +12,6 @@ syncCredentials:
   item: Docker
   secretName: zot-sync-credentials
 
-# Set by generated.yaml, which the Argo CD entry adds as a values file.
-chartRepositories: []
-
 zot:
   namespace: zot
   replicaCount: 1
@@ -101,6 +98,15 @@ config:
     gc: true
     gcDelay: 1h
     gcInterval: 24h
+    retention:
+      policies:
+        - repositories:
+            - "**"
+          deleteUntagged: true
+          keepTags:
+            - patterns:
+                - ".*"
+              pulledWithin: 2160h
   http:
     address: 0.0.0.0
     port: "5000"
@@ -126,5 +132,115 @@ config:
     sync:
       enable: true
       credentialsFile: /etc/zot/sync-credentials/credentials.json
-      # registries and the storage retention policies come from
-      # generated.yaml, the second values file in the Argo CD entry.
+      # One on-demand entry per upstream host. dhi.io checks its
+      # manifests every 24h because it needs credentials. The other
+      # hosts check every 1h.
+      registries:
+        - urls:
+            - https://registry-1.docker.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /docker.io
+        - urls:
+            - https://dhi.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 24h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /dhi.io
+        - urls:
+            - https://ghcr.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /ghcr.io
+        - urls:
+            - https://quay.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /quay.io
+        - urls:
+            - https://registry.k8s.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /registry.k8s.io
+        - urls:
+            - https://public.ecr.aws
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /public.ecr.aws
+        - urls:
+            - https://ecr-public.aws.com
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /ecr-public.aws.com
+        - urls:
+            - https://mirror.gcr.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /mirror.gcr.io
+        - urls:
+            - https://registry.istio.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /registry.istio.io
+        - urls:
+            - https://cr.fluentbit.io
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /cr.fluentbit.io
+        - urls:
+            - https://falco.docker.scarf.sh
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /falco.docker.scarf.sh
+        - urls:
+            - https://us-docker.pkg.dev
+          onDemand: true
+          syncTimeout: 60s
+          manifestCheckInterval: 1h
+          syncLegacyCosignTags: false
+          content:
+            - prefix: "**"
+              destination: /us-docker.pkg.dev

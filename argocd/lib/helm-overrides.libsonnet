@@ -52,8 +52,6 @@ local monitoring = { parameters: [{ name: 'yace.irsa.awsAccountId', value: std.e
 // CPU limit: 2026-10-18: null removes the subchart default CPU limit; the house rule sets no CPU limits.
 local trivyOperator = { valuesObject: { 'trivy-operator': { trivy: { server: { resources: { limits: { cpu: null } } } } } } };
 
-local zot = { valueFiles: ['generated.yaml'] };
-
 {
   cnpg: cnpg,
   cnpgClusters: cnpgClusters,
@@ -63,5 +61,4 @@ local zot = { valueFiles: ['generated.yaml'] };
   longhorn: longhorn,
   monitoring: monitoring,
   trivyOperator: trivyOperator,
-  zot: zot,
 }

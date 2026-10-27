@@ -46,9 +46,6 @@ jobs:
           make run
 
       - name: Run tests
-        env:
-          # Census staleness skips on bot branches; the zot pins workflow regenerates it after merge.
-          GITHUB_HEAD_REF: automated/k3s-apiserver-loadbalancer-update
         run: make test
 
       - name: Check for changes
