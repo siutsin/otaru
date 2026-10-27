@@ -314,6 +314,7 @@ config:
         keepTags:
         - patterns:
           - ^9\.1\.2$
+          - ^9\.1\.3$
         - patterns:
           - .*
           pulledWithin: 720h
@@ -974,8 +975,8 @@ config:
         deleteUntagged: true
         keepTags:
         - patterns:
-          - ^29\.37\.1$
           - ^29\.37\.2$
+          - ^29\.38\.0$
         - patterns:
           - .*
           pulledWithin: 720h
