@@ -8,7 +8,6 @@
 # | 443   | TCP     | 192.168.10.50 admin CIDRs* | k3s API VIP |
 # | 443   | TCP     | 192.168.10.51 from any     | gateway HTTPS/Home Assistant WebSocket |
 # | 1024  | TCP     | management CIDRs           | LUKS dropbear unlock on encrypted-root nodes |
-# | 2022  | TCP     | 192.168.10.51 from any     | gateway jellyfin-sftp listener |
 # | 2379  | TCP     | master IPs on masters      | embedded etcd client |
 # | 2380  | TCP     | master IPs on masters      | embedded etcd peer |
 # | 5353  | UDP     | 192.168.0.0/16             | avahi/mDNS |
@@ -344,15 +343,6 @@
       register: firewall_allow_gateway_https_route_result
       changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_https_route_result.stdout"
 
-    - name: Allow routed gateway jellyfin-sftp VIP traffic from anywhere
-      # Example:
-      # ufw route allow proto tcp from any to 192.168.10.51 port 2022
-      command: >-
-        ufw route allow proto tcp from any to {{ firewall_gateway_lb_ip }}
-        port 2022 comment "gateway jellyfin-sftp VIP"
-      register: firewall_allow_gateway_2022_route_result
-      changed_when: "'Skipping adding existing rule' not in firewall_allow_gateway_2022_route_result.stdout"
-
     - name: Allow routed gateway DNS TCP VIP traffic from anywhere
       # Example:
       # ufw route allow proto tcp from any to 192.168.10.51 port 53
@@ -607,14 +597,6 @@
       when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 443/tcp( |$)')
       register: firewall_delete_broad_gateway_https_result
       changed_when: firewall_delete_broad_gateway_https_result.stdout is search(firewall_rule_delete_changed_pattern)
-
-    - name: Remove broad gateway jellyfin-sftp host rule after routed replacement exists
-      # Example:
-      # ufw delete allow 2022/tcp
-      command: ufw delete allow 2022/tcp
-      when: firewall_added_rules_before_prune.stdout is search('(?m)^ufw allow 2022/tcp( |$)')
-      register: firewall_delete_broad_gateway_jellyfin_sftp_result
-      changed_when: firewall_delete_broad_gateway_jellyfin_sftp_result.stdout is search(firewall_rule_delete_changed_pattern)
 
     - name: Remove broad Home Assistant Shelly CoAP host rule after routed replacement exists
       # Example:

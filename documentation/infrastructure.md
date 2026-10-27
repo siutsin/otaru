@@ -92,7 +92,7 @@ restrictions on top of UniFi's predefined system policies:
 connection states. Established replies remain available, so reconnect a test
 client or start a fresh session when verifying a deny. The Internal-to-K3s
 exception has no port restriction; for example, Default and Guest devices may reach
-`192.168.10.51:2022` when a service is listening.
+`192.168.10.51:443` when a service is listening.
 
 The media exception targets fixed IP reservations for the selected AirPlay,
 Chromecast, and Spotify Connect receivers. Adding a receiver is a two-unit
@@ -117,9 +117,6 @@ cannot prove another VLAN's routed behavior.
 # Expected on every Internal network, Guest included.
 nc -vz 192.168.10.51 443
 dig @192.168.10.51 unifi A
-
-# Use only when port 2022 has a known listener; the firewall allows it on Internal networks.
-nc -vz 192.168.10.51 2022
 
 # Expected everywhere except IoT Private.
 curl -I https://example.com

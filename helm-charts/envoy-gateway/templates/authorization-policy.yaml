@@ -19,7 +19,6 @@ spec:
         - operation:
             ports:
               - "443"
-              - "2022"
               - "53"
 ---
 apiVersion: security.istio.io/v1
@@ -40,7 +39,6 @@ spec:
         - operation:
             ports:
               - "10443"
-              - "2022"
               - "10053"
               - "5683"
     - from:
