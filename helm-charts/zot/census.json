@@ -898,9 +898,9 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2.11.612",
-            "digest": "sha256:dbf060e5d7d29fceb25bedcf6ff96a103b36dc7576996690d810ab7b5a639d67",
-            "pin": "2.11.612@sha256:dbf060e5d7d29fceb25bedcf6ff96a103b36dc7576996690d810ab7b5a639d67",
+            "tag": "2.11.613",
+            "digest": "sha256:edd4a2606ada3ea6f34d1a01c2ac00d566bdabaefa99028968ac4750db48f40d",
+            "pin": "2.11.613@sha256:edd4a2606ada3ea6f34d1a01c2ac00d566bdabaefa99028968ac4750db48f40d",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,

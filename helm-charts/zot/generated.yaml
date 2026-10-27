@@ -557,8 +557,8 @@ config:
         deleteUntagged: false
         keepTags:
         - patterns:
-          - ^2\.11\.608$
           - ^2\.11\.612$
+          - ^2\.11\.613$
         - patterns:
           - .*
           pulledWithin: 720h
