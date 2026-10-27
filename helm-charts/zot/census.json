@@ -767,18 +767,13 @@
         "sync_mode": "on-demand",
         "pin_strings": [
           {
-            "tag": "2026.10.9-2dc2b1462",
-            "digest": "sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f",
-            "pin": "docker.io/searxng/searxng:2026.10.9-2dc2b1462@sha256:c8aea45a12a1ccde4466f9d066367c18d60a777a7580d686a2941c6bdfeb221f",
-            "form": "repository+tag/digest",
-            "sources": [
-              {
-                "file": "helm-charts/searxng/values.yaml",
-                "yaml_path": "image"
-              }
-            ],
-            "compressed_bytes_all_platforms": 286426431,
-            "size_status": "measured"
+            "tag": "2026.10.25-54ca1d9cf",
+            "digest": "sha256:23482d8ecf7ddf66029479468ea04c1bb11d2b65785a17a7e629e2ffd13296ca",
+            "pin": "2026.10.25-54ca1d9cf@sha256:23482d8ecf7ddf66029479468ea04c1bb11d2b65785a17a7e629e2ffd13296ca",
+            "form": "generator-scan",
+            "sources": [],
+            "compressed_bytes_all_platforms": null,
+            "size_status": "not-measured"
           }
         ]
       },
