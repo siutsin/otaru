@@ -1324,7 +1324,7 @@
       },
       {
         "name": "cert-manager",
-        "locked_version": "v1.21.2",
+        "locked_version": "v1.21.3",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1337,7 +1337,7 @@
         "upstream_host": "quay.io",
         "oci_reference": "oci://quay.io/jetstack/charts/cert-manager",
         "zot_path": "/quay.io/jetstack/charts/cert-manager",
-        "tag_form": "v1.21.2",
+        "tag_form": "v1.21.3",
         "tag_verified_at_oci_home": true
       },
       {

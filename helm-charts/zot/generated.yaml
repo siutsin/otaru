@@ -768,6 +768,7 @@ config:
         keepTags:
         - patterns:
           - ^v1\.21\.2$
+          - ^v1\.21\.3$
         - patterns:
           - .*
           pulledWithin: 720h
