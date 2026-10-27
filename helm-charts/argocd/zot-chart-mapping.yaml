@@ -27,8 +27,8 @@ zotChartMapping:
     repository: https://istio-release.storage.googleapis.com/charts
   - name: cert-manager
     zotPath: /quay.io/jetstack/charts/cert-manager
-    lockedVersion: v1.21.2
-    tagForm: v1.21.2
+    lockedVersion: v1.21.3
+    tagForm: v1.21.3
     form: sync
     repository: https://charts.jetstack.io
   - name: cloudnative-pg
