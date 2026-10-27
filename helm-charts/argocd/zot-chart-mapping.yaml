@@ -15,8 +15,8 @@ zotChartMapping:
     repository: https://jkroepke.github.io/helm-charts/
   - name: argo-cd
     zotPath: /ghcr.io/argoproj/argo-helm/argo-cd
-    lockedVersion: 10.10.5
-    tagForm: 10.10.5
+    lockedVersion: 10.11.1
+    tagForm: 10.11.1
     form: sync
     repository: https://argoproj.github.io/argo-helm
   - name: base
@@ -57,8 +57,8 @@ zotChartMapping:
     repository: https://kubernetes-sigs.github.io/descheduler/
   - name: external-secrets
     zotPath: /ghcr.io/external-secrets/charts/external-secrets
-    lockedVersion: 2.13.0
-    tagForm: 2.13.0
+    lockedVersion: 2.14.0
+    tagForm: 2.14.0
     form: sync
     repository: https://charts.external-secrets.io/
   - name: falco
