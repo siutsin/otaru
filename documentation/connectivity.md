@@ -113,7 +113,6 @@ gateway VIP `192.168.10.51/32`:
 
 - `443` for HTTPS
 - `53` for DNS on TCP and UDP
-- `2022` for Jellyfin SFTP
 - `5683` for Home Assistant CoAP on UDP
 
 A tagged client receives only the ports named in its own grant. A tag replaces

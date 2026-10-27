@@ -33,8 +33,8 @@ unattended GitOps).
 
 **Symptom:** after bumping `helm-charts/envoy-gateway` (`gateway-helm`) to a
 newer version, UDP/TCP-based routes stop working — this cluster's shared
-Gateway VIP `192.168.10.51` serves DNS (Blocky, 53 TCP/UDP), CoAP
-(Home Assistant, UDP 5683), and SFTP (Jellyfin, TCP 2022) alongside normal
+Gateway VIP `192.168.10.51` serves DNS (Blocky, 53 TCP/UDP) and CoAP
+(Home Assistant, UDP 5683) alongside normal
 HTTPS — while `HTTPRoute`-based ingress on the same VIP keeps working fine.
 `kubectl get gateway <name> -n <ns> -o jsonpath='{range
 .status.listeners[*]}{.name}{": "}{.attachedRoutes}{"\n"}{end}'` shows
