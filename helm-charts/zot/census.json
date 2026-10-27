@@ -488,8 +488,8 @@
         "pin_strings": [
           {
             "tag": "v1.21.2",
-            "digest": "sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
-            "pin": "v1.21.2@sha256:2aa2099af76c0098d4af7a4d6e48f86cb66dc1a000222ad927a1c67c6542d13f",
+            "digest": "sha256:89a5a320168387336b9ac3c850609c3ba7757eadd4ae5f1d819deb35e9854b18",
+            "pin": "v1.21.2@sha256:89a5a320168387336b9ac3c850609c3ba7757eadd4ae5f1d819deb35e9854b18",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
