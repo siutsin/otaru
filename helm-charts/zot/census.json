@@ -369,9 +369,9 @@
         "sync_mode": "poll",
         "pin_strings": [
           {
-            "tag": "9.1.2",
-            "digest": "sha256:88c9f6749db5757ecd2270fbb000840bad1f3a002662ad034c86e1809f2b46b1",
-            "pin": "9.1.2@sha256:88c9f6749db5757ecd2270fbb000840bad1f3a002662ad034c86e1809f2b46b1",
+            "tag": "9.1.3",
+            "digest": "sha256:05423c4d5017523814fb66cb1ee7cf50c34bff94a35b03aecb71e331e41790d5",
+            "pin": "9.1.3@sha256:05423c4d5017523814fb66cb1ee7cf50c34bff94a35b03aecb71e331e41790d5",
             "form": "generator-scan",
             "sources": [],
             "compressed_bytes_all_platforms": null,
@@ -1764,7 +1764,7 @@
       },
       {
         "name": "prometheus",
-        "locked_version": "29.37.2",
+        "locked_version": "29.38.0",
         "form": "sync",
         "audit_class": "classic-with-oci-home",
         "wrappers": [
@@ -1777,7 +1777,7 @@
         "upstream_host": "ghcr.io",
         "oci_reference": "oci://ghcr.io/prometheus-community/charts/prometheus",
         "zot_path": "/ghcr.io/prometheus-community/charts/prometheus",
-        "tag_form": "29.37.2",
+        "tag_form": "29.38.0",
         "tag_verified_at_oci_home": true
       },
       {
