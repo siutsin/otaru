@@ -50,7 +50,7 @@ kubernetes-mcp-server:
     # Stateless HTTP: no per-pod session state, so 2 replicas behind the
     # gateway cannot break a client batch.
     stateless: true
-  # Read-mostly agent SA; write limited to workloads and Argo Applications.
+  # Read-mostly agent SA; write access is limited to the rules below.
   rbac:
     create: true
     extraClusterRoles:
@@ -79,6 +79,11 @@ kubernetes-mcp-server:
           - apiGroups: ["argoproj.io"]
             resources: ["applications"]
             verbs: ["patch", "update"]
+          # Deleting a stale VolumeAttachment is the only way to release a
+          # volume when its detach was never requested (e.g. the node died).
+          - apiGroups: ["storage.k8s.io"]
+            resources: ["volumeattachments"]
+            verbs: ["delete"]
     extraClusterRoleBindings:
       - name: agent
         roleRef:
