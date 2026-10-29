@@ -1800,6 +1800,51 @@ need about 61GiB, so the window must be 64GiB, a power of two. Raising it
 needs a restart of the node, and a LUKS node then needs the initramfs unlock
 (`make unlock <node-name>`).
 
+## Stray Mount Directory Blocks Longhorn Volume Detach
+
+A pod that moves to another node can stay in `Init` or `ContainerCreating` because a volume cannot detach from
+the old node.
+
+### Symptoms: Longhorn Volume Cannot Detach
+
+- The new pod waits on `FailedAttachVolume ... Volume is already exclusively attached to one node, waiting on
+  detach before it can be attached to another node`.
+- The kubelet log on the old node repeats this about every two minutes:
+  `UnmountVolume.TearDown failed ... failed to remove mount point .../volumes/kubernetes.io~csi/<pv>/mount ...
+  directory not empty`.
+- The old node still lists the volume in `status.volumesAttached` and `status.volumesInUse`, and no pod uses it.
+
+### Cause: Files Written Into the Bare Mount Directory
+
+The old pod's mount directory is a plain directory on the node's root disk with files in it, and nothing is
+mounted there. This happens when the Longhorn mount under a pod disappears while the pod still exists, for
+example after an out-of-memory kill of `cryptsetup` or `longhorn-manager`. A container that then restarts
+writes its defaults into the bare directory. The CSI driver refuses to remove a non-empty mount point, so
+teardown fails for good. The trigger is not proven.
+
+### Resolution: Move the Directory Aside
+
+On the old node, find plain, non-empty mount directories. Put the glob inside `sudo sh -c` so the shell expands
+it as root:
+
+```shell
+sudo sh -c 'for m in /var/lib/kubelet/pods/*/volumes/kubernetes.io~csi/*/mount; do
+  mountpoint -q "$m" || [ -z "$(ls -A "$m")" ] || echo "$m"; done'
+```
+
+Only the stale pod's directory should appear. Live mounts do not. Move it aside; do not delete it, because it
+may hold data that the volume does not:
+
+```shell
+sudo mkdir -p /root/stale-mounts
+sudo mv <stray-mount-dir> /root/stale-mounts/<pv-name>-<date>
+```
+
+Kubelet then finishes the teardown by itself: it logs `UnmountDevice succeeded` and the volume leaves
+`status.volumesAttached`. If a dead shared mount stays behind (`findmnt | grep <volume>` and
+`dmsetup info <volume>`), run `umount` on it, then `cryptsetup close <volume>`. Never use
+`dmsetup remove --force`. Compare the moved files with the live volume before deleting them.
+
 ---
 
 [longhorn-issue]: https://github.com/longhorn/longhorn/issues/4143
