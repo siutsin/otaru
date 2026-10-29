@@ -973,6 +973,9 @@ version = "2.21.5"
 backend = "pipx:ansible-core"
 specifiers = ["2.21.5"]
 
+[tools."pipx:ansible-core".options]
+uvx_args = "--python 3.14"
+
 [[tools."pipx:poetry"]]
 version = "2.5.1"
 backend = "pipx:poetry"
