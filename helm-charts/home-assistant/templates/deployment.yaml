@@ -101,13 +101,18 @@ spec:
               name: configuration
               subPath: configuration.yaml
           resources:
-            # KRR 2026-07-05: live peak ~275Mi working set; 500Mi request was ~1.8x actual usage.
+            # 2026-10-29: after a restart the pod was OOMKilled (exit 137) four times in a
+            # row on ai-00. Startup needs ~385Mi (python3 anon ~314Mi + file ~70Mi), above
+            # the old 320Mi limit, so it only stayed up once VPA resized it in place.
+            # Sizing script, 30d: p50 327Mi, max 403Mi, so request = ceil(327/0.9) = 364Mi
+            # and limit = ceil(403*1.2) = 484Mi. The limit is what covers the ~385Mi startup
+            # peak. VPA still tunes both within 128Mi to 512Mi.
             requests:
               cpu: "50m"
-              memory: "320Mi"
+              memory: "364Mi"
               ephemeral-storage: "100Mi"
             limits:
-              memory: "320Mi"
+              memory: "484Mi"
               ephemeral-storage: "100Mi"
       volumes:
         - name: config
