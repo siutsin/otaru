@@ -12,7 +12,7 @@
 
   # Configure journald to limit log size and reduce unnecessary disk writes on every
   # cluster node. SD card nodes use volatile (RAM) storage to extend card lifespan.
-  # NVMe, LUKS, and SSD nodes use persistent storage but cap log size to 100M.
+  # NVMe, LUKS, and SSD nodes use persistent storage and cap log size to 1G (about two weeks of history).
   tasks:
     - name: Detect root block device
       set_fact:
@@ -43,7 +43,7 @@
         line: '{{ item.key }}={{ item.value }}'
       loop:
         - { key: RuntimeMaxUse, value: 100M }
-        - { key: SystemMaxUse, value: 100M }
+        - { key: SystemMaxUse, value: 1G }
       notify: *notify
 
     - name: Disable rsyslog service
