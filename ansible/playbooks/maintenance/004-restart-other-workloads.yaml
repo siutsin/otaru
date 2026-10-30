@@ -38,11 +38,17 @@
         stuck_workload_namespaces: "{{ deploy_sts_rollout_result.results | selectattr('rc', 'defined') | selectattr('rc', 'ne', 0) | map(attribute='item') | list }}"
 
     # This is the last play of the restart chain, so it carries the one
-    # failure for both plays.
+    # failure for every play.
     - name: Fail if any rollout did not complete
       fail:
         msg: >-
           Rollout did not complete.
+          kube-system: {{ stuck_kube_system_namespaces | default([]) | join(', ') or 'none' }}.
+          Longhorn: {{ stuck_longhorn_namespaces | default([]) | join(', ') or 'none' }}.
           Daemonsets: {{ stuck_ds_namespaces | default([]) | join(', ') or 'none' }}.
           Deployments/statefulsets: {{ stuck_workload_namespaces | join(', ') or 'none' }}.
-      when: (stuck_ds_namespaces | default([]) | length > 0) or (stuck_workload_namespaces | length > 0)
+      when: >-
+        (stuck_kube_system_namespaces | default([]) | length > 0) or
+        (stuck_longhorn_namespaces | default([]) | length > 0) or
+        (stuck_ds_namespaces | default([]) | length > 0) or
+        (stuck_workload_namespaces | length > 0)

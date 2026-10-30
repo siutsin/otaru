@@ -11,11 +11,13 @@
       delay: 5
       until: ds_restart_result.rc == 0
 
+    # A stuck rollout must not block the remaining namespaces.
     - name: Wait for all longhorn daemonsets to complete rollout
       command: kubectl rollout status daemonset -n longhorn-system --timeout=5m
       changed_when: false
+      failed_when: false
       register: ds_rollout_result
-      retries: 5
+      retries: 2
       delay: 10
       until: ds_rollout_result.rc == 0
 
@@ -30,8 +32,9 @@
     - name: Wait for all longhorn deployments to complete rollout
       command: kubectl rollout status deployment -n longhorn-system --timeout=5m
       changed_when: false
+      failed_when: false
       register: deploy_rollout_result
-      retries: 5
+      retries: 2
       delay: 10
       until: deploy_rollout_result.rc == 0
 
@@ -40,55 +43,76 @@
     - name: Wait for pods in longhorn-system to be running - longhorn-driver-deployer, longhorn-manager, longhorn-ui
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l 'app in (longhorn-driver-deployer,longhorn-manager,longhorn-ui)'
       changed_when: false
+      failed_when: false
       register: pod_ready_result_1
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_1.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - csi-attacher
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-attacher
       changed_when: false
+      failed_when: false
       register: pod_ready_result_2
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_2.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - csi-provisioner
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-provisioner
       changed_when: false
+      failed_when: false
       register: pod_ready_result_3
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_3.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - csi-resizer
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-resizer
       changed_when: false
+      failed_when: false
       register: pod_ready_result_4
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_4.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - csi-snapshotter
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=csi-snapshotter
       changed_when: false
+      failed_when: false
       register: pod_ready_result_5
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_5.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - instance-manager
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l longhorn.io/component=instance-manager
       changed_when: false
+      failed_when: false
       register: pod_ready_result_6
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_6.rc == 0
 
     - name: Wait for pods in longhorn-system to be running - longhorn-csi-plugin
       command: kubectl wait --for=condition=Ready pods -n longhorn-system --timeout=5m -l app=longhorn-csi-plugin
       changed_when: false
+      failed_when: false
       register: pod_ready_result_7
-      retries: 5
+      retries: 2
       delay: 10
       until: pod_ready_result_7.rc == 0
+
+    - name: Collect namespaces where the longhorn rollout did not complete
+      set_fact:
+        stuck_longhorn_namespaces: >-
+          {{ ['longhorn-system'] if ([ds_rollout_result, deploy_rollout_result, pod_ready_result_1, pod_ready_result_2,
+          pod_ready_result_3, pod_ready_result_4, pod_ready_result_5, pod_ready_result_6,
+          pod_ready_result_7] | selectattr('rc', 'ne', 0) | list | length > 0) else [] }}
+
+    # This play must not fail: a failed play ends the run and the later
+    # plays never happen. The last play fails instead.
+    - name: Warn about longhorn rollouts that did not complete
+      debug:
+        msg: "longhorn-system rollout did not complete"
+      when: stuck_longhorn_namespaces | length > 0
