@@ -12,6 +12,48 @@ Prerequisites: otaru repo checkout, kubeconfig reaching API VIP
   `.status.conditions` (or MCP); use `kubectl describe node` only when
   drilling into a True condition.
 
+## Node package updates (once per day)
+
+Nodes patch themselves daily with unattended-upgrades: release, security
+and updates origins, autoremove of unused dependencies on, automatic
+reboot off. Reboots are never automatic and the loop never reboots a
+node: a set reboot flag is Simon's action through `make maintenance`.
+
+Gate: run this check at most once per Europe/London calendar day. A
+`### node-update pass` journal entry with today's date records the run;
+skip when one exists for today, and write the entry whenever the check
+ran, findings or clean. A failed probe (below) writes no entry, so the
+next pass retries.
+
+Run `~/workspace/tools/node-ssh/node-update-check.sh`. It SSHes to all
+six nodes as `muse` through the tunnel proxy (raspberrypi-00 via a jump
+through raspberrypi-01; its direct route is closed) and prints one line
+per node: reboot-required packages, last unattended-upgrades run date,
+ERROR count for 7 days, running vs newest installed kernel. If every
+node reports UNREACHABLE, retry once after a short wait; if it still
+fails, journal a tooling note and stop the check there — never journal
+node findings from a broken probe.
+
+Journal an `### issue` entry (with the recommended next step in its
+action field) and report as a finding when any of these hold. Enter
+every entry with `result: escalated`, so the pass-start re-check of
+open entries suppresses repeat reports while a condition stays
+unchanged:
+
+- reboot-required is set on a node (name the node and the packages;
+  next step: `make maintenance` at Simon's convenience). Report this
+  one to Simon the same day — the reboot is his action; do not leave
+  it only in the journal or a digest.
+- ERROR count above 0 on a node (next step: read that node's
+  unattended-upgrades log for the failing package).
+- last run date more than 2 days old on a node, or `none`, no run in
+  the current log (next step: check the apt-daily-upgrade timer on
+  that node).
+- a single node reports UNREACHABLE while the others answer (next step:
+  check that node's sshd and the tunnel route to it).
+
+Clean across all six nodes: stay silent.
+
 ## NotReady triage (P0)
 
 Journal **any** NotReady node as P0 before lower-priority categories.
