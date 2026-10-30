@@ -17,7 +17,8 @@ Prerequisites: otaru repo checkout, kubeconfig reaching API VIP
 Nodes patch themselves daily with unattended-upgrades: release, security
 and updates origins, autoremove of unused dependencies on, automatic
 reboot off. Reboots are never automatic and the loop never reboots a
-node: a set reboot flag is Simon's action through `make maintenance`.
+node: a set reboot flag is the owner's action through
+`make maintenance`.
 
 Gate: run this check at most once per Europe/London calendar day. A
 `### node-update pass` journal entry with today's date records the run;
@@ -41,9 +42,9 @@ open entries suppresses repeat reports while a condition stays
 unchanged:
 
 - reboot-required is set on a node (name the node and the packages;
-  next step: `make maintenance` at Simon's convenience). Report this
-  one to Simon the same day — the reboot is his action; do not leave
-  it only in the journal or a digest.
+  next step: `make maintenance` at the owner's convenience). Report
+  this one to the owner the same day — the reboot is a manual operator
+  action; do not leave it only in the journal or a digest.
 - ERROR count above 0 on a node (next step: read that node's
   unattended-upgrades log for the failing package).
 - last run date more than 2 days old on a node, or `none`, no run in
