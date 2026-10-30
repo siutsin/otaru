@@ -28,7 +28,7 @@
         shell: /bin/bash
         create_home: true
         groups: systemd-journal,adm
-        append: true
+        append: false
         password: '*'
         update_password: always
 
