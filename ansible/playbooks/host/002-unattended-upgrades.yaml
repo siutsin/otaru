@@ -1,0 +1,24 @@
+---
+- hosts: k3s_cluster
+  become: true
+  gather_facts: false
+
+  # Ubuntu defaults already run unattended-upgrades daily for the release
+  # and security pockets. This adds the updates pocket and turns on
+  # removal of unused dependencies, so nodes pick up bug-fix and kernel
+  # updates without a manual apt run. Automatic reboot stays off on
+  # purpose: reboots go through maintenance.yaml, which drains nodes one
+  # at a time.
+  tasks:
+    - name: Configure unattended-upgrades origins and autoremove
+      copy:
+        dest: /etc/apt/apt.conf.d/52unattended-upgrades-local
+        content: |
+          Unattended-Upgrade::Allowed-Origins {
+              "${distro_id}:${distro_codename}-updates";
+          };
+          Unattended-Upgrade::Remove-Unused-Dependencies "true";
+          Unattended-Upgrade::Automatic-Reboot "false";
+        owner: root
+        group: root
+        mode: '0644'
