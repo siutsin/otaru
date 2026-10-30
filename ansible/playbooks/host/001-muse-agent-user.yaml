@@ -1,0 +1,59 @@
+---
+- hosts: k3s_cluster
+  become: true
+  gather_facts: false
+
+  # Read-only diagnostic account for the Muse AI assistant. Key login only.
+  # `password: '*'` writes `*` to /etc/shadow: no password can match, yet the
+  # account is not locked (a `!` lock can make sshd refuse key login).
+  # Groups give journal and kernel log reads without sudo. There is no `sudo`
+  # group and no kubeconfig access. Do not add `systemctl`, `journalctl` or
+  # `ss` to the sudoers file: their sudo forms can spawn a root shell, delete
+  # the journal or write files as root.
+  vars:
+    muse_sudo_commands:
+      - /usr/bin/dmesg ""
+      - /usr/local/bin/crictl ps
+      - /usr/local/bin/crictl ps *
+      - /usr/local/bin/crictl images
+      - /usr/local/bin/crictl images *
+      - /usr/local/bin/crictl stats
+      - /usr/local/bin/crictl stats *
+
+  tasks:
+    - name: Create the muse user
+      user:
+        name: muse
+        comment: Muse agent
+        shell: /bin/bash
+        create_home: true
+        groups: systemd-journal,adm
+        append: false
+        password: '*'
+        update_password: always
+
+    - name: Create the muse .ssh directory
+      file:
+        path: /home/muse/.ssh
+        state: directory
+        owner: muse
+        group: muse
+        mode: '0700'
+
+    - name: Install the muse public key as the only authorised key
+      copy:
+        dest: /home/muse/.ssh/authorized_keys
+        content: |
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBur0F7+3iuOQ7yJ2ym9uY16cAny8kwfG3WgdYJNBB0R otaru-agent-nodes-2026-10-30
+        owner: muse
+        group: muse
+        mode: '0600'
+
+    - name: Allow muse a read-only set of privileged commands
+      copy:
+        dest: /etc/sudoers.d/muse-diag
+        content: "muse ALL=(root) NOPASSWD: {{ muse_sudo_commands | join(', ') }}\n"
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
