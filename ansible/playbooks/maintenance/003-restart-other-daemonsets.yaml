@@ -21,11 +21,25 @@
       delay: 10
       until: ds_restart.rc == 0
 
+    # A stuck rollout must not block the remaining namespaces.
     - name: Wait for all daemonsets to complete rollout in all namespaces
       command: kubectl rollout status daemonset -n {{ item }} --timeout=5m
       loop: "{{ namespaces.stdout_lines }}"
+      when: item not in ['kube-system', 'longhorn-system']
       changed_when: false
+      failed_when: false
       register: ds_rollout_result
-      retries: 5
+      retries: 2
       delay: 10
       until: ds_rollout_result.rc == 0
+
+    - name: Collect namespaces where the daemonset rollout did not complete
+      set_fact:
+        stuck_ds_namespaces: "{{ ds_rollout_result.results | selectattr('rc', 'defined') | selectattr('rc', 'ne', 0) | map(attribute='item') | list }}"
+
+    # This play must not fail: a failed play ends the run and the workload
+    # restarts in the next play never happen. The last play fails instead.
+    - name: Warn about daemonset rollouts that did not complete
+      debug:
+        msg: "Daemonset rollout did not complete in: {{ stuck_ds_namespaces | join(', ') }}"
+      when: stuck_ds_namespaces | length > 0
