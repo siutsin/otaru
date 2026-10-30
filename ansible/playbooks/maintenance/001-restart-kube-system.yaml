@@ -11,11 +11,13 @@
       delay: 10
       until: ds_restart.rc == 0
 
+    # A stuck rollout must not block the remaining namespaces.
     - name: Wait for all daemonsets in kube-system namespace to complete rollout
       command: kubectl rollout status daemonset -n kube-system --timeout=5m
       changed_when: false
+      failed_when: false
       register: ds_rollout_result
-      retries: 5
+      retries: 2
       delay: 10
       until: ds_rollout_result.rc == 0
 
@@ -30,7 +32,20 @@
     - name: Wait for all deployments in kube-system namespace to complete rollout
       command: kubectl rollout status deployment -n kube-system --timeout=5m
       changed_when: false
+      failed_when: false
       register: deploy_rollout_result
-      retries: 5
+      retries: 2
       delay: 10
       until: deploy_rollout_result.rc == 0
+
+    - name: Collect namespaces where the kube-system rollout did not complete
+      set_fact:
+        stuck_kube_system_namespaces: >-
+          {{ ['kube-system'] if ([ds_rollout_result, deploy_rollout_result] | selectattr('rc', 'ne', 0) | list | length > 0) else [] }}
+
+    # This play must not fail: a failed play ends the run and the later
+    # plays never happen. The last play fails instead.
+    - name: Warn about kube-system rollouts that did not complete
+      debug:
+        msg: "kube-system rollout did not complete"
+      when: stuck_kube_system_namespaces | length > 0
