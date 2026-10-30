@@ -5,7 +5,7 @@ deployment:
   replicas: 3
   image:
     repository: dhi.io/coredns
-    tag: "1.14.7@sha256:472965d72e696aa7d893e99f6548349e900117e00b7da1ab6a7de39381769ce6"
+    tag: "1.14.7@sha256:fd72ba1898b9401724162eacdb1c11cbd5d59682512d4dcc8e5b01e187606ed3"
   resources:
     # 2026-09-23: right-size on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     # 2026-10-08: 30d spike ~54Mi vs 58Mi limit (93.1% — OOM risk); limit -> 65Mi (ceil(spike*1.2)).
