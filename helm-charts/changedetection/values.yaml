@@ -62,7 +62,7 @@ browser:
       # format error" the first time descheduler's PodLifeTime repave put
       # it on amd64 nuc-00. This digest is the real multi-arch index
       # (verified via registry API and nuc-00's containerd image list).
-      tag: 1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
+      tag: 1.38.0@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
       pullPolicy: IfNotPresent
     resources:
       # KRR 2026-07-05: profile cleanup sidecar peaked at ~100Mi during
