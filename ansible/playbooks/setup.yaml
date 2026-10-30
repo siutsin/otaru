@@ -13,10 +13,10 @@
 - import_playbook: nuc/000-e1000e-offload.yaml
 # host tuning (before the cluster starts scheduling pods)
 - import_playbook: host/000-sysctl-tuning.yaml
-# ai only
-- import_playbook: host/001-multipath-exclude-longhorn.yaml
 # read-only diagnostic account for the Muse assistant
 - import_playbook: host/002-muse-agent-user.yaml
+# ai only
+- import_playbook: host/001-multipath-exclude-longhorn.yaml
 # k3s
 - import_playbook: k3s/000-init-cluster.yaml
 - import_playbook: k3s/001-cni.yaml
