@@ -1,0 +1,37 @@
+---
+- hosts: k3s_cluster
+  become: true
+  gather_facts: true
+
+  # On Ubuntu 26.04, container processes carry the containerd default
+  # profile stacked with unconfined
+  # (cri-containerd.apparmor.d//&unconfined). The stock profile only allows
+  # signals to the plain label, so same-label signals are denied. On the
+  # affected node the denials ran to hundreds in minutes, and two database
+  # replicas sat in recovery for hours at the same time.
+  #
+  # containerd only generates its default profile when none with that name
+  # is loaded, so shipping the stock profile plus one stacked-label signal
+  # rule in /etc/apparmor.d is enough. The gate is the OS release, not a
+  # hostname. Drop this play and its file when this OS line stops stacking
+  # the label, or when the upstream template gains a stacked-label rule.
+  # Until then, re-check the shipped copy against the stock template on
+  # every k3s or containerd upgrade: this file shadows the stock text a
+  # new version would generate.
+  tasks:
+    - name: Install the CRI AppArmor profile with the stacked-label signal rule
+      copy:
+        src: files/cri-containerd.apparmor.d
+        dest: /etc/apparmor.d/cri-containerd.apparmor.d
+        owner: root
+        group: root
+        mode: '0644'
+        validate: /usr/sbin/apparmor_parser -Q %s
+      when: >-
+        ansible_facts['distribution'] == 'Ubuntu' and
+        ansible_facts['distribution_version'] == '26.04'
+      register: cri_apparmor_profile
+
+    - name: Load the CRI AppArmor profile
+      command: apparmor_parser -r /etc/apparmor.d/cri-containerd.apparmor.d
+      when: cri_apparmor_profile.changed
