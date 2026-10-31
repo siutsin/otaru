@@ -120,6 +120,18 @@ clusters:
     namespace: hydra
     affinity:
       podAntiAffinityType: required
+      # 2026-10-30: keep this single instance off ai-00. On that node, new
+      # Postgres backends stalled in local authentication during maintenance
+      # and the dead backends filled every connection slot. Drop this block
+      # when ai-00 passes a clean maintenance run.
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    - ai-00
     # 2026-07-27: the replica join stayed Pending because required
     # anti-affinity excludes the primary node and every other node lacks
     # the requested memory. Run one instance while 3-hourly backups and
