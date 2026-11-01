@@ -244,7 +244,7 @@ prometheus:
     image:
       registry: dhi.io
       repository: node-exporter
-      tag: 1.12.1@sha256:29e0d3eacc0edb62e014da9ab68d7530f11e5de6b4e51d607b24a1371c4baaba
+      tag: 1.12.1@sha256:a66296c868875c85174d877517fd0b51a882972e6624bb813bdea755b6a115cb
     resources:
       requests:
         cpu: 50m
