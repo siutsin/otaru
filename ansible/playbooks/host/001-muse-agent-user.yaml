@@ -19,6 +19,11 @@
       - /usr/local/bin/crictl images *
       - /usr/local/bin/crictl stats
       - /usr/local/bin/crictl stats *
+      # Firewall state is root-only to read. These forms print it and cannot change it.
+      - /usr/sbin/ufw status
+      - /usr/sbin/ufw status numbered
+      - /usr/sbin/ufw status verbose
+      - /usr/sbin/nft list ruleset
 
   tasks:
     - name: Create the muse user
