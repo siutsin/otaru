@@ -3,7 +3,7 @@ name: Auto Update Heartbeats
 on:
   schedule:
     # Run daily at 09:00 UTC
-    - cron: '0 9 * * *'
+    - cron: '17 9 * * *'
   workflow_dispatch: # Allow manual triggering
 
 permissions:
