@@ -3,5 +3,5 @@ locals {
   b2_version         = "~> 0.13"
   cloudflare_version = "~> 5.22"
   github_version     = "~> 6.13"
-  unifi_version      = "= 0.57.0"
+  unifi_version      = "= 0.65.0"
 }
