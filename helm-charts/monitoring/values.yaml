@@ -223,6 +223,8 @@ prometheus:
       registry: dhi.io
       repository: kube-state-metrics
       tag: 2.20.0@sha256:96a22c0ab04fc74c25b3ec86d09c967e7efa550e81d1abaa4be99d6e46753243
+    metricLabelsAllowlist:
+      - persistentvolumeclaims=[storage-alerts]
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
@@ -577,49 +579,6 @@ prometheus:
                 description: "The Falco rule {{ $labels.rule_name }} matched in the last 10 minutes. Search Loki for the rule name to find the pod and command."
         - name: zot
           rules:
-            - alert: ZotPVCUsageHigh
-              expr: kubelet_volume_stats_used_bytes{namespace="zot"} / kubelet_volume_stats_capacity_bytes{namespace="zot"} > 0.75
-              for: 15m
-              labels:
-                severity: warning
-              annotations:
-                title: Zot registry volume above 75 percent full
-                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
-                description: "The zot registry volume has been above 75 percent full for over 15 minutes. Check retention and volume growth."
-            - alert: ZotPVCUsageCritical
-              expr: kubelet_volume_stats_used_bytes{namespace="zot"} / kubelet_volume_stats_capacity_bytes{namespace="zot"} > 0.85
-              for: 15m
-              labels:
-                severity: critical
-              annotations:
-                title: Zot registry volume above 85 percent full
-                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
-                description: "The zot registry volume has been above 85 percent full for over 15 minutes. Expand the volume or tighten retention."
-            # Guards: the 7-day offset term is empty until a full 7 days of
-            # samples exist, and the 1-day term keeps a one-off step from
-            # refiring as it ages through the window while usage is flat.
-            - alert: ZotPVCStorageGrowth
-              expr: |
-                (
-                  predict_linear(kubelet_volume_stats_used_bytes{namespace="zot"}[7d], 14 * 24 * 3600)
-                  >
-                  kubelet_volume_stats_capacity_bytes{namespace="zot"}
-                )
-                and on (namespace, persistentvolumeclaim)
-                (
-                  (kubelet_volume_stats_used_bytes{namespace="zot"} - kubelet_volume_stats_used_bytes{namespace="zot"} offset 7d) > 0
-                )
-                and on (namespace, persistentvolumeclaim)
-                (
-                  (kubelet_volume_stats_used_bytes{namespace="zot"} - kubelet_volume_stats_used_bytes{namespace="zot"} offset 1d) > 0
-                )
-              for: 1h
-              labels:
-                severity: warning
-              annotations:
-                title: Zot registry volume fills within 14 days at the current growth rate
-                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
-                description: "The 7-day fit predicts a full zot registry volume within 14 days, and used bytes grew over both the last 7 days and the last day. Expand the volume or tighten retention."
             - alert: ZotDown
               expr: absent(up{job="zot", namespace="zot", service="zot"})
               for: 5m
@@ -665,6 +624,83 @@ prometheus:
                 title: Gateway denied requests above baseline
                 summary: "internal gateway listener"
                 description: "The internal gateway denied at least 5 requests in 15 minutes, or the denied-request series is missing. Check the zot route SecurityPolicy client CIDRs first."
+        - name: storage
+          rules:
+            # PVCs labelled storage-alerts=disabled are excluded: they are filled by
+            # design and expanded on demand, so a level alert on them would be
+            # permanent noise.
+            - alert: StoragePVCUsageHigh
+              expr: |
+                (
+                  max by (namespace, persistentvolumeclaim) (
+                    kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+                  )
+                  unless on (namespace, persistentvolumeclaim)
+                  max by (namespace, persistentvolumeclaim) (
+                    kube_persistentvolumeclaim_labels{label_storage_alerts="disabled"}
+                  )
+                ) > 0.85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Persistent volume above 85 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "This volume has been above 85 percent full for over 15 minutes. Expand the volume or free space before it fills."
+            - alert: StoragePVCUsageCritical
+              expr: |
+                (
+                  max by (namespace, persistentvolumeclaim) (
+                    kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+                  )
+                  unless on (namespace, persistentvolumeclaim)
+                  max by (namespace, persistentvolumeclaim) (
+                    kube_persistentvolumeclaim_labels{label_storage_alerts="disabled"}
+                  )
+                ) > 0.95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Persistent volume above 95 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "This volume has been above 95 percent full for over 15 minutes. Expand the volume or free space now; writes fail when it reaches 100 percent."
+            - alert: StorageEphemeralUsageHigh
+              expr: max by (pod_namespace, pod_name, container) (ephemeral_storage_container_limit_percentage{source="container"}) > 85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Container ephemeral storage above 85 percent of its limit
+                summary: "{{ $labels.container }} in {{ $labels.pod_name }} ({{ $labels.pod_namespace }})"
+                description: "This container has used over 85 percent of its ephemeral-storage limit for over 15 minutes. Raise the limit or reduce local writes before the pod is evicted."
+            - alert: StorageEphemeralUsageCritical
+              expr: max by (pod_namespace, pod_name, container) (ephemeral_storage_container_limit_percentage{source="container"}) > 95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Container ephemeral storage above 95 percent of its limit
+                summary: "{{ $labels.container }} in {{ $labels.pod_name }} ({{ $labels.pod_namespace }})"
+                description: "This container has used over 95 percent of its ephemeral-storage limit for over 15 minutes. Raise the limit or reduce local writes now; the pod is evicted at 100 percent."
+            - alert: StorageNodeFilesystemUsageHigh
+              expr: max by (node) (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) > 0.85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Node root filesystem above 85 percent full
+                summary: "{{ $labels.node }}"
+                description: "The root filesystem on this node has been above 85 percent full for over 15 minutes. Free space or expand the disk before kubelet starts evicting pods."
+            - alert: StorageNodeFilesystemUsageCritical
+              expr: max by (node) (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) > 0.95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Node root filesystem above 95 percent full
+                summary: "{{ $labels.node }}"
+                description: "The root filesystem on this node has been above 95 percent full for over 15 minutes. Free space or expand the disk now; a full root disk takes the node out of service."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
