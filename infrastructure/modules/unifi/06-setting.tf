@@ -24,7 +24,7 @@ resource "unifi_setting" "this" {
     ip               = each.value.syslog.ip
     log_all_contents = each.value.syslog.log_all_contents
     port             = each.value.syslog.port
-    this_controller = {
+    this_controller = each.value.syslog.this_controller == null && each.value.syslog.this_controller_encrypted_only == null ? null : {
       enabled        = each.value.syslog.this_controller
       encrypted_only = each.value.syslog.this_controller_encrypted_only
     }

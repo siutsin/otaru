@@ -146,12 +146,12 @@ variable "setting" {
     ssh_key_type   = optional(string, "ssh-rsa")
     ssh_public_key = string
     syslog = optional(object({
-      enabled                        = bool
+      enabled                        = optional(bool)
       ip                             = optional(string)
-      log_all_contents               = bool
+      log_all_contents               = optional(bool)
       port                           = optional(number)
-      this_controller                = bool
-      this_controller_encrypted_only = bool
+      this_controller                = optional(bool)
+      this_controller_encrypted_only = optional(bool)
     }))
     usg = optional(object({
       broadcast_ping       = bool
