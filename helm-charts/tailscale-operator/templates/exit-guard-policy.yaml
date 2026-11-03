@@ -59,8 +59,10 @@ spec:
             operator: Equals
             value: 0
       mutate:
-        # No Prometheus history. The process is a 15s iptables loop.
-        # Memory request and limit are 32Mi. Ephemeral-storage request and limit are 32Mi.
+        # The process is a 15s iptables loop.
+        # Memory request and limit are 32Mi. Ephemeral-storage request is 32Mi, limit 64Mi.
+        # 2026-11-03: ephemeral limit raised from 32Mi — the container sat at 100% of 32Mi,
+        # filled by its own guard loop's log output; a healthy replica uses ~0.2 MB.
         # CPU request is 5m. No CPU limit.
         patchesJson6902: |-
           - op: add
@@ -93,5 +95,5 @@ spec:
                   ephemeral-storage: 32Mi
                 limits:
                   memory: 32Mi
-                  ephemeral-storage: 32Mi
+                  ephemeral-storage: 64Mi
 {{- end }}
