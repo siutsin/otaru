@@ -14,3 +14,4 @@ volumes: {}
   #   nodeSelector: []     # optional, defaults to [] (no replica placement restriction)
   #   enableBackup: true  # optional, defaults to true
   #   enableTrim: true    # optional, defaults to true
+  #   labels: {}          # optional, defaults to none (extra labels on the PVC only)
