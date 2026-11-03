@@ -180,6 +180,17 @@ spec:
         - operation:
             ports:
               - "3100"
+    # Alloy ships the syslog ingest stream; it gets the push path and nothing else.
+    - from:
+        - source:
+            principals:
+              - {{ $alloyPrincipal }}
+      to:
+        - operation:
+            paths:
+              - /loki/api/v1/push
+            ports:
+              - "3100"
     # Prometheus scrapes /metrics only; it gets no access to the log query or push paths.
     - from:
         - source:

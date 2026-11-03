@@ -542,6 +542,17 @@ prometheus:
                 title: Log ingestion into Loki has stopped
                 summary: "Loki is receiving almost no log lines"
                 description: "Ingestion has been below 20 lines/s for over 30 minutes. Check the fluent-bit DaemonSet and the Loki pods."
+            # The syslog stream is a trickle by nature, so a rate floor cannot
+            # catch its receiver dying; watch for the source metric itself.
+            - alert: SyslogIngestSilent
+              expr: absent(loki_source_syslog_entries_total)
+              for: 30m
+              labels:
+                severity: warning
+              annotations:
+                title: Syslog ingest has gone silent
+                summary: "Alloy reports no syslog source"
+                description: "The loki_source_syslog_entries_total series has been absent for over 30 minutes, so the syslog listener in Alloy has stopped or Prometheus stopped scraping it. LAN devices sending syslog (UniFi first) are logging into the void."
             # Floor tuned from real data (2026-10-13): the quiet-period rate
             # is ~4 spans/s, so the first floor of 15 fired on a healthy
             # pipeline. 1 span/s still catches a full stop, with absent().
@@ -1223,6 +1234,10 @@ alloy:
         port: 4318
         targetPort: 4318
         protocol: TCP
+      - name: syslog
+        port: 5514
+        targetPort: 5514
+        protocol: UDP
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -1288,6 +1303,38 @@ alloy:
               insecure = true
             }
           }
+        }
+
+        // Syslog ingest for LAN devices, UniFi first. The syslog header
+        // hostname is kept as the host label; entries land in Loki under
+        // job="syslog".
+        loki.source.syslog "ingest" {
+          listener {
+            address       = "0.0.0.0:5514"
+            protocol      = "udp"
+            syslog_format = "rfc3164"
+          }
+
+          relabel_rules = loki.relabel.syslog.rules
+          forward_to    = [loki.write.default.receiver]
+        }
+
+        loki.relabel "syslog" {
+          forward_to = []
+
+          rule {
+            action        = "replace"
+            source_labels = ["__syslog_message_hostname"]
+            target_label  = "host"
+          }
+        }
+
+        loki.write "default" {
+          endpoint {
+            url = "http://monitoring-loki:3100/loki/api/v1/push"
+          }
+
+          external_labels = { job = "syslog" }
         }
 
 tempo:

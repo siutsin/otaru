@@ -90,3 +90,15 @@ spec:
                 operator: In
                 values:
                   - home-assistant
+    - name: syslog-udp
+      protocol: UDP
+      port: 514
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - monitoring
