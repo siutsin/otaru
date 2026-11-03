@@ -60,6 +60,9 @@ metadata:
     {{- if or $value.enableTrim (not (hasKey $value "enableTrim")) }}
     recurring-job-group.longhorn.io/trim: enabled
     {{- end }}
+    {{- with $value.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   storageClassName: longhorn-crypto-global
   accessModes:
