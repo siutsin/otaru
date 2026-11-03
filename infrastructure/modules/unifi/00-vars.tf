@@ -147,7 +147,9 @@ variable "setting" {
     ssh_public_key = string
     syslog = optional(object({
       enabled                        = bool
+      ip                             = optional(string)
       log_all_contents               = bool
+      port                           = optional(number)
       this_controller                = bool
       this_controller_encrypted_only = bool
     }))
