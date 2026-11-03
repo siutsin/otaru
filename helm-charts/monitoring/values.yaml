@@ -223,6 +223,8 @@ prometheus:
       registry: dhi.io
       repository: kube-state-metrics
       tag: 2.20.0@sha256:96a22c0ab04fc74c25b3ec86d09c967e7efa550e81d1abaa4be99d6e46753243
+    metricLabelsAllowlist:
+      - persistentvolumeclaims=[storage-alerts]
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
@@ -624,11 +626,18 @@ prometheus:
                 description: "The internal gateway denied at least 5 requests in 15 minutes, or the denied-request series is missing. Check the zot route SecurityPolicy client CIDRs first."
         - name: storage
           rules:
+            # PVCs labelled storage-alerts=disabled are excluded: they are filled by
+            # design and expanded on demand, so a level alert on them would be
+            # permanent noise.
             - alert: StoragePVCUsageHigh
               expr: |
                 (
                   max by (namespace, persistentvolumeclaim) (
                     kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+                  )
+                  unless on (namespace, persistentvolumeclaim)
+                  max by (namespace, persistentvolumeclaim) (
+                    kube_persistentvolumeclaim_labels{label_storage_alerts="disabled"}
                   )
                 ) > 0.85
               for: 15m
@@ -643,6 +652,10 @@ prometheus:
                 (
                   max by (namespace, persistentvolumeclaim) (
                     kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+                  )
+                  unless on (namespace, persistentvolumeclaim)
+                  max by (namespace, persistentvolumeclaim) (
+                    kube_persistentvolumeclaim_labels{label_storage_alerts="disabled"}
                   )
                 ) > 0.95
               for: 15m
