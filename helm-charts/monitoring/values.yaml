@@ -1320,7 +1320,7 @@ alloy:
           }
 
           relabel_rules = loki.relabel.syslog.rules
-          forward_to    = [loki.write.default.receiver]
+          forward_to    = [loki.process.syslog_redact.receiver]
         }
 
         loki.relabel "syslog" {
@@ -1331,6 +1331,15 @@ alloy:
             source_labels = ["__syslog_message_hostname"]
             target_label  = "host"
           }
+        }
+
+        loki.process "syslog_redact" {
+          stage.replace {
+            expression = "authkey: ([0-9a-fA-F]{32})"
+            replace    = "REDACTED"
+          }
+
+          forward_to = [loki.write.default.receiver]
         }
 
         loki.write "default" {
