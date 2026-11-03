@@ -131,7 +131,7 @@ grafana:
     # Same recurring garbage-collection failure mode as the main teslamate
     # image (see deployment.image comment). Digest bumps: 2026-08-13,
     # 2026-09-06 (digest fe24cb24 gone).
-    tag: main@sha256:2a8ec63b858da291f8b396be378ddd8ccd7a306fc7a51ce5aaa86a5a2432509f
+    tag: main@sha256:cd0d2386181e2b103c86c6a5f7ca45de75ccf47b378b38719510580fc149f82a
   database:
     secretName: *databaseAppSecretName
   envValueFrom:
