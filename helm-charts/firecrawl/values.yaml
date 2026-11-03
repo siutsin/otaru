@@ -18,7 +18,7 @@ authentication:
 api:
   image:
     repository: ghcr.io/firecrawl/firecrawl
-    tag: 2.11.674@sha256:c16a13d23847f04099da9988534dc893642dfa3bc3c81582d80c88ef15405af4
+    tag: 2.11.675@sha256:d09cf901d41753b090f9e184fd2d6b5979f38951e79bff8a8fba9fc2e1637b25
   port: 3002
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. One NuQ worker
