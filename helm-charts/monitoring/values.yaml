@@ -1189,7 +1189,7 @@ alloy:
     repository: grafana/alloy
     # The digest goes in its own field, not in the tag: the chart builds
     # the app version label from the tag, and @sha256 makes it invalid.
-    tag: v1.21.2
+    tag: v1.21.3
     digest: sha256:89a5a320168387336b9ac3c850609c3ba7757eadd4ae5f1d819deb35e9854b18
   # 2026-10-13: Kyverno denied the Deployment because the chart default for
   # the reloader sidecar sets requests only; add limits and ephemeral-storage.
