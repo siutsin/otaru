@@ -114,6 +114,9 @@ else (module structure, non-identifying defaults) in HCL:
       "device-key": {
         "mac": "00:00:00:00:00:00"
       }
+    },
+    "syslog": {
+      "ip": "syslog.example.com"
     }
   }
 }
