@@ -53,7 +53,7 @@ spec:
               port: 3000
           readinessProbe:
             httpGet:
-              path: "jung2bot/{{ .Values.app.env.stage }}/ping"
+              path: "/health"
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 3
