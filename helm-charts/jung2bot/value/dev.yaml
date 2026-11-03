@@ -16,9 +16,9 @@ app:
     messageTable: jung2bot-dev-messages
     # Must exceed the tables' provisioned read capacity of 1, or UpdateTable is
     # a no-op that the service reports as success.
-    scaleUpReadCapacity: 2
+    scaleUpReadCapacity: 600
     stage: dev
   autoscaling:
-    min: 1
-    cron: 2
-    max: 4
+    min: 3
+    cron: 20
+    max: 40
