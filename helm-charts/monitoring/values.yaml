@@ -976,12 +976,14 @@ loki:
       # 2026-09-22: relax req==limit (user-approved). Steady use ~680Mi.
       # 2026-09-23: right-size on 30d baseline; request 649Mi, limit 1047Mi
       # (limit raised for ingestion bursts).
+      # 2026-11-03: 30d peak 1044.6Mi is 99.8% of the 1047Mi limit; limit =
+      # ceil(peak x 1.2) = 1254Mi. Request unchanged (p50-derived).
       requests:
         cpu: 100m
         memory: 649Mi
         ephemeral-storage: 128Mi
       limits:
-        memory: 1047Mi
+        memory: 1254Mi
         ephemeral-storage: 128Mi
   minio:
     enabled: false
@@ -1246,12 +1248,14 @@ alloy:
     resources:
       # KRR 2026-10-22: 30d peak 253.2Mi is 98.9% of the old 256Mi limit;
       # p50 71.2Mi. Request = ceil(p50 / 0.9), limit = ceil(peak x 1.2).
+      # 2026-11-03: 30d peak 291.3Mi is 95.8% of the 304Mi limit; limit =
+      # ceil(peak x 1.2) = 350Mi. Request unchanged.
       requests:
         cpu: 50m
         memory: 80Mi
         ephemeral-storage: 64Mi
       limits:
-        memory: 304Mi
+        memory: 350Mi
         ephemeral-storage: 64Mi
     configMap:
       create: true
