@@ -665,6 +665,75 @@ prometheus:
                 title: Gateway denied requests above baseline
                 summary: "internal gateway listener"
                 description: "The internal gateway denied at least 5 requests in 15 minutes, or the denied-request series is missing. Check the zot route SecurityPolicy client CIDRs first."
+        - name: storage
+          rules:
+            # Jellyfin media volumes are excluded by name prefix in the two
+            # PVC rules: they are filled deliberately and expanded on
+            # demand, so a level alert on them would be permanent noise.
+            - alert: StoragePVCUsageHigh
+              expr: |
+                max by (namespace, persistentvolumeclaim) (
+                  kubelet_volume_stats_used_bytes{persistentvolumeclaim!~"jellyfin-media-.*"}
+                  /
+                  kubelet_volume_stats_capacity_bytes{persistentvolumeclaim!~"jellyfin-media-.*"}
+                ) > 0.85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Persistent volume above 85 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "This volume has been above 85 percent full for over 15 minutes. Expand the volume or free space before it fills."
+            - alert: StoragePVCUsageCritical
+              expr: |
+                max by (namespace, persistentvolumeclaim) (
+                  kubelet_volume_stats_used_bytes{persistentvolumeclaim!~"jellyfin-media-.*"}
+                  /
+                  kubelet_volume_stats_capacity_bytes{persistentvolumeclaim!~"jellyfin-media-.*"}
+                ) > 0.95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Persistent volume above 95 percent full
+                summary: "{{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }}"
+                description: "This volume has been above 95 percent full for over 15 minutes. Expand the volume or free space now; writes fail when it reaches 100 percent."
+            - alert: StorageEphemeralUsageHigh
+              expr: max by (pod_namespace, pod_name, container) (ephemeral_storage_container_limit_percentage{source="container"}) > 85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Container ephemeral storage above 85 percent of its limit
+                summary: "{{ $labels.container }} in {{ $labels.pod_name }} ({{ $labels.pod_namespace }})"
+                description: "This container has used over 85 percent of its ephemeral-storage limit for over 15 minutes. Raise the limit or reduce local writes before the pod is evicted."
+            - alert: StorageEphemeralUsageCritical
+              expr: max by (pod_namespace, pod_name, container) (ephemeral_storage_container_limit_percentage{source="container"}) > 95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Container ephemeral storage above 95 percent of its limit
+                summary: "{{ $labels.container }} in {{ $labels.pod_name }} ({{ $labels.pod_namespace }})"
+                description: "This container has used over 95 percent of its ephemeral-storage limit for over 15 minutes. Raise the limit or reduce local writes now; the pod is evicted at 100 percent."
+            - alert: StorageNodeFilesystemUsageHigh
+              expr: max by (node, instance) (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) > 0.85
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                title: Node root filesystem above 85 percent full
+                summary: "{{ $labels.node }}"
+                description: "The root filesystem on this node has been above 85 percent full for over 15 minutes. Free space or expand the disk before kubelet starts evicting pods."
+            - alert: StorageNodeFilesystemUsageCritical
+              expr: max by (node, instance) (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) > 0.95
+              for: 15m
+              labels:
+                severity: critical
+              annotations:
+                title: Node root filesystem above 95 percent full
+                summary: "{{ $labels.node }}"
+                description: "The root filesystem on this node has been above 95 percent full for over 15 minutes. Free space or expand the disk now; a full root disk takes the node out of service."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
