@@ -57,7 +57,7 @@ tailscale-operator:
   operatorConfig:
     image:
       repository: tailscale/k8s-operator
-      tag: v1.104.2@sha256:9cddfcbe75a7eab2b46d610966d519a28699a5e38235a2cb3aec960487c4aa48
+      tag: v1.104.4@sha256:68fc0aa4e1c3d7ba19ca41c0bc27f17b2a5a8dca6c10efcdd18020a6bf97768d
       pullPolicy: IfNotPresent
     resources:
       # 2026-09-23: right-sized on 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)). No CPU limit. Operator creates Connector TUN proxies at runtime.
