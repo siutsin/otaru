@@ -704,13 +704,13 @@ prometheus:
         - name: jung2bot
           rules:
             - alert: Jung2botTelegramAccountUnhealthy
-              expr: telegram_jung2_bot_ready{namespace="jung2bot"} == 0
+              expr: min by (namespace) (telegram_jung2_bot_ready{namespace="jung2bot"}) == 0
               for: 10m
               labels:
                 severity: warning
               annotations:
                 title: jung2bot Telegram account unhealthy
-                summary: "{{ $labels.pod }} in {{ $labels.namespace }}"
+                summary: "{{ $labels.namespace }}"
                 description: "The bot reports its Telegram account state as unhealthy. The pods keep running and stay ready; check the bot's Telegram account state."
 
 prometheus-blackbox-exporter:
