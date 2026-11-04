@@ -701,6 +701,17 @@ prometheus:
                 title: Node root filesystem above 95 percent full
                 summary: "{{ $labels.node }}"
                 description: "The root filesystem on this node has been above 95 percent full for over 15 minutes. Free space or expand the disk now; a full root disk takes the node out of service."
+        - name: jung2bot
+          rules:
+            - alert: Jung2botTelegramAccountUnhealthy
+              expr: telegram_jung2_bot_ready{namespace="jung2bot"} == 0
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                title: jung2bot Telegram account unhealthy
+                summary: "{{ $labels.pod }} in {{ $labels.namespace }}"
+                description: "The bot reports its Telegram account state as unhealthy. The pods keep running and stay ready; check the bot's Telegram account state."
 
 prometheus-blackbox-exporter:
   fullnameOverride: blackbox
