@@ -57,13 +57,14 @@ spec:
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 3
+          # 64Mi cap OOM-killed the bot during the weekday fan-out (peak working set ~118Mi); request is the 32Mi floor, limit is peak x1.2.
           resources:
             requests:
               cpu: "0.1"
-              memory: "64Mi"
+              memory: "32Mi"
               ephemeral-storage: "100Mi"
             limits:
-              memory: "64Mi"
+              memory: "142Mi"
               ephemeral-storage: "100Mi"
           env:
             - name: PROFILE
