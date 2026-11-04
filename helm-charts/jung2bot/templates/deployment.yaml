@@ -11,14 +11,6 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.name }}
-  # Readiness can stay false for a long time (a frozen account), so a
-  # rollout must be able to replace every pod before replacements are
-  # ready. A broken rollout can drain all serving pods; reverting the
-  # release restores them.
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: "100%"
   template:
     metadata:
       labels:
@@ -61,7 +53,7 @@ spec:
               port: 3000
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: "jung2bot/{{ .Values.app.env.stage }}/ping"
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 3
