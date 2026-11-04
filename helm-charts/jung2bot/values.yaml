@@ -32,10 +32,13 @@ app:
     profile: default
     scaleUpReadCapacity: 600
     stage: prod
+  # Temporary while the bot account is frozen (2026-11-04): prod has no
+  # traffic to serve. Restore min 3 / cron 20 / max 40 when it recovers.
+  # Dev is unaffected: value/dev.yaml pins its own autoscaling values.
   autoscaling:
-    min: 3
-    cron: 20
-    max: 40
+    min: 1
+    cron: 1
+    max: 3
 
 cron:
   offWork:
