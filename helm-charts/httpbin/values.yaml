@@ -14,4 +14,4 @@ app:
     tag: 0.2.3@sha256:dfc30dd35cf7198ad580f532402c1b46f6a774bea807a046434e6042b39be87b
   autoscaling:
     min: 2
-    max: 6
+    max: 2
