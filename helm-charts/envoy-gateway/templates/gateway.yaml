@@ -32,8 +32,6 @@ spec:
                   - blocky
                   - browserless
                   - changedetection
-                  - cyberchef
-                  - excalidraw
                   - firecrawl
                   - gateway
                   - hermes
@@ -43,7 +41,6 @@ spec:
                   - inference
                   - istio-system
                   - jellyfin
-                  - jsoncrack
                   - jung2bot
                   - jung2bot-dev
                   - kubernetes-mcp-server
