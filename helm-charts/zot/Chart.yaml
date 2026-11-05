@@ -6,5 +6,5 @@ version: 0.1.0
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
   - name: zot
-    version: 0.1.128
+    version: 0.1.130
     repository: https://project-zot.github.io/helm-charts
