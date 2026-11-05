@@ -16,6 +16,10 @@ pvcDeleteNamespaces:
 pvcProofNamespaces:
   - jellyfin
 
+# Namespaces where the agent may manage PodDisruptionBudgets, to unblock a stuck workload deletion.
+pdbNamespaces:
+  - jsoncrack
+
 # Namespaces where the agent may patch Longhorn volumes and engines, for engine upgrades.
 longhornNamespaces:
   - longhorn-system

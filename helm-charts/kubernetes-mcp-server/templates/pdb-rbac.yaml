@@ -1,0 +1,26 @@
+{{- range .Values.pdbNamespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mcp-pdb
+  namespace: {{ . }}
+rules:
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "create", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mcp-pdb
+  namespace: {{ . }}
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-mcp-server
+    namespace: kubernetes-mcp-server
+roleRef:
+  kind: Role
+  name: mcp-pdb
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
