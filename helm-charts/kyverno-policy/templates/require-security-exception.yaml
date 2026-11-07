@@ -83,7 +83,6 @@ spec:
             - jellyfin
           names:
             - jellyfin-internal
-            - jellyfin-threadfin-internal-http
       - resources:
           kinds:
             - HTTPRoute
