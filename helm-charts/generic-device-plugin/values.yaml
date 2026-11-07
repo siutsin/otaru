@@ -6,7 +6,7 @@ image:
   # critical and high-severity flaws in its 2023 Go build, with no fixed
   # upstream image of this source.
   repository: ghcr.io/siutsin/images/generic-device-plugin
-  tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:4b2922e3dab955e16dc50f99112f17a3f2ef17f2d9800729742cdc8adc19bf27
+  tag: 2a30fdce45cd8abe4cf8d705b656824fd9dd3a0f@sha256:dc57d959bdf1aa2ac4c2fb68960adfaa40965ba935c7fd89a0a34a912a5b95a6
 
 nodeSelector:
   otaru.io/ai: "true"
