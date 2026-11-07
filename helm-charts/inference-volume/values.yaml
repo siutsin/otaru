@@ -6,7 +6,7 @@ longhorn-volume-lib:
       sizeBytes: "42949672960"
       # Longhorn Volume.spec.fromBackup is a string; keep it empty for a new volume.
       fromBackup: ""
-      numberOfReplicas: 2
+      numberOfReplicas: 1
       # Keep the replica on the pod node (ai-00) so model loads read locally.
       dataLocality: best-effort
       # The GGUF downloads again from Hugging Face.
