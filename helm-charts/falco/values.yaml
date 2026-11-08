@@ -41,15 +41,12 @@ falco:
   resources:
     # 2026-10-09: no live baseline yet. Upstream default is req 512Mi /
     # lim 1024Mi. Req==limit per repo policy. Revisit after 30d.
-    # KRR 2026-11-08: 30d p50 ~83.8Mi, spike ~166.9Mi. Request 512Mi -> 94Mi
-    # (ceil(p50/0.9)), limit 512Mi -> 201Mi (ceil(spike*1.2)).
-    # HOTFIX 2026-11-08: the 201Mi limit OOMKilled falco on ai-00 at startup
-    # (exit 137, CrashLoopBackOff) minutes after the resize merged; the
-    # hourly rollup missed the startup spike on that node. Limit back to
-    # the prior healthy 512Mi; request stays 94Mi.
+    # 2026-11-08: 201Mi limit OOMKilled the ai-00 pod ~3 min after the
+    # resize rollout (exit 137, CrashLoopBackOff). 512Mi restored as the
+    # past-incident guardrail until the 03:40 OOMKill is attributed.
     requests:
       cpu: 100m
-      memory: 94Mi
+      memory: 512Mi
       ephemeral-storage: 128Mi
     limits:
       memory: 512Mi
