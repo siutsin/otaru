@@ -6,5 +6,5 @@ version: 0.1.0
 icon: https://raw.githubusercontent.com/helm/helm/main/assets/images/helm.svg
 dependencies:
   - name: trivy-operator
-    version: 0.37.0
+    version: 0.38.1
     repository: https://aquasecurity.github.io/helm-charts
