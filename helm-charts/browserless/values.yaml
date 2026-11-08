@@ -43,15 +43,13 @@ probes:
 shmSizeLimit: 2Gi
 
 resources:
-  # New workload, no usage history, so request = limit per the new-chart
-  # rule. Values come from the upstream docs light tier (2 CPU, 4 GB)
-  # scaled to two sessions, and the memory limit must also absorb the
-  # 2 GiB /dev/shm volume, which Kubernetes charges to the pod. The
-  # right-sizing pass revisits the values after 30 days of data.
+  # KRR 2026-11-08: 30d p50 ~456.8Mi, spike ~2292.5Mi. Request 4Gi -> 508Mi
+  # (ceil(p50/0.9)), limit 4Gi -> 2752Mi (ceil(spike*1.2)). The limit still
+  # absorbs the 2 GiB /dev/shm volume charged to the pod.
   requests:
     cpu: 1000m
-    memory: 4Gi
+    memory: 508Mi
     ephemeralStorage: 1Gi
   limits:
-    memory: 4Gi
+    memory: 2752Mi
     ephemeralStorage: 4Gi

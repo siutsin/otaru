@@ -47,14 +47,18 @@ trivy-operator:
       # removed by a null override in the trivy-operator Application values.
       # 2026-10-19: the server pod was evicted once at the 1Gi
       # ephemeral-storage limit. Limit raised to 2Gi, request stays 512Mi.
+      # KRR 2026-11-08: 30d p50 ~54.1Mi, spike ~226.5Mi. Request 512Mi -> 61Mi
+      # (ceil(p50/0.9)), limit 1Gi -> 272Mi (ceil(spike*1.2)). Ephemeral
+      # 14d peak ~1781Mi vs the 2Gi limit (87%): limit 2Gi -> 2138Mi
+      # (ceil(peak*1.2)), request 512Mi -> 1Gi; the 2Gi eviction floor stands.
       resources:
         requests:
           cpu: 200m
-          memory: 512Mi
-          ephemeral-storage: 512Mi
+          memory: 61Mi
+          ephemeral-storage: 1Gi
         limits:
-          memory: 1Gi
-          ephemeral-storage: 2Gi
+          memory: 272Mi
+          ephemeral-storage: 2138Mi
       # 2026-10-18: Kyverno require-container-hardening demands
       # allowPrivilegeEscalation: false and drop ALL; the upstream
       # defaults omit both. The block is set in full.
@@ -69,12 +73,15 @@ trivy-operator:
     # 2026-10-09: OOMKilled at 256Mi on first sync (exit 137). Raise to
     # 512Mi. Resize after metrics.
     # KRR 2026-10-11: 30d spike ~498.0Mi vs 512Mi limit (97.3% — OOM risk); limit -> 598Mi (ceil(spike*1.2)). Request stays 512Mi.
+    # KRR 2026-11-08: 30d p50 ~273.0Mi, spike ~548.5Mi vs 598Mi limit (91.7%
+    # — OOM risk); limit -> 659Mi (ceil(spike*1.2)). Request stays 512Mi:
+    # that is the value the 256Mi OOMKill fix set, so it is not cut.
     requests:
       cpu: 100m
       memory: 512Mi
       ephemeral-storage: 128Mi
     limits:
-      memory: 598Mi
+      memory: 659Mi
       ephemeral-storage: 128Mi
   service:
     # Same annotated-scrape pattern as Falco. No ServiceMonitor CRD here.

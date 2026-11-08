@@ -41,12 +41,14 @@ falco:
   resources:
     # 2026-10-09: no live baseline yet. Upstream default is req 512Mi /
     # lim 1024Mi. Req==limit per repo policy. Revisit after 30d.
+    # KRR 2026-11-08: 30d p50 ~83.8Mi, spike ~166.9Mi. Request 512Mi -> 94Mi
+    # (ceil(p50/0.9)), limit 512Mi -> 201Mi (ceil(spike*1.2)).
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 94Mi
       ephemeral-storage: 128Mi
     limits:
-      memory: 512Mi
+      memory: 201Mi
       ephemeral-storage: 128Mi
   falcoctl:
     config:

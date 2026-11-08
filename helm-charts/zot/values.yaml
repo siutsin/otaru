@@ -51,13 +51,15 @@ zot:
   # 2026-10-20: starting size. Field reports put zot at 512 MiB to
   # 1 GiB of memory; the sizing rule adjusts from Prometheus data
   # later. No CPU limit, per house rule.
+  # KRR 2026-11-08: 30d p50 ~76.3Mi, spike ~961.7Mi. Request 1Gi -> 85Mi
+  # (ceil(p50/0.9)), limit 1Gi -> 1155Mi (ceil(spike*1.2)).
   resources:
     requests:
       cpu: 100m
-      memory: 1Gi
+      memory: 85Mi
       ephemeral-storage: 512Mi
     limits:
-      memory: 1Gi
+      memory: 1155Mi
       ephemeral-storage: 2Gi
   podSecurityContext:
     runAsNonRoot: true

@@ -52,11 +52,13 @@ secret:
 resources:
   requests:
     cpu: 500m
-    # No usage data yet. Upstream asks for 1GB minimum and 2 to 4GB recommended.
-    memory: 2Gi
+    # KRR 2026-11-08: 30d p50 ~408.9Mi, spike ~948.0Mi. Rule value for the
+    # request is 455Mi, but upstream asks for a 1GB minimum, so the request
+    # stays at 1Gi; limit 2Gi -> 1138Mi (ceil(spike*1.2)).
+    memory: 1Gi
     ephemeralStorage: 1Gi
   limits:
-    memory: 2Gi
+    memory: 1138Mi
     ephemeralStorage: 1Gi
 
 initContainer:
