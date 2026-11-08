@@ -119,6 +119,8 @@ falco:
     # by design (host routing for the gateway).
     # Longhorn runs privileged by design (manager, instance-manager, engine,
     # CSI sidecars); scope to its namespace and image prefix.
+    # The instance-manager debug daemon redirects stdio to its network
+    # connection on every start.
     rules-exceptions.yaml: |-
       - rule: Launch Package Management Process in Container
         exceptions:
@@ -149,6 +151,15 @@ falco:
               - [curl, verify-pitr, umami]
               - [aws, verify-pitr, hydra]
               - [curl, verify-pitr, hydra]
+        override:
+          exceptions: append
+      - rule: Redirect STDOUT/STDIN to Network Connection in Container
+        exceptions:
+          - name: longhorn_instance_manager_stdio
+            fields: [container.name, container.image.repository, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [instance-manager, docker.io/longhornio/longhorn-instance-manager, longhorn-system]
         override:
           exceptions: append
       - rule: Launch Privileged Container
