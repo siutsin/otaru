@@ -59,12 +59,14 @@ valkey:
   port: 6379
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+    # KRR 2026-11-08: 30d p50 ~4.3Mi, spike ~31.2Mi. Request 128Mi -> 32Mi
+    # (floor), limit 128Mi -> 38Mi (ceil(spike*1.2)).
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 32Mi
       ephemeralStorage: 128Mi
     limits:
-      memory: 128Mi
+      memory: 38Mi
       ephemeralStorage: 128Mi
 
 rabbitmq:
@@ -89,12 +91,14 @@ nuq:
     tag: 18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
+    # KRR 2026-11-08: 30d p50 ~76.8Mi, spike ~133.7Mi. Request 128Mi -> 86Mi
+    # (ceil(p50/0.9)), limit 128Mi -> 161Mi (ceil(spike*1.2)).
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 86Mi
       ephemeralStorage: 128Mi
     limits:
-      memory: 128Mi
+      memory: 161Mi
       ephemeralStorage: 128Mi
   jobs:
     - name: nuq-scrape-cleanup
