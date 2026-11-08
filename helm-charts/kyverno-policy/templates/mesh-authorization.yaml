@@ -26,7 +26,7 @@ spec:
           - key: {{ printf "{{ (request.object.spec.selector || `{}`) | length(@) }}" | quote }}
             operator: GreaterThan
             value: 0
-          - key: {{ printf "{{ request.object.spec.ports[?protocol == 'TCP' || protocol == null] | length(@) }}" | quote }}
+          - key: {{ printf "{{ (request.object.spec.ports || `[]`)[?protocol == 'TCP' || protocol == null] | length(@) }}" | quote }}
             operator: GreaterThan
             value: 0
       context:
