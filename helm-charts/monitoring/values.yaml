@@ -82,6 +82,16 @@ prometheus:
           target_label: service
   configmapReload:
     prometheus:
+      image:
+        # 2026-11-08: pin to v0.94.2 — chart 29.42.0's default v0.95.1 is
+        # amd64-only (no arm64 in its manifest list), so the sidecar
+        # ImagePullBackOffs on arm64 nodes and the Deployment goes
+        # unavailable. v0.94.2 is multi-arch (verified against the
+        # registry). Drop this override once a chart default ships a
+        # multi-arch reloader again.
+        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        tag: v0.94.2
+        digest: sha256:a1897c67478bc23434534e91ad3855280771196b1daf17144db9dbcb655bef71
       resources:
         requests:
           cpu: 50m
