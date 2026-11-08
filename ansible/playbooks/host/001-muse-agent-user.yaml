@@ -11,15 +11,9 @@
   # `ss` to the sudoers file: their sudo forms can spawn a root shell, delete
   # the journal or write files as root.
   # Every sudoers entry names its full argument list: an entry without one
-  # lets sudo run the command with any arguments. The key line below carries
-  # no-pty, no-agent-forwarding, no-X11-forwarding and no-user-rc. It does
-  # not carry no-port-forwarding or the `restrict` shorthand that includes
-  # it: raspberrypi-01 is the jump host for raspberrypi-00 and
-  # raspberrypi-02, and an SSH jump opens a port forwarding channel.
-  # The key line carries no `from=` list: the source address sshd sees
-  # varies with the jump route (every source address seen during October
-  # and November 2026 is another node's LAN address), and a wrong list
-  # locks out the diagnostic path during an incident.
+  # lets sudo run the command with any arguments. The key line below turns
+  # off PTY, agent and X11 forwarding, and keeps port forwarding enabled
+  # because this account carries SSH jumps.
   vars:
     muse_sudo_commands:
       - /usr/bin/dmesg ""
