@@ -971,9 +971,9 @@ backend = "npm:markdownlint-cli2"
 specifiers = ["0.24.0"]
 
 [[tools."pipx:ansible-core"]]
-version = "2.21.5"
+version = "2.22.0"
 backend = "pipx:ansible-core"
-specifiers = ["2.21.5"]
+specifiers = ["2.22.0"]
 
 [tools."pipx:ansible-core".options]
 uvx_args = "--python 3.14"
