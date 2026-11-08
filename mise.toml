@@ -24,6 +24,6 @@ node = "24"
 "npm:markdownlint-cli2" = "0.24.0"
 # ansible-core 2.21.5 crashes on Python 3.15 (dataclasses has no _is_type).
 # Remove uvx_args once a release supports 3.15.
-"pipx:ansible-core" = { version = "2.21.5", uvx_args = "--python 3.14" }
+"pipx:ansible-core" = { version = "2.22.0", uvx_args = "--python 3.14" }
 "pipx:poetry" = "2.5.1"
 python = "3.15.2"
