@@ -30,6 +30,7 @@ spec:
       # preStop waits up to 240s for a running periodic save, then saves two slots, each capped at 120s.
       terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
+      priorityClassName: {{ .Values.name }}
       nodeSelector:
         otaru.io/ai: "true"
       initContainers:

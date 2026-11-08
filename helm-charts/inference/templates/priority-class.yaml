@@ -1,0 +1,10 @@
+# ai-00 runs general workloads too. Without this, a restart can leave the
+# inference pod Pending on CPU while lower-priority pods hold the node.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.name }}
+value: 1000000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: Lets the inference pod preempt general workloads on ai-00.
