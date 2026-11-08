@@ -40,7 +40,9 @@ nodes:
         # 500 GB Crucial P2 worker NVMe.
         storageReservedGiB: 30
   ai-00:
-    allowScheduling: true
+    # Scheduling off: the small disk filled with replicas rebuilt during
+    # recovery windows while larger nodes had room (2026-11-08).
+    allowScheduling: false
     disks:
       default:
         path: /var/lib/longhorn/
