@@ -10,15 +10,21 @@
   # group and no kubeconfig access. Do not add `systemctl`, `journalctl` or
   # `ss` to the sudoers file: their sudo forms can spawn a root shell, delete
   # the journal or write files as root.
+  # Every sudoers entry names its full argument list: an entry without one
+  # lets sudo run the command with any arguments. The key line below turns
+  # off PTY, agent and X11 forwarding, and keeps port forwarding enabled
+  # because this account carries SSH jumps.
   vars:
     muse_sudo_commands:
       - /usr/bin/dmesg ""
-      - /usr/local/bin/crictl ps
-      - /usr/local/bin/crictl ps *
-      - /usr/local/bin/crictl images
-      - /usr/local/bin/crictl images *
-      - /usr/local/bin/crictl stats
-      - /usr/local/bin/crictl stats *
+      - /usr/local/bin/crictl ps ""
+      - /usr/local/bin/crictl ps -a
+      - /usr/local/bin/crictl ps -o json
+      - /usr/local/bin/crictl ps -a -o json
+      - /usr/local/bin/crictl images ""
+      - /usr/local/bin/crictl images -o json
+      - /usr/local/bin/crictl stats ""
+      - /usr/local/bin/crictl stats -o json
       # Firewall state is root-only to read. These forms print it and cannot change it.
       - /usr/sbin/ufw status
       - /usr/sbin/ufw status numbered
@@ -37,6 +43,14 @@
         password: '*'
         update_password: always
 
+    - name: Restrict the muse home directory
+      file:
+        path: /home/muse
+        state: directory
+        owner: muse
+        group: muse
+        mode: '0700'
+
     - name: Create the muse .ssh directory
       file:
         path: /home/muse/.ssh
@@ -49,7 +63,7 @@
       copy:
         dest: /home/muse/.ssh/authorized_keys
         content: |
-          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBur0F7+3iuOQ7yJ2ym9uY16cAny8kwfG3WgdYJNBB0R otaru-agent-nodes-2026-10-30
+          no-pty,no-agent-forwarding,no-X11-forwarding,no-user-rc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBur0F7+3iuOQ7yJ2ym9uY16cAny8kwfG3WgdYJNBB0R otaru-agent-nodes-2026-10-30
         owner: muse
         group: muse
         mode: '0600'
