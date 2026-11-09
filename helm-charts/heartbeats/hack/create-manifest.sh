@@ -19,7 +19,9 @@ MANIFEST_URL="https://github.com/siutsin/heartbeats/releases/download/${LATEST_T
 
 pushd "${CRD_PATH}" >/dev/null
 
-yaml_content=$(curl -sL "${MANIFEST_URL}" | yq e 'select(.)')
+# Split filenames come from kind/name, so drop docs without both: a stray
+# doc otherwise becomes templates/-.yaml and breaks helm lint.
+yaml_content=$(curl -sL --fail "${MANIFEST_URL}" | yq e 'select(.kind != null and .metadata.name != null)')
 echo "${yaml_content}" | yq --split-exp '.kind + "-" + (.metadata.name | sub("\.", "-")) + ".yaml" | downcase'
 
 popd >/dev/null
