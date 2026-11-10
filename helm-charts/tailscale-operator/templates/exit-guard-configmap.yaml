@@ -15,6 +15,9 @@ data:
     # An empty chain is an implicit RETURN, so never flush the live chain.
     # iptables -C exits 4 when the xtables lock is busy. That is not
     # proof that the jump is absent.
+    # iptables -C exits 3 when the backend has no tables in the kernel,
+    # as the legacy backend on an nftables node. That backend carries no
+    # traffic, so apply skips it without logging.
     hooked() {
       "$bin" -C FORWARD -j "$1" >/dev/null 2>&1
       rc=$?
@@ -23,6 +26,9 @@ data:
       fi
       if [ "$rc" -eq 1 ] || [ "$rc" -eq 2 ]; then
         return 1
+      fi
+      if [ "$rc" -eq 3 ]; then
+        return 3
       fi
       echo "exit-guard cannot read FORWARD for $1 ($rc)" >&2
       return 2
@@ -53,6 +59,9 @@ data:
       stage=otaru-exit-guard-a
       hooked "$stage"
       rc=$?
+      if [ "$rc" -eq 3 ]; then
+        return 0
+      fi
       if [ "$rc" -eq 2 ]; then
         return 1
       fi
