@@ -232,7 +232,7 @@ prometheus:
       # registry.k8s.io, so both must be set.
       registry: dhi.io
       repository: kube-state-metrics
-      tag: 2.20.0@sha256:96a22c0ab04fc74c25b3ec86d09c967e7efa550e81d1abaa4be99d6e46753243
+      tag: 2.20.0@sha256:ceaa9e815caa090ff710431d1729ae7f63a49f579c1d62311c7f4fff0282952d
     metricLabelsAllowlist:
       - persistentvolumeclaims=[storage-alerts]
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
