@@ -5,7 +5,7 @@ pod-identity-webhook:
   image:
     registry: dhi.io
     repository: amazon-eks-pod-identity-webhook
-    tag: 0.6.19@sha256:513b731cd104a8ef4f5d72e19deafbcaa1a92c48c8716a8f1d022eeb4b000d39
+    tag: 0.6.19@sha256:999ff84e84ff0b53b00111fef1d1301c8b225c0ce9a3495994e108ba6130201d
   replicaCount: 2
   strategy:
     rollingUpdate:
