@@ -110,7 +110,7 @@ prometheus:
   server:
     image:
       repository: dhi.io/prometheus
-      tag: 3.16.0@sha256:0c13d33b8d4043b4de06f23a241a84c984205f7f2b090aae24374951b630967e
+      tag: 3.16.0@sha256:5895ef4d2c32708975270e2f6cdc42ae22a9ceffeae59e9232942af221a1019d
     deploymentAnnotations:
       secret.reloader.stakater.com/reload: blackbox-scrape-config
     # 2026-07-25: no PDB, so the descheduler evicted the sole
