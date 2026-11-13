@@ -7,7 +7,7 @@ falco:
   image:
     registry: dhi.io
     repository: falco
-    tag: 0.45.2@sha256:f6e4cb3783673c28b91520d51e8504b4c347fd4967c70072ed266b6e83d12227
+    tag: 0.45.2@sha256:d0d999bd53a56c9be6aa597df9fd18589ed0d5ec397628b8c503750b61aec16f
   driver:
     # CO-RE eBPF, no per-kernel build. Fits k3s nodes with BTF.
     kind: modern_ebpf
