@@ -269,7 +269,7 @@ prometheus:
   prometheus-pushgateway:
     image:
       repository: dhi.io/pushgateway
-      tag: 1.11.5@sha256:eed947af131d5267d76b1a826cc34f83b8cdf1bfd89a18d62b838fbdb700a4dc
+      tag: 1.11.5@sha256:0a6fb387756683a15f59175e3b17caa67fc1f184fa5ab87aa547e25d92fefc1b
     # 2026-07-25: no PDB existed, found during a repo-wide audit after
     # the same gap caused real outages for umami, home-assistant, and
     # prometheus-server the same day (see documentation/gotcha.md).
