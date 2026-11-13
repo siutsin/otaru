@@ -100,7 +100,7 @@ envoy-gateway:
     # .Values.global.images.envoyGateway.image (or deployment.envoyGateway.image).
     images:
       envoyGateway:
-        image: dhi.io/envoy-gateway:1.10.0@sha256:55a1e143f1ef29e44d9880a94b465b6f74d8e6f976151a03b8950120dec3a167
+        image: dhi.io/envoy-gateway:1.10.0@sha256:792f97ee894cf97e7e5a248422545f514e6180a03ad1bbde91c9ef144462e8f0
   podDisruptionBudget:
     minAvailable: 1
   # 2026-10-06: the certgen pre-install/pre-upgrade hook Job ships with no
