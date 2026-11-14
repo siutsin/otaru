@@ -11,7 +11,7 @@ vpa:
 app:
   image:
     repository: dhi.io/httpbin
-    tag: 0.2.3@sha256:ff93e4cfac7ba29ec53fdd6c67ab6388bed9ceb3a54c2ee4b77d43c9bf875e4d
+    tag: 0.2.3@sha256:871f1e086dfcc2face0f618e8d95ffa25b0921caca32fef760d4784b6ac59369
   autoscaling:
     min: 2
     max: 2
