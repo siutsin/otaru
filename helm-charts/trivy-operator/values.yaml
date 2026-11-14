@@ -51,13 +51,17 @@ trivy-operator:
       # (ceil(p50/0.9)), limit 1Gi -> 272Mi (ceil(spike*1.2)). Ephemeral
       # 14d peak ~1781Mi vs the 2Gi limit (87%): limit 2Gi -> 2138Mi
       # (ceil(peak*1.2)), request 512Mi -> 1Gi; the 2Gi eviction floor stands.
+      # 2026-11-14: 10 OOMKills on ai-00 (NodeOOMKill fired ~19:47 UTC) at the
+      # 272Mi limit during the vulnerability DB update; page-cache burst,
+      # invisible to working-set sizing. Limit restored to the last
+      # known-good pre-KRR value, 1Gi. Request stays 61Mi (p50-based).
       resources:
         requests:
           cpu: 200m
           memory: 61Mi
           ephemeral-storage: 1Gi
         limits:
-          memory: 272Mi
+          memory: 1Gi
           ephemeral-storage: 2138Mi
       # 2026-10-18: Kyverno require-container-hardening demands
       # allowPrivilegeEscalation: false and drop ALL; the upstream
