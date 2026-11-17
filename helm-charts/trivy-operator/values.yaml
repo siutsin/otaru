@@ -24,6 +24,9 @@ trivy-operator:
   trivy:
     # No outbound Maven calls from scans.
     offlineScan: true
+    image:
+      # 2026-11-17: 0.76.2 fixes CVE-2026-111497 in the server image.
+      tag: 0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
     resources:
       # 2026-10-09: sane small default, no baseline. Resize after metrics.
       # Upstream chart maps camelCase ephemeralStorage to the scan-job
