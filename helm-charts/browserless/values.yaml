@@ -17,7 +17,8 @@ authentication:
 image:
   # The image USER is blessuser (uid 999), so the hardening matches it instead of forcing a different user.
   repository: ghcr.io/browserless/chromium
-  tag: v2.60.0@sha256:a9c2dea3399449e1b1f47cf49d33ee249e8aa9bd9222567a0224d52f4bb24602
+  # 2026-11-17: v2.63.2 bundles Chromium 159.0.8154.6 (Playwright 1.65.1), fixing exploited CVE-2026-125350; was 158.0.8127.18.
+  tag: v2.63.2@sha256:7611afcfc02e1040c2f0d03515d086e5be89eaf383e77a2370b690162040758a
   pullPolicy: IfNotPresent
 
 port: 3000
