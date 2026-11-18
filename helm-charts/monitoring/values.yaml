@@ -85,15 +85,17 @@ prometheus:
       image:
         # 2026-11-18: v0.95.2 fixes CVE-2026-78661 / CVE-2026-97045
         # (x/net 0.61.0 -> 0.62.0; score 7.5, Trivy severity UNKNOWN).
-        # Multi-arch incl. arm64, verified against the registry —
-        # unlike v0.95.1, which was amd64-only. tag digest = OCI index
-        # digest; digest field = docker manifest-list digest (the chart
-        # renders repository@digest, so this field is the effective pin).
+        # Multi-arch incl. arm64, unlike v0.95.1 (amd64-only). The digest
+        # field is the effective pin (chart renders repository@digest):
+        # it must be the tag's OCI index digest from the registry
+        # (Docker-Content-Digest for the tag, HEAD-verified 200). Any
+        # other digest source can 404 at pull time — the first pin of
+        # this bump did exactly that.
         # Drop this override once a chart default ships a multi-arch
         # reloader again.
         repository: quay.io/prometheus-operator/prometheus-config-reloader
         tag: v0.95.2@sha256:cc74ddedad4ab1c49446971f6d51302ad4303d8660a2018af925c7f62c114304
-        digest: sha256:498435193088b9f29921421a4dc6f92c58e47b1a038f6b02c68894fccc9906cd
+        digest: sha256:cc74ddedad4ab1c49446971f6d51302ad4303d8660a2018af925c7f62c114304
       resources:
         requests:
           cpu: 50m
