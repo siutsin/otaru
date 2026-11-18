@@ -1266,9 +1266,17 @@ alloy:
     # the app version label from the tag, and @sha256 makes it invalid.
     tag: v1.21.3
     digest: sha256:89a5a320168387336b9ac3c850609c3ba7757eadd4ae5f1d819deb35e9854b18
-  # 2026-10-13: Kyverno denied the Deployment because the chart default for
-  # the reloader sidecar sets requests only; add limits and ephemeral-storage.
   configReloader:
+    # 2026-11-18: v0.95.2 fixes CVE-2026-78661 / CVE-2026-97045
+    # (x/net 0.61.0 -> 0.62.0; score 7.5). The digest field is the
+    # effective pin (chart renders repository@digest when set); it
+    # must be the tag's OCI index digest from the registry
+    # (Docker-Content-Digest for the tag, HEAD-verified 200).
+    image:
+      tag: v0.95.2@sha256:cc74ddedad4ab1c49446971f6d51302ad4303d8660a2018af925c7f62c114304
+      digest: sha256:cc74ddedad4ab1c49446971f6d51302ad4303d8660a2018af925c7f62c114304
+    # 2026-10-13: Kyverno denied the Deployment because the chart default for
+    # the reloader sidecar sets requests only; add limits and ephemeral-storage.
     resources:
       requests:
         cpu: 10m
