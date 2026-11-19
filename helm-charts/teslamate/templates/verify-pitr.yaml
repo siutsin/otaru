@@ -81,7 +81,7 @@ spec:
           serviceAccountName: {{ .Values.name }}-verify-pitr
           containers:
             - name: verify-pitr
-              image: alpine/kubectl:1.37.1@sha256:a5d0fbecab3f7b6c2ab7398f1daa73a3e0ed6ece18556d21698233e9e3759cc7
+              image: alpine/kubectl:1.37.2@sha256:02791a008d526a0b2ca9edc9692d86933b4a164e64d1c012eb46e30fca18d818
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
