@@ -1157,7 +1157,7 @@ loki:
 fluent-bit:
   image:
     repository: dhi.io/fluent-bit
-    tag: 5.2.0@sha256:3d48ce3fb6806d8967220b3b73d648f328e9902a9fd20b285f291179179b8e92
+    tag: 5.2.0@sha256:c11ada60b069c8b035af53c13d6b3918270a709f6d9fe7ed2444f69cea478dfe
   podLabels:
     # fluent-bit runs host log collection on every node; keep host-facing log shipping outside ambient mesh interception.
     istio.io/dataplane-mode: none
