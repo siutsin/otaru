@@ -206,7 +206,7 @@ backup:
   backoffLimit: 4
   concurrencyPolicy: Forbid
   database:
-    imageName: ghcr.io/cloudnative-pg/postgresql:18.6@sha256:899d3ed526b659d77935dde0e6bf2d69dbbf17d3d8c6486ca8cfd04bd3c18533
+    imageName: ghcr.io/cloudnative-pg/postgresql:18.7-system-trixie@sha256:13f5dc1b42c5d96233724be976740df031136ca013f98a56a2877a62b362b453
     serverName: teslamate-20260412-0619-pg18
     secretName: *databaseAppSecretName
     postgresVersion: "18" # 2026-10-23: pg_dump refuses a server on a newer major version.
