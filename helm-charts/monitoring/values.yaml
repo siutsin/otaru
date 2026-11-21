@@ -1080,8 +1080,8 @@ loki:
         ephemeral-storage: 64Mi
   sidecar:
     image:
-      # 2026-10-29: pin past the chart default 2.5.0, which scans with critical OpenSSL findings; 2.14.1 ships the fixed libraries. Drop this override when the chart default passes 2.14.1.
-      tag: 2.14.1@sha256:092dbe0c335fba9af414a27630ca68f34df6185784fa847d9954187e69dbfdd7
+      # 2026-11-21: pin past the chart default 2.5.0 (critical OpenSSL findings); 2.14.3 fixes the 2 critical certifi findings in 2.14.1. Drop this override when the chart default passes 2.14.3.
+      tag: 2.14.3@sha256:52d311dcedd587421a236c4d6c621f05614c40a51386e955e0699dca97ec0880
     resources:
       # KRR 2026-09-28: 30d p50 ~75Mi, max ~90Mi (loki-sc-rules container).
       # Request 83Mi (ceil(p50/0.9)); limit unchanged for rule-eval bursts.
