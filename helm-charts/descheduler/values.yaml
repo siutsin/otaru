@@ -4,7 +4,7 @@ vpa:
 descheduler:
   image:
     repository: dhi.io/descheduler
-    tag: 0.37.0@sha256:2fe8ddb238838853ad9e473004d8c6cc20681cf81f2884cf5de39b29aed027f4
+    tag: 0.37.0@sha256:6f3e9552f8ea6f5dcbc8db8f24fb5dace4d372b42760402ee6869509bd91f5cf
   kind: Deployment
   resources:
     # KRR 2026-07-05: live peak ~100Mi working set; 256Mi request was never approached.
