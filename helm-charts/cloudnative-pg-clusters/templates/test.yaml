@@ -51,6 +51,12 @@ spec:
       containers:
         - image: {{ $clusterConfig.test.image | default "postgres:18-alpine" }}
           name: {{ $clusterConfig.clusterName }}-test
+          # Kyverno require-container-hardening denies the Job without both fields.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           command: [ "/bin/sh" ]
           args:
             - -c
