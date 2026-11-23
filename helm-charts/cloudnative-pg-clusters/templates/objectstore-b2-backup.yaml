@@ -13,7 +13,7 @@ spec:
     # Shorter upload, less likely to catch a transient connection drop.
     # WAL archiving is untouched (separate wal.compression field, not set).
     data:
-      compression: gzip
+      compression: zstd
     s3Credentials:
       accessKeyId:
         name: b2-backup-credentials
