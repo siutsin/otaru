@@ -10,6 +10,10 @@ spec:
   configuration:
     destinationPath: "s3://{{ $.Values.backup.b2.bucket }}/cnpg-backups/"
     endpointURL: {{ $.Values.backup.b2.endpoint }}
+    # Shorter upload, less likely to catch a transient connection drop.
+    # WAL archiving is untouched (separate wal.compression field, not set).
+    data:
+      compression: gzip
     s3Credentials:
       accessKeyId:
         name: b2-backup-credentials
