@@ -1,0 +1,125 @@
+---
+# Audit logging for the k3s apiserver.
+# Run after the install playbooks (000-init-cluster.yaml, 002-nodes.yaml)
+# on a fresh cluster. Restarts k3s one control-plane node at a time,
+# raspberrypi-02 first and raspberrypi-00 last, so etcd keeps quorum.
+- hosts: master
+  become: true
+  gather_facts: false
+  serial: 1
+  order: reverse_inventory
+
+  tasks:
+    - name: Check etcd health and control-plane readiness before the restart
+      shell: |
+        set -e
+        [ "$(k3s kubectl get --raw=/readyz/etcd)" = "ok" ]
+        [ "$(k3s kubectl get nodes -l node-role.kubernetes.io/control-plane=true --no-headers | awk '$2 == "Ready" { n++ } END { print n+0 }')" = "3" ]
+      changed_when: false
+
+    - name: Copy the audit policy
+      copy:
+        dest: /etc/rancher/k3s/audit-policy.yaml
+        content: |
+          apiVersion: audit.k8s.io/v1
+          kind: Policy
+          # Log each matching request once, at ResponseComplete. RequestReceived
+          # would log it twice and adds nothing for attribution.
+          omitStages:
+            - RequestReceived
+          rules:
+            # Workload mutations: a rollout restart is a PATCH on a Deployment.
+            - level: Metadata
+              verbs: ["create", "update", "patch", "delete", "deletecollection"]
+              resources:
+                - group: "apps"
+                  resources: ["deployments", "replicasets"]
+            # RBAC mutations: who granted what.
+            - level: Metadata
+              verbs: ["create", "update", "patch", "delete", "deletecollection"]
+              resources:
+                - group: "rbac.authorization.k8s.io"
+                  resources: ["roles", "clusterroles", "rolebindings", "clusterrolebindings"]
+            # Nothing else is logged.
+            - level: None
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart k3s
+
+    - name: Create the k3s config drop-in directory
+      file:
+        path: /etc/rancher/k3s/config.yaml.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Copy the audit config drop-in
+      copy:
+        dest: /etc/rancher/k3s/config.yaml.d/audit.yaml
+        content: |
+          # /etc/rancher/k3s/config.yaml.d/audit.yaml
+          kube-apiserver-arg:
+            - audit-log-path=/var/log/kube-audit/audit.log
+            - audit-policy-file=/etc/rancher/k3s/audit-policy.yaml
+            - audit-log-maxage=30
+            - audit-log-maxbackup=10
+            - audit-log-maxsize=100
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart k3s
+
+    - name: Create the audit log directory
+      file:
+        path: /var/log/kube-audit
+        state: directory
+        owner: root
+        group: adm
+        mode: '0750'
+
+    - name: Pre-create the audit log file
+      # The apiserver creates log files 0600 and never changes the mode of
+      # an existing file, so pre-create it 0640 root:adm for the loop to read.
+      file:
+        path: /var/log/kube-audit/audit.log
+        state: touch
+        owner: root
+        group: adm
+        mode: '0640'
+
+    - name: Restart k3s now so the gates check the restarted node
+      meta: flush_handlers
+
+    - name: Check k3s is active after the restart
+      command: systemctl is-active k3s
+      register: k3s_active
+      changed_when: false
+      failed_when: k3s_active.stdout != 'active'
+
+    - name: Check all nodes are Ready after the restart
+      shell: k3s kubectl get nodes --no-headers | awk '$2 == "Ready" { n++ } END { print n+0 }'
+      register: nodes_ready
+      changed_when: false
+      failed_when: nodes_ready.stdout != '6'
+
+    - name: Check etcd health after the restart
+      command: k3s kubectl get --raw=/readyz/etcd
+      register: etcd_ready
+      changed_when: false
+      failed_when: etcd_ready.stdout != 'ok'
+
+    - name: Confirm Argo CD is Synced and Healthy before the next node
+      pause:
+        prompt: >-
+          Check Argo CD: every Application must read Synced/Healthy
+          (the known external-secrets sync failure does not block if its
+          CRDs are healthy). Press Enter to continue to the next node,
+          or Ctrl-C then A to stop the rollout
+
+  handlers:
+    - name: Restart k3s
+      systemd:
+        name: k3s
+        state: restarted
