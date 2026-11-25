@@ -124,6 +124,8 @@ falco:
     # CSI sidecars); scope to its namespace and image prefix.
     # The instance-manager debug daemon redirects stdio to its network
     # connection on every start.
+    # Browserless redirects stdio onto the client connection when it sets
+    # up a CDP session.
     rules-exceptions.yaml: |-
       - rule: Launch Package Management Process in Container
         exceptions:
@@ -163,6 +165,11 @@ falco:
             comps: [=, =, =]
             values:
               - [instance-manager, docker.io/longhornio/longhorn-instance-manager, longhorn-system]
+          - name: browserless_stdio
+            fields: [container.name, container.image.repository, k8s.ns.name]
+            comps: [=, =, =]
+            values:
+              - [browserless, ghcr.io/browserless/chromium, browserless]
         override:
           exceptions: append
       - rule: Launch Privileged Container
