@@ -35,7 +35,7 @@ spec:
                 - |
                   set -e -o pipefail
 
-                  apk add --no-cache aws-cli curl
+                  apk add -q --no-cache aws-cli curl
                   VERIFY_QUERY='{{ .Values.backup.verify.verificationQuery }}'
 
                   until pg_isready; do
@@ -44,23 +44,34 @@ spec:
 
                   S3_URI="s3://${BUCKET}/${S3_PATH}"
 
-                  LATEST_BACKUP=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1 | awk '{print $4}')
+                  LATEST_LINE=$(aws --endpoint-url https://${ENDPOINT} s3 ls ${S3_URI}/ | sort | tail -n 1)
+                  LATEST_BACKUP=$(echo "${LATEST_LINE}" | awk '{print $4}')
+                  LATEST_SIZE=$(echo "${LATEST_LINE}" | awk '{print $3}')
                   if [ -z "$LATEST_BACKUP" ]; then
                     echo "Error: No pg_dump backup found"
                     exit 1
                   fi
 
-                  echo "Found pg_dump backup: ${LATEST_BACKUP}"
+                  echo "Found pg_dump backup: ${LATEST_BACKUP} (${LATEST_SIZE} bytes)"
+                  BACKUP_EPOCH=$(date -d "$(echo "${LATEST_LINE}" | awk '{print $1, $2}')" +%s || true)
+                  [ -n "${BACKUP_EPOCH}" ] && BACKUP_AGE="$(( ($(date +%s) - BACKUP_EPOCH) / 3600 ))h"
+                  echo "Backup age: ${BACKUP_AGE:-unknown}"
 
                   echo "Restoring from ${S3_URI}/${LATEST_BACKUP}..."
                   TEMP_DIR=$(mktemp -d)
                   DOWNLOAD_PATH="${TEMP_DIR}/${LATEST_BACKUP}"
-                  aws --endpoint-url https://${ENDPOINT} s3 cp "${S3_URI}/${LATEST_BACKUP}" "${DOWNLOAD_PATH}"
+                  DOWNLOAD_START=$(date +%s)
+                  aws --endpoint-url https://${ENDPOINT} s3 cp "${S3_URI}/${LATEST_BACKUP}" "${DOWNLOAD_PATH}" --no-progress
+                  DOWNLOAD_SECONDS=$(( $(date +%s) - DOWNLOAD_START ))
+                  echo "Download took ${DOWNLOAD_SECONDS}s."
 
+                  RESTORE_START=$(date +%s)
                   gunzip "$DOWNLOAD_PATH"
                   SQL_FILE="${DOWNLOAD_PATH%.gz}"
 
                   psql -d "$PGDATABASE" -f "$SQL_FILE"
+                  RESTORE_SECONDS=$(( $(date +%s) - RESTORE_START ))
+                  echo "Restore took ${RESTORE_SECONDS}s."
                   rm -rf "$TEMP_DIR"
                   echo "Restored pg_dump from ${S3_URI}/${LATEST_BACKUP}..."
 
@@ -77,7 +88,7 @@ spec:
                       exit 1
                       ;;
                   esac
-                  echo "pg_dump verification successful!"
+                  echo "pg_dump verification successful! (count ${VERIFY_COUNT})"
 
                   KEEP_LAST=7
 
@@ -97,6 +108,9 @@ spec:
                       echo "Deleted: ${FILE}"
                     done
                   fi
+
+                  echo "Summary: ${LATEST_BACKUP}, size ${LATEST_SIZE} bytes, age ${BACKUP_AGE:-unknown}," \
+                    "download ${DOWNLOAD_SECONDS}s, restore ${RESTORE_SECONDS}s, count ${VERIFY_COUNT}."
 
                   if [ -n "$VERIFY_PG_DUMP_HEARTBEAT" ]; then
                     echo "Sending heartbeat to $VERIFY_PG_DUMP_HEARTBEAT..."

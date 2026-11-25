@@ -25,7 +25,7 @@ spec:
                 - |
                   set -e -o pipefail
 
-                  apk add --no-cache aws-cli curl
+                  apk add -q --no-cache aws-cli curl
 
                   # 2026-10-24: refuse to dump an emptied DB; an empty dump rotates out the last good dumps.
                   CONTENT_COUNT=$(psql -tAc "SELECT count(*) FROM positions")
@@ -35,16 +35,23 @@ spec:
                       exit 1
                       ;;
                   esac
+                  echo "Positions count: ${CONTENT_COUNT}"
 
                   BACKUP_FILE_NAME="${PGDATABASE}-$(date +%F-%H_%M_%S).sql.gz"
                   S3_URI="s3://${BUCKET}/${S3_PATH}/${BACKUP_FILE_NAME}"
 
                   echo "Dumping cluster to ${BACKUP_FILE_NAME}..."
                   pg_dumpall --clean --if-exists | gzip > "/tmp/${BACKUP_FILE_NAME}"
+                  DUMP_SIZE=$(wc -c < "/tmp/${BACKUP_FILE_NAME}")
+                  echo "Dump file size: ${DUMP_SIZE} bytes"
 
                   echo "Uploading to ${S3_URI}..."
-                  aws --endpoint-url https://${ENDPOINT} s3 cp "/tmp/${BACKUP_FILE_NAME}" "${S3_URI}"
+                  UPLOAD_START=$(date +%s)
+                  aws --endpoint-url https://${ENDPOINT} s3 cp "/tmp/${BACKUP_FILE_NAME}" "${S3_URI}" --no-progress
+                  UPLOAD_SECONDS=$(( $(date +%s) - UPLOAD_START ))
+                  echo "Upload took ${UPLOAD_SECONDS}s."
                   echo "Upload successful."
+                  echo "Summary: ${BACKUP_FILE_NAME}, positions ${CONTENT_COUNT}, size ${DUMP_SIZE} bytes, upload ${UPLOAD_SECONDS}s."
 
                   if [ -n "$BACKUP_HEARTBEAT" ]; then
                     echo "Sending heartbeat to $BACKUP_HEARTBEAT..."
