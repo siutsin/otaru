@@ -91,8 +91,9 @@ spec:
               args:
                 - |
                   set -e -o pipefail
+                  SCRIPT_START=$(date +%s)
 
-                  apk add --no-cache aws-cli curl
+                  apk add -q --no-cache aws-cli curl
 
                   VERIFY_CLUSTER="${VERIFY_JOB_NAME:-{{ .Values.name }}-verify-pitr-$(date +%s)}"
                   VERIFY_NAMESPACE="{{ .Values.namespace }}"
@@ -101,6 +102,10 @@ spec:
                   VERIFY_OWNER="{{ .Values.backup.database.owner }}"
                   VERIFY_TIMEOUT_SECONDS={{ .Values.backup.verifyPitr.timeoutSeconds }}
                   VERIFY_QUERY='{{ .Values.backup.verifyPitr.verificationQuery }}'
+                  FLOOR_BUCKET="{{ .Values.backup.floor.bucket }}"
+                  FLOOR_EP="--endpoint-url https://{{ .Values.backup.floor.endpoint }}"
+                  FLOOR_SERVER="{{ .Values.backup.database.serverName }}"
+                  FLOOR_SRC="s3://${FLOOR_BUCKET}/cnpg-backups/${FLOOR_SERVER}"
 
                   cleanup() {
                     echo "Cleaning up ${VERIFY_CLUSTER}..."
@@ -138,12 +143,16 @@ spec:
                       tail -n1
                   )
                   VERIFY_BACKUP_ID=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f2)
+                  VERIFY_BACKUP_STOPPED_AT=$(echo "${VERIFY_BACKUP_META}" | cut -d'|' -f1)
                   if [ -z "${VERIFY_BACKUP_ID}" ]; then
                     echo "Error: no completed backup found for cluster ${VERIFY_SOURCE_CLUSTER}."
                     exit 1
                   fi
 
-                  echo "Using backupID ${VERIFY_BACKUP_ID}"
+                  echo "Using backupID ${VERIFY_BACKUP_ID} (stoppedAt ${VERIFY_BACKUP_STOPPED_AT})"
+
+                  BACKUP_SIZE=$(aws ${FLOOR_EP} s3 ls "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/" | awk '/data\.tar/ {print $3 " " $4}' || true)
+                  echo "Backup file: ${BACKUP_SIZE:-size unknown}"
 
                   cat <<EOF | kubectl apply -f -
                   apiVersion: postgresql.cnpg.io/v1
@@ -229,6 +238,8 @@ spec:
 
                     if [ "${PHASE}" = "Cluster in healthy state" ] && [ "${READY}" = "1" ] && [ -n "${PRIMARY}" ]; then
                       echo "Restore cluster ${VERIFY_CLUSTER} is ready."
+                      RESTORE_SECONDS=$(( $(date +%s) - START_TIME ))
+                      echo "Restore took ${RESTORE_SECONDS}s."
                       break
                     fi
 
@@ -264,22 +275,19 @@ spec:
                       exit 1
                       ;;
                   esac
-                  echo "Restore verification successful!"
+                  echo "Restore verification successful! (count ${VERIFY_COUNT})"
 
                   # 2026-10-24: pin the verified backup set under cnpg-floor/, outside
                   # the 30-day CNPG retention. A set is the base backup plus the WAL
                   # span from backup.info; backup.info is copied last as the
                   # completeness marker, so a failed pin is retried by the next run.
-                  FLOOR_BUCKET="{{ .Values.backup.floor.bucket }}"
-                  FLOOR_EP="--endpoint-url https://{{ .Values.backup.floor.endpoint }}"
-                  FLOOR_SERVER="{{ .Values.backup.database.serverName }}"
                   FLOOR_SET="${FLOOR_SERVER}-${VERIFY_BACKUP_ID}"
-                  FLOOR_SRC="s3://${FLOOR_BUCKET}/cnpg-backups/${FLOOR_SERVER}"
                   FLOOR_DST="s3://${FLOOR_BUCKET}/cnpg-floor/${FLOOR_SET}"
                   if [ -n "$(aws ${FLOOR_EP} s3 ls "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info" 2>/dev/null)" ]; then
                     echo "Floor: ${FLOOR_SET} is already pinned."
+                    FLOOR_STATUS="already pinned"
                   else
-                    BACKUP_INFO=$(aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" -)
+                    BACKUP_INFO=$(aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" - --no-progress)
                     BEGIN_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^begin_wal=//p')
                     END_WAL=$(echo "${BACKUP_INFO}" | sed -n 's/^end_wal=//p')
                     TIMELINE=$(echo "${BACKUP_INFO}" | sed -n 's/^timeline=//p')
@@ -287,7 +295,7 @@ spec:
                       echo "Error: backup.info for ${VERIFY_BACKUP_ID} lacks begin_wal, end_wal or timeline; refusing to pin."
                       exit 1
                     fi
-                    aws ${FLOOR_EP} s3 sync --exclude "backup.info" "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/"
+                    aws ${FLOOR_EP} s3 sync --exclude "backup.info" "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/" --no-progress
                     BEGIN_DIR=$(echo "${BEGIN_WAL}" | cut -c1-16)
                     END_DIR=$(echo "${END_WAL}" | cut -c1-16)
                     COPIED_BEGIN=""
@@ -308,7 +316,7 @@ spec:
                         if [ "${WAL_FILE}" \< "${BEGIN_WAL}" ] || [ "${WAL_FILE}" \> "${END_WAL}" ]; then
                           continue
                         fi
-                        aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${WAL_DIR}/${WAL_FILE}" "${FLOOR_DST}/wals/${WAL_DIR}/${WAL_FILE}"
+                        aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${WAL_DIR}/${WAL_FILE}" "${FLOOR_DST}/wals/${WAL_DIR}/${WAL_FILE}" --no-progress
                         if [ "${WAL_FILE}" = "${BEGIN_WAL}" ]; then
                           COPIED_BEGIN=1
                         fi
@@ -323,10 +331,11 @@ spec:
                     fi
                     if [ "${TIMELINE}" -gt 1 ]; then
                       HISTORY_FILE=$(printf '%08d.history' "${TIMELINE}")
-                      aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${HISTORY_FILE}" "${FLOOR_DST}/wals/${HISTORY_FILE}"
+                      aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${HISTORY_FILE}" "${FLOOR_DST}/wals/${HISTORY_FILE}" --no-progress
                     fi
-                    aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info"
+                    aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info" --no-progress
                     echo "Floor: pinned ${FLOOR_SET} (WAL ${BEGIN_WAL} to ${END_WAL})."
+                    FLOOR_STATUS="pinned"
                   fi
                   FLOOR_LS=$(aws ${FLOOR_EP} s3 ls "s3://${FLOOR_BUCKET}/cnpg-floor/")
                   FLOOR_SETS=""
@@ -353,6 +362,10 @@ spec:
                       FLOOR_PRUNED=$((FLOOR_PRUNED + 1))
                     done
                   fi
+
+                  TOTAL_SECONDS=$(( $(date +%s) - SCRIPT_START ))
+                  echo "Summary: backupID ${VERIFY_BACKUP_ID}, stoppedAt ${VERIFY_BACKUP_STOPPED_AT}, size ${BACKUP_SIZE:-unknown}, restore ${RESTORE_SECONDS}s," \
+                    "total ${TOTAL_SECONDS}s, count ${VERIFY_COUNT}, floor ${FLOOR_SET} (${FLOOR_STATUS})."
 
                   if [ -n "${VERIFY_PITR_HEARTBEAT:-}" ]; then
                     echo "Sending heartbeat to ${VERIFY_PITR_HEARTBEAT}..."
