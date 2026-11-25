@@ -966,9 +966,9 @@ checksum = "sha256:aa9549349e47dffaa42dcf95d6e06ade8c4bdafc980979883b88767670df3
 url = "https://nodejs.org/dist/v24.22.2/node-v24.22.2-darwin-arm64.tar.gz"
 
 [[tools."npm:markdownlint-cli2"]]
-version = "0.24.1"
+version = "0.24.2"
 backend = "npm:markdownlint-cli2"
-specifiers = ["0.24.1"]
+specifiers = ["0.24.2"]
 
 [[tools."pipx:ansible-core"]]
 version = "2.22.0"
