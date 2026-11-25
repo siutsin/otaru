@@ -36,7 +36,7 @@ kyverno:
       image:
         registry: dhi.io
         repository: kyverno
-        tag: 1.19.2@sha256:dcc3a79c8a410b1efb6d53d76581e08714c6b2381b51758ce67bc84ca6c9dad0
+        tag: 1.19.2@sha256:2201bd5250053a81608ad7c10d522e9875be113f694c50fbfb53d6d7891eea68
     # 2026-09-23: split from the shared &resources anchor; sized on its own
     # 30d Prometheus baseline (request=ceil(p50/0.9), limit=ceil(spike*1.2)).
     resources:
