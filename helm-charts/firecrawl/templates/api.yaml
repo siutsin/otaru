@@ -98,16 +98,17 @@ spec:
               protocol: TCP
           # The harness exits after 60s when Postgres is late. This probe
           # covers a slow first boot. A late database still causes a restart.
+          # Upstream removed the v0 router in 2.11.871; health now lives at /health.
           startupProbe:
             httpGet:
-              path: /v0/health/readiness
+              path: /health/readiness
               port: http
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 18
           readinessProbe:
             httpGet:
-              path: /v0/health/readiness
+              path: /health/readiness
               port: http
             periodSeconds: 10
             timeoutSeconds: 5
