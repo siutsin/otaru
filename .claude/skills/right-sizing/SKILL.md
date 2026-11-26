@@ -71,7 +71,12 @@ templates when resources live there):
 1. Read inline resource comments for past incidents (OOM, probe failures, scheduling pressure). **Do not downsize past those guardrails.**
 2. **Downsize** when the reported max is well below the request and no incident comment blocks it.
 3. **Upsize** when the reported max exceeds the request/limit or live pods show OOM risk.
-4. Skip guarded workloads when comments document repeated OOM or sync spikes (for example changedetection app, blocky, grafanas, argocd, jellyfin).
+4. Skip guarded workloads: falco (one proven OOMKill on ai-00,
+    2026-11-25 23:41, at 112MiB in sampled metrics against a 512Mi limit,
+    plus an unattributed 2026-11-08 03:40 kill with the same signature;
+    limit is 1024Mi, never propose a cut), changedetection app, blocky,
+    grafanas, argocd, jellyfin. The sizing formula cannot see these failure
+    modes, so never downsize a guarded workload on metrics alone.
 
 ### Helm chart rules
 
