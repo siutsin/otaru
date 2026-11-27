@@ -330,7 +330,9 @@ spec:
                       exit 1
                     fi
                     if [ "${TIMELINE}" -gt 1 ]; then
-                      HISTORY_FILE=$(printf '%08d.history' "${TIMELINE}")
+                      # backup.info holds the timeline in decimal; WAL and history
+                      # file names use hex (timeline 11 is 0000000B.history).
+                      HISTORY_FILE=$(printf '%08X.history' "${TIMELINE}")
                       aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/wals/${HISTORY_FILE}" "${FLOOR_DST}/wals/${HISTORY_FILE}" --no-progress
                     fi
                     aws ${FLOOR_EP} s3 cp "${FLOOR_SRC}/base/${VERIFY_BACKUP_ID}/backup.info" "${FLOOR_DST}/base/${VERIFY_BACKUP_ID}/backup.info" --no-progress
