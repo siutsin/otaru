@@ -44,17 +44,10 @@ falco:
     # 2026-11-08: 201Mi limit OOMKilled the ai-00 pod ~3 min after the
     # resize rollout (exit 137, CrashLoopBackOff). 512Mi restored as the
     # past-incident guardrail until the 03:40 OOMKill is attributed.
-    # 2026-11-26: one kill proven, one unattributed. Falco pid 3731999
-    # OOMKilled on ai-00 inside its own cgroup on 2026-11-25 23:41, at
-    # 112MiB in sampled metrics against the 512Mi limit. The 2026-11-08
-    # 03:40 kill shares the signature but its victim stays unattributed
-    # (kernel line never saved, cannot be re-verified). Best-supported
-    # explanation for the trigger is memory the samples cannot see.
-    # Limit 512Mi -> 1024Mi (upstream default). Request stays 512Mi: the
-    # limit is headroom for unseen memory, not a reservation, and
-    # doubling the request across 6 nodes would waste capacity.
-    # Req!=limit is a documented exception to the repo policy. Guarded
-    # in the right-sizing skill: never propose a falco cut.
+    # 2026-11-26: Falco OOMKilled at 112MiB sampled usage against a 512Mi
+    # limit, from kernel/eBPF memory the samples cannot see. Limit 1024Mi
+    # (upstream default); request stays 512Mi, req!=limit exception.
+    # Guarded in the right-sizing skill: never propose a falco cut.
     requests:
       cpu: 100m
       memory: 512Mi

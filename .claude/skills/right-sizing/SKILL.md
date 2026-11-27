@@ -71,12 +71,10 @@ templates when resources live there):
 1. Read inline resource comments for past incidents (OOM, probe failures, scheduling pressure). **Do not downsize past those guardrails.**
 2. **Downsize** when the reported max is well below the request and no incident comment blocks it.
 3. **Upsize** when the reported max exceeds the request/limit or live pods show OOM risk.
-4. Skip guarded workloads: falco (one proven OOMKill on ai-00,
-    2026-11-25 23:41, at 112MiB in sampled metrics against a 512Mi limit,
-    plus an unattributed 2026-11-08 03:40 kill with the same signature;
-    limit is 1024Mi, never propose a cut), changedetection app, blocky,
-    grafanas, argocd, jellyfin. The sizing formula cannot see these failure
-    modes, so never downsize a guarded workload on metrics alone.
+4. Skip guarded workloads listed in
+    `.claude/skills/right-sizing/guarded-workloads.yaml`. The sizing formula
+    cannot see these failure modes, so never downsize a guarded workload on
+    metrics alone.
 
 ### Helm chart rules
 
@@ -195,7 +193,7 @@ spikes briefly then idles (blocky's ~4h denylist refresh, changedetection's
 hourly page-render), it recommends a request near the peak — undoing the
 manual "steady-state request, higher limit" overcommit tuning already applied
 to those charts. **Never add a `VerticalPodAutoscaler` for a guarded workload**
-(the same guardrail list as Part 1 above) unless it is scoped to
+(the `guarded-workloads.yaml` list) unless it is scoped to
 `controlledResources: [cpu]` only, since VPA's CPU algorithm is
 percentile-based, not peak-based, and does not have this problem.
 
