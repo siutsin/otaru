@@ -71,5 +71,11 @@
       ],
       minimumReleaseAge: null,
     },
+    {
+      // diagrams ships no releases (latest 0.25.1, Nov 2025) but is actively
+      // developed, so the 1-year abandonment flag is a false positive.
+      matchPackageNames: ['diagrams'],
+      abandonmentThreshold: null,
+    },
   ],
 }
