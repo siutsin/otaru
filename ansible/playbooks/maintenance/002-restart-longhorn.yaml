@@ -3,8 +3,26 @@
   connection: local
 
   tasks:
-    - name: Restart longhorn daemonsets
-      command: kubectl rollout restart daemonsets -n longhorn-system
+    # The chart sets longhorn-manager to maxUnavailable 100%, which suits
+    # upgrades but restarts every manager at once. They then race on shared
+    # Settings at start ("the object has been modified") and the CSI plugin
+    # loses its manager mid-start. Replace managers one node at a time and
+    # wait for each. A failure here must not stop the later steps.
+    - name: Restart longhorn-manager pods one at a time
+      shell: |
+        for pod in $(kubectl get pods -n longhorn-system -l app=longhorn-manager -o name); do
+          kubectl delete -n longhorn-system "$pod" --wait=true &&
+          kubectl rollout status daemonset/longhorn-manager -n longhorn-system --timeout=5m || exit 1
+        done
+      changed_when: false
+      failed_when: false
+      register: manager_restart_result
+
+    - name: Restart the other longhorn daemonsets
+      shell: |
+        for ds in $(kubectl get daemonsets -n longhorn-system -o name | grep -v '/longhorn-manager$'); do
+          kubectl rollout restart -n longhorn-system "$ds" || exit 1
+        done
       changed_when: false
       register: ds_restart_result
       retries: 3
@@ -106,7 +124,7 @@
     - name: Collect namespaces where the longhorn rollout did not complete
       set_fact:
         stuck_longhorn_namespaces: >-
-          {{ ['longhorn-system'] if ([ds_rollout_result, deploy_rollout_result, pod_ready_result_1, pod_ready_result_2,
+          {{ ['longhorn-system'] if ([manager_restart_result, ds_rollout_result, deploy_rollout_result, pod_ready_result_1, pod_ready_result_2,
           pod_ready_result_3, pod_ready_result_4, pod_ready_result_5, pod_ready_result_6,
           pod_ready_result_7] | selectattr('rc', 'ne', 0) | list | length > 0) else [] }}
 
