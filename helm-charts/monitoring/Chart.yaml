@@ -31,5 +31,5 @@ dependencies:
   version: 3.2.1
   repository: https://grafana-community.github.io/helm-charts
 - name: k8s-ephemeral-storage-metrics
-  version: 1.21.3
+  version: 1.21.4
   repository: https://jmcgrath207.github.io/k8s-ephemeral-storage-metrics/chart
