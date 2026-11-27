@@ -1014,8 +1014,9 @@ loki:
         ephemeral-storage: 64Mi
   gateway:
     image:
-      # 2026-10-23: chart default 1.29-alpine scans 0 crit / 32 high; 1.31-alpine scans clean. Drop when the chart default passes 1.31-alpine.
-      tag: 1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
+      # 2026-11-27: nginxinc has no fixed 1.31.9 tag.
+      repository: nginx/nginx-unprivileged
+      tag: 1.31.9-alpine@sha256:60214a103e6f38e953ff957f34b1f2e97a9db801ab2df3821da955d0fe6cadd6
     resources:
       requests:
         cpu: 50m
