@@ -16,11 +16,13 @@
     # on one node. Each LUKS unlock costs ~65MiB in longhorn-csi-plugin, and the
     # mount storm OOMKilled it on raspberrypi-01 (2026-11-27, exit 137 at the
     # 4Gi limit, node at 99% CPU). A stuck rollout must not block the
-    # remaining namespaces.
+    # remaining namespaces. The wait is 15m because the model server needs
+    # about 8m to load its model (its startup probe allows 18m); a 5m wait
+    # reported a healthy rollout as stuck (2026-11-27).
     - name: Restart deployments and statefulsets in other namespaces, one at a time
       shell: |
         kubectl rollout restart deployments,statefulsets -n {{ item }} &&
-        kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=5m
+        kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=15m
       loop: "{{ namespaces.stdout_lines }}"
       when: item not in ['kube-system', 'longhorn-system']
       changed_when: false
