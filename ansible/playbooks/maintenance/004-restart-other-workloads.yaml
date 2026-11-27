@@ -11,27 +11,21 @@
       delay: 10
       until: namespaces.rc == 0
 
-    - name: Restart deployments and statefulsets in other namespaces
-      command: kubectl rollout restart deployments,statefulsets -n {{ item }}
-      loop: "{{ namespaces.stdout_lines }}"
-      when: item not in ['kube-system', 'longhorn-system']
-      changed_when: false
-      register: ds_restart
-      retries: 5
-      delay: 10
-      until: ds_restart.rc == 0
-
-    # A stuck rollout must not block the remaining namespaces.
-    - name: Wait for all deployments and statefulsets to complete rollout in other namespaces
-      command: kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=5m
+    # One namespace at a time: restart, then wait. Restarting every namespace
+    # at once lets the scheduler stack LUKS-backed pods (jellyfin, hermes, zot)
+    # on one node. Each LUKS unlock costs ~65MiB in longhorn-csi-plugin, and the
+    # mount storm OOMKilled it on raspberrypi-01 (2026-11-27, exit 137 at the
+    # 4Gi limit, node at 99% CPU). A stuck rollout must not block the
+    # remaining namespaces.
+    - name: Restart deployments and statefulsets in other namespaces, one at a time
+      shell: |
+        kubectl rollout restart deployments,statefulsets -n {{ item }} &&
+        kubectl rollout status deployments,statefulsets -n {{ item }} --timeout=5m
       loop: "{{ namespaces.stdout_lines }}"
       when: item not in ['kube-system', 'longhorn-system']
       changed_when: false
       failed_when: false
       register: deploy_sts_rollout_result
-      retries: 2
-      delay: 10
-      until: deploy_sts_rollout_result.rc == 0
 
     - name: Collect namespaces where the deployment or statefulset rollout did not complete
       set_fact:
