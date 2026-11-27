@@ -1,0 +1,8 @@
+# Guarded workloads for the right-sizing skill (name: reason).
+# One workload per line.
+falco: OOMKill below its limit (proven 2026-11-25, plus an unattributed 2026-11-08 kill with the same signature); limit 1024Mi.
+changedetection app: Repeated OOM or sync spikes; see chart comments.
+blocky: Repeated OOM or sync spikes; see chart comments.
+grafanas: Repeated OOM or sync spikes; see chart comments.
+argocd: Repeated OOM or sync spikes; see chart comments.
+jellyfin: Repeated OOM or sync spikes.
