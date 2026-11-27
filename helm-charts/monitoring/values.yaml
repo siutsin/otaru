@@ -575,13 +575,13 @@ prometheus:
             # full stop, with absent().
             - alert: TempoIngestionStopped
               expr: sum(rate(tempo_distributor_spans_received_total[30m])) < 0.3 or absent(tempo_distributor_spans_received_total)
-              for: 30m
+              for: 1h
               labels:
                 severity: critical
               annotations:
                 title: Trace ingestion into Tempo has stopped
                 summary: "Tempo is receiving almost no spans"
-                description: "Ingestion has been below 0.3 span/s for over 30 minutes. Check the Alloy collector and the Tempo pods."
+                description: "Ingestion has been below 0.3 span/s for over 1 hour. Check the Alloy collector and the Tempo pods."
         - name: falco
           rules:
             - alert: FalcoRuleFired
