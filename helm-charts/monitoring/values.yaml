@@ -1442,6 +1442,13 @@ tempo:
       capabilities:
         drop:
           - ALL
+  # Pod level. 2026-11-27: after a restart the kubelet recursively chowned the
+  # whole trace volume (fsGroup) for 8+ minutes on a Raspberry Pi
+  # (VolumePermissionChangeInProgress), holding the pod in ContainerCreating
+  # and stalling the maintenance rollout. OnRootMismatch skips the walk once
+  # the volume root already has the right group.
+  securityContext:
+    fsGroupChangePolicy: OnRootMismatch
   persistence:
     enabled: true
     storageClassName: longhorn-crypto-global
