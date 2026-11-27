@@ -1101,7 +1101,7 @@ loki:
     # pin 3.6.12 here until the chart default catches up.
     image:
       repository: grafana/loki
-      tag: 3.7.9@sha256:0db216b630ae1f348a1584c67f3cead8b4c1fc839169a39501db664744158e28
+      tag: 3.7.10@sha256:b43c257ccfc925d4a50b8717cac61a3b51df8c48d01847936057e5c4075a24a7
       digest: sha256:2483b71b28b15dee230f85512cae2b20c4b5f6e98a6eabe686cbccfa5ea3ba4a
     commonConfig:
       replication_factor: 1
