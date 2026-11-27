@@ -1442,6 +1442,12 @@ tempo:
       capabilities:
         drop:
           - ALL
+    # 2026-11-27: after a restart the live-store replays its WAL and /ready
+    # stays 503 ("Starting: 1") for longer than the default 3 failures at 10s
+    # (about 60s on a Raspberry Pi). The liveness probe killed the container
+    # in a loop (3 restarts in 5m). Allow 5m before it restarts the container.
+    livenessProbe:
+      failureThreshold: 30
   # Pod level. 2026-11-27: after a restart the kubelet recursively chowned the
   # whole trace volume (fsGroup) for 8+ minutes on a Raspberry Pi
   # (VolumePermissionChangeInProgress), holding the pod in ContainerCreating
