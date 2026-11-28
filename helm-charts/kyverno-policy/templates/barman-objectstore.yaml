@@ -63,7 +63,7 @@ spec:
         object.spec.?configuration.?azureCredentials.?storageSasToken.?name.orValue('') in [{{ $credListEmpty }}] &&
         object.spec.?configuration.?googleCredentials.?applicationCredentials.?name.orValue('') in [{{ $credListEmpty }}] &&
         object.spec.?instanceSidecarConfiguration.?env.orValue([]).map(e,
-        e.?valueFrom.?secretKeyRef.?name.orValue('')).all(n, n in [{{ $credList }}]))
+        e.?valueFrom.?secretKeyRef.?name.orValue('')).filter(n, n != '').all(n, n in [{{ $credList }}]))
       message: Barman ObjectStores may only use approved names and credential Secrets in this namespace.
 {{- end }}
 {{- end }}
