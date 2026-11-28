@@ -20,7 +20,6 @@ spec:
         (object.metadata.namespace == 'blocky' && object.metadata.name == 'blocky-internal-doh') ||
         (object.metadata.namespace == 'changedetection' && object.metadata.name == 'changedetection-internal') ||
         (object.metadata.namespace == 'gateway' && object.metadata.name == 'kiali-internal') ||
-        (object.metadata.namespace == 'hermes' && object.metadata.name == 'hermes-internal') ||
         (object.metadata.namespace == 'home-assistant' && object.metadata.name == 'home-assistant-internal') ||
         (object.metadata.namespace == 'httpbin' && object.metadata.name == 'httpbin-public') ||
         (object.metadata.namespace == 'hydra' && object.metadata.name == 'hydra-internal') ||

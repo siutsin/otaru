@@ -34,7 +34,6 @@ spec:
                   - changedetection
                   - firecrawl
                   - gateway
-                  - hermes
                   - home-assistant
                   - httpbin
                   - hydra
