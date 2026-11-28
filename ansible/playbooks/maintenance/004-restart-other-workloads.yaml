@@ -12,7 +12,7 @@
       until: namespaces.rc == 0
 
     # One namespace at a time: restart, then wait. Restarting every namespace
-    # at once lets the scheduler stack LUKS-backed pods (jellyfin, hermes, zot)
+    # at once lets the scheduler stack LUKS-backed pods (jellyfin, zot)
     # on one node. Each LUKS unlock costs ~65MiB in longhorn-csi-plugin, and the
     # mount storm OOMKilled it on raspberrypi-01 (2026-11-27, exit 137 at the
     # 4Gi limit, node at 99% CPU). A stuck rollout must not block the

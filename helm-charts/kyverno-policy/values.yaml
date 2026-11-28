@@ -33,8 +33,6 @@ clusterSecretStorePolicy:
       - Umami
       - b2-secret-cloudnative-pg
       - heartbeats
-    hermes:
-      - hermes
     home-assistant:
       - heartbeats
     jung2bot:

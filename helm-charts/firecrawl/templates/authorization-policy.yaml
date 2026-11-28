@@ -35,14 +35,6 @@ spec:
     - from:
         - source:
             principals:
-              - cluster.local/ns/hermes/sa/hermes
-      to:
-        - operation:
-            ports:
-              - {{ .Values.api.port | quote }}
-    - from:
-        - source:
-            principals:
               - cluster.local/ns/{{ $gatewayNamespace }}/sa/{{ $gatewayName }}
             {{- if .Values.authentication.enabled }}
             requestPrincipals:

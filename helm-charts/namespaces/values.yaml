@@ -20,7 +20,6 @@ namespaces:
   - name: falco
   - name: firecrawl
   - name: generic-device-plugin
-  - name: hermes
   - name: home-assistant
   - name: httpbin
   - name: hydra
