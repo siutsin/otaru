@@ -9,6 +9,8 @@ app:
   image:
     tag: jung2bot-6.3.0@sha256:5c1b844ebcd846e895942203a10058675397415bf1009c9ab146509c13687c2e
   env:
+    # Dev only: prod is back, point dev users at @jung2_bot.
+    announcements: '[{"message":"Telegram unfroze the production bot @jung2_bot. Please use it instead. This test bot is unstable and may stop working at any time."}]'
     chatIdTable: jung2bot-dev-chatIds
     eventQueueName: jung2bot-dev-event-queue
     logLevel: debug
