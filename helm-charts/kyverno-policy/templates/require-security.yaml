@@ -1,49 +1,49 @@
 {{- if .Values.requireSecurityPolicy.enabled }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy require-security-policy. Its
+# apiCall context becomes a resource.List variable; dyn() around .items
+# because the compiler types it as any, which a comprehension cannot range
+# over. The deny on a zero
+# count becomes a validation on the count. Background stays off: the
+# legacy rule set skipBackgroundRequests.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
   name: require-security-policy
 spec:
-  admission: true
-  background: true
-  emitWarning: false
-  rules:
-    - name: require-security-policy-for-httproutes
-      match:
-        any:
-          - resources:
-              kinds:
-                - HTTPRoute
-              operations:
-                - CREATE
-                - UPDATE
-      context:
-        - name: securityPolicyCount
-          apiCall:
-            method: GET
-            urlPath: "/apis/gateway.envoyproxy.io/v1alpha1/namespaces/{{ `{{ request.namespace }}` }}/securitypolicies"
-            jmesPath: >-
-              items[?length((spec.targetRefs || `[]`)[?group == 'gateway.networking.k8s.io' &&
-              kind == 'HTTPRoute' && name == '{{ `{{ request.object.metadata.name }}` }}']) > `0` &&
-              length(spec.jwt.providers || `[]`) > `0` &&
-              spec.authorization.defaultAction == 'Deny'] | length(@)
-            default: 0
-      skipBackgroundRequests: true
-      validate:
-        allowExistingViolations: true
-        failureAction: {{ .Values.requireSecurityPolicy.failureAction }}
-        message: >-
-          HTTPRoutes must have a SecurityPolicy in the same namespace with
-          targetRefs pointing at that HTTPRoute, at least one jwt.providers
-          entry, and authorization.defaultAction Deny. Envoy Gateway can
-          resolve backends to pod IPs and bypass Service waypoints, so mesh
-          AuthorizationPolicy alone is not enough. Every exception must be an
-          explicit, GitOps-managed PolicyException.
-        deny:
-          conditions:
-            all:
-              - key: "{{ `{{ securityPolicyCount }}` }}"
-                operator: Equals
-                value: 0
-  validationFailureAction: {{ .Values.requireSecurityPolicy.failureAction }}
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - gateway.networking.k8s.io
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - httproutes
+  variables:
+    - name: securityPolicyCount
+      expression: >-
+        dyn(resource.List('gateway.envoyproxy.io/v1alpha1', 'securitypolicies', object.metadata.namespace).items).filter(p,
+        p.spec.?targetRefs.orValue([]).exists(t,
+        t.?group.orValue('') == 'gateway.networking.k8s.io' && t.?kind.orValue('') == 'HTTPRoute' &&
+        t.?name.orValue('') == object.metadata.name) &&
+        p.spec.?jwt.?providers.orValue([]).size() > 0 &&
+        p.spec.?authorization.?defaultAction.orValue('') == 'Deny').size()
+  validations:
+    - expression: variables.securityPolicyCount > 0
+      message: >-
+        HTTPRoutes must have a SecurityPolicy in the same namespace with
+        targetRefs pointing at that HTTPRoute, at least one jwt.providers
+        entry, and authorization.defaultAction Deny. Envoy Gateway can
+        resolve backends to pod IPs and bypass Service waypoints, so mesh
+        AuthorizationPolicy alone is not enough. Every exception must be an
+        explicit, GitOps-managed PolicyException.
 {{- end }}
