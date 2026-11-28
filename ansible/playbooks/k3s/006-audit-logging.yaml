@@ -63,10 +63,29 @@
       changed_when: false
       failed_when: etcd_ready.stdout != 'ok'
 
-    - name: Confirm Argo CD is Synced and Healthy before the next node
-      pause:
-        prompt: >-
-          Check Argo CD: every Application must read Synced/Healthy
-          (the known external-secrets sync failure does not block if its
-          CRDs are healthy). Press Enter to continue to the next node,
-          or Ctrl-C then A to stop the rollout
+    - name: Wait until Argo CD shows every Application Synced and Healthy
+      # The external-secrets app reproducibly fails to sync the
+      # clustersecretstores/secretstores CRDs ("metadata.annotations:
+      # Too long"). That failure alone does not block the rollout
+      # while both CRDs stay Established.
+      shell: |
+        set -e
+        apps=$(k3s kubectl get applications -n argocd \
+          -o 'jsonpath={range .items[*]}{.metadata.name} {.status.sync.status} {.status.health.status}{"\n"}{end}')
+        bad=$(printf '%s\n' "$apps" | grep -v '^external-secrets ' | grep -v ' Synced Healthy$' || true)
+        [ -z "$bad" ]
+        es=$(printf '%s\n' "$apps" | grep '^external-secrets ' || true)
+        [ -n "$es" ]
+        if ! printf '%s\n' "$es" | grep -q ' Synced Healthy$'; then
+          [ "$(printf '%s\n' "$es" | awk '{print $2}')" = "OutOfSync" ]
+          established=$(k3s kubectl get crd \
+            clustersecretstores.external-secrets.io secretstores.external-secrets.io \
+            -o 'jsonpath={range .items[*]}{.status.conditions[?(@.type=="Established")].status}{"\n"}{end}' \
+            | grep -c '^True$')
+          [ "$established" = "2" ]
+        fi
+      register: argo_check
+      until: argo_check.rc == 0
+      retries: 30
+      delay: 20
+      changed_when: false
