@@ -1265,7 +1265,7 @@ alloy:
     repository: grafana/alloy
     # The digest goes in its own field, not in the tag: the chart builds
     # the app version label from the tag, and @sha256 makes it invalid.
-    tag: v1.21.3
+    tag: v1.22.0
     digest: sha256:89a5a320168387336b9ac3c850609c3ba7757eadd4ae5f1d819deb35e9854b18
   configReloader:
     # 2026-11-18: v0.95.2 fixes CVE-2026-78661 / CVE-2026-97045
