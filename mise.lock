@@ -756,19 +756,21 @@ url = "https://github.com/opentofu/opentofu/releases/download/v1.13.10/tofu_1.13
 url_api = "https://api.github.com/repos/opentofu/opentofu/releases/assets/784193904"
 
 [[tools."aqua:yonahd/kor"]]
-version = "v0.6.9"
+version = "v0.7.0"
 backend = "aqua:yonahd/kor"
-specifiers = ["v0.6.9"]
+specifiers = ["v0.7.0"]
 
 [tools."aqua:yonahd/kor"."platforms.linux-x64"]
-checksum = "sha256:6ca2c3f034a1cc16f12a42bb722028288c7a50a83131bd1662248b4c58f6d6a6"
-url = "https://github.com/yonahd/kor/releases/download/v0.6.9/kor_Linux_x86_64.tar.gz"
-url_api = "https://api.github.com/repos/yonahd/kor/releases/assets/544117070"
+checksum = "sha256:0bda611b832fd05b20432646b8ec265a334479064a659e79672418dfa1ae8a87"
+checksum_source = "mise-versions"
+url = "https://github.com/yonahd/kor/releases/download/v0.7.0/kor_Linux_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/yonahd/kor/releases/assets/734404735"
 
 [tools."aqua:yonahd/kor"."platforms.macos-arm64"]
-checksum = "sha256:2e1a0c3cdbaf74fbe1aa03c5b26f5cef26ff97220dbfe5718cb4b15d327916c1"
-url = "https://github.com/yonahd/kor/releases/download/v0.6.9/kor_Darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/yonahd/kor/releases/assets/544117073"
+checksum = "sha256:3d5ab92a83a0350520fdacc9a56a7aed234b5bdde1173e7240dc41abd97c6c11"
+checksum_source = "mise-versions"
+url = "https://github.com/yonahd/kor/releases/download/v0.7.0/kor_Darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/yonahd/kor/releases/assets/734404732"
 
 [[tools."aqua:zizmorcore/zizmor"]]
 version = "1.33.1"
