@@ -88,7 +88,7 @@ rabbitmq:
 nuq:
   image:
     repository: ghcr.io/cloudnative-pg/postgresql
-    tag: 18.7-system-trixie@sha256:c437b7c6c00aa7e66f5d6de1dd83602391fdebd4ff776ffb1ab7aaba5e7351ad
+    tag: 19.0-system-trixie@sha256:04aba475dfd2ee7ad4a8ad22e77a3b5597cba7f48437ba014e9730e87d00ae4b
   resources:
     # 2026-10-09: first deploy, no 30d series. Unmeasured. Request equals limit.
     # KRR 2026-11-08: 30d p50 ~76.8Mi, spike ~133.7Mi. Request 128Mi -> 86Mi
