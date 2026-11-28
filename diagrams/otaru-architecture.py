@@ -242,7 +242,6 @@ with Diagram(
                     "AI",
                     graph_attr={**cluster_attr, "fontsize": "20"},
                 ):
-                    hermes = icon_node("Hermes", "hermes")
                     inference = icon_node("llama.cpp\ninference", "llama-cpp")
                     searxng = icon_node("SearXNG", "searxng")
                     firecrawl = icon_node("Firecrawl", "firecrawl")
@@ -412,12 +411,8 @@ with Diagram(
     webgazer >> edge("HTTPS monitor", colour=COLOUR_MONITORING) >> cloudflare
 
     # AI
-    (hermes >> edge("OpenAI-compatible\nAPI", colour=COLOUR_AI) >> inference)
-    hermes >> edge("Web search", colour=COLOUR_AI) >> searxng
-    hermes >> edge("Page extract", colour=COLOUR_AI) >> firecrawl
     ai_agent >> edge("Internal API\nvia gateway", colour=COLOUR_AI) >> envoy_gateway
     envoy_gateway >> edge("/v1 route", colour=COLOUR_AI) >> inference
-    envoy_gateway >> edge("Dashboard route", colour=COLOUR_AI) >> hermes
     # Layout: the KV cache and database Mount edges into the PVCs do not set
     # ranks. This keeps the PVCs on the bottom row beside llama.cpp and saves
     # two ranks of height.
@@ -428,10 +423,6 @@ with Diagram(
         )
         >> pvcs
     )
-
-    # Layout only: dot fails with "trouble in init_rank" without this invisible
-    # edge. It is not a real flow.
-    telegram << edge(style="invis", weight="0") << hermes
 
     telegram << edge("Alerts", colour=COLOUR_MONITORING, minlen="2") << monitoring_stack
 
