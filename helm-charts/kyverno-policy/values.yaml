@@ -27,6 +27,8 @@ clusterSecretStorePolicy:
       - b2-secret-cloudnative-pg
       - Ory
       - otaru-mcp
+    jellyfin:
+      - heartbeats
     umami:
       - Umami
       - b2-secret-cloudnative-pg
