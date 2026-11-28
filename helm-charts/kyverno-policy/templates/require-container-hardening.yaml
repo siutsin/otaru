@@ -1,50 +1,49 @@
 {{- if .Values.requireContainerHardeningPolicy.enabled }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy require-container-hardening.
+# Its two pattern rules become two validations over every container and
+# init container. Background stays off: both legacy rules set
+# skipBackgroundRequests.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
   name: require-container-hardening
 spec:
-  admission: true
-  background: true
-  emitWarning: false
-  rules:
-    - name: require-allow-privilege-escalation-false
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: Containers must set allowPrivilegeEscalation to false.
-        pattern:
-          spec:
-            =(initContainers):
-              - securityContext:
-                  allowPrivilegeEscalation: "false"
-            containers:
-              - securityContext:
-                  allowPrivilegeEscalation: "false"
-    - name: require-drop-all-capabilities
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: Containers must drop the ALL capability.
-        foreach:
-          - list: request.object.spec.[initContainers, containers][]
-            deny:
-              conditions:
-                all:
-                  - key: ALL
-                    operator: AnyNotIn
-                    value: "{{ "{{" }} element.securityContext.capabilities.drop[] || `[]` {{ "}}" }}"
-  validationFailureAction: Enforce
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  variables:
+    - name: allContainers
+      expression: object.spec.containers + object.spec.?initContainers.orValue([])
+  validations:
+    - expression: >-
+        variables.allContainers.all(c,
+        c.?securityContext.?allowPrivilegeEscalation.orValue(true) == false)
+      message: Containers must set allowPrivilegeEscalation to false.
+    - expression: >-
+        variables.allContainers.all(c,
+        'ALL' in c.?securityContext.?capabilities.?drop.orValue([]))
+      message: Containers must drop the ALL capability.
 {{- end }}

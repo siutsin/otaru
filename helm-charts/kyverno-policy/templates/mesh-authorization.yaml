@@ -1,141 +1,162 @@
 {{- if .Values.meshAuthorizationPolicy.enabled }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy require-mesh-authorization-policy.
+# Its three rules become three ValidatingPolicies (CEL policies hold no
+# named rules). Each keeps the ambient-namespace selector, its
+# preconditions as matchConditions, and its apiCall context as a
+# resource.List variable. dyn() around .items: the compiler types it as
+# any, which a comprehension cannot range over; dyn() makes it dynamic.
+# Per-rule failureAction Enforce becomes
+# validationActions Deny. Background stays off: every legacy rule set
+# skipBackgroundRequests, so background scans never evaluated them.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
-  name: require-mesh-authorization-policy
-  annotations:
-    pod-policies.kyverno.io/autogen-controllers: DaemonSet,Deployment,Job,StatefulSet,CronJob
+  name: require-authorization-policy-for-ambient-services
 spec:
-  admission: true
-  background: true
-  emitWarning: false
-  rules:
-    - name: require-authorization-policy-for-ambient-services
-      match:
-        any:
-          - resources:
-              kinds:
-                - Service
-              operations:
-                - CREATE
-                - UPDATE
-              namespaceSelector:
-{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
-      preconditions:
-        all:
-          - key: {{ printf "{{ (request.object.spec.selector || `{}`) | length(@) }}" | quote }}
-            operator: GreaterThan
-            value: 0
-          - key: {{ printf "{{ (request.object.spec.ports || `[]`)[?protocol == 'TCP' || protocol == null] | length(@) }}" | quote }}
-            operator: GreaterThan
-            value: 0
-      context:
-        - name: authorizationPolicyCount
-          apiCall:
-            method: GET
-            urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
-            jmesPath: >-
-              items[?length((spec.targetRefs || `[]`)[?(group == null || group == '' || group == 'core') &&
-              kind == 'Service' && name == '{{ `{{ request.object.metadata.name }}` }}']) > `0`] | length(@)
-            default: 0
-      skipBackgroundRequests: true
-      validate:
-        allowExistingViolations: true
-        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
-        message: >-
-          Selector-backed Services with TCP ports in ambient mesh namespaces must
-          have an AuthorizationPolicy in the same namespace with targetRefs
-          pointing at that Service unless explicitly annotated as a
-          non-ambient endpoint Service.
-        deny:
-          conditions:
-            all:
-              - key: "{{ `{{ authorizationPolicyCount }}` }}"
-                operator: Equals
-                value: 0
-              - key: {{ printf "{{ request.object.metadata.annotations.\"mesh.otaru.io/non-ambient-endpoints\" || '' }}" | quote }}
-                operator: NotEquals
-                value: "true"
-    - name: require-workload-authorization-policy-for-prometheus-scrapes
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              operations:
-                - CREATE
-                - UPDATE
-              namespaceSelector:
-{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
-      preconditions:
-        all:
-          - key: {{ printf "{{ request.object.metadata.annotations.\"prometheus.io/scrape\" || '' }}" | quote }}
-            operator: Equals
-            value: "true"
-          - key: {{ printf "{{ request.object.metadata.labels.\"app.kubernetes.io/name\" || '' }}" | quote }}
-            operator: NotEquals
-            value: ""
-      context:
-        - name: workloadAuthorizationPolicyCount
-          apiCall:
-            method: GET
-            urlPath: "/apis/security.istio.io/v1/namespaces/{{ `{{ request.namespace }}` }}/authorizationpolicies"
-            jmesPath: >-
-              items[?spec.selector.matchLabels."app.kubernetes.io/name" ==
-              '{{ `{{ request.object.metadata.labels."app.kubernetes.io/name" }}` }}'] | length(@)
-            default: 0
-      skipBackgroundRequests: true
-      validate:
-        allowExistingViolations: true
-        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
-        message: >-
-          Prometheus-scraped Pods in ambient mesh namespaces must have a
-          workload-selector AuthorizationPolicy in the same namespace selecting
-          the Pod's app.kubernetes.io/name label. Service targetRefs policies do
-          not cover Prometheus pod-IP scrapes.
-        deny:
-          conditions:
-            all:
-              - key: "{{ `{{ workloadAuthorizationPolicyCount }}` }}"
-                operator: Equals
-                value: 0
-    - name: require-non-ambient-pods-for-non-ambient-service-opt-outs
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              operations:
-                - CREATE
-                - UPDATE
-              namespaceSelector:
-{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 16 }}
-      preconditions:
-        all:
-          - key: {{ printf "{{ request.object.metadata.labels.\"istio.io/dataplane-mode\" || '' }}" | quote }}
-            operator: NotEquals
-            value: none
-      context:
-        - name: selectedNonAmbientEndpointServiceCount
-          apiCall:
-            method: GET
-            urlPath: "/api/v1/namespaces/{{ `{{ request.namespace }}` }}/services"
-            jmesPath: >-
-              items[?metadata.annotations."mesh.otaru.io/non-ambient-endpoints" == 'true' &&
-              label_match(spec.selector, `{{ "{{" }} request.object.metadata.labels || `{}` {{ "}}" }}`)] | length(@)
-            default: 0
-      skipBackgroundRequests: true
-      validate:
-        allowExistingViolations: true
-        failureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
-        message: >-
-          Services annotated as non-ambient endpoint Services may only select
-          pods with istio.io/dataplane-mode=none.
-        deny:
-          conditions:
-            all:
-              - key: "{{ `{{ selectedNonAmbientEndpointServiceCount }}` }}"
-                operator: GreaterThan
-                value: 0
-  validationFailureAction: {{ .Values.meshAuthorizationPolicy.failureAction }}
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  matchConstraints:
+    namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 6 }}
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - services
+  matchConditions:
+    - name: has-selector
+      expression: object.spec.?selector.orValue({}).size() > 0
+    - name: has-tcp-port
+      expression: object.spec.?ports.orValue([]).exists(p, !has(p.protocol) || p.protocol == 'TCP')
+  variables:
+    - name: authorizationPolicyCount
+      expression: >-
+        dyn(resource.List('security.istio.io/v1', 'authorizationpolicies', object.metadata.namespace).items).filter(p,
+        p.spec.?targetRefs.orValue([]).exists(t,
+        t.?group.orValue('') in ['', 'core'] && t.?kind.orValue('') == 'Service' &&
+        t.?name.orValue('') == object.metadata.name)).size()
+  validations:
+    - expression: >-
+        variables.authorizationPolicyCount > 0 ||
+        object.metadata.?annotations.orValue({})[?'mesh.otaru.io/non-ambient-endpoints'].orValue('') == 'true'
+      message: >-
+        Selector-backed Services with TCP ports in ambient mesh namespaces must
+        have an AuthorizationPolicy in the same namespace with targetRefs
+        pointing at that Service unless explicitly annotated as a
+        non-ambient endpoint Service.
+---
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: require-workload-authorization-policy-for-prometheus-scrapes
+spec:
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 6 }}
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: prometheus-scrape
+      expression: object.metadata.?annotations.orValue({})[?'prometheus.io/scrape'].orValue('') == 'true'
+    - name: has-app-name-label
+      expression: object.metadata.?labels.orValue({})[?'app.kubernetes.io/name'].orValue('') != ''
+  variables:
+    - name: workloadAuthorizationPolicyCount
+      expression: >-
+        dyn(resource.List('security.istio.io/v1', 'authorizationpolicies', object.metadata.namespace).items).filter(p,
+        has(p.spec.selector) && has(p.spec.selector.matchLabels) && 'app.kubernetes.io/name' in p.spec.selector.matchLabels &&
+        p.spec.selector.matchLabels['app.kubernetes.io/name'] == object.metadata.labels['app.kubernetes.io/name']).size()
+  validations:
+    - expression: variables.workloadAuthorizationPolicyCount > 0
+      message: >-
+        Prometheus-scraped Pods in ambient mesh namespaces must have a
+        workload-selector AuthorizationPolicy in the same namespace selecting
+        the Pod's app.kubernetes.io/name label. Service targetRefs policies do
+        not cover Prometheus pod-IP scrapes.
+---
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: require-non-ambient-pods-for-non-ambient-service-opt-outs
+spec:
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    namespaceSelector:
+{{- toYaml .Values.meshAuthorizationPolicy.namespaceSelector | nindent 6 }}
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: not-dataplane-none
+      expression: object.metadata.?labels.orValue({})[?'istio.io/dataplane-mode'].orValue('') != 'none'
+  variables:
+    - name: podLabels
+      expression: object.metadata.?labels.orValue({})
+    - name: selectedNonAmbientEndpointServiceCount
+      expression: >-
+        dyn(resource.List('v1', 'services', object.metadata.namespace).items).filter(s,
+        s.metadata.?annotations.orValue({})[?'mesh.otaru.io/non-ambient-endpoints'].orValue('') == 'true' &&
+        has(s.spec.selector) &&
+        s.spec.?selector.orValue({}).size() > 0 &&
+        s.spec.?selector.orValue({}).all(k,
+        k in variables.podLabels && variables.podLabels[k] == s.spec.selector[k])).size()
+  validations:
+    - expression: variables.selectedNonAmbientEndpointServiceCount == 0
+      message: >-
+        Services annotated as non-ambient endpoint Services may only select
+        pods with istio.io/dataplane-mode=none.
 {{- end }}

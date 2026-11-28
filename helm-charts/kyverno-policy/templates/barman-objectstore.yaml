@@ -8,138 +8,62 @@
     {{- fail (printf "barmanObjectStorePolicy.allowedNamespaces.%s.credentialSecrets must include at least one allowed Secret" $namespace) }}
   {{- end }}
 {{- end }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy restrict-barman-objectstores.
+# Its six rules become six validations in one policy: the namespace
+# allowlist plus one per approved namespace, each guarded by a namespace
+# condition so it only constrains its own namespace. Per-rule
+# failureAction Enforce becomes validationActions Deny. The spec-level
+# Audit on the legacy policy never applied because every rule set Enforce.
+# Background stays off: the legacy policy ran admission only.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
   name: restrict-barman-objectstores
 spec:
-  admission: true
-  background: false
-  emitWarning: false
-  rules:
-    - name: block-objectstores-outside-approved-namespaces
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - barmancloud.cnpg.io/v1/ObjectStore
-              operations:
-                - CREATE
-                - UPDATE
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: Barman ObjectStores may only be created in approved namespaces.
-        deny:
-          conditions:
-            all:
-              - key: "{{ `{{ request.namespace }}` }}"
-                operator: AnyNotIn
-                value:
-{{- range $allowedNamespaces }}
-                  - {{ . }}
-{{- end }}
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - barmancloud.cnpg.io
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - objectstores
+  validations:
+    - expression: >-
+        object.metadata.namespace in [{{- range $i, $ns := $allowedNamespaces }}{{ if $i }}, {{ end }}{{ $ns | quote }}{{ end }}]
+      message: Barman ObjectStores may only be created in approved namespaces.
 {{- range $namespace, $config := .Values.barmanObjectStorePolicy.allowedNamespaces }}
-    - name: restrict-objectstores-in-{{ $namespace }}
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - barmancloud.cnpg.io/v1/ObjectStore
-              namespaces:
-                - {{ $namespace }}
-              operations:
-                - CREATE
-                - UPDATE
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: Barman ObjectStores may only use approved names and credential Secrets in this namespace.
-        deny:
-          conditions:
-            any:
-              - key: "{{ `{{ request.object.metadata.name }}` }}"
-                operator: AnyNotIn
-                value:
-{{- range $config.objectStores }}
-                  - {{ . }}
+{{- $objStores := list }}
+{{- range $s := $config.objectStores }}{{ $objStores = append $objStores ($s | quote) }}{{ end }}
+{{- $credSecrets := list }}
+{{- range $s := $config.credentialSecrets }}{{ $credSecrets = append $credSecrets ($s | quote) }}{{ end }}
+{{- $credList := join ", " $credSecrets }}
+{{- $credListEmpty := join ", " (prepend $credSecrets "''") }}
+    - expression: >-
+        object.metadata.namespace != {{ $namespace | quote }} ||
+        (object.metadata.name in [{{ $objStores | join ", " }}] &&
+        object.spec.?configuration.?s3Credentials.?accessKeyId.?name.orValue('') in [{{ $credList }}] &&
+        object.spec.?configuration.?s3Credentials.?secretAccessKey.?name.orValue('') in [{{ $credList }}] &&
+        object.spec.?configuration.?s3Credentials.?region.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?s3Credentials.?sessionToken.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?endpointCA.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?azureCredentials.?connectionString.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?azureCredentials.?storageAccount.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?azureCredentials.?storageKey.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?azureCredentials.?storageSasToken.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?configuration.?googleCredentials.?applicationCredentials.?name.orValue('') in [{{ $credListEmpty }}] &&
+        object.spec.?instanceSidecarConfiguration.?env.orValue([]).map(e,
+        e.?valueFrom.?secretKeyRef.?name.orValue('')).all(n, n in [{{ $credList }}]))
+      message: Barman ObjectStores may only use approved names and credential Secrets in this namespace.
 {{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.s3Credentials.accessKeyId.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.s3Credentials.secretAccessKey.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.s3Credentials.region.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.s3Credentials.sessionToken.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.endpointCA.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.connectionString.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageAccount.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageKey.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.azureCredentials.storageSasToken.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.configuration.googleCredentials.applicationCredentials.name || '' }}` }}"
-                operator: AnyNotIn
-                value:
-                  - ""
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-              - key: "{{ `{{ request.object.spec.instanceSidecarConfiguration.env[].valueFrom.secretKeyRef.name || [] }}` }}"
-                operator: AnyNotIn
-                value:
-{{- range $config.credentialSecrets }}
-                  - {{ . }}
-{{- end }}
-{{- end }}
-  validationFailureAction: Audit
 {{- end }}

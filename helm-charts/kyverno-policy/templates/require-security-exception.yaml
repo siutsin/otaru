@@ -1,138 +1,35 @@
+# CEL migration of the legacy PolicyException in this file. The
+# grandfathered routes are one condition: the namespace and name pairs
+# the legacy match block listed, one pair per line.
+#
 # These pre-existing routes are explicitly grandfathered until each gains its
 # own Envoy Gateway SecurityPolicy. New routes cannot use an annotation bypass.
-apiVersion: kyverno.io/v2
+apiVersion: policies.kyverno.io/v1
 kind: PolicyException
 metadata:
   name: grandfathered-httproutes-without-security-policy
   namespace: {{ .Values.namespace }}
 spec:
-  exceptions:
-    - policyName: require-security-policy
-      ruleNames:
-        - require-security-policy-for-httproutes
-  match:
-    any:
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - argocd
-          names:
-            - argocd-internal
-            - argocd-public
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - blocky
-          names:
-            - blocky-internal-doh
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - changedetection
-          names:
-            - changedetection-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - gateway
-          names:
-            - kiali-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - hermes
-          names:
-            - hermes-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - home-assistant
-          names:
-            - home-assistant-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - httpbin
-          names:
-            - httpbin-public
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - hydra
-          names:
-            - hydra-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - inference
-          names:
-            - inference-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - jellyfin
-          names:
-            - jellyfin-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - jung2bot
-          names:
-            - jung2bot-public
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - jung2bot-dev
-          names:
-            - jung2bot-public
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - longhorn-system
-          names:
-            - longhorn-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - monitoring
-          names:
-            - monitoring-grafana-internal
-            - monitoring-loki-internal
-            - monitoring-prometheus-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - teslamate
-          names:
-            - teslamate-grafana-internal
-            - teslamate-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - umami
-          names:
-            - umami-collect
-            - umami-internal
-      - resources:
-          kinds:
-            - HTTPRoute
-          namespaces:
-            - zot
-          names:
-            - zot-internal
+  policyRefs:
+    - name: require-security-policy
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: grandfathered-routes
+      expression: >-
+        (object.metadata.namespace == 'argocd' && object.metadata.name in ['argocd-internal', 'argocd-public']) ||
+        (object.metadata.namespace == 'blocky' && object.metadata.name == 'blocky-internal-doh') ||
+        (object.metadata.namespace == 'changedetection' && object.metadata.name == 'changedetection-internal') ||
+        (object.metadata.namespace == 'gateway' && object.metadata.name == 'kiali-internal') ||
+        (object.metadata.namespace == 'hermes' && object.metadata.name == 'hermes-internal') ||
+        (object.metadata.namespace == 'home-assistant' && object.metadata.name == 'home-assistant-internal') ||
+        (object.metadata.namespace == 'httpbin' && object.metadata.name == 'httpbin-public') ||
+        (object.metadata.namespace == 'hydra' && object.metadata.name == 'hydra-internal') ||
+        (object.metadata.namespace == 'inference' && object.metadata.name == 'inference-internal') ||
+        (object.metadata.namespace == 'jellyfin' && object.metadata.name == 'jellyfin-internal') ||
+        (object.metadata.namespace == 'jung2bot' && object.metadata.name == 'jung2bot-public') ||
+        (object.metadata.namespace == 'jung2bot-dev' && object.metadata.name == 'jung2bot-public') ||
+        (object.metadata.namespace == 'longhorn-system' && object.metadata.name == 'longhorn-internal') ||
+        (object.metadata.namespace == 'monitoring' && object.metadata.name in ['monitoring-grafana-internal', 'monitoring-loki-internal', 'monitoring-prometheus-internal']) ||
+        (object.metadata.namespace == 'teslamate' && object.metadata.name in ['teslamate-grafana-internal', 'teslamate-internal']) ||
+        (object.metadata.namespace == 'umami' && object.metadata.name in ['umami-collect', 'umami-internal']) ||
+        (object.metadata.namespace == 'zot' && object.metadata.name == 'zot-internal')

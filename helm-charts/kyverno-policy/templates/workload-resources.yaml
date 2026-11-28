@@ -1,43 +1,52 @@
 {{- if .Values.workloadResourcesPolicy.enabled }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy require-workload-resources.
+# Its pattern rule becomes one validation over every container and init
+# container. Background stays off: the legacy rule set
+# skipBackgroundRequests.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
   name: require-workload-resources
 spec:
-  admission: true
-  background: true
-  emitWarning: false
-  rules:
-    - name: require-container-resource-requests-and-limits
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.
-        pattern:
-          spec:
-            =(initContainers):
-              - resources:
-                  requests:
-                    cpu: ?*
-                    memory: ?*
-                    ephemeral-storage: ?*
-                  limits:
-                    memory: ?*
-                    ephemeral-storage: ?*
-            containers:
-              - resources:
-                  requests:
-                    cpu: ?*
-                    memory: ?*
-                    ephemeral-storage: ?*
-                  limits:
-                    memory: ?*
-                    ephemeral-storage: ?*
-  validationFailureAction: Enforce
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  variables:
+    - name: allContainers
+      expression: object.spec.containers + object.spec.?initContainers.orValue([])
+  validations:
+    - expression: >-
+        variables.allContainers.all(c,
+        has(c.resources) &&
+        has(c.resources.requests) &&
+        has(c.resources.requests.cpu) &&
+        has(c.resources.requests.memory) &&
+        'ephemeral-storage' in c.resources.requests &&
+        has(c.resources.limits) &&
+        has(c.resources.limits.memory) &&
+        'ephemeral-storage' in c.resources.limits)
+      message: Containers must set resource requests for cpu, memory, and ephemeral-storage, plus limits for memory and ephemeral-storage.
 {{- end }}

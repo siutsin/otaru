@@ -1,0 +1,38 @@
+{{- if .Values.meshAuthorizationPolicy.enabled }}
+# The non-ambient opt-out rule lists Services through the CEL resource
+# library. The legacy apiCall did the same list, but no binding granted
+# Services read, so the rule could not deny. This binding grants it, so
+# the CEL rule enforces as designed.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyverno-mesh-authorization-policy-services
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kyverno-mesh-authorization-policy-services
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kyverno-mesh-authorization-policy-services
+subjects:
+  - kind: ServiceAccount
+    name: kyverno-admission-controller
+    namespace: {{ .Values.namespace }}
+  - kind: ServiceAccount
+    name: kyverno-background-controller
+    namespace: {{ .Values.namespace }}
+  - kind: ServiceAccount
+    name: kyverno-reports-controller
+    namespace: {{ .Values.namespace }}
+{{- end }}

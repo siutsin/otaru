@@ -1,52 +1,57 @@
 {{- if .Values.requirePodDisruptionBudgetPolicy.enabled }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy require-pod-disruption-budget.
+# Its apiCall context becomes a resource.List variable; dyn() around
+# .items because the compiler types it as any, which a comprehension
+# cannot range over. The deny on a
+# zero count becomes a validation on the count. This is the only policy
+# whose legacy rules did not set skipBackgroundRequests, so background
+# stays on here.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
 metadata:
   name: require-pod-disruption-budget
 spec:
-  admission: true
-  background: true
-  emitWarning: false
-  rules:
-    - name: require-pdb-for-deployment
-      match:
-        any:
-          - resources:
-              kinds:
-                - Deployment
-                - StatefulSet
-      context:
-        - name: matchingPdbCount
-          apiCall:
-            urlPath: "/apis/policy/v1/namespaces/{{ "{{" }} request.namespace {{ "}}" }}/poddisruptionbudgets"
-            # Also match the tailscale operator's parent-resource label: the
-            # gateway PDB selects pods by it, not by the app labels above.
-            jmesPath: >-
-              items[?spec.selector.matchLabels."app.kubernetes.io/name" ==
-              '{{ "{{" }} request.object.spec.template.metadata.labels."app.kubernetes.io/name" || '' {{ "}}" }}' ||
-              spec.selector.matchLabels.app ==
-              '{{ "{{" }} request.object.spec.template.metadata.labels.app || '' {{ "}}" }}' ||
-              spec.selector.matchLabels."gateway.networking.k8s.io/gateway-name" ==
-              '{{ "{{" }} request.object.spec.template.metadata.labels."gateway.networking.k8s.io/gateway-name" || '' {{ "}}" }}' ||
-              spec.selector.matchLabels."tailscale.com/parent-resource" ==
-              '{{ "{{" }} request.object.spec.template.metadata.labels."tailscale.com/parent-resource" || '' {{ "}}" }}']
-              | length(@)
-      validate:
-        allowExistingViolations: true
-        failureAction: Enforce
-        message: >-
-          No PodDisruptionBudget found selecting this workload by its
-          app.kubernetes.io/name label. A single-replica workload with no
-          PDB has zero protection against descheduler eviction and can be
-          killed on effectively every scan cycle -- see
-          documentation/gotcha.md ("Descheduler Eviction Storms Look Like
-          Self-Resolving Blips, One Check At A Time") for the incident
-          this policy is meant to catch earlier next time.
-        deny:
-          conditions:
-            any:
-              - key: "{{ "{{" }} matchingPdbCount {{ "}}" }}"
-                operator: Equals
-                value: 0
-  validationFailureAction: Enforce
+  validationActions:
+    - Deny
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - apps
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - deployments
+          - statefulsets
+  variables:
+    - name: workloadLabels
+      expression: object.spec.template.metadata.?labels.orValue({})
+    - name: matchingPdbCount
+      expression: >-
+        dyn(resource.List('policy/v1', 'poddisruptionbudgets', object.metadata.namespace).items).filter(pdb,
+        (has(pdb.spec.selector.matchLabels) && 'app.kubernetes.io/name' in pdb.spec.selector.matchLabels &&
+        pdb.spec.selector.matchLabels['app.kubernetes.io/name'] == variables.workloadLabels[?'app.kubernetes.io/name'].orValue('')) ||
+        (has(pdb.spec.selector.matchLabels) && 'app' in pdb.spec.selector.matchLabels &&
+        pdb.spec.selector.matchLabels['app'] == variables.workloadLabels[?'app'].orValue('')) ||
+        (has(pdb.spec.selector.matchLabels) && 'gateway.networking.k8s.io/gateway-name' in pdb.spec.selector.matchLabels &&
+        pdb.spec.selector.matchLabels['gateway.networking.k8s.io/gateway-name'] == variables.workloadLabels[?'gateway.networking.k8s.io/gateway-name'].orValue('')) ||
+        (has(pdb.spec.selector.matchLabels) && 'tailscale.com/parent-resource' in pdb.spec.selector.matchLabels &&
+        pdb.spec.selector.matchLabels['tailscale.com/parent-resource'] == variables.workloadLabels[?'tailscale.com/parent-resource'].orValue(''))).size()
+  validations:
+    - expression: variables.matchingPdbCount > 0
+      message: >-
+        No PodDisruptionBudget found selecting this workload by its
+        app.kubernetes.io/name label. A single-replica workload with no
+        PDB has zero protection against descheduler eviction and can be
+        killed on effectively every scan cycle -- see
+        documentation/gotcha.md ("Descheduler Eviction Storms Look Like
+        Self-Resolving Blips, One Check At A Time") for the incident
+        this policy is meant to catch earlier next time.
 {{- end }}

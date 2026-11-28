@@ -1,99 +1,140 @@
 {{- if and .Values.connector.enabled .Values.connector.exitNode }}
 {{- $image := index .Values "tailscale-operator" "proxyConfig" "image" }}
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CEL migration of the legacy ClusterPolicy tailscale-exit-guard. Its two
+# mutate rules become two MutatingPolicies: a mutation holds no
+# per-mutation condition, so each rule keeps its own precondition as a
+# policy-level matchCondition. failurePolicy Ignore and admission-only
+# evaluation carry over from the legacy policy. The volumes mutation uses
+# ApplyConfiguration; the container mutation must use JSONPatch because
+# ApplyConfiguration cannot set atomic lists (command, capabilities
+# drop/add). Every JSONPatch value is wrapped in dyn(): the compiler
+# rejects a map literal whose values mix types, and dyn() makes them
+# uniformly dynamic.
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
-  name: tailscale-exit-guard
+  name: tailscale-exit-guard-volumes
 spec:
-  admission: true
-  background: false
   failurePolicy: Ignore
-  rules:
-    - name: add-exit-guard-volumes
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaces:
-                - {{ .Release.Namespace }}
-              selector:
-                matchLabels:
-                  tailscale.com/parent-resource: {{ .Values.connector.name }}
-                  tailscale.com/parent-resource-type: connector
-      preconditions:
-        all:
-          - key: "{{ `{{ request.object.spec.volumes[?name=='exit-guard-run'] | length(@) }}` }}"
-            operator: Equals
-            value: 0
-      mutate:
-        patchesJson6902: |-
-          - op: add
-            path: /spec/volumes/-
-            value:
-              name: exit-guard-script
-              configMap:
-                name: exit-guard
-          - op: add
-            path: /spec/volumes/-
-            value:
-              name: exit-guard-run
-              emptyDir: {}
-    - name: add-exit-guard-container
-      skipBackgroundRequests: true
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaces:
-                - {{ .Release.Namespace }}
-              selector:
-                matchLabels:
-                  tailscale.com/parent-resource: {{ .Values.connector.name }}
-                  tailscale.com/parent-resource-type: connector
-      preconditions:
-        all:
-          - key: "{{ `{{ request.object.spec.containers[?name=='exit-guard'] | length(@) }}` }}"
-            operator: Equals
-            value: 0
-      mutate:
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: in-connector-namespace
+      expression: object.metadata.namespace == {{ .Release.Namespace | quote }}
+    - name: gateway-connector-pod
+      expression: >-
+        object.metadata.?labels.orValue({})[?'tailscale.com/parent-resource'].orValue('') == {{ .Values.connector.name | quote }} &&
+        object.metadata.?labels.orValue({})[?'tailscale.com/parent-resource-type'].orValue('') == 'connector'
+    - name: no-exit-guard-run-volume
+      expression: "!object.spec.?volumes.orValue([]).exists(v, v.name == 'exit-guard-run')"
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              volumes: [
+                Object.spec.volumes{
+                  name: "exit-guard-script",
+                  configMap: Object.spec.volumes.configMap{name: "exit-guard"}
+                },
+                Object.spec.volumes{
+                  name: "exit-guard-run",
+                  emptyDir: Object.spec.volumes.emptyDir{}
+                }
+              ]
+            }
+          }
+---
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: tailscale-exit-guard-container
+spec:
+  failurePolicy: Ignore
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: in-connector-namespace
+      expression: object.metadata.namespace == {{ .Release.Namespace | quote }}
+    - name: gateway-connector-pod
+      expression: >-
+        object.metadata.?labels.orValue({})[?'tailscale.com/parent-resource'].orValue('') == {{ .Values.connector.name | quote }} &&
+        object.metadata.?labels.orValue({})[?'tailscale.com/parent-resource-type'].orValue('') == 'connector'
+    - name: no-exit-guard-container
+      expression: "!object.spec.containers.exists(c, c.name == 'exit-guard')"
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >-
+          [
+            JSONPatch{op: "add", path: "/spec/containers/-", value: {
+              "name": dyn("exit-guard"),
+              "image": dyn({{ printf "%s:%s" $image.repository $image.tag | quote }}),
+              "imagePullPolicy": dyn("IfNotPresent"),
+              "command": dyn(["/bin/sh", "/guard/guard.sh"]),
+              "volumeMounts": dyn([
+                dyn({"name": dyn("exit-guard-script"), "mountPath": dyn("/guard"), "readOnly": dyn(true)}),
+                dyn({"name": dyn("exit-guard-run"), "mountPath": dyn("/run")})
+              ]),
+              "securityContext": dyn({
+                "allowPrivilegeEscalation": dyn(true),
+                "readOnlyRootFilesystem": dyn(true),
+                "capabilities": dyn({"drop": dyn(["ALL"]), "add": dyn(["NET_ADMIN"])})
+              }),
+              "resources": dyn({
+                "requests": dyn({"cpu": dyn("5m"), "memory": dyn("32Mi"), "ephemeral-storage": dyn("32Mi")}),
+                "limits": dyn({"memory": dyn("32Mi"), "ephemeral-storage": dyn("64Mi")})
+              })
+            }}
+          ]
         # The process is a 15s iptables loop.
         # Memory request and limit are 32Mi. Ephemeral-storage request is 32Mi, limit 64Mi.
-        # 2026-11-03: ephemeral limit raised from 32Mi — the container sat at 100% of 32Mi,
+        # 2026-11-03: ephemeral limit raised from 32Mi -- the container sat at 100% of 32Mi,
         # filled by its own guard loop's log output; a healthy replica uses ~0.2 MB.
         # CPU request is 5m. No CPU limit.
-        patchesJson6902: |-
-          - op: add
-            path: /spec/containers/-
-            value:
-              name: exit-guard
-              image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
-              imagePullPolicy: IfNotPresent
-              command:
-                - /bin/sh
-                - /guard/guard.sh
-              volumeMounts:
-                - name: exit-guard-script
-                  mountPath: /guard
-                  readOnly: true
-                - name: exit-guard-run
-                  mountPath: /run
-              securityContext:
-                allowPrivilegeEscalation: true
-                readOnlyRootFilesystem: true
-                capabilities:
-                  drop:
-                    - ALL
-                  add:
-                    - NET_ADMIN
-              resources:
-                requests:
-                  cpu: 5m
-                  memory: 32Mi
-                  ephemeral-storage: 32Mi
-                limits:
-                  memory: 32Mi
-                  ephemeral-storage: 64Mi
 {{- end }}

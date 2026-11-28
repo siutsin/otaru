@@ -1,35 +1,22 @@
+# CEL migration of the legacy PolicyException in this file. The legacy
+# exception covered both rules of require-image-tag, which the migration
+# splits into two policies, so this exception references both.
+#
 # Kubernetes and Kyverno manage these platform namespaces. Their workloads are
 # not fully owned by this repository, so image tags cannot be corrected here.
 # Keep the namespace scope explicit and auditable.
-apiVersion: kyverno.io/v2
+apiVersion: policies.kyverno.io/v1
 kind: PolicyException
 metadata:
   name: platform-image-tag-policy-exceptions
   namespace: {{ .Values.namespace }}
 spec:
-  exceptions:
-    - policyName: require-image-tag
-      ruleNames:
-        - require-container-image-tag
-        - autogen-require-container-image-tag
-        - autogen-cronjob-require-container-image-tag
-        - disallow-latest-image-tag
-        - autogen-disallow-latest-image-tag
-        - autogen-cronjob-disallow-latest-image-tag
-  match:
-    any:
-      - resources:
-          kinds:
-            - Pod
-            - DaemonSet
-            - Deployment
-            - Job
-            - ReplicaSet
-            - ReplicationController
-            - StatefulSet
-            - CronJob
-          namespaces:
-            - kube-node-lease
-            - kube-public
-            - kube-system
-            - kyverno
+  policyRefs:
+    - name: require-image-tag
+      kind: ValidatingPolicy
+    - name: disallow-latest-image-tag
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: platform-namespaces
+      expression: >-
+        object.metadata.namespace in ['kube-node-lease', 'kube-public', 'kube-system', 'kyverno']
