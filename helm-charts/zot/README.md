@@ -47,8 +47,11 @@ prune for the same digest in that case.
 
 When a node is added or replaced, edit `cidrs.json` by hand in
 the same change. Add the node with its pod CIDR, and set its
-`cidr` field to the base address of that pod CIDR as a /32. The
-route SecurityPolicy then matches the live node pod CIDRs.
+`cidr` field to the base address of that pod CIDR as a /32 and
+its `snat` field to the .1 address of that pod CIDR as a /32.
+Node traffic served by the gateway pod on the same node presents
+as .1, not .0. The route SecurityPolicy then matches the live
+node pod CIDRs.
 
 ## Upgrades
 
