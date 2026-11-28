@@ -1,6 +1,6 @@
 dependencies:
 - name: vertical-pod-autoscaler
   repository: https://kubernetes.github.io/autoscaler
-  version: 0.15.0
-digest: sha256:160b702564facb42beef03a13cd622d70a34f64050a51ed186107db12682d7d1
-generated: "2026-10-22T11:58:19.986280018Z"
+  version: 0.17.0
+digest: sha256:281ae90a10cb80410a50e112367b229d3feec5a0f8f3401c7ce9c669017afc62
+generated: "2026-11-28T13:02:00.058465126Z"
