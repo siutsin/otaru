@@ -11,6 +11,11 @@
   osvVulnerabilityAlerts: true,
   vulnerabilityAlerts: { enabled: true },
   rebaseWhen: 'behind-base-branch',
+  // Defaults are 2 PRs per hour and 10 open at once, which is too slow for a
+  // burst of updates. Keep a concurrent cap: with rebaseWhen above, every merge
+  // rebases all other open PRs and re-runs their CI.
+  prHourlyLimit: 10,
+  prConcurrentLimit: 15,
   logLevelRemap: [
     {
       matchMessage: "/Some .+ did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding/",
