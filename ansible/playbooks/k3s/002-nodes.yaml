@@ -71,6 +71,10 @@
         mode: '0644'
       when: "'master' in group_names"
 
+    - name: Create the audit policy and log files the apiserver needs at start
+      include_tasks: audit-prerequisites.yaml
+      when: "'master' in group_names"
+
     - name: Install k3s on master nodes with LB_API_SERVER_IP
       # Enable anonymous authentication
       # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
@@ -78,8 +82,16 @@
       # https://docs.k3s.io/cli/server#customized-flags-for-kubernetes-processes
       # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
       # https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md
+      # INSTALL_K3S_VERSION pins each master to the version master 1 runs, as the
+      # worker install does. Without it the stable channel upgrades the control
+      # plane (v1.36 to v1.37 on 2026-11-28). The installer restarts k3s when the
+      # unit changes, so run this with --limit, one master at a time, to keep etcd quorum.
       shell: |
-        curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} INSTALL_K3S_SKIP_DOWNLOAD=false sh -s - \
+        curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_VERSION={{ hostvars['localhost']['k3s_release_version'] }} \
+          INSTALL_K3S_CHANNEL={{ K3S_CHANNEL }} \
+          INSTALL_K3S_SKIP_DOWNLOAD=false \
+          sh -s - \
           {% if inventory_hostname == groups['master'][0] %}
           --cluster-init \
           {% else %}
@@ -105,6 +117,16 @@
           --api-audiences=oidc.siutsin.com \
           --kube-apiserver-arg \
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks \
+          --kube-apiserver-arg \
+          --audit-log-path=/var/log/kube-audit/audit.log \
+          --kube-apiserver-arg \
+          --audit-policy-file=/etc/rancher/k3s/audit-policy.yaml \
+          --kube-apiserver-arg \
+          --audit-log-maxage=30 \
+          --kube-apiserver-arg \
+          --audit-log-maxbackup=10 \
+          --kube-apiserver-arg \
+          --audit-log-maxsize=100 \
           --kube-scheduler-arg \
           --config=/etc/rancher/k3s/scheduler-config.yaml
       retries: 5

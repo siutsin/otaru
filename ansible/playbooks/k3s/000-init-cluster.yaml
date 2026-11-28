@@ -39,6 +39,10 @@
         mode: '0644'
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"
 
+    - name: Create the audit policy and log files the apiserver needs at start
+      include_tasks: audit-prerequisites.yaml
+      when: "'master' in group_names and inventory_hostname == groups['master'][0]"
+
     - name: Install k3s on the first master node
       # Enable anonymous authentication
       # https://stackoverflow.com/questions/74603633/k3s-allow-unauthenticated-access-to-oidc-endpoints
@@ -68,6 +72,16 @@
           --api-audiences=oidc.siutsin.com \
           --kube-apiserver-arg \
           --service-account-jwks-uri=https://oidc.siutsin.com/openid/v1/jwks \
+          --kube-apiserver-arg \
+          --audit-log-path=/var/log/kube-audit/audit.log \
+          --kube-apiserver-arg \
+          --audit-policy-file=/etc/rancher/k3s/audit-policy.yaml \
+          --kube-apiserver-arg \
+          --audit-log-maxage=30 \
+          --kube-apiserver-arg \
+          --audit-log-maxbackup=10 \
+          --kube-apiserver-arg \
+          --audit-log-maxsize=100 \
           --kube-scheduler-arg \
           --config=/etc/rancher/k3s/scheduler-config.yaml
       when: "'master' in group_names and inventory_hostname == groups['master'][0]"

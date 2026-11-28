@@ -1,0 +1,53 @@
+---
+# Files the apiserver needs before it starts with the audit flags. Included by
+# 000-init-cluster.yaml and 002-nodes.yaml ahead of the k3s install, and by
+# 006-audit-logging.yaml. The audit flags live in the k3s service unit
+# (--kube-apiserver-arg), written by the install playbooks. A flag that points
+# at a missing policy file stops the apiserver from starting.
+- name: Copy the audit policy
+  copy:
+    dest: /etc/rancher/k3s/audit-policy.yaml
+    content: |
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      # Log each matching request once, at ResponseComplete. RequestReceived
+      # would log it twice and adds nothing for attribution.
+      omitStages:
+        - RequestReceived
+      rules:
+        # Workload mutations: a rollout restart is a PATCH on a Deployment.
+        - level: Metadata
+          verbs: ["create", "update", "patch", "delete", "deletecollection"]
+          resources:
+            - group: "apps"
+              resources: ["deployments", "replicasets"]
+        # RBAC mutations: who granted what.
+        - level: Metadata
+          verbs: ["create", "update", "patch", "delete", "deletecollection"]
+          resources:
+            - group: "rbac.authorization.k8s.io"
+              resources: ["roles", "clusterroles", "rolebindings", "clusterrolebindings"]
+        # Nothing else is logged.
+        - level: None
+    owner: root
+    group: root
+    mode: '0644'
+  register: audit_policy
+
+- name: Create the audit log directory
+  file:
+    path: /var/log/kube-audit
+    state: directory
+    owner: root
+    group: adm
+    mode: '0750'
+
+- name: Pre-create the audit log file
+  # The apiserver creates log files 0600 and never changes the mode of
+  # an existing file, so pre-create it 0640 root:adm for the loop to read.
+  file:
+    path: /var/log/kube-audit/audit.log
+    state: touch
+    owner: root
+    group: adm
+    mode: '0640'
