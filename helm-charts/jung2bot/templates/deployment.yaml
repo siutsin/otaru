@@ -95,3 +95,7 @@ spec:
               value: {{ printf "https://sqs.%s.amazonaws.com/%v/%s" .Values.app.env.awsRegion .Values.irsa.awsAccountId .Values.app.env.messageSaveQueueName | quote }}
             - name: MESSAGE_SAVE_QUEUE_FLUSH_SECONDS
               value: {{ .Values.app.env.messageSaveQueueFlushSeconds | quote }}
+            {{- if .Values.app.env.announcements }}
+            - name: ANNOUNCEMENTS
+              value: {{ .Values.app.env.announcements | quote }}
+            {{- end }}
