@@ -37,6 +37,8 @@ clusterSecretStorePolicy:
       - heartbeats
     jung2bot:
       - jung2bot
+    jung2bot-dev:
+      - jung2bot-dev
     longhorn-system:
       - b2-secret
       - longhorn-crypto
